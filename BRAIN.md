@@ -104,7 +104,7 @@ Internationalization is implemented cleanly using React Context in [LanguageCont
 ### 11. Transparency Page (`Transparency.tsx`)
 * **Purpose**: Open registry verification for trust integrity.
 * **Hero**: Standardised `PageHero` with compliance imagery.
-* **Cards Layout**: Features rearranged top-left clickable document icons (`FileText` in standout primary blue wrappers) which open the unified trust certificate PDF (`/Uday_Foundeson_3.pdf`) in a new tab. Verified check marks are positioned at the top-right of each compliance block.
+* **Cards Layout**: Features rearranged top-left clickable document icons (`FileText` in standout primary blue wrappers) which open respective PDF certificates (e.g. `/Uday_Foundation_Trust_Registration.pdf` or `/Uday_Foundation_F_Registration.pdf`) in a new tab. Verified check marks are positioned at the top-right of each compliance block.
 
 ---
 

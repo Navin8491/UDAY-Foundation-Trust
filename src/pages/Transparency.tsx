@@ -8,19 +8,19 @@ const DOCS = [
     label: "Trust Registration",
     value: SITE.registrations["Trust Reg."],
     desc: "Registered as a public charitable trust in Ahmedabad.",
-    file: "/Uday_Foundeson_3.pdf",
+    file: "/Uday_Foundation_Trust_Registration.pdf",
   },
   {
     label: "F Registration",
     value: SITE.registrations["F Reg."],
     desc: "Statutory F-form trust registration.",
-    file: "/Uday_Foundeson_2.pdf",
+    file: "/Uday_Foundation_F_Registration.pdf",
   },
   {
     label: "DARPAN ID",
     value: SITE.registrations["DARPAN"],
     desc: "Registered with NITI Aayog NGO DARPAN.",
-    file: "/Uday_Foundeson_3.pdf",
+    file: "/Uday_Foundation_Trust_Registration.pdf",
   },
   {
     label: "12A Certificate",
@@ -38,7 +38,7 @@ const DOCS = [
     label: "PAN",
     value: SITE.registrations["PAN"],
     desc: "Trust permanent account number.",
-    file: "/Uday_Foundeson_3.pdf",
+    file: "/Uday_Foundation_Trust_Registration.pdf",
   },
 ];
 
