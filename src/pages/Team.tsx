@@ -463,7 +463,7 @@ export function Team() {
                 >
                   <div>
                     {/* Header Image/Placeholder */}
-                    <div className="relative aspect-[4/3] overflow-hidden bg-slate-100 flex items-center justify-center border-b border-slate-100">
+                    <div className="relative aspect-[3/4] overflow-hidden bg-slate-100 flex items-center justify-center border-b border-slate-100">
                       {member.img ? (
                         <img
                           src={member.img}

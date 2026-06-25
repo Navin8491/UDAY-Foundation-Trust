@@ -225,7 +225,7 @@ export function Home() {
               <img
                 src={president}
                 alt="President Gulabbhai Khodabhai Bauddh"
-                className="h-full w-full object-cover"
+                className="h-full w-full object-cover object-top"
                 width={1024}
                 height={1536}
                 loading="lazy"

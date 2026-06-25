@@ -250,7 +250,7 @@ export function About() {
                   <img
                     src={president}
                     alt="President Gulabbhai Khodabhai Bauddh"
-                    className="h-full w-full object-cover"
+                    className="h-full w-full object-cover object-top"
                     loading="lazy"
                   />
                 </div>
