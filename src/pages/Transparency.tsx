@@ -1,0 +1,94 @@
+import { PageHero } from "@/components/site/PageHero";
+import { useDocumentMetadata } from "@/hooks/useDocumentMetadata";
+import { BadgeCheck, FileText, ShieldCheck, Download } from "lucide-react";
+import { SITE } from "@/constants/site";
+
+const DOCS = [
+  {
+    label: "Trust Registration",
+    value: SITE.registrations["Trust Reg."],
+    desc: "Registered as a public charitable trust in Ahmedabad.",
+  },
+  {
+    label: "F Registration",
+    value: SITE.registrations["F Reg."],
+    desc: "Statutory F-form trust registration.",
+  },
+  {
+    label: "DARPAN ID",
+    value: SITE.registrations["DARPAN"],
+    desc: "Registered with NITI Aayog NGO DARPAN.",
+  },
+  {
+    label: "12A Certificate",
+    value: SITE.registrations["12A"],
+    desc: "Income tax exemption granted.",
+  },
+  {
+    label: "80G Certificate",
+    value: SITE.registrations["80G"],
+    desc: "Donations are eligible for 80G tax benefit.",
+  },
+  { label: "PAN", value: SITE.registrations["PAN"], desc: "Trust permanent account number." },
+];
+
+export function Transparency() {
+  useDocumentMetadata(
+    "Transparency & Registrations | Uday Foundation Trust",
+    "All registrations, certifications and trust documents of Uday Foundation Trust — 12A, 80G, DARPAN, PAN and more.",
+  );
+
+  return (
+    <>
+      <PageHero
+        eyebrow="Transparency"
+        title="Verified, certified and accountable."
+        subtitle="Every certificate, every registration, every document — open to view."
+      />
+
+      <section className="section-y">
+        <div className="container-page grid md:grid-cols-2 lg:grid-cols-3 gap-5">
+          {DOCS.map((d) => (
+            <article
+              key={d.label}
+              className="rounded-2xl p-6 bg-surface border border-border hover:border-primary/40 transition-colors"
+            >
+              <div className="flex items-start justify-between">
+                <div className="h-11 w-11 rounded-xl bg-leaf/10 text-leaf inline-flex items-center justify-center">
+                  <BadgeCheck className="h-5 w-5" />
+                </div>
+                <FileText className="h-5 w-5 text-muted-foreground" />
+              </div>
+              <h3 className="mt-5 text-lg font-display font-semibold">{d.label}</h3>
+              <p className="mt-1 text-sm text-muted-foreground">{d.desc}</p>
+              <div className="mt-4 font-mono text-sm break-all p-3 rounded-lg bg-surface-warm border border-border">
+                {d.value}
+              </div>
+            </article>
+          ))}
+        </div>
+
+        <div className="container-page mt-12">
+          <div className="rounded-3xl p-8 md:p-10 bg-primary text-primary-foreground flex flex-col md:flex-row gap-6 md:items-center md:justify-between">
+            <div className="flex items-center gap-4">
+              <ShieldCheck className="h-10 w-10 text-secondary" />
+              <div>
+                <div className="font-display text-xl md:text-2xl font-semibold">
+                  Annual reports & financials
+                </div>
+                <div className="text-primary-foreground/80 text-sm">
+                  Available on request. Email udayfts1024@gmail.com.
+                </div>
+              </div>
+            </div>
+            <a href={`mailto:${SITE.email}`} className="btn-saffron">
+              <Download className="h-4 w-4" /> Request report
+            </a>
+          </div>
+        </div>
+      </section>
+    </>
+  );
+}
+
+export default Transparency;
