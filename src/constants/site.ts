@@ -35,6 +35,7 @@ export const NAV_LINKS = [
   { to: "/gallery", label: "Gallery" },
   { to: "/team", label: "Team" },
   { to: "/get-involved", label: "Get Involved" },
+  { to: "/transparency", label: "Transparency" },
   { to: "/about", label: "About" },
   { to: "/contact", label: "Contact" },
 ] as const;
