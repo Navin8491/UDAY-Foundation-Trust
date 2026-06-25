@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import { PageHero } from "@/components/site/PageHero";
 import { useLanguage } from "@/context/LanguageContext";
 import {
   Instagram,
@@ -342,39 +343,13 @@ export function Team() {
   return (
     <div className="bg-[#F8FAFF] min-h-screen">
       {/* SECTION 1: HERO BANNER */}
-      <section className="relative overflow-hidden about-hero-bg py-16 md:py-24 border-b border-border">
-        {/* Subtle grid pattern overlay */}
-        <div
-          className="absolute inset-0 pointer-events-none opacity-20"
-          style={{
-            backgroundImage:
-              "radial-gradient(circle at 1px 1px, var(--primary) 1px, transparent 0)",
-            backgroundSize: "24px 24px",
-          }}
-        />
-
-        <div className="about-section-container relative text-center">
-          {/* Breadcrumbs */}
-          <div className="flex items-center gap-2 text-xs md:text-sm font-semibold uppercase tracking-wider text-slate-500 mb-4 justify-center">
-            <Link to="/" className="hover:text-primary transition-colors">
-              {t("nav.home")}
-            </Link>
-            <span className="text-slate-400">/</span>
-            <span className="text-primary">{t("nav.team")}</span>
-          </div>
-
-          <span className="inline-block px-4 py-1.5 text-xs font-bold uppercase tracking-[0.15em] text-primary bg-primary/10 rounded-full mb-5">
-            {tLocal.heroChip}
-          </span>
-          <h1 className="text-4xl md:text-6xl font-display font-bold text-slate-900 tracking-tight leading-none mb-6">
-            {tLocal.heroTitle}
-          </h1>
-          <p className="text-sm md:text-base font-semibold tracking-wider text-slate-600 uppercase max-w-3xl mx-auto leading-relaxed text-balance">
-            {tLocal.heroDesc}
-          </p>
-          <div className="w-20 h-1.5 bg-[#F7E81D] mx-auto mt-8 rounded-full" />
-        </div>
-      </section>
+      <PageHero
+        eyebrow={tLocal.heroChip}
+        title={tLocal.heroTitle}
+        subtitle={tLocal.heroDesc}
+        bgImage="https://images.unsplash.com/photo-1557804506-669a67965ba0?q=80&w=1600&auto=format&fit=crop"
+        breadcrumbActive={t("nav.team")}
+      />
 
       {/* SECTION 2: PRESIDENT SPOTLIGHT */}
       <section className="py-16 md:py-24 bg-white">

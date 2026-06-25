@@ -44,11 +44,10 @@ export function SiteHeader() {
 
   return (
     <header
-      className={`sticky top-0 z-50 transition-all duration-300 ${
-        scrolled
-          ? "backdrop-blur-xl bg-[color-mix(in_oklab,var(--surface)_82%,transparent)] border-b border-border/60 shadow-sm"
-          : "bg-transparent"
-      }`}
+      className={`sticky top-0 z-50 transition-all duration-300 ${scrolled
+        ? "backdrop-blur-xl bg-[color-mix(in_oklab,var(--surface)_82%,transparent)] border-b border-border/60 shadow-sm"
+        : "bg-transparent"
+        }`}
     >
       <div className="container-full flex items-center py-3 md:py-4">
         {/* Left Side: Logo */}
@@ -65,7 +64,7 @@ export function SiteHeader() {
                 {SITE.nameGu}
               </span>
               <span className="text-[10px] md:text-xs uppercase tracking-[0.18em] text-muted-foreground">
-                Uday Foundation · Sanand
+                Uday Foundation Trust
               </span>
             </div>
           </Link>
@@ -78,10 +77,9 @@ export function SiteHeader() {
               key={l.to}
               to={l.to}
               className={({ isActive }) =>
-                `px-3.5 py-2 text-sm font-medium rounded-full transition-colors whitespace-nowrap ${
-                  isActive
-                    ? "text-primary bg-primary/10"
-                    : "text-foreground/80 hover:text-primary hover:bg-primary/8"
+                `px-3.5 py-2 text-sm font-medium rounded-full transition-colors whitespace-nowrap ${isActive
+                  ? "text-primary bg-primary/10"
+                  : "text-foreground/80 hover:text-primary hover:bg-primary/8"
                 }`
               }
             >
@@ -174,10 +172,9 @@ export function SiteHeader() {
                 to={l.to}
                 onClick={() => setOpen(false)}
                 className={({ isActive }) =>
-                  `px-4 py-3 rounded-xl text-base font-medium transition-colors ${
-                    isActive
-                      ? "text-primary bg-primary/10"
-                      : "hover:bg-primary/8 text-foreground/80"
+                  `px-4 py-3 rounded-xl text-base font-medium transition-colors ${isActive
+                    ? "text-primary bg-primary/10"
+                    : "hover:bg-primary/8 text-foreground/80"
                   }`
                 }
               >

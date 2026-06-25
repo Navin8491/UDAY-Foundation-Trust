@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { PageHero } from "@/components/site/PageHero";
+import { useLanguage } from "@/context/LanguageContext";
 import { useDocumentMetadata } from "@/hooks/useDocumentMetadata";
 import imgHealth from "@/assets/program-health.jpg";
 import imgEdu from "@/assets/program-education.jpg";
@@ -31,6 +32,7 @@ const CATS = [
 ];
 
 export function Gallery() {
+  const { t } = useLanguage();
   useDocumentMetadata(
     "Gallery — Moments of Service | Uday Foundation Trust",
     "Photographs from medical camps, education drives, plantation campaigns and community service by Uday Foundation Trust.",
@@ -46,6 +48,8 @@ export function Gallery() {
         eyebrow="Gallery"
         title="Moments that move us forward."
         subtitle="Service captured — from the smallest smile to the largest plantation drive."
+        bgImage={imgChildren}
+        breadcrumbActive={t("nav.gallery")}
       />
 
       <section className="container-page py-10">

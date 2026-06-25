@@ -43,7 +43,13 @@ export function Donate() {
 
   return (
     <>
-      <PageHero eyebrow={t("nav.donate")} title={t("donate.title")} subtitle={t("donate.desc")} />
+      <PageHero
+        eyebrow={t("nav.donate")}
+        title={t("donate.title")}
+        subtitle={t("donate.desc")}
+        bgImage="https://images.unsplash.com/photo-1593113598332-cd288d649433?q=80&w=1600&auto=format&fit=crop"
+        breadcrumbActive={t("nav.donate")}
+      />
 
       <section className="section-y bg-surface">
         <div className="container-page grid lg:grid-cols-12 gap-10 items-start">

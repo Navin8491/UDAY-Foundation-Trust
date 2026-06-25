@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import { PageHero } from "@/components/site/PageHero";
 import { useState } from "react";
 import {
   Calendar,
@@ -527,7 +528,7 @@ const GALLERY_PICTURES = [
 ];
 
 export function Events() {
-  const { language } = useLanguage();
+  const { language, t } = useLanguage();
   const tLocal = TRANSLATIONS_LOCAL[language as "en" | "gu" | "hi"] || TRANSLATIONS_LOCAL["en"];
 
   useDocumentMetadata(
@@ -600,6 +601,13 @@ export function Events() {
 
   return (
     <div className="bg-[#F8FAFF] min-h-screen text-slate-800 font-sans selection:bg-[#F7E81D] selection:text-[#4040A1]">
+      <PageHero
+        eyebrow={tLocal.heroEyebrow}
+        title={tLocal.heroTitle}
+        subtitle={tLocal.heroSub}
+        bgImage={imgHealth}
+        breadcrumbActive={t("nav.events")}
+      />
       {/* FEATURED EVENT SECTION */}
       <section className="py-16 md:py-24 bg-white border-b border-border">
         <div className="about-section-container">

@@ -20,6 +20,8 @@ export function Contact() {
         eyebrow={t("nav.contact")}
         title={t("contact.title")}
         subtitle={t("contact.desc")}
+        bgImage="https://images.unsplash.com/photo-1534536281715-e28d76689b4d?q=80&w=1600&auto=format&fit=crop"
+        breadcrumbActive={t("nav.contact")}
       />
 
       <section className="section-y">

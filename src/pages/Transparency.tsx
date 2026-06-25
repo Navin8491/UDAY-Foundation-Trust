@@ -44,6 +44,8 @@ export function Transparency() {
         eyebrow="Transparency"
         title="Verified, certified and accountable."
         subtitle="Every certificate, every registration, every document — open to view."
+        bgImage="https://images.unsplash.com/photo-1450133064473-71024230f91b?q=80&w=1600&auto=format&fit=crop"
+        breadcrumbActive="Transparency"
       />
 
       <section className="section-y">
