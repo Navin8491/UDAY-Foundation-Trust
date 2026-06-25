@@ -15,6 +15,12 @@ import {
   Quote,
 } from "lucide-react";
 import presidentImg from "@/assets/president.jpg";
+import vicePresidentImg from "@/assets/vice-president.jpg";
+import treasurerImg from "@/assets/treasurer.jpg";
+import prakashImg from "@/assets/prakash.jpg";
+import kartikeyaImg from "@/assets/kartikeya.jpg";
+import mehulbhaiImg from "@/assets/mehulbhai.jpg";
+import kuldeepImg from "@/assets/kuldeep.jpg";
 import { useDocumentMetadata } from "@/hooks/useDocumentMetadata";
 
 // Local Translations Dictionary
@@ -191,6 +197,7 @@ const MEMBERS_DATA = [
       hi: "कार्यक्रम की रणनीति और सामुदायिक संपर्क अभियानों का संचालन करते हैं।",
     },
     email: "udayfts1024@gmail.com",
+    img: vicePresidentImg,
     socials: {
       linkedin: "#",
       instagram: "#",
@@ -214,6 +221,7 @@ const MEMBERS_DATA = [
       hi: "संस्था के दैनिक संचालन, कानूनी अनुपालन और फील्ड समन्वय की देखरेख करते हैं।",
     },
     email: "udayfts1024@gmail.com",
+    img: prakashImg,
     socials: {
       linkedin: "#",
       instagram: "#",
@@ -237,6 +245,7 @@ const MEMBERS_DATA = [
       hi: "स्वयंसेवक नेटवर्क, युवा जुड़ाव और साझेदारी गतिविधियों का समन्वय करते हैं।",
     },
     email: "udayfts1024@gmail.com",
+    img: kartikeyaImg,
     socials: {
       linkedin: "#",
       instagram: "#",
@@ -260,6 +269,7 @@ const MEMBERS_DATA = [
       hi: "वित्तीय प्रबंधन, पारदर्शिता और दाताओं के साथ रिपोर्टिंग का प्रबंधन करते हैं।",
     },
     email: "udayfts1024@gmail.com",
+    img: treasurerImg,
     socials: {
       linkedin: "#",
       instagram: "#",
@@ -283,6 +293,7 @@ const MEMBERS_DATA = [
       hi: "स्वास्थ्य और चिकित्सा शिविरों के लिए रणनीतिक सलाहकार और field मार्गदर्शक।",
     },
     email: "udayfts1024@gmail.com",
+    img: mehulbhaiImg,
     socials: {
       linkedin: "#",
       instagram: "#",
@@ -306,6 +317,7 @@ const MEMBERS_DATA = [
       hi: "शिक्षा सहायता परियोजनाओं और वृक्षारोपण अभियानों का संचालन करते हैं।",
     },
     email: "udayfts1024@gmail.com",
+    img: kuldeepImg,
     socials: {
       linkedin: "#",
       instagram: "#",

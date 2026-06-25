@@ -326,9 +326,8 @@ export function About() {
               ].map((milestone, idx) => (
                 <div
                   key={idx}
-                  className={`relative flex flex-col md:flex-row items-start ${
-                    idx % 2 === 0 ? "md:justify-start" : "md:justify-end"
-                  } w-full`}
+                  className={`relative flex flex-col md:flex-row items-start ${idx % 2 === 0 ? "md:justify-start" : "md:justify-end"
+                    } w-full`}
                 >
                   {/* Circle dot on line */}
                   <div className="timeline-dot timeline-dot-trigger" />
