@@ -28,12 +28,13 @@ export const SITE = {
 
 export const NAV_LINKS = [
   { to: "/", label: "Home" },
-  { to: "/about", label: "About" },
+
   { to: "/programs", label: "Programs" },
   { to: "/projects", label: "Projects" },
   { to: "/events", label: "Events" },
   { to: "/gallery", label: "Gallery" },
   { to: "/team", label: "Team" },
   { to: "/get-involved", label: "Get Involved" },
+  { to: "/about", label: "About" },
   { to: "/contact", label: "Contact" },
 ] as const;
