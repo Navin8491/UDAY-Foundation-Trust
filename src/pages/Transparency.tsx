@@ -8,28 +8,38 @@ const DOCS = [
     label: "Trust Registration",
     value: SITE.registrations["Trust Reg."],
     desc: "Registered as a public charitable trust in Ahmedabad.",
+    file: "/Uday_Foundeson_3.pdf",
   },
   {
     label: "F Registration",
     value: SITE.registrations["F Reg."],
     desc: "Statutory F-form trust registration.",
+    file: "/Uday_Foundeson_3.pdf",
   },
   {
     label: "DARPAN ID",
     value: SITE.registrations["DARPAN"],
     desc: "Registered with NITI Aayog NGO DARPAN.",
+    file: "/Uday_Foundeson_3.pdf",
   },
   {
     label: "12A Certificate",
     value: SITE.registrations["12A"],
     desc: "Income tax exemption granted.",
+    file: "/Uday_Foundeson_3.pdf",
   },
   {
     label: "80G Certificate",
     value: SITE.registrations["80G"],
     desc: "Donations are eligible for 80G tax benefit.",
+    file: "/Uday_Foundeson_3.pdf",
   },
-  { label: "PAN", value: SITE.registrations["PAN"], desc: "Trust permanent account number." },
+  {
+    label: "PAN",
+    value: SITE.registrations["PAN"],
+    desc: "Trust permanent account number.",
+    file: "/Uday_Foundeson_3.pdf",
+  },
 ];
 
 export function Transparency() {
@@ -56,10 +66,18 @@ export function Transparency() {
               className="rounded-2xl p-6 bg-surface border border-border hover:border-primary/40 transition-colors"
             >
               <div className="flex items-start justify-between">
-                <div className="h-11 w-11 rounded-xl bg-leaf/10 text-leaf inline-flex items-center justify-center">
+                <a
+                  href={d.file}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  title={`Open ${d.label} Certificate`}
+                  className="h-11 w-11 rounded-xl bg-primary/10 text-primary flex items-center justify-center hover:bg-primary/20 hover:scale-105 active:scale-95 transition-all shadow-xs hover:shadow border border-primary/15 cursor-pointer"
+                >
+                  <FileText className="h-5 w-5" />
+                </a>
+                <div className="h-11 w-11 rounded-xl bg-leaf/10 text-leaf flex items-center justify-center">
                   <BadgeCheck className="h-5 w-5" />
                 </div>
-                <FileText className="h-5 w-5 text-muted-foreground" />
               </div>
               <h3 className="mt-5 text-lg font-display font-semibold">{d.label}</h3>
               <p className="mt-1 text-sm text-muted-foreground">{d.desc}</p>
