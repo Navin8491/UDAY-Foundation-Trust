@@ -14,7 +14,7 @@ const DOCS = [
     label: "F Registration",
     value: SITE.registrations["F Reg."],
     desc: "Statutory F-form trust registration.",
-    file: "/Uday_Foundeson_3.pdf",
+    file: "/Uday_Foundeson_2.pdf",
   },
   {
     label: "DARPAN ID",
@@ -26,13 +26,13 @@ const DOCS = [
     label: "12A Certificate",
     value: SITE.registrations["12A"],
     desc: "Income tax exemption granted.",
-    file: "/Uday_Foundeson_3.pdf",
+    file: "/AABTU5153HE20251_signed_260621192141.pdf",
   },
   {
     label: "80G Certificate",
     value: SITE.registrations["80G"],
     desc: "Donations are eligible for 80G tax benefit.",
-    file: "/Uday_Foundeson_3.pdf",
+    file: "/AABTU5153HF20261_signed_260621192009.pdf",
   },
   {
     label: "PAN",
