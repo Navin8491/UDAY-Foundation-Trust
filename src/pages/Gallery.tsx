@@ -58,30 +58,36 @@ export function Gallery() {
           ))}
         </div>
 
-        <div className="mt-8 columns-1 sm:columns-2 lg:columns-3 gap-4 [column-fill:_balance]">
-          {visible.map((it, i) => (
-            <button
-              key={i}
-              onClick={() => setLightbox(it.img)}
-              className="mb-4 block w-full break-inside-avoid rounded-2xl overflow-hidden bg-surface border border-border hover:border-primary/40 hover:shadow-md transition-all group cursor-pointer"
-            >
-              <div className={`relative ${it.h === "tall" ? "aspect-[3/4]" : "aspect-[4/3]"}`}>
-                <img
-                  src={it.img}
-                  alt={it.cat}
-                  loading="lazy"
-                  className="absolute inset-0 h-full w-full object-cover group-hover:scale-105 transition-transform duration-500"
-                />
-              </div>
-              <div className="p-3 bg-white border-t border-slate-50 flex items-center justify-between text-xs font-semibold text-slate-500">
-                <span>{it.cat}</span>
-                <span className="text-[10px] text-primary bg-primary/10 px-2 py-0.5 rounded-md">
-                  View
-                </span>
-              </div>
-            </button>
-          ))}
-        </div>
+        {visible.length === 0 ? (
+          <div className="text-center py-20 text-muted-foreground font-semibold bg-white border border-border rounded-3xl mt-8">
+            No photos available in this category yet.
+          </div>
+        ) : (
+          <div className="mt-8 columns-1 sm:columns-2 lg:columns-3 gap-4 [column-fill:_balance]">
+            {visible.map((it, i) => (
+              <button
+                key={i}
+                onClick={() => setLightbox(it.img)}
+                className="mb-4 block w-full break-inside-avoid rounded-2xl overflow-hidden bg-surface border border-border hover:border-primary/40 hover:shadow-md transition-all group cursor-pointer"
+              >
+                <div className={`relative ${it.h === "tall" ? "aspect-[3/4]" : "aspect-[4/3]"}`}>
+                  <img
+                    src={it.img}
+                    alt={it.cat}
+                    loading="lazy"
+                    className="absolute inset-0 h-full w-full object-cover group-hover:scale-105 transition-transform duration-500"
+                  />
+                </div>
+                <div className="p-3 bg-white border-t border-slate-50 flex items-center justify-between text-xs font-semibold text-slate-500">
+                  <span>{it.cat}</span>
+                  <span className="text-[10px] text-primary bg-primary/10 px-2 py-0.5 rounded-md">
+                    View
+                  </span>
+                </div>
+              </button>
+            ))}
+          </div>
+        )}
       </section>
 
       {lightbox && (
