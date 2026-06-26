@@ -7,8 +7,10 @@ import imgEdu from "@/assets/program-education.jpg";
 import imgTrees from "@/assets/program-trees.jpg";
 import imgRation from "@/assets/activity-ration.jpg";
 import imgChildren from "@/assets/hero-children.jpg";
+import { SCHOOL_BAG_SIMPLE_GALLERY } from "@/constants/schoolEvents";
 
 const ITEMS = [
+  ...SCHOOL_BAG_SIMPLE_GALLERY,
   { img: imgChildren, cat: "Community", h: "tall" },
   { img: imgHealth, cat: "Healthcare", h: "tall" },
   { img: imgEdu, cat: "Education", h: "short" },
