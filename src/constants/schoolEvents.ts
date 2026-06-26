@@ -28,6 +28,7 @@ export interface PastEventItem {
   volunteers: number;
   impact: { en: string; gu: string; hi: string };
   img: string;
+  images: GalleryPicture[];
 }
 
 export interface GalleryPicture {
@@ -71,6 +72,53 @@ export const SCHOOL_BAG_EVENTS: PastEventItem[] = [
       hi: "स्कूल बैग और किट वितरित",
     },
     img: pavaDistributionGroup,
+    images: [
+      {
+        img: pavaDistributionGroup,
+        category: "Educational Activities",
+        caption: {
+          en: "School Bags & Kits Distribution at Pava School",
+          gu: "પાવા પ્રાથમિક શાળામાં સ્કૂલ બેગ અને શિક્ષણ કીટ વિતરણ",
+          hi: "पावा स्कूल में स्कूल बैग और शिक्षा किट वितरण",
+        },
+      },
+      {
+        img: pavaCertificate,
+        category: "Educational Activities",
+        caption: {
+          en: "Certificate of Appreciation for Support in Education",
+          gu: "શિક્ષણ પર્યાવરણ અને વિકાસક્ષેત્રે આપેલા સહયોગ બદલ સન્માનપત્ર",
+          hi: "शिक्षा क्षेत्र में सहयोग देने के लिए प्रशस्ति पत्र",
+        },
+      },
+      {
+        img: pavaAward,
+        category: "Educational Activities",
+        caption: {
+          en: "President Gulab Bauddh Honored by School Family",
+          gu: "શાળા પરિવાર દ્વારા પ્રમુખ શ્રી ગુલાબ બૌદ્ધનું સન્માન",
+          hi: "स्कूल परिवार द्वारा अध्यक्ष श्री गुलाब बौद्ध का सम्मान",
+        },
+      },
+      {
+        img: pavaEnvelope,
+        category: "Educational Activities",
+        caption: {
+          en: "Welcome of President Sri Gulab Bauddh with Book",
+          gu: "પ્રમુખ શ્રી ગુલાબ બૌદ્ધનું પુસ્તક અર્પણ કરીને સ્વાગત",
+          hi: "अध्यक्ष श्री गुलाब बौद्ध का पुस्तक भेंट कर स्वागत",
+        },
+      },
+      {
+        img: pavaDistributionTable,
+        category: "Educational Activities",
+        caption: {
+          en: "Trustees Distributing Smart Education Kits",
+          gu: "વિદ્યાર્થીઓને સ્માર્ટ શિક્ષણ કીટોનું વિતરણ કરતા ટ્રસ્ટીશ્રીઓ",
+          hi: "छात्रों को स्मार्ट शिक्षा किट वितरित करते ट्रस्टीगण",
+        },
+      },
+    ],
   },
   {
     id: "hebatpur-school-distribution-2025",
@@ -99,6 +147,116 @@ export const SCHOOL_BAG_EVENTS: PastEventItem[] = [
       hi: "स्कूल बैग और किट वितरित",
     },
     img: hebatpur5,
+    images: [
+      {
+        img: hebatpur1,
+        category: "Educational Activities",
+        caption: {
+          en: "Certificate of Appreciation from Zelasana Primary School",
+          gu: "ઝૈલાસણા પ્રાથમિક શાળા તરફથી મળેલ સન્માનપત્ર",
+          hi: "जैलासणा प्राथमिक विद्यालय से प्राप्त प्रशस्ति पत्र",
+        },
+      },
+      {
+        img: hebatpur2,
+        category: "Educational Activities",
+        caption: {
+          en: "Certificate of Appreciation & Bag Distribution at Hebatpur Primary School",
+          gu: "હેબતપુર પ્રાથમિક શાળા ખાતે સન્માનપત્ર અને બેગ વિતરણ",
+          hi: "हेबतपुर प्राथमिक विद्यालय में प्रशस्ति पत्र एवं बैग वितरण",
+        },
+      },
+      {
+        img: hebatpur3,
+        category: "Educational Activities",
+        caption: {
+          en: "Trustees Honored by School Family at Hebatpur",
+          gu: "શાળા પરિવાર દ્વારા હેબતપુર ખાતે ટ્રસ્ટીશ્રીઓનું સન્માન",
+          hi: "हेबतपुर में विद्यालय परिवार द्वारा ट्रस्टीगण का सम्मान",
+        },
+      },
+      {
+        img: hebatpur4,
+        category: "Educational Activities",
+        caption: {
+          en: "Distribution of School Bags to Students at Hebatpur",
+          gu: "હેબતપુર પ્રાથમિક શાળામાં વિદ્યાર્થીઓને બેગ વિતરણ",
+          hi: "हेबतपुर प्राथमिक विद्यालय में छात्रों को बैग वितरण",
+        },
+      },
+      {
+        img: hebatpur5,
+        category: "Educational Activities",
+        caption: {
+          en: "Group Photo with Beneficiary Students at Hebatpur Primary School",
+          gu: "હેબતપુર પ્રાથમિક શાળામાં લાભાર્થી વિદ્યાર્થીઓ સાથે ગ્રુપ ફોટો",
+          hi: "हेबतपुर प्राथमिक विद्यालय में लाभार्थी छात्रों के साथ समूह चित्र",
+        },
+      },
+      {
+        img: hebatpur6,
+        category: "Educational Activities",
+        caption: {
+          en: "Lighting of Lamp (Deep Pragaty) & Welcome Ceremony at Hebatpur",
+          gu: "હેબતપુર ખાતે દીપ પ્રાગટ્ય અને સ્વાગત સમારોહ",
+          hi: "हेबतपुर में दीप प्रज्वलन एवं स्वागत समारोह",
+        },
+      },
+      {
+        img: hebatpur7,
+        category: "Educational Activities",
+        caption: {
+          en: "Students Expressing Joy with New Bags at Hebatpur",
+          gu: "હેબતપુર ખાતે નવી સ્કૂલ બેગ સાથે આનંદ વ્યક્ત કરતા વિદ્યાર્થીઓ",
+          hi: "हेबतपुर में नए बैग के साथ खुशी व्यक्त करते छात्र",
+        },
+      },
+      {
+        img: hebatpur8,
+        category: "Educational Activities",
+        caption: {
+          en: "School Bag Distribution Drive at Hebatpur Primary School",
+          gu: "હેબતપુર પ્રાથમિક શાળામાં સ્કૂલ બેગ વિતરણ અભિયાન",
+          hi: "हेबतपुर प्राथमिक विद्यालय में school बैग वितरण अभियान",
+        },
+      },
+      {
+        img: hebatpur9,
+        category: "Educational Activities",
+        caption: {
+          en: "Educational Support at Hebatpur Primary School",
+          gu: "હેબતપુર પ્રાથમિક શાળામાં શૈક્ષણિક સહાય વિતરણ",
+          hi: "हेबतपुर प्राथमिक विद्यालय में शैक्षणिक सहायता वितरण",
+        },
+      },
+      {
+        img: hebatpur10,
+        category: "Educational Activities",
+        caption: {
+          en: "Welcoming Guests at Hebatpur Primary School",
+          gu: "હેબતપુર પ્રાથમિક શાળા ખાતે મહેમાનોનું સ્વાગત",
+          hi: "हेबतपुर प्राथमिक विद्यालय में अतिथियों का स्वागत",
+        },
+      },
+      {
+        img: hebatpur11,
+        category: "Educational Activities",
+        caption: {
+          en: "Trustees Interactive Session with Students at Hebatpur",
+          gu: "ટ્રસ્ટીઓનો હેબતપુર ખાતે વિદ્યાર્થીઓ સાથે સંવાદ કાર્યક્રમ",
+          hi: "हेबतपुर में छात्रों के साथ ट्रस्टीगण का संवादात्मक सत्र",
+        },
+      },
+      {
+        img: hebatpur12,
+        category: "Educational Activities",
+        caption: {
+          en: "Community Support and Education Campaign at Hebatpur",
+          gu: "હેબતપુર ખાતે સામુદાયિક સહયોગ અને શિક્ષણ અભિયાન",
+          hi: "हेबतपुर में सामुदायिक सहयोग एवं शिक्षा अभियान",
+        },
+      },
+    ],
   }
 ];
 

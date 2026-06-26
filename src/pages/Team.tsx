@@ -352,6 +352,100 @@ export function Team() {
     "Meet the trustees and leadership team of Uday Foundation Trust, Sanand.",
   );
 
+  // Filter members for specific rows in Board of Trustees section
+  const vicePresident = MEMBERS_DATA.find((m) => m.id === "sanjaykumar");
+  const secretaries = MEMBERS_DATA.filter((m) => m.id === "prakash" || m.id === "kartikeya");
+  const permanentMembers = MEMBERS_DATA.filter(
+    (m) => m.id === "rahulkumar" || m.id === "mehulbhai" || m.id === "kuldeep"
+  );
+
+  const renderMemberCard = (member: typeof MEMBERS_DATA[0], index: number) => {
+    const name = member.name[language] || member.name["en"];
+    const role = member.role[language] || member.role["en"];
+    const bio = member.bio[language] || member.bio["en"];
+
+    return (
+      <article
+        key={member.id}
+        className="about-card-premium p-0! bg-white border border-border shadow-sm overflow-hidden group hover:scale-[1.02] transition-all flex flex-col justify-between h-full"
+      >
+        <div>
+          {/* Header Image/Placeholder */}
+          <div className="relative aspect-[3/4] overflow-hidden bg-slate-100 flex items-center justify-center border-b border-slate-100">
+            {member.img ? (
+              <img
+                src={member.img}
+                alt={name}
+                className="w-full h-full object-cover object-top group-hover:scale-105 transition-transform duration-500"
+                loading="lazy"
+              />
+            ) : (
+              <div
+                className={`w-full h-full bg-gradient-to-br ${PALETTES[index % PALETTES.length]} flex items-center justify-center relative`}
+              >
+                {/* Decorative overlay grids */}
+                <div
+                  className="absolute inset-0 opacity-10 pointer-events-none"
+                  style={{
+                    backgroundImage:
+                      "radial-gradient(circle at 1px 1px, var(--primary) 1px, transparent 0)",
+                    backgroundSize: "16px 16px",
+                  }}
+                />
+                <span className="font-display text-4xl font-bold text-[#4040A1] tracking-wider select-none">
+                  {getInitials(member.name["en"])}
+                </span>
+              </div>
+            )}
+          </div>
+
+          {/* Content Section */}
+          <div className="p-5 flex-grow">
+            <h3 className="text-base md:text-lg font-display font-bold text-slate-900 group-hover:text-primary transition-colors font-gujarati mb-2 leading-snug">
+              {name}
+            </h3>
+            <p className="text-slate-500 text-xs font-semibold uppercase tracking-wider mb-3">
+              {role}
+            </p>
+            <p className="text-slate-600 text-xs md:text-sm leading-relaxed font-gujarati">
+              {bio}
+            </p>
+          </div>
+        </div>
+
+        {/* Actions / Social Footer */}
+        <div className="p-5 border-t border-slate-100 bg-[#F8FAFF] flex items-center justify-between gap-3 mt-auto">
+          <div className="flex gap-2">
+            <a
+              href={member.socials.instagram}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="h-8 w-8 rounded-full bg-white border border-slate-200 inline-flex items-center justify-center text-slate-500 hover:text-primary hover:border-primary/40 transition-colors shadow-xs"
+              aria-label="Instagram"
+            >
+              <Instagram className="h-3.5 w-3.5" />
+            </a>
+            <a
+              href={member.socials.linkedin}
+              className="h-8 w-8 rounded-full bg-white border border-slate-200 inline-flex items-center justify-center text-slate-500 hover:text-primary hover:border-primary/40 transition-colors shadow-xs"
+              aria-label="LinkedIn"
+            >
+              <Linkedin className="h-3.5 w-3.5" />
+            </a>
+          </div>
+
+          <a
+            href={`mailto:${member.email}?subject=Inquiry%20to%20Trustee%20-${encodeURIComponent(member.name["en"])}`}
+            className="inline-flex items-center gap-1 text-[10px] font-bold text-primary hover:text-secondary-foreground uppercase tracking-widest transition-all"
+          >
+            <Mail className="h-3.5 w-3.5" />
+            <span>{tLocal.contactBtn}</span>
+          </a>
+        </div>
+      </article>
+    );
+  };
+
   return (
     <div className="bg-[#F8FAFF] min-h-screen">
       {/* SECTION 1: HERO BANNER */}
@@ -449,94 +543,33 @@ export function Team() {
             <div className="w-16 h-1 bg-[#F7E81D] mx-auto mt-4 rounded-full" />
           </div>
 
-          {/* Desktop: 4-column, Tablet: 2-column, Mobile: 1-column */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8">
-            {MEMBERS_DATA.map((member, index) => {
-              const name = member.name[language] || member.name["en"];
-              const role = member.role[language] || member.role["en"];
-              const bio = member.bio[language] || member.bio["en"];
+          {/* Vice President Row (Centered) */}
+          {vicePresident && (
+            <div className="flex justify-center mb-12">
+              <div className="w-full max-w-[280px] sm:max-w-[300px]">
+                {renderMemberCard(vicePresident, 1)}
+              </div>
+            </div>
+          )}
 
-              return (
-                <article
-                  key={member.id}
-                  className="about-card-premium p-0! bg-white border border-border shadow-sm overflow-hidden group hover:scale-[1.02] transition-all flex flex-col justify-between"
-                >
-                  <div>
-                    {/* Header Image/Placeholder */}
-                    <div className="relative aspect-[3/4] overflow-hidden bg-slate-100 flex items-center justify-center border-b border-slate-100">
-                      {member.img ? (
-                        <img
-                          src={member.img}
-                          alt={name}
-                          className="w-full h-full object-cover object-top group-hover:scale-105 transition-transform duration-500"
-                          loading="lazy"
-                        />
-                      ) : (
-                        <div
-                          className={`w-full h-full bg-gradient-to-br ${PALETTES[index % PALETTES.length]} flex items-center justify-center relative`}
-                        >
-                          {/* Decorative overlay grids */}
-                          <div
-                            className="absolute inset-0 opacity-10 pointer-events-none"
-                            style={{
-                              backgroundImage:
-                                "radial-gradient(circle at 1px 1px, var(--primary) 1px, transparent 0)",
-                              backgroundSize: "16px 16px",
-                            }}
-                          />
-                          <span className="font-display text-4xl font-bold text-[#4040A1] tracking-wider select-none">
-                            {getInitials(member.name["en"])}
-                          </span>
-                        </div>
-                      )}
-                    </div>
+          {/* Secretaries Row (Side by side on tablet/desktop, stacked on mobile) */}
+          <div className="flex justify-center mb-12">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 md:gap-8 w-full max-w-[620px]">
+              {secretaries.map((member, index) => (
+                <div key={member.id} className="w-full">
+                  {renderMemberCard(member, index + 2)}
+                </div>
+              ))}
+            </div>
+          </div>
 
-                    {/* Content Section */}
-                    <div className="p-5 flex-grow">
-                      <h3 className="text-base md:text-lg font-display font-bold text-slate-900 group-hover:text-primary transition-colors font-gujarati mb-2 leading-snug">
-                        {name}
-                      </h3>
-                      <p className="text-slate-500 text-xs font-semibold uppercase tracking-wider mb-3">
-                        {role}
-                      </p>
-                      <p className="text-slate-600 text-xs md:text-sm leading-relaxed font-gujarati">
-                        {bio}
-                      </p>
-                    </div>
-                  </div>
-
-                  {/* Actions / Social Footer */}
-                  <div className="p-5 border-t border-slate-100 bg-[#F8FAFF] flex items-center justify-between gap-3 mt-auto">
-                    <div className="flex gap-2">
-                      <a
-                        href={member.socials.instagram}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="h-8 w-8 rounded-full bg-white border border-slate-200 inline-flex items-center justify-center text-slate-500 hover:text-primary hover:border-primary/40 transition-colors shadow-xs"
-                        aria-label="Instagram"
-                      >
-                        <Instagram className="h-3.5 w-3.5" />
-                      </a>
-                      <a
-                        href={member.socials.linkedin}
-                        className="h-8 w-8 rounded-full bg-white border border-slate-200 inline-flex items-center justify-center text-slate-500 hover:text-primary hover:border-primary/40 transition-colors shadow-xs"
-                        aria-label="LinkedIn"
-                      >
-                        <Linkedin className="h-3.5 w-3.5" />
-                      </a>
-                    </div>
-
-                    <a
-                      href={`mailto:${member.email}?subject=Inquiry%20to%20Trustee%20-${encodeURIComponent(member.name["en"])}`}
-                      className="inline-flex items-center gap-1 text-[10px] font-bold text-primary hover:text-secondary-foreground uppercase tracking-widest transition-all"
-                    >
-                      <Mail className="h-3.5 w-3.5" />
-                      <span>{tLocal.contactBtn}</span>
-                    </a>
-                  </div>
-                </article>
-              );
-            })}
+          {/* Permanent Members Row (Grid layout) */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8 max-w-[960px] mx-auto">
+            {permanentMembers.map((member, index) => (
+              <div key={member.id} className="w-full">
+                {renderMemberCard(member, index + 4)}
+              </div>
+            ))}
           </div>
         </div>
       </section>

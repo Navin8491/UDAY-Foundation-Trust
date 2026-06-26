@@ -34,10 +34,9 @@ export function SiteFooter() {
   const QUICK_LINKS = [
     { label: "About", to: "/about" },
     { label: "Programs", to: "/programs" },
-    { label: "Projects", to: "/projects" },
     { label: "Gallery", to: "/gallery" },
     { label: "Team", to: "/team" },
-    { label: "Success Stories", to: "/projects" },
+    { label: "Success Stories", to: "/events" },
     { label: "Events", to: "/events" },
     { label: "Blog", to: "/events" },
     { label: "Transparency", to: "/transparency" },
@@ -50,8 +49,6 @@ export function SiteFooter() {
         return t("nav.about");
       case "Programs":
         return t("nav.programs");
-      case "Projects":
-        return t("nav.projects");
       case "Gallery":
         return t("nav.gallery");
       case "Team":

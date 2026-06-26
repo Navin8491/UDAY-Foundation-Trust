@@ -309,7 +309,7 @@ export function Home() {
                 {t("act.title")}
               </h2>
             </div>
-            <Link to="/projects" className="btn-ghost text-sm self-start md:self-end">
+            <Link to="/events" className="btn-ghost text-sm self-start md:self-end">
               {t("act.viewAll")} <ArrowRight className="h-4 w-4" />
             </Link>
           </div>

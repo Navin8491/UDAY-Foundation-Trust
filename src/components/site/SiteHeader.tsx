@@ -25,8 +25,6 @@ export function SiteHeader() {
         return t("nav.about");
       case "Programs":
         return t("nav.programs");
-      case "Projects":
-        return t("nav.projects");
       case "Gallery":
         return t("nav.gallery");
       case "Team":

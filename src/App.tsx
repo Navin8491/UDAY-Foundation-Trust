@@ -7,7 +7,6 @@ import { Toaster } from "sonner";
 const Home = lazy(() => import("./pages/Home"));
 const About = lazy(() => import("./pages/About"));
 const Programs = lazy(() => import("./pages/Programs"));
-const Projects = lazy(() => import("./pages/Projects"));
 const Gallery = lazy(() => import("./pages/Gallery"));
 const Team = lazy(() => import("./pages/Team"));
 const Events = lazy(() => import("./pages/Events"));
@@ -58,7 +57,7 @@ export function App() {
             <Route path="/" element={<Home />} />
             <Route path="/about" element={<About />} />
             <Route path="/programs" element={<Programs />} />
-            <Route path="/projects" element={<Projects />} />
+            <Route path="/projects" element={<Navigate to="/events" replace />} />
             <Route path="/gallery" element={<Gallery />} />
             <Route path="/team" element={<Team />} />
             <Route path="/events" element={<Events />} />
