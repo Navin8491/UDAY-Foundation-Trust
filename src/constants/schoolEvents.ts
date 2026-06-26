@@ -119,6 +119,19 @@ import traffic9 from "@/assets/traffic_9.jpg";
 import traffic10 from "@/assets/traffic_10.jpg";
 import traffic11 from "@/assets/traffic_11.jpg";
 
+import samman1 from "@/assets/samman_1.jpg";
+import samman2 from "@/assets/samman_2.jpg";
+import samman3 from "@/assets/samman_3.jpg";
+import samman4 from "@/assets/samman_4.jpg";
+import samman5 from "@/assets/samman_5.jpg";
+import samman6 from "@/assets/samman_6.jpg";
+import samman7 from "@/assets/samman_7.jpg";
+import samman8 from "@/assets/samman_8.jpg";
+import samman9 from "@/assets/samman_9.jpg";
+import samman10 from "@/assets/samman_10.jpg";
+import samman11 from "@/assets/samman_11.jpg";
+import samman12 from "@/assets/samman_12.jpg";
+
 export interface PastEventItem {
   id: string;
   category: string;
@@ -131,6 +144,7 @@ export interface PastEventItem {
   impact: { en: string; gu: string; hi: string };
   img: string;
   images: GalleryPicture[];
+  highlights?: { en: string[]; gu: string[]; hi: string[] };
 }
 
 export interface GalleryPicture {
@@ -147,6 +161,176 @@ export interface SimpleGalleryItem {
 
 // Shared school bag distribution metadata
 export const SCHOOL_BAG_EVENTS: PastEventItem[] = [
+  {
+    id: "appreciation-felicitation-ceremony-2026",
+    category: "Awards & Recognition",
+    date: "Jul 2026",
+    title: {
+      en: "Certificate of Appreciation & Felicitation Ceremony",
+      gu: "સન્માન પત્ર વિતરણ સમારોહ",
+      hi: "प्रशस्ति पत्र वितरण एवं सम्मान समारोह",
+    },
+    place: {
+      en: "Sanand, Ahmedabad, Gujarat",
+      gu: "સાણંદ, અમદાવાદ, ગુજરાત",
+      hi: "सानंद,दाबाद, गुजरात",
+    },
+    summary: {
+      en: "Uday Foundation Trust organized a Certificate of Appreciation & Felicitation Ceremony to honor volunteers, donors, social workers, educators, healthcare professionals, and community leaders who made remarkable contributions to society. The purpose of this event was to recognize outstanding service, encourage continued social responsibility, and inspire more people to participate in community development initiatives. Certificates of Appreciation were presented to all distinguished guests in recognition of their valuable contributions toward social welfare.",
+      gu: "અન્ય લોકોના સત્કાર્યો અને સમાજ સેવાની પ્રવૃત્તિઓને પ્રોત્સાહિત કરવા માટે ઉદય ફાઉન્ડેશન ટ્રસ્ટ દ્વારા સન્માન પત્ર વિતરણ સમારોહનું આયોજન કરવામાં આવ્યું હતું. સમાજ સેવા, શિક્ષણ, આરોગ્ય, પર્યાવરણ અને માનવતાના ક્ષેત્રમાં નોંધપાત્ર યોગદાન આપનાર વ્યક્તિઓ, સ્વયંસેવકો, દાતાશ્રીઓ અને સમાજસેવકોનું સન્માન પત્ર સાથે સન્માન કરવામાં આવ્યું અને સમાજ વિકાસમાં તેમના અમૂલ્ય યોગદાન બદલ આભાર વ્યક્ત કરવામાં આવ્યો.",
+      hi: "उदय फाउंडेशन ट्रस्ट ने समाज सेवा, शिक्षा, स्वास्थ्य, पर्यावरण और मानवता के क्षेत्र में उल्लेखनीय योगदान देने वाले स्वयंसेवकों, दाताओं, सामाजिक कार्यकर्ताओं, शिक्षकों, स्वास्थ्य पेशेवरों और सामुदायिक नेताओं को सम्मानित करने के लिए एक प्रशस्ति पत्र वितरण एवं सम्मान समारोह का आयोजन किया। इस कार्यक्रम का मुख्य उद्देश्य उत्कृष्ट सेवा को पहचानना, निरंतर सामाजिक जिम्मेदारी को बढ़ावा देना और अधिक लोगों को सामुदायिक विकास पहलों में भाग लेकर समाज कल्याण में हाथ बढ़ाने के लिए प्रेरित करना था।",
+    },
+    participants: 250,
+    volunteers: 15,
+    impact: {
+      en: "Outstanding contributors recognized & volunteers motivated",
+      gu: "વિશિષ્ટ યોગદાનકર્તાઓનું સન્માન અને સ્વયંસેવકો પ્રોત્સાહિત",
+      hi: "उत्कृष्ट योगदानकर्ताओं का सम्मान और स्वयंसेवक प्रोत्साहित",
+    },
+    img: samman5,
+    highlights: {
+      en: [
+        "Certificate Distribution",
+        "Volunteer Recognition",
+        "Donor Appreciation",
+        "Social Worker Felicitation",
+        "Community Leadership Recognition",
+        "Award Ceremony",
+        "Appreciation Program",
+        "Guest Honor Ceremony"
+      ],
+      gu: [
+        "સન્માન પત્ર વિતરણ",
+        "સ્વયંસેવક સન્માન",
+        "દાતાશ્રીઓનું સન્માન",
+        "સમાજસેવક સન્માન",
+        "સામુદાયિક નેતૃત્વ સન્માન",
+        "એવોર્ડ સમારોહ",
+        "પ્રોત્સાહન કાર્યક્રમ",
+        "અતિથિ વિશેષ સન્માન"
+      ],
+      hi: [
+        "प्रशस्ति पत्र वितरण",
+        "स्वयंसेवक सम्मान",
+        "दाता सम्मान",
+        "सामाजिक कार्यकर्ता सम्मान",
+        "सामुदायिक नेतृत्व सम्मान",
+        "पुरस्कार समारोह",
+        "सराहना कार्यक्रम",
+        "अतिथि सम्मान समारोह"
+      ]
+    },
+    images: [
+      {
+        img: samman1,
+        category: "Awards & Recognition",
+        caption: {
+          en: "Sri Gulab Bauddh receiving appointment certificate from Press & Social Parishad Gujarat",
+          gu: "પ્રેસ એન્ડ સોશિયલ પરિષદ ગુજરાત તરફથી નિયુક્તિપત્ર સ્વીકારતા શ્રી ગુલાબ બૌદ્ધ",
+          hi: "प्रेस एंड सोशल परिषद गुजरात से नियुक्ति पत्र प्राप्त करते श्री गुलाब बौद्ध",
+        },
+      },
+      {
+        img: samman2,
+        category: "Awards & Recognition",
+        caption: {
+          en: "Sri Gulab Bauddh presenting certificate of appreciation to community helper",
+          gu: "સ્થાનિક સહયોગીને સન્માન પત્ર એનાયત કરતા શ્રી ગુલાબ બૌદ્ધ",
+          hi: "स्थानीय सहयोगी को प्रशस्ति पत्र प्रदान करते श्री गुलाब बौद्ध",
+        },
+      },
+      {
+        img: samman3,
+        category: "Awards & Recognition",
+        caption: {
+          en: "Trustee receiving award at Patrakar Ekta Parishad Ahmedabad Seminar",
+          gu: "પ્રેસ એસોસિએશન સેમિનારમાં મોમેન્ટો સ્વીકારતા ટ્રસ્ટીશ્રી",
+          hi: "प्रेस एसोसिएशन संगोष्ठी में मोमेंटो प्राप्त करते ट्रस्टी",
+        },
+      },
+      {
+        img: samman4,
+        category: "Awards & Recognition",
+        caption: {
+          en: "Trustees presenting certificate of appreciation at school event",
+          gu: "શાળાના કાર્યક્રમમાં સન્માન પત્ર એનાયત કરતા ટ્રસ્ટીશ્રીઓ",
+          hi: "स्कूल कार्यक्रम में प्रशस्ति पत्र प्रदान करते ट्रस्टीगण",
+        },
+      },
+      {
+        img: samman5,
+        category: "Awards & Recognition",
+        caption: {
+          en: "President Sri Gulab Bauddh receiving framed honor certificate",
+          gu: "સન્માન પત્ર ફ્રેમ સ્વીકારતા પ્રમુખ શ્રી ગુલાબ બૌદ્ધ",
+          hi: "अध्यक्ष श्री गुलाब बौद्ध सम्मानित फ्रेम प्राप्त करते हुए",
+        },
+      },
+      {
+        img: samman6,
+        category: "Awards & Recognition",
+        caption: {
+          en: "Sri Gulab Bauddh presenting framed honor certificate at Seva Setu Camp",
+          gu: "સેવા સેતુ કેમ્પમાં ફ્રેમ કરેલ સન્માન પત્ર એનાયત કરતા શ્રી ગુલાબ બૌદ્ધ",
+          hi: "सेवा सेतु शिविर में फ्रेम किया हुआ सम्मान पत्र प्रदान करते श्री गुलाब बौद्ध",
+        },
+      },
+      {
+        img: samman7,
+        category: "Awards & Recognition",
+        caption: {
+          en: "Sri Gulab Bauddh receiving recognition at Soyla Gram Panchayat event",
+          gu: "સોયલા ગ્રામ પંચાયત કાર્યક્રમમાં સન્માન મેળવતા શ્રી ગુલાબ બૌદ્ધ",
+          hi: "सोयला ग्राम पंचायत कार्यक्रम में सम्मान प्राप्त करते श्री गुलाब बौद्ध",
+        },
+      },
+      {
+        img: samman8,
+        category: "Awards & Recognition",
+        caption: {
+          en: "Sri Gulab Bauddh honored by Soyla community leaders",
+          gu: "સોયલા સમુદાયના અગ્રણીઓ દ્વારા શ્રી ગુલાબ બૌદ્ધનું સન્માન",
+          hi: "सोयला समुदाय के नेताओं द्वारा श्री गुलाब बौद्ध का सम्मान",
+        },
+      },
+      {
+        img: samman9,
+        category: "Awards & Recognition",
+        caption: {
+          en: "Beneficiary students proudly displaying their certificates of appreciation with trustees",
+          gu: "સન્માનિત વિદ્યાર્થીઓ ટ્રસ્ટીશ્રીઓ સાથે ગર્વપૂર્વક સન્માન પત્રો બતાવતા",
+          hi: "सम्मानित छात्र ट्रस्टीगण के साथ गर्व से अपने प्रशस्ति पत्र प्रदर्शित करते हुए",
+        },
+      },
+      {
+        img: samman10,
+        category: "Awards & Recognition",
+        caption: {
+          en: "Sri Gulab Bauddh being honored with a shawl by senior dignitaries",
+          gu: "મહાનુભાવો દ્વારા શાલ ઓઢાડીને શ્રી ગુલાબ બૌદ્ધનું સન્માન",
+          hi: "वरिष्ठ गणमान्य व्यक्तियों द्वारा शॉल ओढ़ाकर श्री गुलाब बौद्ध का सम्मान",
+        },
+      },
+      {
+        img: samman11,
+        category: "Awards & Recognition",
+        caption: {
+          en: "Presentation of certificate of appreciation at village school",
+          gu: "ગ્રામીણ શાળા ખાતે સન્માન પત્ર એનાયત કરવાની ક્ષણ",
+          hi: "ग्रामीण स्कूल में प्रशस्ति पत्र प्रदान करने का क्षण",
+        },
+      },
+      {
+        img: samman12,
+        category: "Awards & Recognition",
+        caption: {
+          en: "Sri Gulab Bauddh presenting flower bouquet and framed certificate to official",
+          gu: "સરકારી અધિકારીને પુષ્પગુચ્છ અને સન્માન પત્ર અર્પણ કરતા શ્રી ગુલાબ બૌદ્ધ",
+          hi: "सरकारी अधिकारी को गुलदस्ता और सम्मान पत्र भेंट करते श्री गुलाब बौद्ध",
+        },
+      },
+    ],
+  },
   {
     id: "pava-school-distribution-2026",
     category: "Educational Activities",
@@ -1731,4 +1915,18 @@ export const SCHOOL_BAG_SIMPLE_GALLERY: SimpleGalleryItem[] = [
   { img: traffic9, cat: "Education", h: "short" },
   { img: traffic10, cat: "Education", h: "short" },
   { img: traffic11, cat: "Events", h: "short" },
+
+  // Certificate of Appreciation Ceremony
+  { img: samman1, cat: "Events", h: "short" },
+  { img: samman2, cat: "Events", h: "tall" },
+  { img: samman3, cat: "Events", h: "short" },
+  { img: samman4, cat: "Events", h: "short" },
+  { img: samman5, cat: "Events", h: "short" },
+  { img: samman6, cat: "Events", h: "short" },
+  { img: samman7, cat: "Events", h: "tall" },
+  { img: samman8, cat: "Events", h: "tall" },
+  { img: samman9, cat: "Events", h: "short" },
+  { img: samman10, cat: "Events", h: "tall" },
+  { img: samman11, cat: "Events", h: "tall" },
+  { img: samman12, cat: "Events", h: "short" },
 ];

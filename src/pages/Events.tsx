@@ -88,6 +88,12 @@ const TRANSLATIONS_LOCAL = {
     ctaSub:
       "Join hands with Uday Foundation to bring hope, support, and sustainable development to rural Gujarat.",
     btnSupport: "Support Our Mission",
+    btnViewDetails: "View Details",
+    badgeLatest: "Latest Event",
+    badgeFeatured: "Featured",
+    modalTitleDetails: "Event Details",
+    highlightsLabel: "Key Activities & Highlights",
+    volunteersLabel: "Volunteers",
   },
   gu: {
     heroEyebrow: "અમારા કાર્યક્રમો અને પહેલ",
@@ -152,6 +158,12 @@ const TRANSLATIONS_LOCAL = {
     ctaSub:
       "ગ્રામીણ ગુજરાતમાં આશા, સમર્થન અને ટકાઉ વિકાસ લાવવા માટે ઉદય ફાઉન્ડેશન સાથે હાથ મિલાવો.",
     btnSupport: "અમારા મિશનને ટેકો આપો",
+    btnViewDetails: "વિગતવાર જુઓ",
+    badgeLatest: "નવીનતમ કાર્યક્રમ",
+    badgeFeatured: "મુખ્ય",
+    modalTitleDetails: "કાર્યક્રમની વિગતો",
+    highlightsLabel: "મુખ્ય પ્રવૃત્તિઓ અને વિશેષતાઓ",
+    volunteersLabel: "સ્વયંસેવકો",
   },
   hi: {
     heroEyebrow: "हमारे कार्यक्रम और पहल",
@@ -216,6 +228,12 @@ const TRANSLATIONS_LOCAL = {
     ctaSub:
       "ग्रामीण गुजरात में आशा, सहायता और सतत विकास लाने के लिए उदय फाउंडेशन के साथ हाथ मिलाएं।",
     btnSupport: "हमारे मिशन का समर्थन करें",
+    btnViewDetails: "विवरण देखें",
+    badgeLatest: "नवीनतम कार्यक्रम",
+    badgeFeatured: "मुख्य",
+    modalTitleDetails: "कार्यक्रम का विवरण",
+    highlightsLabel: "मुख्य गतिविधियाँ और मुख्य अंश",
+    volunteersLabel: "स्वयंसेवक",
   },
 };
 
@@ -241,6 +259,7 @@ export function Events() {
   const [regSuccess, setRegSuccess] = useState(false);
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [activeGalleryEvent, setActiveGalleryEvent] = useState<PastEventItem | null>(null);
+  const [showFeaturedDetails, setShowFeaturedDetails] = useState<boolean>(false);
 
   // Event categories list
   const CATEGORIES = [
@@ -289,110 +308,113 @@ export function Events() {
         breadcrumbActive={t("nav.events")}
       />
       {/* FEATURED EVENT SECTION */}
-      {UPCOMING_CAMPAIGNS.length > 0 && (
-      <section className="py-16 md:py-24 bg-white border-b border-border">
-        <div className="about-section-container">
-          <div className="text-center max-w-3xl mx-auto mb-16">
-            <span className="inline-block px-3 py-1.5 text-xs font-bold uppercase tracking-[0.12em] text-[#7A9D1C] bg-[#7A9D1C]/10 rounded-full mb-4">
-              {tLocal.featuredSub}
-            </span>
-            <h2 className="text-3xl md:text-4xl font-display font-bold text-slate-900 tracking-tight">
-              {tLocal.featuredTitle}
-            </h2>
-            <div className="w-16 h-1 bg-[#F7E81D] mx-auto mt-4 rounded-full" />
-          </div>
+      {PAST_CAMPAIGNS.length > 0 && (
+        <section className="py-16 md:py-24 bg-white border-b border-border animate-fade-in">
+          <div className="about-section-container">
+            <div className="text-center max-w-3xl mx-auto mb-16">
+              <span className="inline-block px-3 py-1.5 text-xs font-bold uppercase tracking-[0.12em] text-[#4040A1] bg-[#4040A1]/10 rounded-full mb-4 animate-pulse">
+                {tLocal.featuredSub || "HIGHLIGHTED EVENT"}
+              </span>
+              <h2 className="text-3xl md:text-4xl font-display font-bold text-slate-900 tracking-tight font-gujarati">
+                {tLocal.featuredTitle || "Featured Initiative"}
+              </h2>
+              <div className="w-16 h-1 bg-[#F7E81D] mx-auto mt-4 rounded-full" />
+            </div>
 
-          <div className="about-card-premium p-0! bg-[#F8FAFF] overflow-hidden border border-border shadow-lg">
-            <div className="grid lg:grid-cols-12">
-              <div className="lg:col-span-6 relative aspect-[16/10] lg:aspect-auto overflow-hidden">
-                <img
-                  src={pavaDistributionGroup}
-                  alt="Free Medical Camp"
-                  className="w-full h-full object-cover transform hover:scale-[1.03] transition-transform duration-700"
-                  loading="eager"
-                />
-              </div>
-
-              <div className="lg:col-span-6 p-8 md:p-12 flex flex-col justify-between bg-white">
-                <div>
-                  <div className="mb-4">
-                    <span className="chip bg-[#7A9D1C]/15 text-[#7A9D1C] border-[#7A9D1C]/20 text-xs font-bold uppercase tracking-widest px-3 py-1">
-                      Healthcare
+            {/* Featured Event Card: Visually larger horizontal card */}
+            <div className="about-card-premium p-0! bg-[#F8FAFF] overflow-hidden border border-border shadow-lg max-w-6xl mx-auto rounded-3xl group">
+              <div className="grid grid-cols-1 lg:grid-cols-12 min-h-[420px]">
+                {/* Image side */}
+                <div className="lg:col-span-6 relative overflow-hidden bg-slate-100 min-h-[300px] lg:min-h-full">
+                  <img
+                    src={PAST_CAMPAIGNS[0].img}
+                    alt={PAST_CAMPAIGNS[0].title[language]}
+                    className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+                    loading="eager"
+                  />
+                  <div className="absolute top-4 left-4 flex flex-wrap gap-2 z-10">
+                    <span className="chip bg-primary text-white text-[10px] font-bold uppercase tracking-widest px-3 py-1.5 rounded-full shadow-md">
+                      {tLocal.badgeLatest}
                     </span>
-                  </div>
-                  <div className="flex flex-wrap gap-4 text-xs font-bold text-slate-400 uppercase tracking-wider mb-4">
-                    <span className="inline-flex items-center gap-1.5">
-                      <Calendar className="h-4 w-4 text-[#4040A1]" />{" "}
-                      {UPCOMING_CAMPAIGNS[0].displayDate[language]}
+                    <span className="chip bg-[#7A9D1C] text-white text-[10px] font-bold uppercase tracking-widest px-3 py-1.5 rounded-full shadow-md">
+                      {tLocal.badgeFeatured}
                     </span>
-                    <span className="inline-flex items-center gap-1.5">
-                      <Clock className="h-4 w-4 text-[#4040A1]" /> {UPCOMING_CAMPAIGNS[0].time}
-                    </span>
-                  </div>
-
-                  <h3 className="text-2xl md:text-3xl font-display font-bold text-slate-900 mb-4">
-                    {UPCOMING_CAMPAIGNS[0].title[language]}
-                  </h3>
-
-                  <p className="text-slate-600 text-sm leading-relaxed mb-6">
-                    {UPCOMING_CAMPAIGNS[0].desc[language]}
-                  </p>
-
-                  <div className="grid grid-cols-2 gap-4 border-t border-slate-100 pt-6 mb-4">
-                    <div className="bg-[#F8FAFF] p-4 rounded-2xl border border-slate-100 text-center">
-                      <div className="text-2xl font-bold text-[#7A9D1C]">500+</div>
-                      <div className="text-[10px] font-bold text-slate-400 uppercase mt-1">
-                        Beneficiaries
-                      </div>
-                    </div>
-                    <div className="bg-[#F8FAFF] p-4 rounded-2xl border border-slate-100 text-center">
-                      <div className="text-2xl font-bold text-[#4040A1]">15+</div>
-                      <div className="text-[10px] font-bold text-slate-400 uppercase mt-1">
-                        Doctors Group
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="space-y-2 border-t border-slate-100 pt-5">
-                    <div className="text-xs text-slate-500 font-semibold leading-relaxed">
-                      <span className="font-bold text-slate-800 uppercase tracking-wider">
-                        {tLocal.organizerLabel}:{" "}
-                      </span>
-                      <span>{UPCOMING_CAMPAIGNS[0].organizer[language]}</span>
-                    </div>
-                    <div className="text-xs text-slate-500 font-semibold leading-relaxed">
-                      <span className="font-bold text-slate-800 uppercase tracking-wider">
-                        {tLocal.locationLabel}:{" "}
-                      </span>
-                      <span>{UPCOMING_CAMPAIGNS[0].place[language]}</span>
-                    </div>
                   </div>
                 </div>
 
-                <div className="flex flex-wrap items-center gap-3 mt-8 border-t border-slate-100 pt-6">
-                  <button
-                    onClick={() => setIsRegistering(UPCOMING_CAMPAIGNS[0].id)}
-                    className="btn-saffron text-xs font-bold uppercase tracking-wider px-6 py-3.5 cursor-pointer"
-                  >
-                    {tLocal.btnRegister}
-                  </button>
+                {/* Content side */}
+                <div className="lg:col-span-6 p-8 md:p-10 flex flex-col justify-between bg-white">
+                  <div>
+                    <div className="flex flex-wrap gap-4 text-xs font-bold text-slate-400 uppercase tracking-wider mb-4">
+                      <span className="inline-flex items-center gap-1.5">
+                        <Calendar className="h-4 w-4 text-[#4040A1]" />{" "}
+                        {PAST_CAMPAIGNS[0].date}
+                      </span>
+                      <span className="inline-flex items-center gap-1.5">
+                        <MapPin className="h-4 w-4 text-[#7A9D1C]" />{" "}
+                        {PAST_CAMPAIGNS[0].place[language]}
+                      </span>
+                    </div>
 
-                  <button
-                    onClick={() => handleShare(UPCOMING_CAMPAIGNS[0].id)}
-                    className="btn-ghost text-xs font-bold uppercase tracking-wider px-5 py-3.5 hover:bg-slate-50 inline-flex items-center gap-1.5 cursor-pointer"
-                  >
-                    <Share2 className="h-4 w-4" />
-                    <span>
-                      {copiedId === UPCOMING_CAMPAIGNS[0].id ? tLocal.copiedAlert : tLocal.btnShare}
-                    </span>
-                  </button>
+                    <h3 className="text-xl md:text-2xl lg:text-3xl font-display font-bold text-slate-900 group-hover:text-primary transition-colors mb-4 font-gujarati leading-tight">
+                      {PAST_CAMPAIGNS[0].title[language]}
+                    </h3>
+
+                    <p className="text-slate-600 text-sm md:text-base leading-relaxed mb-6 font-gujarati line-clamp-3">
+                      {PAST_CAMPAIGNS[0].summary[language]}
+                    </p>
+
+                    {/* Highlights list for Featured Card */}
+                    {PAST_CAMPAIGNS[0].highlights && (
+                      <div className="border-t border-slate-100 pt-5 mb-6">
+                        <h4 className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-3">
+                          {tLocal.highlightsLabel}
+                        </h4>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                          {PAST_CAMPAIGNS[0].highlights[language].slice(0, 6).map((hl: string, idx: number) => (
+                            <div key={idx} className="flex items-center gap-2 text-xs text-slate-600 font-gujarati">
+                              <CheckCircle2 className="h-4 w-4 text-[#7A9D1C] flex-shrink-0" />
+                              <span className="truncate">{hl}</span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="flex flex-wrap items-center gap-4 border-t border-slate-100 pt-6 mt-auto">
+                    <button
+                      onClick={() => setShowFeaturedDetails(true)}
+                      className="btn-saffron text-xs font-bold uppercase tracking-wider px-6 py-3.5 cursor-pointer flex items-center gap-1.5"
+                    >
+                      <Activity className="h-4 w-4" />
+                      <span>{tLocal.btnViewDetails}</span>
+                    </button>
+
+                    <button
+                      onClick={() => setActiveGalleryEvent(PAST_CAMPAIGNS[0])}
+                      className="btn-ghost text-xs font-bold uppercase tracking-wider px-6 py-3.5 border-slate-200 text-[#4040A1] hover:bg-slate-50 cursor-pointer flex items-center gap-1.5"
+                    >
+                      <Image className="h-4 w-4" />
+                      <span>{tLocal.btnViewImages}</span>
+                    </button>
+
+                    <button
+                      onClick={() => handleShare(PAST_CAMPAIGNS[0].id)}
+                      className="btn-ghost text-xs font-bold uppercase tracking-wider px-5 py-3.5 hover:bg-slate-50 inline-flex items-center gap-1.5 cursor-pointer border-slate-200 text-slate-500 hover:text-[#4040A1]"
+                      title="Share Event"
+                    >
+                      <Share2 className="h-4 w-4" />
+                      <span>
+                        {copiedId === PAST_CAMPAIGNS[0].id ? tLocal.copiedAlert : tLocal.btnShare}
+                      </span>
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>
           </div>
-        </div>
-      </section>
-
+        </section>
       )}
       {/* EVENT CATEGORIES SECTION */}
       <section className="py-16 md:py-24 bg-[#F8FAFF] border-b border-border">
@@ -1002,6 +1024,126 @@ export function Events() {
                 </button>
               </form>
             )}
+          </div>
+        </div>
+      )}
+
+      {/* FEATURED EVENT DETAILS MODAL */}
+      {showFeaturedDetails && PAST_CAMPAIGNS[0] && (
+        <div className="fixed inset-0 bg-black/60 backdrop-filter backdrop-blur-xs flex items-center justify-center p-4 z-50 animate-fade-in">
+          <div className="bg-white border border-border rounded-3xl w-full max-w-3xl max-h-[90vh] flex flex-col relative shadow-2xl overflow-hidden animate-scale-up">
+            {/* Header */}
+            <div className="p-6 border-b border-slate-100 flex items-center justify-between">
+              <div>
+                <div className="flex gap-2 items-center mb-1">
+                  <span className="chip bg-primary/10 text-primary text-[9px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-md">
+                    {tLocal.badgeLatest}
+                  </span>
+                  <span className="chip bg-[#7A9D1C]/10 text-[#7A9D1C] text-[9px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-md">
+                    {tLocal.badgeFeatured}
+                  </span>
+                </div>
+                <h3 className="text-xl md:text-2xl font-display font-bold text-slate-900 leading-snug font-gujarati">
+                  {tLocal.modalTitleDetails}
+                </h3>
+              </div>
+              <button
+                onClick={() => setShowFeaturedDetails(false)}
+                className="text-slate-400 hover:text-slate-600 transition-colors p-2 cursor-pointer rounded-xl hover:bg-slate-50 flex-shrink-0 ml-4"
+                title="Close Details"
+              >
+                <X className="h-6 w-6" />
+              </button>
+            </div>
+
+            {/* Scrollable content */}
+            <div className="p-6 md:p-8 overflow-y-auto space-y-6">
+              {/* Cover Image */}
+              <div className="relative aspect-[16/9] rounded-2xl overflow-hidden bg-slate-100 border border-slate-100 shadow-xs">
+                <img
+                  src={PAST_CAMPAIGNS[0].img}
+                  alt={PAST_CAMPAIGNS[0].title[language]}
+                  className="absolute inset-0 w-full h-full object-cover"
+                />
+              </div>
+
+              {/* Event Metadata Row */}
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 bg-[#F8FAFF] p-4 rounded-2xl border border-slate-100 text-center">
+                <div>
+                  <div className="text-xs font-bold text-slate-400 uppercase tracking-wider">{tLocal.locationLabel}</div>
+                  <div className="text-sm font-bold text-slate-800 flex items-center justify-center gap-1 mt-1 font-gujarati">
+                    <MapPin className="h-4 w-4 text-[#7A9D1C]" />
+                    {PAST_CAMPAIGNS[0].place[language]}
+                  </div>
+                </div>
+                <div>
+                  <div className="text-xs font-bold text-slate-400 uppercase tracking-wider">{tLocal.participantsLabel}</div>
+                  <div className="text-sm font-bold text-slate-800 flex items-center justify-center gap-1 mt-1">
+                    <Users className="h-4 w-4 text-[#4040A1]" />
+                    {PAST_CAMPAIGNS[0].participants.toLocaleString()}
+                  </div>
+                </div>
+                <div>
+                  <div className="text-xs font-bold text-slate-400 uppercase tracking-wider">{tLocal.volunteersLabel}</div>
+                  <div className="text-sm font-bold text-slate-800 flex items-center justify-center gap-1 mt-1">
+                    <UserCheck className="h-4 w-4 text-[#7A9D1C]" />
+                    {PAST_CAMPAIGNS[0].volunteers}
+                  </div>
+                </div>
+              </div>
+
+              {/* Description */}
+              <div className="space-y-4">
+                <h4 className="text-lg font-display font-bold text-slate-900 border-b border-slate-100 pb-2">
+                  {PAST_CAMPAIGNS[0].title[language]}
+                </h4>
+                <div className="text-slate-600 text-sm md:text-base leading-relaxed font-gujarati whitespace-pre-line space-y-3">
+                  {PAST_CAMPAIGNS[0].summary[language]}
+                </div>
+              </div>
+
+              {/* Highlights & Impact */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-2">
+                {/* Highlights */}
+                {PAST_CAMPAIGNS[0].highlights && (
+                  <div className="bg-slate-50 p-5 rounded-2xl border border-slate-100">
+                    <h5 className="text-xs font-bold text-slate-800 uppercase tracking-wider mb-3">
+                      {tLocal.highlightsLabel}
+                    </h5>
+                    <ul className="space-y-2">
+                      {PAST_CAMPAIGNS[0].highlights[language].map((hl: string, idx: number) => (
+                        <li key={idx} className="flex items-start gap-2 text-xs text-slate-600 font-gujarati">
+                          <CheckCircle2 className="h-4.5 w-4.5 text-[#7A9D1C] flex-shrink-0 mt-0.5" />
+                          <span>{hl}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+
+                {/* Impact */}
+                <div className="bg-[#7A9D1C]/5 p-5 rounded-2xl border border-[#7A9D1C]/10 flex flex-col justify-between">
+                  <div>
+                    <h5 className="text-xs font-bold text-slate-800 uppercase tracking-wider mb-3">
+                      {tLocal.impactLabel}
+                    </h5>
+                    <p className="text-slate-700 text-sm font-bold font-gujarati leading-relaxed">
+                      {PAST_CAMPAIGNS[0].impact[language]}
+                    </p>
+                  </div>
+                  <button
+                    onClick={() => {
+                      setShowFeaturedDetails(false);
+                      setActiveGalleryEvent(PAST_CAMPAIGNS[0]);
+                    }}
+                    className="w-full text-center mt-6 py-2.5 px-4 rounded-xl text-xs font-bold uppercase tracking-wider bg-[#4040A1] text-white hover:bg-[#4040A1]/90 transition-all cursor-pointer flex items-center justify-center gap-2 shadow-xs"
+                  >
+                    <Image className="h-4 w-4" />
+                    <span>{tLocal.btnViewImages}</span>
+                  </button>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       )}
