@@ -17,6 +17,108 @@ import hebatpur10 from "@/assets/hebatpur_10.jpg";
 import hebatpur11 from "@/assets/hebatpur_11.jpg";
 import hebatpur12 from "@/assets/hebatpur_12.jpg";
 
+import sparrow1 from "@/assets/sparrow_1.jpg";
+import sparrow2 from "@/assets/sparrow_2.jpg";
+import sparrow3 from "@/assets/sparrow_3.jpg";
+import sparrow4 from "@/assets/sparrow_4.jpg";
+import sparrow5 from "@/assets/sparrow_5.jpg";
+import sparrow6 from "@/assets/sparrow_6.jpg";
+import sparrow7 from "@/assets/sparrow_7.jpg";
+import sparrow8 from "@/assets/sparrow_8.jpg";
+import sparrow9 from "@/assets/sparrow_9.jpg";
+
+import covid1 from "@/assets/covid_1.jpg";
+import covid2 from "@/assets/covid_2.jpg";
+import covid3 from "@/assets/covid_3.jpg";
+import covid4 from "@/assets/covid_4.jpg";
+import covid5 from "@/assets/covid_5.jpg";
+import covid6 from "@/assets/covid_6.jpg";
+import covid7 from "@/assets/covid_7.jpg";
+import covid8 from "@/assets/covid_8.jpg";
+import covid9 from "@/assets/covid_9.jpg";
+import covid10 from "@/assets/covid_10.jpg";
+
+import diwali1 from "@/assets/diwali_1.jpg";
+import diwali2 from "@/assets/diwali_2.jpg";
+import diwali3 from "@/assets/diwali_3.jpg";
+import diwali4 from "@/assets/diwali_4.jpg";
+import diwali5 from "@/assets/diwali_5.jpg";
+import diwali6 from "@/assets/diwali_6.jpg";
+import diwali7 from "@/assets/diwali_7.jpg";
+import diwali8 from "@/assets/diwali_8.jpg";
+import diwali9 from "@/assets/diwali_9.jpg";
+import diwali10 from "@/assets/diwali_10.jpg";
+import diwali11 from "@/assets/diwali_11.jpg";
+import diwali12 from "@/assets/diwali_12.jpg";
+
+import healthcare1 from "@/assets/healthcare_1.jpg";
+import healthcare2 from "@/assets/healthcare_2.jpg";
+import healthcare3 from "@/assets/healthcare_3.jpg";
+import healthcare4 from "@/assets/healthcare_4.jpg";
+import healthcare5 from "@/assets/healthcare_5.jpg";
+import healthcare6 from "@/assets/healthcare_6.jpg";
+import healthcare7 from "@/assets/healthcare_7.jpg";
+import healthcare8 from "@/assets/healthcare_8.jpg";
+import healthcare9 from "@/assets/healthcare_9.jpg";
+import healthcare10 from "@/assets/healthcare_10.jpg";
+import healthcare11 from "@/assets/healthcare_11.jpg";
+
+import welfare1 from "@/assets/welfare_1.jpg";
+import welfare2 from "@/assets/welfare_2.jpg";
+import welfare3 from "@/assets/welfare_3.jpg";
+import welfare4 from "@/assets/welfare_4.jpg";
+import welfare5 from "@/assets/welfare_5.jpg";
+import welfare6 from "@/assets/welfare_6.jpg";
+import welfare7 from "@/assets/welfare_7.jpg";
+import welfare8 from "@/assets/welfare_8.jpg";
+import welfare9 from "@/assets/welfare_9.jpg";
+import welfare10 from "@/assets/welfare_10.jpg";
+import welfare11 from "@/assets/welfare_11.jpg";
+import welfare12 from "@/assets/welfare_12.jpg";
+
+import clothes1 from "@/assets/clothes_1.jpg";
+import clothes2 from "@/assets/clothes_2.jpg";
+import clothes3 from "@/assets/clothes_3.jpg";
+import clothes4 from "@/assets/clothes_4.jpg";
+import clothes5 from "@/assets/clothes_5.jpg";
+import clothes6 from "@/assets/clothes_6.jpg";
+import clothes7 from "@/assets/clothes_7.jpg";
+import clothes8 from "@/assets/clothes_8.jpg";
+import clothes9 from "@/assets/clothes_9.jpg";
+import clothes10 from "@/assets/clothes_10.jpg";
+import clothes11 from "@/assets/clothes_11.jpg";
+import clothes12 from "@/assets/clothes_12.jpg";
+import clothes13 from "@/assets/clothes_13.jpg";
+import clothes14 from "@/assets/clothes_14.jpg";
+
+import tauktae1 from "@/assets/tauktae_1.jpg";
+import tauktae2 from "@/assets/tauktae_2.jpg";
+import tauktae3 from "@/assets/tauktae_3.jpg";
+import tauktae4 from "@/assets/tauktae_4.jpg";
+import tauktae5 from "@/assets/tauktae_5.jpg";
+import tauktae6 from "@/assets/tauktae_6.jpg";
+import tauktae7 from "@/assets/tauktae_7.jpg";
+import tauktae8 from "@/assets/tauktae_8.jpg";
+import tauktae9 from "@/assets/tauktae_9.jpg";
+import tauktae10 from "@/assets/tauktae_10.jpg";
+import tauktae11 from "@/assets/tauktae_11.jpg";
+import tauktae12 from "@/assets/tauktae_12.jpg";
+import tauktae13 from "@/assets/tauktae_13.jpg";
+import tauktae14 from "@/assets/tauktae_14.jpg";
+import tauktae15 from "@/assets/tauktae_15.jpg";
+
+import traffic1 from "@/assets/traffic_1.jpg";
+import traffic2 from "@/assets/traffic_2.jpg";
+import traffic3 from "@/assets/traffic_3.jpg";
+import traffic4 from "@/assets/traffic_4.jpg";
+import traffic5 from "@/assets/traffic_5.jpg";
+import traffic6 from "@/assets/traffic_6.jpg";
+import traffic7 from "@/assets/traffic_7.jpg";
+import traffic8 from "@/assets/traffic_8.jpg";
+import traffic9 from "@/assets/traffic_9.jpg";
+import traffic10 from "@/assets/traffic_10.jpg";
+import traffic11 from "@/assets/traffic_11.jpg";
+
 export interface PastEventItem {
   id: string;
   category: string;
@@ -116,6 +218,117 @@ export const SCHOOL_BAG_EVENTS: PastEventItem[] = [
           en: "Trustees Distributing Smart Education Kits",
           gu: "વિદ્યાર્થીઓને સ્માર્ટ શિક્ષણ કીટોનું વિતરણ કરતા ટ્રસ્ટીશ્રીઓ",
           hi: "छात्रों को स्मार्ट शिक्षा किट वितरित करते ट्रस्टीगण",
+        },
+      },
+    ],
+  },
+  {
+    id: "sparrow-day-campaign-2026",
+    category: "Environmental Activities",
+    date: "Mar 2026",
+    title: {
+      en: "Sparrow Nest Distribution & World Sparrow Day Awareness Campaign",
+      gu: "ચકલી ઘર વિતરણ ને તે સદર્ભ મા જાગૃતિ અભિયાન (૨૦મી માર્ચે 'વિશ્વ ચકલી દિવસ')",
+      hi: "गौरैया घोंसला वितरण और विश्व गौरैया दिवस जागरूकता अभियान",
+    },
+    place: {
+      en: "Sanand, Ahmedabad, Gujarat",
+      gu: "સાણંદ, અમદાવાદ, ગુજરાત",
+      hi: "सानंद, अहमदाबाद, गुजरात",
+    },
+    summary: {
+      en: "On the occasion of World Sparrow Day (20 March), Uday Foundation Trust organized a Sparrow Nest Distribution and Awareness Campaign to encourage bird conservation and environmental responsibility. Sparrow nests were distributed among citizens, students, and volunteers while educating the community about protecting sparrows and preserving biodiversity.",
+      gu: "વિશ્વ ચકલી દિવસ (૨૦મી માર્ચ) નિમિત્તે ઉદય ફાઉન્ડેશન ટ્રસ્ટ દ્વારા ચકલી ઘર (Bird Nest) વિતરણ અને ચકલી સંરક્ષણ અંગે જાગૃતિ અભિયાનનું આયોજન કરવામાં આવ્યું હતું. આ કાર્યક્રમનો મુખ્ય હેતુ ચકલીઓના સંરક્ષણ માટે લોકોને પ્રેરિત કરવાનો, પર્યાવરણ પ્રત્યે જાગૃતિ લાવવાનો અને દરેક ઘરમાં ચકલી માટે સુરક્ષિત માળો ઉપલબ્ધ કરાવવાનો હતો. કાર્યક્રમ દરમિયાન સ્થાનિક નાગરિકો, વિદ્યાર્થીઓ અને સ્વયંસેવકોને ચકલી ઘરોનું વિતરણ કરવામાં આવ્યું અને પક્ષીઓના સંરક્ષણનું મહત્વ સમજાવવામાં આવ્યું.",
+      hi: "विश्व गौरैया दिवस (20 मार्च) के अवसर पर, उदय फाउंडेशन ट्रस्ट ने पक्षी संरक्षण और पर्यावरणीय जिम्मेदारी को बढ़ावा देने के लिए गौरैया घोंसला वितरण और जागरूकता अभियान का आयोजन किया। नागरिकों, छात्रों और स्वयंसेवकों के बीच गौरैया के घोंसले वितरित किए गए, साथ ही समुदाय को गौरैया के संरक्षण और जैव विविधता को बचाने के बारे में शिक्षित किया गया।",
+    },
+    participants: 180,
+    volunteers: 15,
+    impact: {
+      en: "Distributed Nests & Created Awareness",
+      gu: "ચકલી ઘર વિતરણ અને જાગૃતિ ફેલાવી",
+      hi: "घोंसले वितरित किए और जागरूकता फैलाई",
+    },
+    img: sparrow4,
+    images: [
+      {
+        img: sparrow1,
+        category: "Environmental Activities",
+        caption: {
+          en: "Community Members Receiving Bird Nests",
+          gu: "સ્થાનિક નાગરિકો ચકલી ઘર સ્વીકારતા",
+          hi: "सामुदायिक सदस्यों ने पक्षियों के घोंसले प्राप्त किए",
+        },
+      },
+      {
+        img: sparrow2,
+        category: "Environmental Activities",
+        caption: {
+          en: "Volunteers Distributing Sparrow Nests to Kids",
+          gu: "બાળકોને ચકલી ઘર વિતરિત કરતા સ્વયંસેવકો",
+          hi: "स्वयंसेवक बच्चों को गौरैया के घोंसले वितरित करते हुए",
+        },
+      },
+      {
+        img: sparrow3,
+        category: "Environmental Activities",
+        caption: {
+          en: "Trustee Displaying the Eco-Friendly Sparrow Nest Box",
+          gu: "ઇકો-ફ્રેન્ડલી ચકલી ઘર બતાવી રહેલા ટ્રસ્ટીશ્રી",
+          hi: "पारिस्थितिकी अनुकूल गौरैया घोंसला बॉक्स प्रदर्शित करते ट्रस्टी",
+        },
+      },
+      {
+        img: sparrow4,
+        category: "Environmental Activities",
+        caption: {
+          en: "Students Raising Nests Proudly in Class",
+          gu: "શાળાના બાળકો વર્ગમાં ગર્વથી ચકલી ઘરો બતાવતા",
+          hi: "छात्र कक्षा में गर्व से घोंसले उठाते हुए",
+        },
+      },
+      {
+        img: sparrow5,
+        category: "Environmental Activities",
+        caption: {
+          en: "Spreading Awareness on Sparrow Conservation",
+          gu: "ચકલી સંરક્ષણ અંગે જાગૃતિનો પ્રસાર",
+          hi: "गौरैया संरक्षण पर जागरूकता का प्रसार",
+        },
+      },
+      {
+        img: sparrow6,
+        category: "Environmental Activities",
+        caption: {
+          en: "Display of Specially Crafted Sparrow Nest Boxes",
+          gu: "ખાસ તૈયાર કરાયેલ ચકલી ઘરનું પ્રદર્શન",
+          hi: "विशेष रूप से तैयार किए गए गौरैया घोंसले के बक्से का प्रदर्शन",
+        },
+      },
+      {
+        img: sparrow7,
+        category: "Environmental Activities",
+        caption: {
+          en: "Community Support for Bird Nesting",
+          gu: "પક્ષીઓના માળાઓ માટે સામુદાયિક સમર્થન",
+          hi: "पक्षियों के घोंसले बनाने के लिए सामुदायिक सहयोग",
+        },
+      },
+      {
+        img: sparrow8,
+        category: "Environmental Activities",
+        caption: {
+          en: "Police Officers Participating in Nest Distribution",
+          gu: "ચકલી ઘર વિતરણમાં સહભાગી થતા પોલીસ અધિકારીશ્રીઓ",
+          hi: "घोंसला वितरण में भाग लेते पुलिस अधिकारी",
+        },
+      },
+      {
+        img: sparrow9,
+        category: "Environmental Activities",
+        caption: {
+          en: "Large Group of Students Supporting the Initiative",
+          gu: "આ પહેલને ટેકો આપતા વિદ્યાર્થીઓનું મોટું જૂથ",
+          hi: "पहल का समर्थन करने वाले छात्रों का बड़ा समूह",
         },
       },
     ],
@@ -254,6 +467,981 @@ export const SCHOOL_BAG_EVENTS: PastEventItem[] = [
           en: "Community Support and Education Campaign at Hebatpur",
           gu: "હેબતપુર ખાતે સામુદાયિક સહયોગ અને શિક્ષણ અભિયાન",
           hi: "हेबतपुर में सामुदायिक सहयोग एवं शिक्षा अभियान",
+        },
+      },
+    ],
+  },
+  {
+    id: "diwali-sweets-ration-distribution-2024",
+    category: "Festival Celebration & Community Welfare",
+    date: "Oct 2024",
+    title: {
+      en: "Diwali Sweets & Ration Kit Distribution Drive",
+      gu: "દિવાળી મીઠાઈ અને રાશન કીટ વિતરણ કાર્યક્રમ",
+      hi: "दिवाली मिठाई एवं राशन किट वितरण अभियान",
+    },
+    place: {
+      en: "Sanand, Ahmedabad, Gujarat",
+      gu: "સાણંદ, અમદાવાદ, ગુજરાત",
+      hi: "सानंद, अहमदाबाद, गुजरात",
+    },
+    summary: {
+      en: "Every year, on the auspicious occasion of Diwali, Uday Foundation Trust organizes a Sweets & Ration Kit Distribution Drive for underprivileged, needy, and destitute families. The objective of this initiative is to ensure that every family can celebrate the festival of lights with dignity, happiness, and hope. Through this humanitarian effort, the Trust spreads the values of compassion, service, cooperation, and social responsibility within the community.",
+      gu: "દર વર્ષે દિવાળીના પાવન પર્વ નિમિત્તે ઉદય ફાઉન્ડેશન ટ્રસ્ટ દ્વારા સમાજના ગરીબ, નિરાધાર અને જરૂરિયાતમંદ પરિવારો સુધી ખુશીઓ પહોંચે તેવા ઉમદા હેતુથી મીઠાઈ અને રાશન કીટનું વિતરણ કરવામાં આવે છે. આ સેવાકાર્ય દ્વારા દરેક પરિવાર દિવાળીના તહેવારની ઉજવણી આનંદ અને ગૌરવ સાથે કરી શકે તેમજ સમાજમાં સેવા, સહકાર અને માનવતાનો સંદેશ પ્રસરે તેવો પ્રયત્ન કરવામાં આવે છે.",
+      hi: "हर साल दिवाली के पावन पर्व पर, उदय फाउंडेशन ट्रस्ट द्वारा समाज के गरीब, निराधार और जरूरतमंद परिवारों के बीच खुशियां बांटने के उद्देश्य से मिठाई और राशन किट का वितरण किया जाता है। इस सेवा कार्य का मुख्य उद्देश्य यह है कि हर परिवार दिवाली का त्योहार खुशी, सम्मान और गर्व के साथ मना सके। इस पहल के माध्यम से समाज के हर वर्ग तक सेवा, सहयोग और मानवता का संदेश पहुंचाने का प्रयास किया जाता है।",
+    },
+    participants: 350,
+    volunteers: 18,
+    impact: {
+      en: "Shared happiness and distributed sweet boxes & ration kits to hundreds of families",
+      gu: "સેંકડો પરિવારોને મીઠાઈ અને રાશન કીટ વિતરણ દ્વારા ખુશીઓ વહેંચી",
+      hi: "सैकड़ों परिवारों को मिठाई और राशन किट वितरण द्वारा खुशियां बांटी",
+    },
+    img: diwali11,
+    images: [
+      {
+        img: diwali1,
+        category: "Community Welfare",
+        caption: {
+          en: "Diwali Sweet Box and Ration Kit Distribution to Elderly Beneficiary",
+          gu: "વયોવૃદ્ધ લાભાર્થી મહિલાને દિવાળી મીઠાઈ અને રાશન કીટનું વિતરણ",
+          hi: "वृद्ध महिला लाभार्थी को दिवाली मिठाई और राशन किट का वितरण",
+        },
+      },
+      {
+        img: diwali2,
+        category: "Community Welfare",
+        caption: {
+          en: "Trustees and Police Officer Distributing Diwali Gifts",
+          gu: "ટ્રસ્ટીશ્રીઓ અને પોલીસ અધિકારી દ્વારા દિવાળી કીટનું વિતરણ",
+          hi: "ट्रस्टी और पुलिस अधिकारी द्वारा दिवाली किट का वितरण",
+        },
+      },
+      {
+        img: diwali3,
+        category: "Humanitarian Service",
+        caption: {
+          en: "Newspaper Report on Ration Kit Distribution in Soyla",
+          gu: "સોયલા ગામમાં રાશન કીટ વિતરણ અંગે દિવ્ય ભાસ્કરનો અહેવાલ",
+          hi: "सोयला गांव में राशन किट वितरण पर दिव्य भास्कर की रिपोर्ट",
+        },
+      },
+      {
+        img: diwali4,
+        category: "Food Distribution",
+        caption: {
+          en: "Diwali Sweets & Ration Kit Delivery at Beneficiary's Doorstep",
+          gu: "લાભાર્થીના ઘરે જઈને દિવાળી મીઠાઈ અને રાશન કીટ આપતા સ્વયંસેવક",
+          hi: "लाभार्थी के घर जाकर दिवाली मिठाई और राशन किट देते स्वयंसेवक",
+        },
+      },
+      {
+        img: diwali5,
+        category: "Community Welfare",
+        caption: {
+          en: "Young Girl Receiving Diwali Sweets Box and Ration Kit",
+          gu: "નાની બાળકીને દિવાળી મીઠાઈ અને રાશન કીટ અર્પણ કરતા ટ્રસ્ટીઓ",
+          hi: "छोटी बच्ची को दिवाली मिठाई और राशन किट भेंट करते ट्रस्टी",
+        },
+      },
+      {
+        img: diwali6,
+        category: "Festival Celebration",
+        caption: {
+          en: "Group Photo of Diwali Distribution Drive with Dignitaries",
+          gu: "મહાનુભાવો સાથે દિવાળી સેવાકાર્યનો સમૂહ રેખાચિત્ર",
+          hi: "गणमान्य व्यक्तियों के साथ दिवाली सेवा कार्य का समूह चित्र",
+        },
+      },
+      {
+        img: diwali7,
+        category: "Festival Celebration",
+        caption: {
+          en: "Diwali Distribution Event Group Photo under Uday Foundation Banner",
+          gu: "ઉદય ફાઉન્ડેશન બેનર હેઠળ દિવાળી વિતરણ કાર્યક્રમનો સમૂહ ફોટો",
+          hi: "उदय फाउंडेशन बैनर के तहत दिवाली वितरण कार्यक्रम का समूह फोटो",
+        },
+      },
+      {
+        img: diwali8,
+        category: "Community Welfare",
+        caption: {
+          en: "Police Inspector Supporting Sweets & Ration Kit Distribution",
+          gu: "પોલીસ ઇન્સ્પેક્ટરશ્રીના હસ્તે વડીલ મહિલાને દિવાળી કીટ વિતરણ",
+          hi: "पुलिस निरीक्षक द्वारा बुजुर्ग महिला को दिवाली किट वितरण",
+        },
+      },
+      {
+        img: diwali9,
+        category: "Food Distribution",
+        caption: {
+          en: "Door-to-door Distribution of Diwali Relief Kits in Sanand",
+          gu: "સાણંદ વિસ્તારમાં જરૂરિયાતમંદ પરિવારોના ઘરે રૂબરૂ જઈ વિતરણ",
+          hi: "सानंद क्षेत्र में जरूरतमंद परिवारों के घर जाकर वितरण",
+        },
+      },
+      {
+        img: diwali10,
+        category: "Food Distribution",
+        caption: {
+          en: "Beneficiaries Gathered for Diwali Sweets & Ration Kit Distribution",
+          gu: "દિવાળી મીઠાઈ અને રાશન કીટ વિતરણ માટે એકત્રિત થયેલા લાભાર્થીઓ",
+          hi: "दिवाली मिठाई और राशन किट वितरण के लिए एकत्रित लाभार्थी",
+        },
+      },
+      {
+        img: diwali11,
+        category: "Festival Celebration",
+        caption: {
+          en: "Stacked Diwali Sweet Boxes & Ration Bags Prepared for Distribution",
+          gu: "વિતરણ માટે તૈયાર કરાયેલ મીઠાઈ બોક્સ અને રાશન કીટનો જથ્થો",
+          hi: "वितरण के लिए तैयार मिठाई के बक्से and राशन किट का स्टॉक",
+        },
+      },
+      {
+        img: diwali12,
+        category: "Food Distribution",
+        caption: {
+          en: "Distribution of Diwali Sweet and Ration Bags to Rural Families",
+          gu: "ગ્રામીણ જરૂરિયાતમંદ પરિવારોને મીઠાઈ અને રાશન બેગનું વિતરણ",
+          hi: "ग्रामीण जरूरतमंद परिवारों को मिठाई और राशन बैग का वितरण",
+        },
+      },
+    ],
+  },
+  {
+    id: "traffic-cyber-environmental-awareness-2024",
+    category: "Public Awareness & Road Safety",
+    date: "Sep 2024",
+    title: {
+      en: "Traffic Safety, Cyber Awareness, Water Conservation & Environmental Awareness Program",
+      gu: "ટ્રાફિક, સાયબર અવેરનેસ, પાણી અને પર્યાવરણ જાગૃતિ કાર્યક્રમ",
+      hi: "यातायात सुरक्षा, साइबर जागरूकता, जल संरक्षण एवं पर्यावरण जागरूकता कार्यक्रम",
+    },
+    place: {
+      en: "Sanand, Ahmedabad, Gujarat",
+      gu: "સાણંદ, અમદાવાદ, ગુજરાત",
+      hi: "सानंद, अहमदाबाद, गुजरात",
+    },
+    summary: {
+      en: "Uday Foundation Trust organized a Traffic Safety, Cyber Awareness, Water Conservation & Environmental Awareness Program to educate children and the community about responsible citizenship and public safety. The program included drawing competitions, essay competitions, awareness campaigns, and educational sessions on traffic rules, road safety, helmet usage, seat belt safety, cyber security, water conservation, and environmental protection. Citizens following traffic rules by wearing helmets and seat belts were honored with roses as a symbol of appreciation. Students actively participated in awareness activities and received prizes to encourage responsible behavior and environmental consciousness.",
+      gu: "ઉદય ફાઉન્ડેશન ટ્રસ્ટ દ્વારા બાળકો અને નાગરિકોમાં નાનપણથી જ જવાબદાર નાગરિક બનવાની ભાવના વિકસે તે માટે ટ્રાફિક સલામતી, સાયબર અવેરનેસ, પાણી બચાવો અને પર્યાવરણ જાગૃતિ કાર્યક્રમનું આયોજન કરવામાં આવ્યું હતું. કાર્યક્રમ દરમિયાન વિદ્યાર્થીઓ માટે ચિત્ર સ્પર્ધા, નિબંધ સ્પર્ધા તેમજ વિવિધ જનજાગૃતિ કાર્યક્રમોનું આયોજન કરવામાં આવ્યું. ટ્રાફિકના નિયમો, રોડ સલામતી, હેલ્મેટ અને સીટ બેલ્ટના ઉપયોગનું મહત્વ સમજાવવામાં આવ્યું. હેલ્મેટ પહેરેલા અને સીટ બેલ્ટ બાંધેલા વાહનચાલકોને ગુલાબનું ફૂલ આપી સન્માનિત કરવામાં આવ્યા. સાથે જ પાણી બચાવો, વૃક્ષોનું મહત્વ અને પર્યાવરણ સંરક્ષણ અંગે લોકોને જાગૃત કરવામાં આવ્યા અને વિદ્યાર્થીઓને વિવિધ ઇનામો આપી પ્રોત્સાહિત કરવામાં આવ્યા.",
+      hi: "उदय फाउंडेशन ट्रस्ट ने बच्चों और समुदाय को जिम्मेदार नागरिकता और सार्वजनिक सुरक्षा के बारे में शिक्षित करने के लिए एक यातायात सुरक्षा, साइबर जागरूकता, जल संरक्षण और पर्यावरण जागरूकता कार्यक्रम का आयोजन किया। कार्यक्रम में ड्राइंग प्रतियोगिताओं, निबंध प्रतियोगिताओं, जागरूकता अभियानों और यातायात नियमों, सड़क सुरक्षा, हेलमेट के उपयोग, seat बेल्ट सुरक्षा, साइबर सुरक्षा, जल संरक्षण और पर्यावरण संरक्षण पर शैक्षिक सत्रों का आयोजन शामिल था। हेलमेट और सीट बेल्ट पहनकर यातायात नियमों का पालन करने वाले नागरिकों को सम्मान के प्रतीक के रूप में गुलाब देकर सम्मानित किया गया। छात्रों ने जागरूकता गतिविधियों में सक्रिय रूप से भाग लिया और जिम्मेदार व्यवहार और पर्यावरण चेतना को बढ़ावा देने के लिए पुरस्कार प्राप्त किए।",
+    },
+    participants: 500,
+    volunteers: 20,
+    impact: {
+      en: "Educated hundreds of school students on road safety and environmental consciousness",
+      gu: "સેંકડો વિદ્યાર્થીઓને રોડ સેફ્ટી અને પર્યાવરણીય જાગૃતિ અંગે શિક્ષિત કર્યા",
+      hi: "सैकड़ों स्कूली छात्रों को सड़क सुरक्षा और पर्यावरण चेतना के बारे में शिक्षित किया",
+    },
+    img: traffic6,
+    images: [
+      {
+        img: traffic1,
+        category: "Public Awareness",
+        caption: {
+          en: "Volunteers Posing Paving the Way for Campaign Launch",
+          gu: "અભિયાનના પ્રારંભ પહેલા ઉભેલા સ્વયંસેવકો અને સહયોગીઓ",
+          hi: "अभियान के शुभारंभ से पहले खड़े स्वयंसेवक और सहयोगी",
+        },
+      },
+      {
+        img: traffic2,
+        category: "Road Safety",
+        caption: {
+          en: "Police Officer Awarding Drawing Competition Winner in School",
+          gu: "શાળામાં ચિત્ર સ્પર્ધાના વિજેતા વિદ્યાર્થીને ઇનામ આપતા પોલીસ અધિકારી",
+          hi: "स्कूल में चित्रकला प्रतियोगिता के विजेता छात्र को पुरस्कृत करते पुलिस अधिकारी",
+        },
+      },
+      {
+        img: traffic3,
+        category: "Education",
+        caption: {
+          en: "Interactive Awareness Session inside Hebatpur Primary School",
+          gu: "હેબતપુર પ્રાથમિક શાળાના બાળકો સાથે શૈક્ષણિક સંવાદ કાર્યક્રમ",
+          hi: "हेबतपुर प्राथमिक विद्यालय के बच्चों के साथ संवादात्मक सत्र",
+        },
+      },
+      {
+        img: traffic4,
+        category: "Public Awareness",
+        caption: {
+          en: "Dignitaries and Police Officers Posing at school Seminar Table",
+          gu: "સેમિનાર ટેબલ પર ઉપસ્થિત આમંત્રિતો અને પોલીસ અધિકારીશ્રીઓ",
+          hi: "संगोष्ठी मंच पर उपस्थित आमंत्रित अतिथि और पुलिस अधिकारी",
+        },
+      },
+      {
+        img: traffic5,
+        category: "Road Safety",
+        caption: {
+          en: "Divya Bhaskar Report on Traffic Awareness Drive in Sanand School",
+          gu: "સાણંદ વિદ્યાલયમાં ટ્રાફિક અવેરનેસ કાર્યક્રમ અંગે દિવ્ય ભાસ્કરનો અહેવાલ",
+          hi: "सानंद विद्यालय में यातायात जागरूकता कार्यक्रम पर दिव्य भास्कर की रिपोर्ट",
+        },
+      },
+      {
+        img: traffic6,
+        category: "Education",
+        caption: {
+          en: "Large Assembly of Students Participating in Road Safety Seminar",
+          gu: "રોડ સેફ્ટી સેમિનારમાં ભાગ લઈ રહેલા વિદ્યાર્થીઓની વિશાળ સભા",
+          hi: "सड़क सुरक्षा संगोष्ठी में भाग लेते छात्रों की विशाल सभा",
+        },
+      },
+      {
+        img: traffic7,
+        category: "Road Safety",
+        caption: {
+          en: "Police Officer Explaining Road Safety Rules to Students",
+          gu: "વિદ્યાર્થીઓને રોડ સેફ્ટીના નિયમો સમજાવતા પોલીસ અધિકારીશ્રી",
+          hi: "छात्रों को सड़क सुरक्षा के नियम समझाते पुलिस अधिकारी",
+        },
+      },
+      {
+        img: traffic8,
+        category: "Environment",
+        caption: {
+          en: "Awarding Student for Drawing Excellence on Environmental Conservation",
+          gu: "પર્યાવરણ સંરક્ષણ વિષય પર ઉત્કૃષ્ટ ચિત્ર દોરવા બદલ વિદ્યાર્થીનું સન્માન",
+          hi: "पर्यावरण संरक्षण विषय पर उत्कृष्ट चित्र बनाने के लिए छात्र का सम्मान",
+        },
+      },
+      {
+        img: traffic9,
+        category: "Education",
+        caption: {
+          en: "Students Singing and Interacting during Public Safety Drive",
+          gu: "સેફ્ટી ડ્રાઈવ દરમિયાન સંગીતમય પ્રવૃત્તિઓ અને મનોરંજન",
+          hi: "सुरक्षा अभियान के दौरान संगीतमय गतिविधियां और मनोरंजन",
+        },
+      },
+      {
+        img: traffic10,
+        category: "Education",
+        caption: {
+          en: "Trustee Honoring Student with Gift for Competitive Performance",
+          gu: "સ્પર્ધામાં શ્રેષ્ઠ પ્રદર્શન કરનાર વિદ્યાર્થીને પ્રોત્સાહિત કરતા ટ્રસ્ટીશ્રી",
+          hi: "प्रतियोगिता में सर्वश्रेष्ठ प्रदर्शन करने वाले छात्र को प्रोत्साहित करते ट्रस्टी",
+        },
+      },
+      {
+        img: traffic11,
+        category: "Public Awareness",
+        caption: {
+          en: "Police Inspector Presenting Flower Bouquet during Event",
+          gu: "કાર્યક્રમ દરમિયાન પુષ્પગુચ્છ અર્પણ કરી અતિથિ વિશેષનું સન્માન",
+          hi: "कार्यक्रम के दौरान गुलदस्ता भेंट कर मुख्य अतिथि का सम्मान",
+        },
+      },
+    ],
+  },
+  {
+    id: "clothes-distribution-drive-2023",
+    category: "Community Welfare & Humanitarian Aid",
+    date: "Nov 2023",
+    title: {
+      en: "Clothes Distribution Drive",
+      gu: "કપડાં વિતરણ કાર્યક્રમ",
+      hi: "कपड़ा वितरण अभियान",
+    },
+    place: {
+      en: "Sanand, Ahmedabad, Gujarat",
+      gu: "સાણંદ, અમદાવાદ, ગુજરાત",
+      hi: "सानंद, अहमदाबाद, गुजरात",
+    },
+    summary: {
+      en: "Uday Foundation Trust organized a Clothes Distribution Drive to support underprivileged families and people living in slum areas by providing essential clothing. Through this humanitarian initiative, clothes were distributed to needy families, helping them meet their basic needs while promoting compassion, dignity, social responsibility, and community support. The program reflects the Trust's ongoing commitment to improving the lives of vulnerable communities.",
+      gu: "ગરીબ અને ઝુંપડપટ્ટીમાં વસવાટ કરતા નિરાધાર તથા જરૂરિયાતમંદ પરિવારોને જીવનની મૂળભૂત જરૂરિયાતોમાં સહાયરૂપ બનવાના ઉમદા હેતુથી ઉદય ફાઉન્ડેશન ટ્રસ્ટ દ્વારા કપડાં વિતરણ કાર્યક્રમનું આયોજન કરવામાં આવ્યું હતું. આ સેવા કાર્ય દરમિયાન ગરીબ અને વંચિત પરિવારોને ઉપયોગી કપડાંનું વિતરણ કરવામાં આવ્યું, જેથી તેઓને જીવનની આવશ્યક જરૂરિયાતોમાં મદદ મળી શકે. આ પહેલ દ્વારા સમાજમાં સેવા, માનવતા, સહકાર અને સામાજિક જવાબદારીનો સંદેશ વધુ મજબૂત બનાવવાનો પ્રયાસ કરવામાં આવ્યો.",
+      hi: "उदय फाउंडेशन ट्रस्ट ने गरीब और झुग्गी-झोपड़ियों में रहने वाले निराश्रित परिवारों को कपड़े प्रदान करके उनकी बुनियादी जरूरतों में सहायता करने के लिए एक कपड़ा वितरण अभियान का आयोजन किया। इस मानवीय पहल के माध्यम से जरूरतमंद परिवारों को कपड़े वितरित किए गए, जिससे उन्हें अपनी बुनियादी आवश्यकताओं को पूरा करने में मदद मिली। यह अभियान समाज में करुणा, सेवा, सहयोग और सामाजिक जिम्मेदारी को बढ़ावा देने के प्रति ट्रस्ट की निरंतर प्रतिबद्धता को दर्शाता है।",
+    },
+    participants: 400,
+    volunteers: 15,
+    impact: {
+      en: "Distributed quality clothing to hundreds of needy families and children in slum areas",
+      gu: "ઝુંપડપટ્ટી વિસ્તારના સેંકડો જરૂરિયાતમંદ પરિવારો અને બાળકોને કપડાંનું વિતરણ કર્યું",
+      hi: "झुग्गी-झोपड़ी वाले क्षेत्रों के सैकड़ों जरूरतमंद परिवारों और बच्चों को कपड़े वितरित किए",
+    },
+    img: clothes1,
+    images: [
+      {
+        img: clothes1,
+        category: "Community Welfare",
+        caption: {
+          en: "Trustees and Volunteers Distributing Clothes in Slum Areas",
+          gu: "ઝુંપડપટ્ટી વિસ્તારમાં કપડાં વિતરણ કરતા ટ્રસ્ટીશ્રીઓ અને સ્વયંસેવકો",
+          hi: "झुग्गी-झोपड़ी क्षेत्रों में कपड़ा वितरण करते ट्रस्टीगण और स्वयंसेवक",
+        },
+      },
+      {
+        img: clothes2,
+        category: "Community Welfare",
+        caption: {
+          en: "Schoolchildren Receiving New Clothes from Trust Members",
+          gu: "ટ્રસ્ટના સભ્યો પાસેથી નવા કપડાં મેળવી રહેલા શાળાના બાળકો",
+          hi: "ट्रस्ट के सदस्यों से नए कपड़े प्राप्त करते स्कूली बच्चे",
+        },
+      },
+      {
+        img: clothes3,
+        category: "Community Welfare",
+        caption: {
+          en: "Gathering of Children and Parents at Samjunath Vadi Pathshala",
+          gu: "સમજૂનાથ વાદી પાઠશાળા ખાતે એકત્રિત થયેલા બાળકો અને વાલીઓ",
+          hi: "समजूनाथ वादी पाठशाला में एकत्रित बच्चे और अभिभावक",
+        },
+      },
+      {
+        img: clothes4,
+        category: "Humanitarian Aid",
+        caption: {
+          en: "Clothes and Supplies Laid Out on Tables for Distribution",
+          gu: "વિતરણ માટે ટેબલ પર ગોઠવવામાં આવેલ કપડાં અને અન્ય સામગ્રી",
+          hi: "वितरण के लिए टेबल पर रखे गए कपड़े और अन्य सामग्री",
+        },
+      },
+      {
+        img: clothes5,
+        category: "Community Welfare",
+        caption: {
+          en: "Group Photo of Beneficiary Children Holding New Clothes Packages",
+          gu: "નવા કપડાંના પેકેટ સાથે આનંદિત બાળકોનો ગ્રુપ ફોટો",
+          hi: "नए कपड़ों के पैकेट के साथ खुश बच्चों का समूह चित्र",
+        },
+      },
+      {
+        img: clothes6,
+        category: "Social Service",
+        caption: {
+          en: "Volunteers Setting Up Clothes Distribution Counter at Vothiya Village",
+          gu: "વોઠીયા ગામે કપડાં વિતરણ કાઉન્ટર ઊભું કરી રહેલા સ્વયંસેવકો",
+          hi: "वोठिया गांव में कपड़ा वितरण काउंटर स्थापित करते स्वयंसेवक",
+        },
+      },
+      {
+        img: clothes7,
+        category: "Social Service",
+        caption: {
+          en: "Community Gathering during Clothes Distribution Campaign",
+          gu: "કપડાં વિતરણ અભિયાન દરમિયાન ઉપસ્થિત ગ્રામીણ જનમેદની",
+          hi: "कपड़ा वितरण अभियान के दौरान उपस्थित ग्रामीण समुदाय",
+        },
+      },
+      {
+        img: clothes8,
+        category: "Community Welfare",
+        caption: {
+          en: "Trustee Distributing Pairs of Jeans to Rural Youth",
+          gu: "ગ્રામીણ યુવાનોને જીન્સની જોડી વિતરણ કરી રહેલા ટ્રસ્ટીશ્રી",
+          hi: "ग्रामीण युवाओं को जींस वितरित करते ट्रस्टी",
+        },
+      },
+      {
+        img: clothes9,
+        category: "Community Welfare",
+        caption: {
+          en: "Samjunath Vadi Pathshala Clothes Support Initiative",
+          gu: "સમજૂનાથ વાદી પાઠશાળાના બાળકો માટે કપડાં સહાય યોજના",
+          hi: "समजूनाथ वादी पाठशाला के बच्चों के लिए कपड़ा सहायता पहल",
+        },
+      },
+      {
+        img: clothes10,
+        category: "Community Welfare",
+        caption: {
+          en: "Sharing Joy and Clothes with Young Children in Sanand",
+          gu: "સાણંદના નાના બાળકો સાથે ખુશીઓ અને કપડાંની વહેંચણી",
+          hi: "सानंद के छोटे बच्चों के साथ खुशियां और कपड़े बांटना",
+        },
+      },
+      {
+        img: clothes11,
+        category: "Social Service",
+        caption: {
+          en: "Trustees Standing at the Vothiya Village Distribution Table",
+          gu: "વોઠીયા ગામ ખાતે વિતરણ ટેબલ પાસે ઉભેલા ટ્રસ્ટીઓ",
+          hi: "वोठिया गांव में वितरण टेबल के पास खड़े ट्रस्टीगण",
+        },
+      },
+      {
+        img: clothes12,
+        category: "Humanitarian Aid",
+        caption: {
+          en: "Beneficiary Fitting New Jeans Distributed by Uday Foundation",
+          gu: "સંસ્થા દ્વારા વિતરણ કરાયેલ નવા જીન્સ મેળવી રહેલા લાભાર્થી",
+          hi: "संस्था द्वारा वितरित नए जींस प्राप्त करते लाभार्थी",
+        },
+      },
+      {
+        img: clothes13,
+        category: "Community Welfare",
+        caption: {
+          en: "Distributing Clothes and Spreading Smiles among Children",
+          gu: "બાળકોને કપડાં વિતરણ કરીને તેઓના ચહેરા પર સ્મિત લાવવાની પહેલ",
+          hi: "बच्चों को कपड़े वितरित कर उनके चेहरे पर मुस्कान लाने का प्रयास",
+        },
+      },
+      {
+        img: clothes14,
+        category: "Humanitarian Aid",
+        caption: {
+          en: "Handing Over Clothing Support to Needy Elders in Sanand",
+          gu: "સાણંદના જરૂરિયાતમંદ વડીલોને કપડાંની સહાય અર્પણ કરતા સભ્યો",
+          hi: "सानंद के जरूरतमंद बुजुर्गों को कपड़ों की सहायता सौंपते सदस्य",
+        },
+      },
+    ],
+  },
+  {
+    id: "government-welfare-camp-2022",
+    category: "Government Services & Public Welfare",
+    date: "Nov 2022",
+    title: {
+      en: "Government Welfare Scheme Registration Camp",
+      gu: "સરકારી જનકલ્યાણકારી યોજના સેવા કેમ્પ",
+      hi: "सरकारी जनकल्याणकारी योजना सेवा शिविर",
+    },
+    place: {
+      en: "Sanand Taluka, Ahmedabad, Gujarat",
+      gu: "સાણંદ તાલુકો, અમદાવાદ, ગુજરાત",
+      hi: "सानंद तालुका, अहमदाबाद, गुजरात",
+    },
+    summary: {
+      en: "Uday Foundation Trust organized a Government Welfare Scheme Registration Camp across villages in Sanand Taluka to help eligible citizens access various government welfare schemes. During the camp, beneficiaries received assistance with registration and guidance for Ayushman Bharat Health Card, e-Shram Card, Aadhaar Card, ABHA Health Card, and several other government welfare programs. The objective of this initiative was to ensure that every eligible citizen in rural areas could easily benefit from government schemes and that no deserving beneficiary would miss essential services due to a lack of awareness or support.",
+      gu: "ઉદય ફાઉન્ડેશન ટ્રસ્ટ દ્વારા સાણંદ તાલુકાના ગામડાઓમાં સરકારશ્રીની જનકલ્યાણકારી યોજનાઓનો લાભ દરેક જરૂરિયાતમંદ લાભાર્થી સુધી સરળતાથી પહોંચે તેવા ઉમદા હેતુથી વિશેષ સેવા કેમ્પોનું આયોજન કરવામાં આવ્યું હતું. આ કેમ્પ દરમિયાન આયુષ્માન ભારત હેલ્થ કાર્ડ, ઈ-શ્રમ કાર્ડ, આધાર કાર્ડ, આભા (ABHA) હેલ્થ કાર્ડ તેમજ અન્ય વિવિધ સરકારી યોજનાઓ માટે નોંધણી, માર્ગદર્શન અને જરૂરી સહાય પૂરી પાડવામાં આવી હતી. આ અભિયાનનો મુખ્ય હેતુ એ હતો કે ગ્રામ્ય વિસ્તારોના દરેક પાત્ર નાગરિક સુધી સરકારની યોજનાઓનો લાભ સરળતાથી પહોંચે અને કોઈપણ લાભાર્થી માહિતીના અભાવને કારણે સરકારી સહાયથી વંચિત ન રહે.",
+      hi: "उदय फाउंडेशन ट्रस्ट ने सानंद तालुका के गांवों में पात्र नागरिकों को विभिन्न सरकारी कल्याणकारी योजनाओं तक पहुंच बनाने में मदद करने के लिए एक सरकारी कल्याणकारी योजना पंजीकरण शिविर का आयोजन किया। शिविर के दौरान, लाभार्थियों को आयुष्मान भारत स्वास्थ्य कार्ड, ई-श्रम कार्ड, आधार कार्ड, आभा (ABHA) स्वास्थ्य कार्ड और कई अन्य सरकारी कल्याण कार्यक्रमों के लिए पंजीकरण और मार्गदर्शन प्रदान किया गया। इस पहल का उद्देश्य यह सुनिश्चित करना था कि ग्रामीण क्षेत्रों में प्रत्येक पात्र नागरिक सरकारी योजनाओं का आसानी से लाभ उठा सके और कोई भी पात्र लाभार्थी जागरूकता या सहायता की कमी के कारण आवश्यक सेवाओं से वंचित न रहे।",
+    },
+    participants: 650,
+    volunteers: 12,
+    impact: {
+      en: "Helped hundreds of rural citizens register for Ayushman Bharat, e-Shram, and ABHA cards",
+      gu: "સેંકડો ગ્રામીણ નાગરિકોને આયુષ્માન ભારત, ઈ-શ્રમ અને આભા કાર્ડ મેળવવામાં મદદ કરી",
+      hi: "सैकड़ों ग्रामीण नागरिकों को आयुष्मान भारत, ई-श्रम और आभा कार्ड प्राप्त करने में मदद की",
+    },
+    img: welfare7,
+    images: [
+      {
+        img: welfare1,
+        category: "Government Services",
+        caption: {
+          en: "Welfare Camp Registration Desk with Volunteers and Laptops",
+          gu: "સ્વયંસેવકો અને લેપટોપ સાથે સેવા કેમ્પ નોંધણી કાઉન્ટર",
+          hi: "स्वयंसेवकों और लैपटॉप के साथ कल्याण शिविर पंजीकरण काउंटर",
+        },
+      },
+      {
+        img: welfare2,
+        category: "Government Services",
+        caption: {
+          en: "Registration Help Desk Setup at Soyla Sub Center",
+          gu: "સોયલા સબ સેન્ટર ખાતે ઊભું કરાયેલ સહાય ડેસ્ક",
+          hi: "सोयला उप केंद्र पर स्थापित पंजीकरण सहायता डेस्क",
+        },
+      },
+      {
+        img: welfare3,
+        category: "Government Services",
+        caption: {
+          en: "Volunteer Helping Rural Citizens with Scheme Documents",
+          gu: "સરકારી યોજનાના દસ્તાવેજો ચકાસવામાં મદદ કરી રહેલા સ્વયંસેવક",
+          hi: "सरकारी योजना के दस्तावेजों की जांच में मदद करते स्वयंसेवक",
+        },
+      },
+      {
+        img: welfare4,
+        category: "Public Welfare",
+        caption: {
+          en: "Eligible Beneficiaries Queueing Up for Registration",
+          gu: "નોંધણી માટે રાહ જોઈ રહેલા પાત્ર લાભાર્થીઓની લાઈન",
+          hi: "पंजीकरण के लिए प्रतीक्षा कर रहे पात्र लाभार्थियों की कतार",
+        },
+      },
+      {
+        img: welfare5,
+        category: "Public Welfare",
+        caption: {
+          en: "Assisting Villagers with Online Registration Process",
+          gu: "ગ્રામજનોને ઓનલાઈન નોંધણી પ્રક્રિયામાં મદદ કરતા સહયોગી",
+          hi: "ग्रामीणों को ऑनलाइन पंजीकरण प्रक्रिया में मदद करते सहयोगी",
+        },
+      },
+      {
+        img: welfare6,
+        category: "Community Development",
+        caption: {
+          en: "Welfare Registration Camp inside Village School Classroom",
+          gu: "ગામની શાળાના વર્ગખંડમાં ચાલતો યોજના નોંધણી કેમ્પ",
+          hi: "गांव के स्कूल की कक्षा में चल रहा योजना पंजीकरण शिविर",
+        },
+      },
+      {
+        img: welfare7,
+        category: "Public Welfare",
+        caption: {
+          en: "Citizens Queueing Up outside e-Shram Registration Center",
+          gu: "ઈ-શ્રમ નોંધણી કેન્દ્રની બહાર કતારમાં ઉભેલા નાગરિકો",
+          hi: "ई-श्रम पंजीकरण केंद्र के बाहर कतार में खड़े नागरिक",
+        },
+      },
+      {
+        img: welfare8,
+        category: "Community Development",
+        caption: {
+          en: "Volunteers Addressing Queries during Mamta Taruni Divas",
+          gu: "મમતા તરુણી દિવસ દરમિયાન ગ્રામજનોના પ્રશ્નોનું નિરાકરણ",
+          hi: "ममता तरुणी दिवस के दौरान ग्रामीणों के प्रश्नों का समाधान",
+        },
+      },
+      {
+        img: welfare9,
+        category: "Government Services",
+        caption: {
+          en: "CSC Operator Processing e-Shram Card Applications",
+          gu: "ઈ-શ્રમ કાર્ડ અરજીઓ પ્રોસેસ કરી રહેલા સીએસસી ઓપરેટર",
+          hi: "ई-श्रम कार्ड आवेदन प्रोसेस करते सीएससी ऑपरेटर",
+        },
+      },
+      {
+        img: welfare10,
+        category: "Public Welfare",
+        caption: {
+          en: "Community Awareness and Guidance on Government Benefits",
+          gu: "સરકારી યોજનાઓના લાભો અંગે સામુદાયિક માર્ગદર્શન",
+          hi: "सरकारी योजनाओं के लाभों पर सामुदायिक मार्गदर्शन",
+        },
+      },
+      {
+        img: welfare11,
+        category: "Public Welfare",
+        caption: {
+          en: "Rural Citizens Waiting in Line for Document Verification",
+          gu: "દસ્તાવેજ ચકાસણી માટે લાઈનમાં ઉભેલા ગ્રામીણ નાગરિકો",
+          hi: "दस्तावेज़ सत्यापन के लिए लाइन में खड़े ग्रामीण नागरिक",
+        },
+      },
+      {
+        img: welfare12,
+        category: "Community Development",
+        caption: {
+          en: "Trustees Discussing Registration Statistics at the Center",
+          gu: "કેન્દ્ર પર નોંધણીના આંકડાઓની ચર્ચા કરી રહેલા ટ્રસ્ટીશ્રીઓ",
+          hi: "केंद्र पर पंजीकरण के आंकड़ों की चर्चा करते ट्रस्टीगण",
+        },
+      },
+    ],
+  },
+  {
+    id: "health-medical-camp-2022",
+    category: "Healthcare & Social Service",
+    date: "Sep 2022",
+    title: {
+      en: "Health Camp & Medical Camp",
+      gu: "હેલ્થ કેમ્પ / મેડિકલ કેમ્પ",
+      hi: "स्वास्थ्य शिविर एवं चिकित्सा शिविर",
+    },
+    place: {
+      en: "Sanand, Ahmedabad, Gujarat",
+      gu: "સાણંદ, અમદાવાદ, ગુજરાત",
+      hi: "सानंद, अहमदाबाद, गुजरात",
+    },
+    summary: {
+      en: "Uday Foundation Trust regularly organizes Health Camps and Medical Camps to deliver quality healthcare services to remote villages and underserved communities. These camps include eye check-up camps, blood donation camps, general health check-ups, free medical consultations, and various preventive healthcare services. Through these initiatives, hundreds of beneficiaries receive timely medical support while increasing awareness about healthy living. Our mission is to ensure that quality healthcare reaches every individual in society.",
+      gu: "ઉદય ફાઉન્ડેશન ટ્રસ્ટ દ્વારા છેવાડાના ગામડાઓ સુધી ગુણવત્તાસભર આરોગ્ય સેવાઓ પહોંચાડવાના હેતુથી વિવિધ હેલ્થ અને મેડિકલ કેમ્પોનું આયોજન કરવામાં આવે છે. આ કેમ્પોમાં આંખ તપાસ કેમ્પ, બ્લડ ડોનેશન કેમ્પ, સામાન્ય આરોગ્ય તપાસ, નિઃશુલ્ક તબીબી સલાહ તેમજ અન્ય આરોગ્યલક્ષી સેવાઓ ઉપલબ્ધ કરાવવામાં આવે છે. આ સેવાઓનો લાભ લઈને ગામના અનેક લાભાર્થીઓ પોતાના સ્વાસ્થ્ય પ્રત્યે વધુ જાગૃત બની રહ્યા છે. સમાજના દરેક વ્યક્તિ સુધી આરોગ્ય સેવા પહોંચે એ જ ઉદય ફાઉન્ડેશન ટ્રસ્ટનો મુખ્ય સંકલ્પ છે.",
+      hi: "उदय फाउंडेशन ट्रस्ट द्वारा दूरदराज के गांवों और वंचित समुदायों तक गुणवत्तापूर्ण स्वास्थ्य सेवाएं पहुंचाने के उद्देश्य से नियमित रूप से स्वास्थ्य और चिकित्सा शिविरों का आयोजन किया जाता. इन शिविरों में नेत्र जांच शिविर, रक्तदान शिविर, सामान्य स्वास्थ्य जांच, मुफ्त चिकित्सा परामर्श और विभिन्न निवारक स्वास्थ्य सेवाएं शामिल हैं। इन पहलों के माध्यम से, सैकड़ों लाभार्थी समय पर चिकित्सा सहायता प्राप्त करते हैं और स्वस्थ जीवन के प्रति जागरूक होते हैं। हमारा मिशन यह सुनिश्चित करना है कि समाज के हर व्यक्ति तक गुणवत्तापूर्ण स्वास्थ्य सेवा पहुंचे।",
+    },
+    participants: 450,
+    volunteers: 20,
+    impact: {
+      en: "Provided free medical check-ups, eye care, and medicine to remote villages",
+      gu: "છેવાડાના ગામોમાં મફત તબીબી તપાસ, આંખની સારવાર અને દવાઓ પૂરી પાડી",
+      hi: "दूरदराज के गांवों में मुफ्त चिकित्सा जांच, आंखों की देखभाल और दवाएं प्रदान कीं",
+    },
+    img: healthcare2,
+    images: [
+      {
+        img: healthcare1,
+        category: "Healthcare",
+        caption: {
+          en: "Celebrating Birthday of Recovering Patient at Super Specialty Hospital",
+          gu: "સુપર સ્પેશિયાલિટી હોસ્પિટલ ખાતે સાજા થતા દર્દીનો જન્મદિવસ ઉજવણી",
+          hi: "सुपर स्पेशियलिटी अस्पताल में ठीक हो रहे मरीज का जन्मदिन मनाना",
+        },
+      },
+      {
+        img: healthcare2,
+        category: "Healthcare",
+        caption: {
+          en: "Doctor Conducting General Health Screening for Schoolchildren",
+          gu: "શાળાના બાળકો માટે આરોગ્ય તપાસ કરી રહેલા તબીબ",
+          hi: "स्कूली बच्चों की सामान्य स्वास्थ्य जांच करते डॉक्टर",
+        },
+      },
+      {
+        img: healthcare3,
+        category: "Healthcare",
+        caption: {
+          en: "Stethoscope Examination of a Student during Medical Camp",
+          gu: "મેડિકલ કેમ્પ દરમિયાન સ્ટેથોસ્કોપ વડે વિદ્યાર્થીની તપાસ",
+          hi: "मेडिकल कैंप के दौरान स्टेथोस्कोप से छात्र की जांच",
+        },
+      },
+      {
+        img: healthcare4,
+        category: "Healthcare",
+        caption: {
+          en: "Schoolchildren Displaying their Medical Records with Doctor",
+          gu: "તબીબ સાથે પોતાના આરોગ્ય અહેવાલો બતાવી રહેલા બાળકો",
+          hi: "डॉक्टर के साथ अपने स्वास्थ्य रिकॉर्ड प्रदर्शित करते स्कूली बच्चे",
+        },
+      },
+      {
+        img: healthcare5,
+        category: "Healthcare",
+        caption: {
+          en: "General Health Diagnosis and Consultation at Rural Camp",
+          gu: "ગ્રામીણ કેમ્પમાં સામાન્ય શારીરિક તપાસ અને પરામર્શ",
+          hi: "ग्रामीण शिविर में सामान्य स्वास्थ्य निदान और परामर्श",
+        },
+      },
+      {
+        img: healthcare6,
+        category: "Healthcare",
+        caption: {
+          en: "Medical Staff and Trustees with Patient during Birthday Celebration",
+          gu: "જન્મદિવસની ઉજવણી દરમિયાન દર્દી સાથે મેડિકલ સ્ટાફ અને ટ્રસ્ટીઓ",
+          hi: "जन्मदिन समारोह के दौरान मरीज के साथ मेडिकल स्टाफ और ट्रस्टी",
+        },
+      },
+      {
+        img: healthcare7,
+        category: "Medical Camp",
+        caption: {
+          en: "Suprabhat Saurashtra Newspaper Report on Patient Birthday Celebration",
+          gu: "સુપ્રભાત સૌરાષ્ટ્ર અખબારમાં દર્દીના જન્મદિવસ ઉજવણીનો અહેવાલ",
+          hi: "सुप्रभात सौराष्ट्र समाचार पत्र में मरीज के जन्मदिन समारोह की रिपोर्ट",
+        },
+      },
+      {
+        img: healthcare8,
+        category: "Medical Camp",
+        caption: {
+          en: "Hamare Watan Ki Awaaz Newspaper Coverage of Uday Foundation Support",
+          gu: "હમારે વતન કી આવાઝ સાપ્તાહિકમાં સંસ્થાના સેવાકાર્યનો અહેવાલ",
+          hi: "हमारे वतन की आवाज समाचार पत्र में संस्था के सेवा कार्य की रिपोर्ट",
+        },
+      },
+      {
+        img: healthcare9,
+        category: "Medical Camp",
+        caption: {
+          en: "Dhalti Sanj Newspaper Report on Hospital Patient Birthday Support",
+          gu: "ધલતી સાંજ અખબારમાં હોસ્પિટલ સેવાકાર્યનો વિશેષ અહેવાલ",
+          hi: "ढलती सांझ समाचार पत्र में अस्पताल सेवा कार्य की विशेष रिपोर्ट",
+        },
+      },
+      {
+        img: healthcare10,
+        category: "Healthcare",
+        caption: {
+          en: "Hospital Nursing Staff and Doctors Supporting Patient Recovery",
+          gu: "દર્દીના ઝડપી સાજા થવા માટે સહયોગ આપતો હોસ્પિટલ નર્સિંગ સ્ટાફ",
+          hi: "मरीज के शीघ्र स्वस्थ होने में सहयोग करता अस्पताल का नर्सिंग स्टाफ",
+        },
+      },
+      {
+        img: healthcare11,
+        category: "Healthcare",
+        caption: {
+          en: "Community Members Registering at Health Camp Counter",
+          gu: "અભિયાન કાઉન્ટર પર નોંધણી કરાવી રહેલા ગ્રામજનો",
+          hi: "स्वास्थ्य शिविर काउंटर पर पंजीकरण कराते ग्रामीण सदस्य",
+        },
+      },
+    ],
+  },
+  {
+    id: "covid-relief-campaign-2021",
+    category: "Healthcare Activities",
+    date: "Jun 2021",
+    title: {
+      en: "COVID-19 Relief & Community Healthcare Support",
+      gu: "કોવિડ-19 મહામારી દરમિયાન સેવાકીય કામગીરી",
+      hi: "कोविड-19 राहत और सामुदायिक स्वास्थ्य सहायता",
+    },
+    place: {
+      en: "Sanand, Ahmedabad, Gujarat",
+      gu: "સાણંદ, અમદાવાદ, ગુજરાત",
+      hi: "सानंद, अहमदाबाद, गुजरात",
+    },
+    summary: {
+      en: "During the COVID-19 pandemic, Uday Foundation Trust carried out extensive community relief and healthcare services without concern for personal risk. The team conducted health screenings using temperature guns and pulse oximeters, helped patients reach hospitals for treatment, carried out village sanitization drives, distributed ration kits to needy families, and provided sanitizers to police personnel serving on the front lines. These humanitarian efforts supported public health and ensured essential assistance reached vulnerable communities during the pandemic.",
+      gu: "કોવિડ-19 મહામારી દરમિયાન ઉદય ફાઉન્ડેશન ટ્રસ્ટ દ્વારા પોતાના જીવની પરવા કર્યા વિના ગામડાઓમાં સેવાકીય કામગીરી હાથ ધરવામાં આવી હતી. ટેમ્પરેચર ગન અને ઓક્સિમીટર દ્વારા આરોગ્ય તપાસ કરવામાં આવી, જરૂરિયાતમંદ દર્દીઓને હોસ્પિટલમાં સારવાર માટે પહોંચાડવામાં આવ્યા, ગામોમાં સેનિટાઇઝેશન અભિયાન ચલાવવામાં આવ્યું, નિરાધાર અને જરૂરિયાતમંદ પરિવારોને રાશન કિટનું વિતરણ કરવામાં આવ્યું તેમજ પોલીસ સ્ટેશનમાં ફરજ બજાવતા પોલીસ જવાનોને સેનિટાઇઝરનું વિતરણ કરવામાં આવ્યું. આ સમગ્ર કામગીરીનો હેતુ કોરોના મહામારી દરમિયાન સમાજને સુરક્ષા, આરોગ્ય અને જરૂરી સહાય પૂરી પાડવાનો હતો.",
+      hi: "कोविड-19 महामारी के दौरान, उदय फाउंडेशन概念 ट्रस्ट ने व्यक्तिगत जोखिम की चिंता किए बिना व्यापक सामुदायिक राहत और स्वास्थ्य सेवाएं प्रदान कीं। टीम ने थर्मल गन और पल्स ऑक्सीमीटर का उपयोग करके स्वास्थ्य जांच की, मरीजों को इलाज के लिए अस्पतालों तक पहुंचने में मदद की, गांवों में स्वच्छता अभियान चलाया, जरूरतमंद परिवारों को राशन किट वितरित किए और फ्रंटलाइन पर सेवा कर रहे पुलिस कर्मियों को सैनिटाइज़र प्रदान किए। इन मानवीय प्रयासों ने सार्वजनिक स्वास्थ्य का समर्थन किया और यह सुनिश्चित किया कि महामारी के दौरान कमजोर समुदायों तक आवश्यक सहायता पहुंचे।",
+    },
+    participants: 500,
+    volunteers: 25,
+    impact: {
+      en: "Emergency Food & Healthcare Kits Delivered",
+      gu: "કટોકટી રાશન અને તબીબી કીટનું વિતરણ",
+      hi: "आपातकालीन भोजन और स्वास्थ्य किट वितरित किए",
+    },
+    img: covid7,
+    images: [
+      {
+        img: covid1,
+        category: "Healthcare Activities",
+        caption: {
+          en: "COVID Vaccination Camp Newspaper Report",
+          gu: "કોવિડ વેક્સિનેશન કેમ્પ અખબાર અહેવાલ (દિવ્ય ભાસ્કર)",
+          hi: "कोविड टीकाकरण शिविर समाचार पत्र रिपोर्ट",
+        },
+      },
+      {
+        img: covid2,
+        category: "Healthcare Activities",
+        caption: {
+          en: "Volunteers and Doctors at COVID Isolation Center, Soyla",
+          gu: "સોયલા ગામના કોવિડ આઇસોલેશન સેન્ટર ખાતે સ્વયંસેવકો અને તબીબો",
+          hi: "सोयला गांव के कोविड आइसोलेशन सेंटर में स्वयंसेवक और डॉक्टर",
+        },
+      },
+      {
+        img: covid3,
+        category: "Healthcare Activities",
+        caption: {
+          en: "COVID Vaccination Drive News Snippet",
+          gu: "કોવિડ રસીકરણ અભિયાન ન્યૂઝ ક્લિપિંગ",
+          hi: "कोविड टीकाकरण अभियान समाचार क्लिपिंग",
+        },
+      },
+      {
+        img: covid4,
+        category: "Healthcare Activities",
+        caption: {
+          en: "Medical Staff Administering Vaccines to Villagers",
+          gu: "ગ્રામજનોને રસી આપતા મેડિકલ સ્ટાફ",
+          hi: "ग्रामीणों को टीका लगाते चिकित्सा कर्मचारी",
+        },
+      },
+      {
+        img: covid5,
+        category: "Healthcare Activities",
+        caption: {
+          en: "Screening and Registration at Vaccination Center",
+          gu: "રસીકરણ કેન્દ્ર પર સ્ક્રિનિંગ અને રજીસ્ટ્રેશન",
+          hi: "टीकाकरण केंद्र पर स्क्रीनिंग और पंजीकरण",
+        },
+      },
+      {
+        img: covid6,
+        category: "Healthcare Activities",
+        caption: {
+          en: "Villagers Waiting for COVID Vaccination",
+          gu: "કોવિડ રસીકરણ માટે પ્રતીક્ષા કરતા ગ્રામજનો",
+          hi: "कोविड टीकाकरण की प्रतीक्षा करते ग्रामीण",
+        },
+      },
+      {
+        img: covid7,
+        category: "Healthcare Activities",
+        caption: {
+          en: "Police Samanvay Report on Medical Kit Distribution",
+          gu: "મેડિકલ કીટ વિતરણ અંગે પોલીસ સમન્વય અહેવાલ",
+          hi: "मेडिकल किट वितरण पर पुलिस समन्वय रिपोर्ट",
+        },
+      },
+      {
+        img: covid8,
+        category: "Healthcare Activities",
+        caption: {
+          en: "Distributing Emergency Medical Kits to Rural Families",
+          gu: "ગ્રામીણ પરિવારોને કટોકટી તબીબી કીટનું વિતરણ",
+          hi: "ग्रामीण परिवारों को आपातकालीन चिकित्सा किट वितरित करना",
+        },
+      },
+      {
+        img: covid9,
+        category: "Healthcare Activities",
+        caption: {
+          en: "Community Briefing on Safety Protocol & Registration",
+          gu: "સુરક્ષા પ્રોટોકોલ અને નોંધણી અંગે સામુદાયિક માહિતી",
+          hi: "सुरक्षा प्रोटोकॉल और पंजीकरण पर सामुदायिक जानकारी",
+        },
+      },
+      {
+        img: covid10,
+        category: "Healthcare Activities",
+        caption: {
+          en: "Frontline Health Screening using Pulse Oximeters",
+          gu: "પલ્સ ઓક્સિમીટરનો ઉપયોગ કરીને પ્રથમ હરોળની આરોગ્ય તપાસ",
+          hi: "पल्स ऑक्सीमीटर का उपयोग करके फ्रंटलाइन स्वास्थ्य जांच",
+        },
+      },
+    ],
+  },
+  {
+    id: "cyclone-tauktae-relief-2021",
+    category: "Disaster Relief & Emergency Response",
+    date: "May 2021",
+    title: {
+      en: "Cyclone Tauktae Relief Ration Kit Distribution",
+      gu: "તાઉતે વાવાઝોડા રાહત રાશન કિટ વિતરણ",
+      hi: "तौते चक्रवात राहत राशन किट वितरण",
+    },
+    place: {
+      en: "Jafrabad & Nearby Villages, Amreli District, Gujarat",
+      gu: "જાફરાબાદ અને આસપાસના ગામો, અમરેલી જિલ્લો, ગુજરાત",
+      hi: "जाफराबाद और आसपास के गांव, अमरेली जिला, गुजरात",
+    },
+    summary: {
+      en: "Following the devastating impact of Cyclone Tauktae in Jafrabad and nearby villages of Amreli District, Uday Foundation Trust organized a Relief Ration Kit Distribution Drive for affected families. The initiative aimed to provide immediate food assistance and essential supplies to disaster-affected communities during this difficult time. Through this humanitarian effort, the Trust stood beside families in need and demonstrated its commitment to compassion, disaster relief, and community support.",
+      gu: "તાઉતે વાવાઝોડાથી અમરેલી જિલ્લાના જાફરાબાદ તથા આસપાસના ગામોમાં ભારે નુકસાન થયું હતું. આ આપત્તિની મુશ્કેલ પરિસ્થિતિમાં ઉદય ફાઉન્ડેશન ટ્રસ્ટ દ્વારા અસરગ્રસ્ત પરિવારોને રાહતરૂપે રાશન કિટનું વિતરણ કરવામાં આવ્યું. આ સેવા કાર્યનો મુખ્ય હેતુ કુદરતી આપત્તિથી પ્રભાવિત પરિવારોને તાત્કાલિક જરૂરી જીવન જરૂરિયાતોની સહાય પૂરી પાડવાનો અને મુશ્કેલ સમયમાં તેમની સાથે ઉભા રહેવાનો હતો. આ અભિયાન દ્વારા માનવતા, સેવા અને સામાજિક જવાબદારીનું ઉત્તમ ઉદાહરણ પૂરું પાડવામાં આવ્યું.",
+      hi: "अमरेली जिले के जाफराबाद और आसपास के गांवों में चक्रवात तौते के विनाशकारी प्रभाव के बाद, उदय फाउंडेशन ट्रस्ट ने प्रभावित परिवारों के लिए एक राहत राशन किट वितरण अभियान का आयोजन किया। इस पहल का उद्देश्य इस कठिन समय में आपदा प्रभावित समुदायों को तत्काल खाद्य सहायता और आवश्यक सामग्री प्रदान करना था। इस मानवीय प्रयास के माध्यम से, ट्रस्ट जरूरतमंद परिवारों के साथ खड़ा रहा और करुणा, आपदा राहत और सामुदायिक सहायता के प्रति अपनी प्रतिबद्धता प्रदर्शित की।",
+    },
+    participants: 480,
+    volunteers: 30,
+    impact: {
+      en: "Delivered 481 emergency ration kits to cyclone-affected families",
+      gu: "વાવાઝોડાથી અસરગ્રસ્ત પરિવારોને ૪૮૧ કટોકટી રાશન કીટ પહોંચાડી",
+      hi: "चक्रवात प्रभावित परिवारों को 481 आपातकालीन राशन किट वितरित किए",
+    },
+    img: tauktae7,
+    images: [
+      {
+        img: tauktae1,
+        category: "Disaster Relief",
+        caption: {
+          en: "Trustees Distributing Supplies to Needy Family in Affected Village",
+          gu: "અસરગ્રસ્ત ગામમાં જરૂરિયાતમંદ પરિવારને સામગ્રી વિતરણ કરતા સભ્યો",
+          hi: "प्रभावित गांव में जरूरतमंद परिवार को सामग्री वितरित करते सदस्य",
+        },
+      },
+      {
+        img: tauktae2,
+        category: "Disaster Relief",
+        caption: {
+          en: "Providing Emergency Supplies to an Elderly Resident",
+          gu: "મુશ્કેલ સમયમાં વડીલ રહેવાસીને કટોકટી સહાય પૂરી પાડવી",
+          hi: "कठिन समय में एक बुजुर्ग निवासी को आपातकालीन सहायता प्रदान करना",
+        },
+      },
+      {
+        img: tauktae3,
+        category: "Disaster Relief",
+        caption: {
+          en: "Delivering Ration Bag directly to Children in Affected Area",
+          gu: "અસરગ્રસ્ત વિસ્તારના બાળકોને સીધા જ રાશન બેગ પહોંચાડતા સ્વયંસેવકો",
+          hi: "प्रभावित क्षेत्र के बच्चों को सीधे राशन बैग सौंपते स्वयंसेवक",
+        },
+      },
+      {
+        img: tauktae4,
+        category: "Disaster Relief",
+        caption: {
+          en: "Assessing Damaged Houses in Cyclone Impacted Area",
+          gu: "વાવાઝોડાથી ક્ષતિગ્રસ્ત મકાનોની મુલાકાત અને સહાય આકલન",
+          hi: "चक्रवात प्रभावित क्षेत्र में क्षतिग्रस्त घरों का जायजा लेना",
+        },
+      },
+      {
+        img: tauktae5,
+        category: "Disaster Relief",
+        caption: {
+          en: "Delivering Emergency Ration Kit at Beneficiary's Doorstep",
+          gu: "લાભાર્થીના ઘરઆંગણે જઈને રાહત રાશન કીટ આપતા સ્વયંસેવકો",
+          hi: "लाभार्थी के घर जाकर राहत राशन kit देते स्वयंसेवक",
+        },
+      },
+      {
+        img: tauktae6,
+        category: "Disaster Relief",
+        caption: {
+          en: "Volunteers Handing Over Food Bag to Villager",
+          gu: "ગ્રામજનને કટોકટી રાશન બેગ સોંપી રહેલા સેવાભાવી સભ્યો",
+          hi: "ग्रामीण को आपातकालीन राशन बैग सौंपते स्वयंसेवक",
+        },
+      },
+      {
+        img: tauktae7,
+        category: "Disaster Relief",
+        caption: {
+          en: "Newspaper Report on Kothala Dada Group Distribution in Belda",
+          gu: "બેલ્ડા ગામમાં કોથળા દાદા વોટ્સએપ ગ્રુપ દ્વારા વિતરણનો અહેવાલ",
+          hi: "बेल्डा गांव में कोथला दादा व्हाट्सएप ग्रुप द्वारा वितरण की रिपोर्ट",
+        },
+      },
+      {
+        img: tauktae8,
+        category: "Disaster Relief",
+        caption: {
+          en: "Supplying Essential Food Ingredients to Rural Household",
+          gu: "ગ્રામીણ પરિવારને જીવનજરૂરી રાશન સામગ્રી આપતા ટ્રસ્ટીઓ",
+          hi: "ग्रामीण परिवार को आवश्यक राशन सामग्री देते ट्रस्टी",
+        },
+      },
+      {
+        img: tauktae9,
+        category: "Disaster Relief",
+        caption: {
+          en: "Visiting Cyclone Affected Damaged Houses in Amreli",
+          gu: "અમરેલી જિલ્લામાં વાવાઝોડાથી પ્રભાવિત ક્ષતિગ્રસ્ત મકાનોની મુલાકાત",
+          hi: "अमरेली जिले में चक्रवात से प्रभावित क्षतिग्रस्त घरों का दौरा",
+        },
+      },
+      {
+        img: tauktae10,
+        category: "Disaster Relief",
+        caption: {
+          en: "Emergency Kit Distributed to Elderly Resident",
+          gu: "વયોવૃદ્ધ ગ્રામીણ નાગરિકને કટોકટી રાશન કીટનું વિતરણ",
+          hi: "बुजुर्ग ग्रामीण नागरिक को आपातकालीन राशन किट का वितरण",
+        },
+      },
+      {
+        img: tauktae11,
+        category: "Disaster Relief",
+        caption: {
+          en: "Delivering Emergency Ration Kit to Affected Villager",
+          gu: "પ્રભાવિત ગ્રામજનને રાશન સામગ્રીની બેગ અર્પણ કરતા સભ્યો",
+          hi: "प्रभावित ग्रामीण को राशन सामग्री का बैग भेंट करते सदस्य",
+        },
+      },
+      {
+        img: tauktae12,
+        category: "Disaster Relief",
+        caption: {
+          en: "Distributing Ration kit to Destitute Lady Beneficiary",
+          gu: "નિરાધાર જરૂરિયાતમંદ મહિલાને કટોકટી રાશન સામગ્રીનું વિતરણ",
+          hi: "निराश्रित जरूरतमंद महिला को आपातकालीन राशन सामग्री का वितरण",
+        },
+      },
+      {
+        img: tauktae13,
+        category: "Disaster Relief",
+        caption: {
+          en: "Providing Emergency Supplies outside Damaged Rural House",
+          gu: "ક્ષતિગ્રસ્ત મકાનની બહાર જરૂરિયાતમંદ ગ્રામીણને સહાય પૂરી પાડવી",
+          hi: "क्षतिग्रस्त मकान के बाहर जरूरतमंद ग्रामीण को सहायता प्रदान करना",
+        },
+      },
+      {
+        img: tauktae14,
+        category: "Disaster Relief",
+        caption: {
+          en: "Trustee Delivering Essential Food Bag to Affected Family",
+          gu: "અસરગ્રસ્ત પરિવારને જીવનજરૂરી ખાદ્ય સામગ્રી આપતા ટ્રસ્ટીશ્રી",
+          hi: "प्रभावित परिवार को आवश्यक खाद्य सामग्री देते ट्रस्टी",
+        },
+      },
+      {
+        img: tauktae15,
+        category: "Disaster Relief",
+        caption: {
+          en: "Volunteers Distributing Ration Packs to Families in Jafrabad",
+          gu: "જાફરાબાદના જરૂરિયાતમંદ પરિવારોને રાશન પેકેટ્સ આપતા સભ્યો",
+          hi: "जाफराबाद के जरूरतमंद परिवारों को राशन पैकेट देते सदस्य",
         },
       },
     ],
@@ -433,4 +1621,114 @@ export const SCHOOL_BAG_SIMPLE_GALLERY: SimpleGalleryItem[] = [
   { img: hebatpur10, cat: "Events", h: "short" },
   { img: hebatpur11, cat: "Education", h: "short" },
   { img: hebatpur12, cat: "Education", h: "short" },
+
+  // Sparrow Nest Distribution Campaign
+  { img: sparrow1, cat: "Environment", h: "short" },
+  { img: sparrow2, cat: "Environment", h: "tall" },
+  { img: sparrow3, cat: "Environment", h: "short" },
+  { img: sparrow4, cat: "Environment", h: "tall" },
+  { img: sparrow5, cat: "Environment", h: "short" },
+  { img: sparrow6, cat: "Environment", h: "short" },
+  { img: sparrow7, cat: "Environment", h: "tall" },
+  { img: sparrow8, cat: "Events", h: "short" },
+  { img: sparrow9, cat: "Environment", h: "short" },
+
+  // COVID-19 Relief & Community Healthcare Support
+  { img: covid1, cat: "Healthcare", h: "short" },
+  { img: covid2, cat: "Relief", h: "tall" },
+  { img: covid3, cat: "Healthcare", h: "short" },
+  { img: covid4, cat: "Healthcare", h: "tall" },
+  { img: covid5, cat: "Healthcare", h: "short" },
+  { img: covid6, cat: "Healthcare", h: "short" },
+  { img: covid7, cat: "Relief", h: "tall" },
+  { img: covid8, cat: "Relief", h: "short" },
+  { img: covid9, cat: "Healthcare", h: "short" },
+  { img: covid10, cat: "Healthcare", h: "short" },
+
+  // Diwali Sweets & Ration Kit Distribution Drive
+  { img: diwali1, cat: "Community", h: "short" },
+  { img: diwali2, cat: "Community", h: "tall" },
+  { img: diwali3, cat: "Relief", h: "short" },
+  { img: diwali4, cat: "Relief", h: "tall" },
+  { img: diwali5, cat: "Community", h: "short" },
+  { img: diwali6, cat: "Events", h: "short" },
+  { img: diwali7, cat: "Events", h: "tall" },
+  { img: diwali8, cat: "Community", h: "short" },
+  { img: diwali9, cat: "Relief", h: "short" },
+  { img: diwali10, cat: "Relief", h: "short" },
+  { img: diwali11, cat: "Events", h: "short" },
+  { img: diwali12, cat: "Relief", h: "short" },
+
+  // Health Camp & Medical Camp
+  { img: healthcare1, cat: "Healthcare", h: "short" },
+  { img: healthcare2, cat: "Healthcare", h: "tall" },
+  { img: healthcare3, cat: "Healthcare", h: "short" },
+  { img: healthcare4, cat: "Healthcare", h: "tall" },
+  { img: healthcare5, cat: "Healthcare", h: "short" },
+  { img: healthcare6, cat: "Healthcare", h: "short" },
+  { img: healthcare7, cat: "Events", h: "short" },
+  { img: healthcare8, cat: "Events", h: "tall" },
+  { img: healthcare9, cat: "Events", h: "short" },
+  { img: healthcare10, cat: "Healthcare", h: "short" },
+  { img: healthcare11, cat: "Healthcare", h: "short" },
+
+  // Government Welfare Scheme Registration Camp
+  { img: welfare1, cat: "Community", h: "short" },
+  { img: welfare2, cat: "Community", h: "tall" },
+  { img: welfare3, cat: "Community", h: "short" },
+  { img: welfare4, cat: "Community", h: "tall" },
+  { img: welfare5, cat: "Community", h: "short" },
+  { img: welfare6, cat: "Community", h: "short" },
+  { img: welfare7, cat: "Events", h: "tall" },
+  { img: welfare8, cat: "Community", h: "short" },
+  { img: welfare9, cat: "Community", h: "short" },
+  { img: welfare10, cat: "Community", h: "short" },
+  { img: welfare11, cat: "Community", h: "short" },
+  { img: welfare12, cat: "Events", h: "short" },
+
+  // Clothes Distribution Drive
+  { img: clothes1, cat: "Community", h: "short" },
+  { img: clothes2, cat: "Community", h: "tall" },
+  { img: clothes3, cat: "Community", h: "short" },
+  { img: clothes4, cat: "Relief", h: "tall" },
+  { img: clothes5, cat: "Community", h: "short" },
+  { img: clothes6, cat: "Events", h: "short" },
+  { img: clothes7, cat: "Events", h: "tall" },
+  { img: clothes8, cat: "Community", h: "short" },
+  { img: clothes9, cat: "Community", h: "short" },
+  { img: clothes10, cat: "Community", h: "short" },
+  { img: clothes11, cat: "Events", h: "short" },
+  { img: clothes12, cat: "Relief", h: "short" },
+  { img: clothes13, cat: "Community", h: "short" },
+  { img: clothes14, cat: "Relief", h: "short" },
+
+  // Cyclone Tauktae Relief Ration Kit Distribution
+  { img: tauktae1, cat: "Relief", h: "short" },
+  { img: tauktae2, cat: "Relief", h: "tall" },
+  { img: tauktae3, cat: "Relief", h: "short" },
+  { img: tauktae4, cat: "Relief", h: "tall" },
+  { img: tauktae5, cat: "Relief", h: "short" },
+  { img: tauktae6, cat: "Relief", h: "short" },
+  { img: tauktae7, cat: "Events", h: "tall" },
+  { img: tauktae8, cat: "Relief", h: "short" },
+  { img: tauktae9, cat: "Relief", h: "short" },
+  { img: tauktae10, cat: "Relief", h: "short" },
+  { img: tauktae11, cat: "Relief", h: "short" },
+  { img: tauktae12, cat: "Relief", h: "short" },
+  { img: tauktae13, cat: "Relief", h: "short" },
+  { img: tauktae14, cat: "Relief", h: "short" },
+  { img: tauktae15, cat: "Relief", h: "short" },
+
+  // Traffic Safety, Cyber Awareness, Water Conservation & Environmental Awareness Program
+  { img: traffic1, cat: "Community", h: "short" },
+  { img: traffic2, cat: "Education", h: "tall" },
+  { img: traffic3, cat: "Education", h: "short" },
+  { img: traffic4, cat: "Events", h: "tall" },
+  { img: traffic5, cat: "Events", h: "short" },
+  { img: traffic6, cat: "Education", h: "short" },
+  { img: traffic7, cat: "Education", h: "tall" },
+  { img: traffic8, cat: "Environment", h: "short" },
+  { img: traffic9, cat: "Education", h: "short" },
+  { img: traffic10, cat: "Education", h: "short" },
+  { img: traffic11, cat: "Events", h: "short" },
 ];
