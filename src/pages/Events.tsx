@@ -21,7 +21,7 @@ import { useLanguage } from "@/context/LanguageContext";
 import { Counter } from "@/components/site/Counter";
 import pavaDistributionGroup from "@/assets/pava-distribution-group.jpg";
 import { useDocumentMetadata } from "@/hooks/useDocumentMetadata";
-import { SCHOOL_BAG_EVENTS, SCHOOL_BAG_GALLERY } from "@/constants/schoolEvents";
+import { SCHOOL_BAG_EVENTS } from "@/constants/schoolEvents";
 
 const TRANSLATIONS_LOCAL = {
   en: {
@@ -219,8 +219,6 @@ const UPCOMING_CAMPAIGNS: any[] = [];
 
 const PAST_CAMPAIGNS = [...SCHOOL_BAG_EVENTS];
 
-const GALLERY_PICTURES = [...SCHOOL_BAG_GALLERY];
-
 export function Events() {
   const { language, t } = useLanguage();
   const tLocal = TRANSLATIONS_LOCAL[language as "en" | "gu" | "hi"] || TRANSLATIONS_LOCAL["en"];
@@ -232,7 +230,6 @@ export function Events() {
 
   // States
   const [activeCategory, setActiveCategory] = useState<string>("All");
-  const [activeGalleryCat, setActiveGalleryCat] = useState<string>("All");
   const [lightboxImg, setLightboxImg] = useState<string | null>(null);
   const [isRegistering, setIsRegistering] = useState<string | null>(null);
   const [isVolunteering, setIsVolunteering] = useState<boolean>(false);
@@ -250,27 +247,11 @@ export function Events() {
     { key: "Volunteer Programs", label: { en: "Volunteer", gu: "સ્વયંસેવક", hi: "स्वयंसेवक" } },
   ];
 
-  // Gallery category options
-  const GALLERY_CATS = [
-    "All",
-    "Medical Camps",
-    "Tree Plantation",
-    "Educational Activities",
-    "Volunteer Activities",
-    "Community Events",
-  ];
-
   // Filtered upcoming campaigns
   const filteredEvents =
     activeCategory === "All"
       ? UPCOMING_CAMPAIGNS
       : UPCOMING_CAMPAIGNS.filter((e) => e.category === activeCategory);
-
-  // Filtered gallery
-  const filteredGallery =
-    activeGalleryCat === "All"
-      ? GALLERY_PICTURES
-      : GALLERY_PICTURES.filter((p) => p.category === activeGalleryCat);
 
   // Form submits
   const handleFormSubmit = (e: React.FormEvent) => {
@@ -695,73 +676,6 @@ export function Events() {
                       </div>
                     </div>
                   </article>
-                );
-              })}
-            </div>
-          )}
-        </div>
-      </section>
-
-      {/* PHOTO GALLERY SECTION */}
-      <section className="py-16 md:py-24 bg-[#F8FAFF] border-b border-border">
-        <div className="about-section-container">
-          <div className="text-center max-w-3xl mx-auto mb-12">
-            <span className="inline-block px-3 py-1.5 text-xs font-bold uppercase tracking-[0.12em] text-[#4040A1] bg-[#4040A1]/10 rounded-full mb-4">
-              {tLocal.gallerySub}
-            </span>
-            <h2 className="text-3xl md:text-4xl font-display font-bold text-slate-900 tracking-tight">
-              {tLocal.galleryTitle}
-            </h2>
-            <div className="w-16 h-1 bg-[#F7E81D] mx-auto mt-4 rounded-full" />
-          </div>
-
-          {/* Gallery categories tab */}
-          <div className="flex flex-wrap items-center justify-center gap-2 mb-12">
-            {GALLERY_CATS.map((cat) => (
-              <button
-                key={cat}
-                onClick={() => setActiveGalleryCat(cat)}
-                className={`px-4 py-2 rounded-full text-xs font-bold uppercase tracking-wider transition-all cursor-pointer ${
-                  activeGalleryCat === cat
-                    ? "bg-[#4040A1] text-white shadow-md border-[#4040A1]"
-                    : "bg-white hover:bg-slate-100 text-slate-600 border border-slate-200"
-                }`}
-              >
-                {cat}
-              </button>
-            ))}
-          </div>
-
-          {/* Masonry Grid */}
-          {filteredGallery.length === 0 ? (
-            <div className="text-center py-12 text-slate-400 font-semibold bg-white border border-border rounded-3xl shadow-xs w-full col-span-full">
-              {language === "gu" ? "ગેલેરીમાં હજુ સુધી કોઈ ફોટા નથી." : language === "hi" ? "गैलरी में अभी तक कोई फोटो नहीं हैं।" : "No photos in the gallery yet."}
-            </div>
-          ) : (
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              {filteredGallery.map((pic, idx) => {
-                const caption = pic.caption[language] || pic.caption["en"];
-                return (
-                  <div
-                    key={idx}
-                    onClick={() => setLightboxImg(pic.img)}
-                    className="block w-full rounded-2xl overflow-hidden bg-surface border border-border hover:border-primary/40 hover:shadow-md transition-all group cursor-pointer"
-                  >
-                    <div className="relative aspect-square overflow-hidden bg-slate-100">
-                      <img
-                        src={pic.img}
-                        alt={caption}
-                        className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                        loading="lazy"
-                      />
-                    </div>
-                    <div className="p-3 bg-white border-t border-slate-50 flex items-center justify-between text-xs font-semibold text-slate-500">
-                      <span className="truncate">{caption}</span>
-                      <span className="text-[10px] text-[#4040A1] bg-[#4040A1]/10 px-2 py-0.5 rounded-md flex-shrink-0">
-                        View
-                      </span>
-                    </div>
-                  </div>
                 );
               })}
             </div>
