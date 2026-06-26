@@ -24,6 +24,10 @@ import imgHealth from "@/assets/program-health.jpg";
 import imgTrees from "@/assets/program-trees.jpg";
 import imgRation from "@/assets/activity-ration.jpg";
 import heroChildren from "@/assets/hero-children.jpg";
+import imgPavaChildren from "@/assets/event-pava-children.jpg";
+import imgPavaCert from "@/assets/event-pava-cert.jpg";
+import imgPavaDist from "@/assets/event-pava-dist.jpg";
+import imgPavaBook from "@/assets/event-pava-book.jpg";
 import { useDocumentMetadata } from "@/hooks/useDocumentMetadata";
 
 const TRANSLATIONS_LOCAL = {
@@ -391,6 +395,34 @@ const UPCOMING_CAMPAIGNS = [
 
 const PAST_CAMPAIGNS = [
   {
+    id: "past-pava",
+    category: "Educational Activities",
+    date: "Jun 2026",
+    title: {
+      en: "School Entrance Festival & Kit Distribution",
+      gu: "શાળા પ્રવેશોત્સવ અને શૈક્ષણિક કીટ વિતરણ-2026",
+      hi: "स्कूल प्रवेशोत्सव एवं शैक्षिक किट वितरण-2026",
+    },
+    place: {
+      en: "Pava Primary School, Sanand Taluka",
+      gu: "પાવા પ્રાથમિક શાળા, સાણંદ તાલુકો",
+      hi: "पावा प्राथमिक विद्यालय, सानंद तालुका",
+    },
+    summary: {
+      en: "President Gulab Bauddh attended the School Entrance & Girls Education Festival. The trust distributed school bags and educational kits to newly enrolled students. The school staff welcomed him with books and presented a certificate of appreciation for the trust's educational support.",
+      gu: "સાણંદ તાલુકાની પાવા પ્રાથમિક શાળામાં યોજાયેલા કન્યા કેળવણી મહોત્સવ અને શાળા પ્રવેશોત્સવ-2026 કાર્યક્રમમાં પ્રમુખ શ્રી ગુલાબ બૌદ્ધ ઉપસ્થિત રહ્યા હતા અને વિદ્યાર્થીઓને સ્કૂલ બેગ અને શિક્ષણ કીટનું વિતરણ કર્યું હતું. શાળા પરિવાર દ્વારા તેમનું પુસ્તક અર્પણ કરી સ્વાગત કરાયું અને સન્માનપત્ર આપી સન્માનિત કરાયા હતા.",
+      hi: "सानंद तालुका के पावा प्राथमिक विद्यालय में कन्या शिक्षा और स्कूल प्रवेशोत्सव कार्यक्रम में अध्यक्ष गुलाब बौद्ध उपस्थित रहे और विद्यार्थियों को स्कूल बैग और शैक्षिक किट वितरित किए गए। स्कूल स्टाफ ने उन्हें सम्मानित किया।",
+    },
+    participants: 120,
+    volunteers: 10,
+    impact: {
+      en: "Distributed School Bags & Kits",
+      gu: "સ્કૂલ બેગ અને શિક્ષણ કીટ વિતરણ",
+      hi: "स्कूल बैग और किट वितरित",
+    },
+    img: imgPavaChildren,
+  },
+  {
     id: "past-diwali",
     category: "Disaster Relief Activities",
     date: "Oct 2025",
@@ -477,6 +509,26 @@ const PAST_CAMPAIGNS = [
 ];
 
 const GALLERY_PICTURES = [
+  {
+    img: imgPavaChildren,
+    category: "Educational Activities",
+    caption: { en: "Group Photo: School Entrance Festival", gu: "શાળા પ્રવેશોત્સવ સમૂહ તસવીર", hi: "स्कूल प्रवेशोत्सव सामूहिक चित्र" },
+  },
+  {
+    img: imgPavaDist,
+    category: "Educational Activities",
+    caption: { en: "School Bag Distribution", gu: "શાળા બેગ વિતરણ", hi: "स्कूल बैग वितरण" },
+  },
+  {
+    img: imgPavaCert,
+    category: "Educational Activities",
+    caption: { en: "Honoring President Gulab Bauddh", gu: "પ્રમુખ શ્રી ગુલાબ બૌદ્ધનું સન્માન", hi: "अध्यक्ष गुलाब बौद्ध का सम्मान" },
+  },
+  {
+    img: imgPavaBook,
+    category: "Educational Activities",
+    caption: { en: "School Entrance Ceremony Welcome", gu: "શાળા પ્રવેશોત્સવ સ્વાગત", hi: "स्कूल प्रवेशोत्सव स्वागत" },
+  },
   {
     img: imgHealth,
     category: "Medical Camps",
