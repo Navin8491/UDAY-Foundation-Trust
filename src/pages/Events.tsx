@@ -19,11 +19,11 @@ import {
 } from "lucide-react";
 import { useLanguage } from "@/context/LanguageContext";
 import { Counter } from "@/components/site/Counter";
-import imgEdu from "@/assets/program-education.jpg";
-import imgHealth from "@/assets/program-health.jpg";
-import imgTrees from "@/assets/program-trees.jpg";
-import imgRation from "@/assets/activity-ration.jpg";
-import heroChildren from "@/assets/hero-children.jpg";
+import pavaCertificate from "@/assets/pava-certificate.jpg";
+import pavaDistributionGroup from "@/assets/pava-distribution-group.jpg";
+import pavaAward from "@/assets/pava-award.jpg";
+import pavaEnvelope from "@/assets/pava-envelope.jpg";
+import pavaDistributionTable from "@/assets/pava-distribution-table.jpg";
 import { useDocumentMetadata } from "@/hooks/useDocumentMetadata";
 import { SCHOOL_BAG_EVENTS, SCHOOL_BAG_GALLERY } from "@/constants/schoolEvents";
 
@@ -246,7 +246,7 @@ const UPCOMING_CAMPAIGNS = [
       gu: "સામાન્ય આરોગ્ય તપાસ, બ્લડ સુગર અને બીપી ટેસ્ટિંગ, મફત આંખની તપાસ, તેમજ જરૂરિયાતમંદોને ચશ્મા અને દવાઓનું વિતરણ.",
       hi: "व्यापक सामान्य स्वास्थ्य जांच, शुगर और बीपी परीक्षण, मुफ्त नेत्र परीक्षण, और चश्मे और दवाओं का वितरण।",
     },
-    img: imgHealth,
+    img: pavaEnvelope,
   },
   {
     id: "tree-plantation-ambedkar",
@@ -274,7 +274,7 @@ const UPCOMING_CAMPAIGNS = [
       gu: "ગામડાઓ અને રસ્તાઓ પર હરિયાળી વધારવા માટે સ્થાનિક પ્રજાતિના ૫૦૦ વૃક્ષો રોપવાનું અને જાળવવાનું આયોજન.",
       hi: "हरियाली बढ़ाने के लिए सड़कों और स्कूलों के किनारे 500 स्थानीय प्रजातियों के पेड़ लगाने और उनके संरक्षण का लक्ष्य।",
     },
-    img: imgTrees,
+    img: pavaCertificate,
   },
   {
     id: "school-kit-rural",
@@ -302,7 +302,7 @@ const UPCOMING_CAMPAIGNS = [
       gu: "પરીક્ષાઓ પહેલા ગરીબ બાળકોને સ્કૂલ બેગ, નોટબુક, ડ્રોઈંગ કીટ અને જરૂરી સ્ટેશનરી સામગ્રી પૂરી પાડવી.",
       hi: "परीक्षाओं से पहले वंचित बच्चों को स्कूल बैग, नोटबुक, ड्राइंग किट और आवश्यक लेखन सामग्री प्रदान करना।",
     },
-    img: imgEdu,
+    img: pavaDistributionTable,
   },
   {
     id: "womens-health-camp",
@@ -330,7 +330,7 @@ const UPCOMING_CAMPAIGNS = [
       gu: "પોષણ, એનિમિયા નિવારણ, માસિક સ્ત્રાવ સ્વાસ્થ્ય અંગે ગાયનેકોલોજિસ્ટ ડોકટરોનું માર્ગદર્શન અને સેનિટરી પેડ્સનું વિતરણ.",
       hi: "पोषण, एनीमिया निवारण, मासिक धर्म स्वास्थ्य पर स्त्री रोग विशेषज्ञ डॉक्टरों का मार्गदर्शन और सेनेटरी पैड्स का वितरण।",
     },
-    img: imgRation,
+    img: pavaEnvelope,
   },
   {
     id: "sports-day-celebration",
@@ -358,7 +358,7 @@ const UPCOMING_CAMPAIGNS = [
       gu: "શારીરિક સ્વાસ્થ્ય અને ટીમ બિલ્ડિંગને પ્રોત્સાહન આપવા માટે ગામડાના યુવાનો માટે કબડ્ડી, ખો-ખો અને એથ્લેટિક્સ જેવી પરંપરાગત રમતો.",
       hi: "शारीरिक स्वास्थ्य और टीम निर्माण को बढ़ावा देने के लिए ग्रामीण युवाओं के लिए कबड्डी, खो-खो और एथलेटिक्स जैसी पारंपरिक खेल प्रतियोगिताएं।",
     },
-    img: imgEdu,
+    img: pavaDistributionGroup,
   },
   {
     id: "village-cleanup-drive",
@@ -386,7 +386,7 @@ const UPCOMING_CAMPAIGNS = [
       gu: "કચરાના નિકાલ અંગે જાગૃતિ અભિયાન અને સ્થાનિક પંચાયત સાથે મળીને સ્વયંસેવકો દ્વારા સફાઈ અને પ્લાસ્ટિક એકત્રીકરણ.",
       hi: "कचरा पृथक्करण जागरूकता अभियान और स्थानीय पंचायत के साथ मिलकर स्वयंसेवकों द्वारा स्वच्छता और प्लास्टिक संग्रह अभियान।",
     },
-    img: imgTrees,
+    img: pavaDistributionTable,
   },
 ];
 
@@ -418,7 +418,7 @@ const PAST_CAMPAIGNS = [
       gu: "૧૨૦+ પરિવારોએ દીવાળી ઉજવી",
       hi: "120+ परिवारों ने दिवाली मनाई",
     },
-    img: heroChildren,
+    img: pavaDistributionTable,
   },
   {
     id: "past-chaas",
@@ -446,7 +446,7 @@ const PAST_CAMPAIGNS = [
       gu: "હજારો શ્રમિકોને ગરમીથી રાહત",
       hi: "हजारों श्रमिकों को राहत मिली",
     },
-    img: imgRation,
+    img: pavaEnvelope,
   },
   {
     id: "past-sports",
@@ -474,60 +474,12 @@ const PAST_CAMPAIGNS = [
       gu: "૪૫ ટ્રોફી અને કીટ્સનું વિતરણ",
       hi: "45 ट्रॉफी और किट वितरित किए गए",
     },
-    img: imgEdu,
+    img: pavaAward,
   },
 ];
 
 const GALLERY_PICTURES = [
   ...SCHOOL_BAG_GALLERY,
-  {
-    img: imgHealth,
-    category: "Medical Camps",
-    caption: { en: "Eye Diagnostic Camp", gu: "આંખ નિદાન કેમ્પ", hi: "नेत्र जांच शिविर" },
-  },
-  {
-    img: imgTrees,
-    category: "Tree Plantation",
-    caption: { en: "Village Green Drive", gu: "ગામ હરિયાળી અભિયાન", hi: "ग्राम हरियाली अभियान" },
-  },
-  {
-    img: imgEdu,
-    category: "Educational Activities",
-    caption: { en: "School Kit Distribution", gu: "શાળા કીટ વિતરણ", hi: "स्कूल किट वितरण" },
-  },
-  {
-    img: imgRation,
-    category: "Volunteer Activities",
-    caption: { en: "Relief Food Distribution", gu: "રાહત અનાજ વિતરણ", hi: "राहत खाद्यान्न वितरण" },
-  },
-  {
-    img: heroChildren,
-    category: "Community Events",
-    caption: { en: "Children Meet & Sports", gu: "બાળ મિલન અને રમતો", hi: "बाल मिलन और खेल" },
-  },
-  {
-    img: imgHealth,
-    category: "Medical Camps",
-    caption: {
-      en: "General Health Screening",
-      gu: "સામાન્ય આરોગ્ય તપાસ",
-      hi: "सामान्य स्वास्थ्य जांच",
-    },
-  },
-  {
-    img: imgTrees,
-    category: "Tree Plantation",
-    caption: { en: "School Yard Plantation", gu: "શાળા વૃક્ષારોપણ", hi: "स्कूल वृक्षारोपण" },
-  },
-  {
-    img: imgEdu,
-    category: "Educational Activities",
-    caption: {
-      en: "Digital Learning Session",
-      gu: "ડિજિટલ લર્નિંગ ક્લાસ",
-      hi: "डिजिटल लर्निंग क्लास",
-    },
-  },
 ];
 
 export function Events() {
@@ -608,7 +560,7 @@ export function Events() {
         eyebrow={tLocal.heroEyebrow}
         title={tLocal.heroTitle}
         subtitle={tLocal.heroSub}
-        bgImage={imgHealth}
+        bgImage={pavaDistributionGroup}
         breadcrumbActive={t("nav.events")}
       />
       {/* FEATURED EVENT SECTION */}
@@ -628,7 +580,7 @@ export function Events() {
             <div className="grid lg:grid-cols-12">
               <div className="lg:col-span-6 relative aspect-[16/10] lg:aspect-auto overflow-hidden">
                 <img
-                  src={imgHealth}
+                  src={pavaDistributionGroup}
                   alt="Free Medical Camp"
                   className="w-full h-full object-cover transform hover:scale-[1.03] transition-transform duration-700"
                   loading="eager"
@@ -1164,7 +1116,7 @@ export function Events() {
       {/* CALL TO ACTION SECTION */}
       <section className="relative overflow-hidden py-20 md:py-28 bg-[#4040A1] text-white text-center">
         <div className="absolute inset-0 z-0">
-          <img src={heroChildren} alt="Support" className="w-full h-full object-cover opacity-15" />
+          <img src={pavaDistributionGroup} alt="Support" className="w-full h-full object-cover opacity-15" />
           <div className="absolute inset-0 bg-gradient-to-t from-[#4040A1] via-[#4040A1]/95 to-transparent" />
         </div>
 

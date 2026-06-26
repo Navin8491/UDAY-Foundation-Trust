@@ -2,24 +2,11 @@ import { useState } from "react";
 import { PageHero } from "@/components/site/PageHero";
 import { useLanguage } from "@/context/LanguageContext";
 import { useDocumentMetadata } from "@/hooks/useDocumentMetadata";
-import imgHealth from "@/assets/program-health.jpg";
-import imgEdu from "@/assets/program-education.jpg";
-import imgTrees from "@/assets/program-trees.jpg";
-import imgRation from "@/assets/activity-ration.jpg";
-import imgChildren from "@/assets/hero-children.jpg";
 import { SCHOOL_BAG_SIMPLE_GALLERY } from "@/constants/schoolEvents";
+import pavaDistributionGroup from "@/assets/pava-distribution-group.jpg";
 
 const ITEMS = [
   ...SCHOOL_BAG_SIMPLE_GALLERY,
-  { img: imgChildren, cat: "Community", h: "tall" },
-  { img: imgHealth, cat: "Healthcare", h: "tall" },
-  { img: imgEdu, cat: "Education", h: "short" },
-  { img: imgTrees, cat: "Environment", h: "tall" },
-  { img: imgRation, cat: "Relief", h: "short" },
-  { img: imgChildren, cat: "Events", h: "short" },
-  { img: imgHealth, cat: "Healthcare", h: "short" },
-  { img: imgTrees, cat: "Volunteers", h: "tall" },
-  { img: imgEdu, cat: "Education", h: "tall" },
 ];
 
 const CATS = [
@@ -50,7 +37,7 @@ export function Gallery() {
         eyebrow="Gallery"
         title="Moments that move us forward."
         subtitle="Service captured — from the smallest smile to the largest plantation drive."
-        bgImage={imgChildren}
+        bgImage={pavaDistributionGroup}
         breadcrumbActive={t("nav.gallery")}
       />
 
