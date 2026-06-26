@@ -43,6 +43,72 @@ type VolunteerRole =
   | "Social Media Volunteer"
   | "";
 
+const IMPACT_DETAILS: Record<
+  string,
+  {
+    title: string;
+    subtitle: string;
+    article: string;
+    stats: { label: string; value: string }[];
+  }
+> = {
+  "Volunteer Your Time": {
+    title: "Volunteer Impact Metrics",
+    subtitle: "ON-GROUND DEPLOYMENT & COORDINATION",
+    article:
+      "Our volunteers form the core of our on-the-ground execution team. Over the past year, we have registered more than 50+ active volunteers who have logged over 2,400 hours of community service. Their contributions helped coordinate 15 health camps, distribute educational kits to 1,200 children, and manage community drives in 8 rural blocks. Active volunteers speed up distribution timelines by 60% and bridge critical gaps in field communication.",
+    stats: [
+      { label: "Registered Volunteers", value: "50+" },
+      { label: "Hours of Service", value: "2,400+" },
+      { label: "Health Camps Coordinated", value: "15" },
+    ],
+  },
+  "Support a Cause": {
+    title: "Individual Giving & Direct Support Impact",
+    subtitle: "DIRECT BENEFICIARY SPONSORSHIPS",
+    article:
+      "Direct donations from individuals fund immediate relief, education, and healthcare operations. Every rupee is utilized transparently with audited records: 85% of funds go directly into rural programs, 10% for logistics, and 5% for administration. Through individual sponsorships, we have built clean water systems in 4 villages, provided monthly nutrition kits to 350 families, and funded emergency medical treatments for 45 children in Gujarat.",
+    stats: [
+      { label: "Direct Program Funding", value: "85%" },
+      { label: "Village Water Systems", value: "4" },
+      { label: "Families Supported Monthly", value: "350+" },
+    ],
+  },
+  "Become a Corporate Partner": {
+    title: "CSR & Corporate Partnerships Impact",
+    subtitle: "SUSTAINABLE INFRASTRUCTURAL CHANGE",
+    article:
+      "Strategic CSR partnerships allow us to implement sustainable, long-term infrastructural changes in rural Gujarat. Aligned with Schedule VII guidelines, our corporate integrations have constructed a rural health center, planted 2,500 native trees for local bio-diversity green belts, and digitized 6 community schools with smart panels and computers. All projects undergo regular internal and independent external auditing for verified compliance.",
+    stats: [
+      { label: "Equipped Health Centers", value: "1" },
+      { label: "Saplings Planted", value: "2,500+" },
+      { label: "Smart-Classrooms Built", value: "6" },
+    ],
+  },
+  "Organize Community Events": {
+    title: "Community Mobilization & Events Impact",
+    subtitle: "DIRECT LOCAL AWARENESS & SCREENINGS",
+    article:
+      "Events bring critical services directly to the doorsteps of rural families. Our periodic healthcare diagnostic checkups, child vaccination programs, and farmers' tree-plantation workshops create direct local awareness. In the last year, we organized 12 mega community drives, screening 1,800+ patients for chronic illnesses and distributing winter kits to 600 elderly villagers. Mobilizing events increases trust and boosts community ownership of local green belts.",
+    stats: [
+      { label: "Patients Diagnosed", value: "1,800+" },
+      { label: "Mega Community Drives", value: "12" },
+      { label: "Winter Kits Distributed", value: "600+" },
+    ],
+  },
+  "Spread Awareness": {
+    title: "Digital Advocacy & Awareness Impact",
+    subtitle: "AMPLIFYING VOICE & COLLECTIVE ACTION",
+    article:
+      "Our digital advocacy campaigns extend our reach and help match donors to critical rural needs. Through community-led storytelling, volunteer experience blogs, and social media campaigns, we have reached over 25,000 unique online users. This digital presence has driven a 40% increase in volunteer applications and raised critical awareness about rural healthcare deficiencies, encouraging collective action.",
+    stats: [
+      { label: "Online Campaign Reach", value: "25,005+" },
+      { label: "Volunteer Application Boost", value: "40%" },
+      { label: "Advocacy Shares & Posts", value: "500+" },
+    ],
+  },
+};
+
 export function GetInvolved() {
   useDocumentMetadata(
     "Get Involved — Volunteer, Donate, Partner | Uday Foundation Trust",
@@ -90,6 +156,9 @@ export function GetInvolved() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalCategory, setModalCategory] = useState<InterestCategory>("general");
   const [modalRole, setModalRole] = useState<VolunteerRole>("");
+
+  // Impact Modal State
+  const [selectedImpact, setSelectedImpact] = useState<typeof IMPACT_DETAILS[keyof typeof IMPACT_DETAILS] | null>(null);
 
   // Form State
   const [formName, setFormName] = useState("");
@@ -471,9 +540,12 @@ export function GetInvolved() {
                     {desc}
                   </p>
                 </div>
-                <div className="mt-6 flex items-center text-xs font-semibold text-primary group-hover:translate-x-1.5 transition-transform duration-300">
+                <button
+                  onClick={() => setSelectedImpact(IMPACT_DETAILS[title])}
+                  className="mt-6 flex items-center text-xs font-semibold text-primary group-hover:translate-x-1.5 transition-transform duration-300 cursor-pointer hover:text-primary/80 focus:outline-none bg-transparent border-0"
+                >
                   Read impact metrics <ArrowRight className="ml-1 h-3.5 w-3.5" />
-                </div>
+                </button>
               </motion.div>
             ))}
           </div>
@@ -1161,6 +1233,73 @@ export function GetInvolved() {
                   Submit Registration <ArrowRight className="h-4 w-4" />
                 </button>
               </form>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* IMPACT METRICS MODAL */}
+      <AnimatePresence>
+        {selectedImpact && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4"
+          >
+            {/* Close trigger overlay */}
+            <div className="absolute inset-0" onClick={() => setSelectedImpact(null)} />
+
+            {/* Modal content box */}
+            <motion.div
+              initial={{ scale: 0.9, y: 20 }}
+              animate={{ scale: 1, y: 0 }}
+              exit={{ scale: 0.9, y: 20 }}
+              className="bg-white rounded-3xl max-w-lg w-full p-6 md:p-8 shadow-2xl relative z-10 border border-slate-200"
+            >
+              <button
+                onClick={() => setSelectedImpact(null)}
+                className="absolute top-4 right-4 h-8 w-8 hover:bg-slate-100 transition-colors text-slate-500 rounded-full flex items-center justify-center focus:outline-none z-30"
+              >
+                <X className="h-4 w-4" />
+              </button>
+
+              <span className="text-[10px] font-bold text-primary uppercase tracking-widest bg-primary/10 px-3 py-1 rounded-full">
+                {selectedImpact.subtitle}
+              </span>
+
+              <h3 className="text-2xl font-display font-semibold text-slate-900 mt-4">
+                {selectedImpact.title}
+              </h3>
+              
+              <div className="w-12 h-1 bg-[#F7E81D] my-4 rounded-full" />
+
+              <p className="text-sm text-slate-600 leading-relaxed font-light mt-4">
+                {selectedImpact.article}
+              </p>
+
+              {/* Stats highlights */}
+              <div className="grid grid-cols-3 gap-4 mt-6 pt-6 border-t border-slate-100">
+                {selectedImpact.stats.map((s, idx) => (
+                  <div key={idx} className="text-center">
+                    <div className="text-xl md:text-2xl font-display font-bold text-primary">
+                      {s.value}
+                    </div>
+                    <div className="text-[10px] uppercase font-bold text-slate-400 mt-1 leading-snug">
+                      {s.label}
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              <div className="mt-8 pt-4 border-t border-slate-100 flex justify-end">
+                <button
+                  onClick={() => setSelectedImpact(null)}
+                  className="py-2.5 px-6 bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-bold rounded-xl transition-all"
+                >
+                  Close
+                </button>
+              </div>
             </motion.div>
           </motion.div>
         )}
