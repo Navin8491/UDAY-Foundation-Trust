@@ -497,120 +497,124 @@ export function Events() {
       </section>
 
       {/* UPCOMING EVENTS SECTION */}
-      <span id="upcoming" className="block relative -top-24" />
-      <section className="py-16 md:py-24 bg-white border-b border-border">
-        <div className="about-section-container">
-          <div className="text-center max-w-3xl mx-auto mb-12">
-            <span className="inline-block px-3 py-1.5 text-xs font-bold uppercase tracking-[0.12em] text-[#4040A1] bg-[#4040A1]/10 rounded-full mb-4">
-              {tLocal.upcomingSub}
-            </span>
-            <h2 className="text-3xl md:text-4xl font-display font-bold text-slate-900 tracking-tight">
-              {tLocal.upcomingTitle}
-            </h2>
-            <div className="w-16 h-1 bg-[#F7E81D] mx-auto mt-4 rounded-full" />
-          </div>
+      {UPCOMING_CAMPAIGNS.length > 0 && (
+        <>
+          <span id="upcoming" className="block relative -top-24" />
+          <section className="py-16 md:py-24 bg-white border-b border-border">
+            <div className="about-section-container">
+              <div className="text-center max-w-3xl mx-auto mb-12">
+                <span className="inline-block px-3 py-1.5 text-xs font-bold uppercase tracking-[0.12em] text-[#4040A1] bg-[#4040A1]/10 rounded-full mb-4">
+                  {tLocal.upcomingSub}
+                </span>
+                <h2 className="text-3xl md:text-4xl font-display font-bold text-slate-900 tracking-tight">
+                  {tLocal.upcomingTitle}
+                </h2>
+                <div className="w-16 h-1 bg-[#F7E81D] mx-auto mt-4 rounded-full" />
+              </div>
 
-          {/* Filtering Tabs */}
-          <div className="flex flex-wrap items-center justify-center gap-2 mb-12">
-            {CATEGORIES.map((cat) => {
-              const isSelected = activeCategory === cat.key;
-              return (
-                <button
-                  key={cat.key}
-                  onClick={() => setActiveCategory(cat.key)}
-                  className={`px-4 py-2 rounded-full text-xs font-bold uppercase tracking-wider transition-all cursor-pointer ${
-                    isSelected
-                      ? "bg-[#4040A1] text-white shadow-md border-[#4040A1]"
-                      : "bg-[#F8FAFF] hover:bg-slate-100 text-slate-600 border border-slate-200"
-                  }`}
-                >
-                  {cat.label[language]}
-                </button>
-              );
-            })}
-          </div>
+              {/* Filtering Tabs */}
+              <div className="flex flex-wrap items-center justify-center gap-2 mb-12">
+                {CATEGORIES.map((cat) => {
+                  const isSelected = activeCategory === cat.key;
+                  return (
+                    <button
+                      key={cat.key}
+                      onClick={() => setActiveCategory(cat.key)}
+                      className={`px-4 py-2 rounded-full text-xs font-bold uppercase tracking-wider transition-all cursor-pointer ${
+                        isSelected
+                          ? "bg-[#4040A1] text-white shadow-md border-[#4040A1]"
+                          : "bg-[#F8FAFF] hover:bg-slate-100 text-slate-600 border border-slate-200"
+                      }`}
+                    >
+                      {cat.label[language]}
+                    </button>
+                  );
+                })}
+              </div>
 
-          {/* Events Grid */}
-          {filteredEvents.length === 0 ? (
-            <div className="text-center py-12 text-slate-400 font-semibold bg-white border border-border rounded-3xl shadow-xs">
-              {language === "gu" ? "હાલમાં કોઈ આગામી કાર્યક્રમો આયોજિત નથી." : language === "hi" ? "वर्तमान में कोई आगामी कार्यक्रम निर्धारित नहीं है।" : "No upcoming campaigns scheduled at this time."}
-            </div>
-          ) : (
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-              {filteredEvents.map((evt) => {
-                const title = evt.title[language];
-                const desc = evt.desc[language];
-                const place = evt.place[language];
-                const displayDate = evt.displayDate[language];
-  
-                return (
-                  <article
-                    key={evt.id}
-                    className="about-card-premium p-0! bg-white border border-border shadow-xs overflow-hidden group flex flex-col justify-between"
-                  >
-                    <div>
-                      <div className="relative aspect-[16/10] overflow-hidden bg-slate-100">
-                        <img
-                          src={evt.img}
-                          alt={title}
-                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                          loading="lazy"
-                        />
-                      </div>
-  
-                      <div className="p-6">
-                        <div className="mb-3">
-                          <span className="chip bg-[#4040A1]/10 text-[#4040A1] text-[10px] font-bold py-1 px-2.5 rounded-full uppercase tracking-widest">
-                            {evt.category}
-                          </span>
-                        </div>
-                        <div className="flex flex-wrap items-center justify-between gap-2 text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-3">
-                          <span className="flex items-center gap-1">
-                            <Calendar className="h-3.5 w-3.5 text-[#4040A1]" /> {displayDate}
-                          </span>
-                          <span className="flex items-center gap-1">
-                            <Clock className="h-3.5 w-3.5 text-[#4040A1]" /> {evt.time}
-                          </span>
-                        </div>
-  
-                        <h3 className="text-lg font-display font-bold text-slate-900 group-hover:text-[#4040A1] transition-colors mb-3 leading-snug">
-                          {title}
-                        </h3>
-  
-                        <p className="text-slate-600 text-xs md:text-sm leading-relaxed mb-4">
-                          {desc}
-                        </p>
-  
-                        <div className="flex items-start gap-1.5 text-xs text-slate-500 border-t border-slate-50 pt-4 mt-2">
-                          <MapPin className="h-4 w-4 text-[#7A9D1C] flex-shrink-0 mt-0.5" />
-                          <span className="leading-snug">{place}</span>
-                        </div>
-                      </div>
-                    </div>
-  
-                    <div className="p-6 border-t border-slate-100 bg-[#F8FAFF] flex items-center justify-between gap-3 mt-auto">
-                      <button
-                        onClick={() => setIsRegistering(evt.id)}
-                        className="btn-saffron text-[10px] font-bold uppercase tracking-wider py-2.5 px-4 cursor-pointer w-full text-center"
+              {/* Events Grid */}
+              {filteredEvents.length === 0 ? (
+                <div className="text-center py-12 text-slate-400 font-semibold bg-white border border-border rounded-3xl shadow-xs">
+                  {language === "gu" ? "હાલમાં કોઈ આગામી કાર્યક્રમો આયોજિત નથી." : language === "hi" ? "वर्तमान में कोई आगामी कार्यक्रम निर्धारित नहीं है।" : "No upcoming campaigns scheduled at this time."}
+                </div>
+              ) : (
+                <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+                  {filteredEvents.map((evt) => {
+                    const title = evt.title[language];
+                    const desc = evt.desc[language];
+                    const place = evt.place[language];
+                    const displayDate = evt.displayDate[language];
+      
+                    return (
+                      <article
+                        key={evt.id}
+                        className="about-card-premium p-0! bg-white border border-border shadow-xs overflow-hidden group flex flex-col justify-between"
                       >
-                        {tLocal.btnRegister}
-                      </button>
-  
-                      <button
-                        onClick={() => handleShare(evt.id)}
-                        className="text-slate-500 hover:text-[#4040A1] text-[10px] font-bold uppercase tracking-widest inline-flex items-center justify-center p-2.5 bg-white border border-slate-200 rounded-xl cursor-pointer"
-                        title="Share Event"
-                      >
-                        <Share2 className="h-4 w-4" />
-                      </button>
-                    </div>
-                  </article>
-                );
-              })}
+                        <div>
+                          <div className="relative aspect-[16/10] overflow-hidden bg-slate-100">
+                            <img
+                              src={evt.img}
+                              alt={title}
+                              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                              loading="lazy"
+                            />
+                          </div>
+      
+                          <div className="p-6">
+                            <div className="mb-3">
+                              <span className="chip bg-[#4040A1]/10 text-[#4040A1] text-[10px] font-bold py-1 px-2.5 rounded-full uppercase tracking-widest">
+                                {evt.category}
+                              </span>
+                            </div>
+                            <div className="flex flex-wrap items-center justify-between gap-2 text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-3">
+                              <span className="flex items-center gap-1">
+                                <Calendar className="h-3.5 w-3.5 text-[#4040A1]" /> {displayDate}
+                              </span>
+                              <span className="flex items-center gap-1">
+                                <Clock className="h-3.5 w-3.5 text-[#4040A1]" /> {evt.time}
+                              </span>
+                            </div>
+      
+                            <h3 className="text-lg font-display font-bold text-slate-900 group-hover:text-[#4040A1] transition-colors mb-3 leading-snug">
+                              {title}
+                            </h3>
+      
+                            <p className="text-slate-600 text-xs md:text-sm leading-relaxed mb-4">
+                              {desc}
+                            </p>
+      
+                            <div className="flex items-start gap-1.5 text-xs text-slate-500 border-t border-slate-50 pt-4 mt-2">
+                              <MapPin className="h-4 w-4 text-[#7A9D1C] flex-shrink-0 mt-0.5" />
+                              <span className="leading-snug">{place}</span>
+                            </div>
+                          </div>
+                        </div>
+      
+                        <div className="p-6 border-t border-slate-100 bg-[#F8FAFF] flex items-center justify-between gap-3 mt-auto">
+                          <button
+                            onClick={() => setIsRegistering(evt.id)}
+                            className="btn-saffron text-[10px] font-bold uppercase tracking-wider py-2.5 px-4 cursor-pointer w-full text-center"
+                          >
+                            {tLocal.btnRegister}
+                          </button>
+      
+                          <button
+                            onClick={() => handleShare(evt.id)}
+                            className="text-slate-500 hover:text-[#4040A1] text-[10px] font-bold uppercase tracking-widest inline-flex items-center justify-center p-2.5 bg-white border border-slate-200 rounded-xl cursor-pointer"
+                            title="Share Event"
+                          >
+                            <Share2 className="h-4 w-4" />
+                          </button>
+                        </div>
+                      </article>
+                    );
+                  })}
+                </div>
+              )}
             </div>
-          )}
-        </div>
-      </section>
+          </section>
+        </>
+      )}
 
       {/* PAST EVENTS SECTION */}
       <section className="py-16 md:py-24 bg-white border-b border-border">
