@@ -21,7 +21,7 @@ import { useLanguage } from "@/context/LanguageContext";
 import { Counter } from "@/components/site/Counter";
 import pavaDistributionGroup from "@/assets/pava-distribution-group.jpg";
 import { useDocumentMetadata } from "@/hooks/useDocumentMetadata";
-import { SCHOOL_BAG_EVENTS } from "@/constants/schoolEvents";
+import { SCHOOL_BAG_EVENTS, SCHOOL_BAG_GALLERY } from "@/constants/schoolEvents";
 
 const TRANSLATIONS_LOCAL = {
   en: {
@@ -219,7 +219,7 @@ const UPCOMING_CAMPAIGNS: any[] = [];
 
 const PAST_CAMPAIGNS = [...SCHOOL_BAG_EVENTS];
 
-const GALLERY_PICTURES: any[] = [];
+const GALLERY_PICTURES = [...SCHOOL_BAG_GALLERY];
 
 export function Events() {
   const { language, t } = useLanguage();
