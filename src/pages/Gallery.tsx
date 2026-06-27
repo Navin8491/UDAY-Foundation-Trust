@@ -15,6 +15,7 @@ const CATS = [
   "Healthcare",
   "Education",
   "Environment",
+  "Sports",
   "Relief",
   "Events",
   "Volunteers",

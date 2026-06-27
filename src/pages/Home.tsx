@@ -205,7 +205,7 @@ export function Home() {
             {STATS.map((s) => (
               <div
                 key={s.label}
-                className="rounded-2xl bg-surface-warm border border-border p-5 md:p-6 hover:border-primary/40 transition-colors"
+                className="rounded-2xl bg-surface-warm border border-border p-4 md:p-6 hover:border-primary/40 transition-colors"
               >
                 <div className="text-3xl md:text-4xl font-display font-semibold text-primary">
                   <Counter to={s.value} suffix={s.suffix} />

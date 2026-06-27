@@ -232,77 +232,6 @@ const PROGRAMS_DETAIL_DATA = [
     },
   },
   {
-    id: "women",
-    Icon: HandHeart,
-    color: "#E25C5C",
-    image: heroChildren,
-    thumbnails: [heroChildren, imgEdu, imgRation],
-    title: {
-      en: "Women Empowerment",
-      gu: "મહિલા સશક્તિકરણ",
-      hi: "महिला सशक्तिकरण",
-    },
-    desc: {
-      en: "Vocational skill training (tailoring, crafts), self-help group formation, financial literacy, and livelihood opportunities.",
-      gu: "મહિલાઓ માટે કૌશલ્ય તાલીમ (સિલાઈ, હસ્તકલા), સેલ્ફ-હેલ્પ ગ્રુપની રચના અને આત્મનિર્ભર આજીવિકા સહાય.",
-      hi: "महिलाओं के लिए कौशल प्रशिक्षण (सिलाई, हस्तकला), स्वयं सहायता समूहों का गठन और वित्तीय साक्षरता कार्यशालाएं।",
-    },
-    objectives: [
-      {
-        en: "Provide hands-on vocational skills to rural women.",
-        gu: "ગ્રામીણ બહેનોને રોજગારી લક્ષી વ્યવસાયિક કૌશલ્ય પૂરું પાડવું.",
-        hi: "ग्रामीण महिलाओं को रोजगारोन्मुखी व्यावसायिक कौशल प्रदान करना।",
-      },
-      {
-        en: "Facilitate bank linkage and micro-credit for women micro-entrepreneurs.",
-        gu: "બહેનોને લોન અને નાણાકીય સહાય માટે બેંકો સાથે જોડાણ કરાવી આપવું.",
-        hi: "ऋण और वित्तीय सहायता के लिए महिलाओं को बैंकों से जोड़ना।",
-      },
-      {
-        en: "Build self-confidence and legal rights awareness.",
-        gu: "મહિલાઓનો આત્મવિશ્વાસ વધારવો અને કાયદાકીય અધિકારો વિશે માહિતગાર કરવા.",
-        hi: "महिलाओं का आत्मविश्वास बढ़ाना और कानूनी अधिकारों के बारे में जागरूक करना।",
-      },
-    ],
-    activities: [
-      {
-        en: "Free three-month sewing and tailoring course with sewing machine support.",
-        gu: "મફત ૩ મહિનાનો સિલાઈ વર્ગ અને આર્થિક મદદ દ્વારા સંચા અપાવવા.",
-        hi: "सिलाई और कढ़ाई का ३ महीने का कोर्स और सिलाई मशीन प्रदान करने में मदद।",
-      },
-      {
-        en: "Establishing self-help groups (SHGs) to build community savings.",
-        gu: "બચત અને પરસ્પર સહયોગ માટે સ્વ-સહાય જૂથોની સ્થાપના અને તાલીમ.",
-        hi: "बचत और सहयोग के लिए स्वयं सहायता समूहों की स्थापना और प्रशिक्षण।",
-      },
-      {
-        en: "Conducting financial literacy and digital payments workshops.",
-        gu: "ડિજિટલ બેન્કિંગ, બચત ખાતા અને નાણાકીય જાગૃતિના સેમિનાર.",
-        hi: "डिजिटल बैंकिंग, बचत और वित्तीय साक्षरता के सेमिनार आयोजित करना।",
-      },
-    ],
-    impactVal: {
-      en: "250+ Women Empowered",
-      gu: "૨૫૦+ બહેનો આત્મનિર્ભર બની",
-      hi: "२५०+ महिलाएं आत्मनिर्भर बनीं",
-    },
-    successTitle: {
-      en: "Savitaben's Financial Independence",
-      gu: "સવિતાબેનનું આત્મનિર્ભર પગલું",
-      hi: "सविता की आर्थिक स्वतंत्रता",
-    },
-    successStory: {
-      en: "Savitaben, after completing Uday Foundation's tailoring workshop, set up a small sewing business at home. She now generates a steady monthly income, which she uses to pay for her children's private schooling.",
-      gu: "ઉદય ફાઉન્ડેશનની સિલાઈ તાલીમ લીધા પછી સવિતાબેને પોતાના ઘરે નાનો વ્યવસાય શરૂ કર્યો. આજે તેઓ પોતાના કૌશલ્યથી સારો પગાર મેળવે છે અને તેમના બાળકોને સારી શાળામાં ભણાવે છે.",
-      hi: "उदय फाउंडेशन की सिलाई ट्रेनिंग लेने के बाद सविता ने अपने घर पर छोटा व्यवसाय शुरू किया। आज वे अच्छी कमाई कर रही हैं और अपने बच्चों को अच्छे स्कूल में पढ़ाती हैं।",
-    },
-    successQuote: {
-      en: '"Now, I am proud to contribute financially to my home." — Savitaben',
-      gu: '"હવે, મને ગર્વ છે કે હું મારા ઘરના ખર્ચમાં નાણાકીય ફાળો આપી શકું છું." — સવિતાબેન',
-      hi: '"अब मुझे गर्व है कि मैं अपने घर के खर्चों में आर्थिक योगदान दे सकती हूँ।" — सविता',
-    },
-  },
-  {
     id: "child",
     Icon: Baby,
     color: "#E29A5C",
@@ -937,7 +866,7 @@ export function Programs() {
             ].map((stat, i) => (
               <div
                 key={i}
-                className="bg-white/10 border border-white/20 backdrop-blur-md rounded-2xl p-6 md:p-8 text-center hover:bg-white/15 transition-all shadow-lg"
+                className="bg-white/10 border border-white/20 backdrop-blur-md rounded-2xl p-4 md:p-8 text-center hover:bg-white/15 transition-all shadow-lg"
               >
                 <div className="text-4xl md:text-5xl font-display font-bold text-[#F7E81D]">
                   <Counter to={stat.value} suffix={stat.suffix} />

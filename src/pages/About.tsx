@@ -167,7 +167,7 @@ export function About() {
             ].map(({ Icon, bgClass, title, desc }) => (
               <div
                 key={title}
-                className="about-card-premium h-full items-center text-center p-8 lg:p-10 border border-border"
+                className="about-card-premium h-full items-center text-center p-6 md:p-8 lg:p-10 border border-border"
               >
                 <div
                   className={`h-16 w-16 rounded-full ${bgClass} flex items-center justify-center mb-6 shadow-sm`}
@@ -215,7 +215,7 @@ export function About() {
             ].map((stat, i) => (
               <div
                 key={i}
-                className="bg-white/10 border border-white/20 backdrop-blur-md rounded-2xl p-6 md:p-8 text-center hover:bg-white/15 transition-all shadow-lg"
+                className="bg-white/10 border border-white/20 backdrop-blur-md rounded-2xl p-4 md:p-8 text-center hover:bg-white/15 transition-all shadow-lg"
               >
                 <div className="text-4xl md:text-5xl font-display font-bold text-[#F7E81D]">
                   <Counter to={stat.value} suffix={stat.suffix} />

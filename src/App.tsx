@@ -3,7 +3,7 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { RootLayout } from "./layouts/RootLayout";
 import { Toaster } from "sonner";
 
-// Lazy-loaded pages
+// Lazy-loaded public pages
 const Home = lazy(() => import("./pages/Home"));
 const About = lazy(() => import("./pages/About"));
 const Programs = lazy(() => import("./pages/Programs"));
@@ -14,6 +14,22 @@ const GetInvolved = lazy(() => import("./pages/GetInvolved"));
 const Donate = lazy(() => import("./pages/Donate"));
 const Contact = lazy(() => import("./pages/Contact"));
 const Transparency = lazy(() => import("./pages/Transparency"));
+
+// Lazy-loaded admin pages
+const AdminLayout = lazy(() => import("./pages/admin/AdminLayout"));
+const AdminDashboard = lazy(() => import("./pages/admin/Dashboard"));
+const AdminDonations = lazy(() => import("./pages/admin/Donations"));
+const AdminEvents = lazy(() => import("./pages/admin/Events"));
+const AdminGallery = lazy(() => import("./pages/admin/Gallery"));
+const AdminPrograms = lazy(() => import("./pages/admin/Programs"));
+const AdminTeam = lazy(() => import("./pages/admin/Team"));
+const AdminVolunteers = lazy(() => import("./pages/admin/Volunteers"));
+const AdminPartnerships = lazy(() => import("./pages/admin/Partnerships"));
+const AdminCertificates = lazy(() => import("./pages/admin/Certificates"));
+const AdminTransparency = lazy(() => import("./pages/admin/Transparency"));
+const AdminContact = lazy(() => import("./pages/admin/ContactMessages"));
+const AdminReports = lazy(() => import("./pages/admin/Reports"));
+const AdminSettings = lazy(() => import("./pages/admin/Settings"));
 
 // Loading spinner fallback
 function Loading() {
@@ -53,6 +69,7 @@ export function App() {
       <Toaster position="top-right" closeButton richColors />
       <Suspense fallback={<Loading />}>
         <Routes>
+          {/* Public NGO Website Layout */}
           <Route element={<RootLayout />}>
             <Route path="/" element={<Home />} />
             <Route path="/about" element={<About />} />
@@ -67,6 +84,24 @@ export function App() {
             <Route path="/transparency" element={<Transparency />} />
             <Route path="/blog" element={<Navigate to="/events" replace />} />
             <Route path="*" element={<NotFound />} />
+          </Route>
+
+          {/* Premium Admin Panel Layout (Frontend-only) */}
+          <Route path="/admin" element={<AdminLayout />}>
+            <Route index element={<Navigate to="/admin/dashboard" replace />} />
+            <Route path="dashboard" element={<AdminDashboard />} />
+            <Route path="donations" element={<AdminDonations />} />
+            <Route path="events" element={<AdminEvents />} />
+            <Route path="gallery" element={<AdminGallery />} />
+            <Route path="programs" element={<AdminPrograms />} />
+            <Route path="team" element={<AdminTeam />} />
+            <Route path="volunteers" element={<AdminVolunteers />} />
+            <Route path="partnerships" element={<AdminPartnerships />} />
+            <Route path="certificates" element={<AdminCertificates />} />
+            <Route path="transparency" element={<AdminTransparency />} />
+            <Route path="contact" element={<AdminContact />} />
+            <Route path="reports" element={<AdminReports />} />
+            <Route path="settings" element={<AdminSettings />} />
           </Route>
         </Routes>
       </Suspense>

@@ -259,7 +259,7 @@ export function Events() {
   const [regSuccess, setRegSuccess] = useState(false);
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [activeGalleryEvent, setActiveGalleryEvent] = useState<PastEventItem | null>(null);
-  const [showFeaturedDetails, setShowFeaturedDetails] = useState<boolean>(false);
+  const [selectedDetailedEvent, setSelectedDetailedEvent] = useState<PastEventItem | null>(null);
 
   // Event categories list
   const CATEGORIES = [
@@ -384,7 +384,7 @@ export function Events() {
 
                   <div className="flex flex-wrap items-center gap-4 border-t border-slate-100 pt-6 mt-auto">
                     <button
-                      onClick={() => setShowFeaturedDetails(true)}
+                      onClick={() => setSelectedDetailedEvent(PAST_CAMPAIGNS[0])}
                       className="btn-saffron text-xs font-bold uppercase tracking-wider px-6 py-3.5 cursor-pointer flex items-center gap-1.5"
                     >
                       <Activity className="h-4 w-4" />
@@ -665,8 +665,11 @@ export function Events() {
                       </div>
   
                       <div className="p-6">
-                        <div className="mb-2.5">
+                        <div className="mb-2.5 flex flex-wrap gap-2">
                           <span className="chip bg-[#7A9D1C]/10 text-[#7A9D1C] text-[10px] font-bold py-1 px-2.5 rounded-full uppercase tracking-widest">
+                            {evt.category}
+                          </span>
+                          <span className="chip bg-[#4040A1]/10 text-[#4040A1] text-[10px] font-bold py-1 px-2.5 rounded-full uppercase tracking-widest">
                             COMPLETED
                           </span>
                         </div>
@@ -704,15 +707,24 @@ export function Events() {
                         </div>
                       </div>
 
-                      {evt.images && evt.images.length > 0 && (
+                      <div className="grid grid-cols-2 gap-2 w-full">
                         <button
-                          onClick={() => setActiveGalleryEvent(evt)}
-                          className="w-full text-center py-2.5 px-4 rounded-xl text-xs font-bold uppercase tracking-wider bg-[#4040A1]/10 text-[#4040A1] hover:bg-[#4040A1] hover:text-white transition-all duration-300 cursor-pointer flex items-center justify-center gap-2"
+                          onClick={() => setSelectedDetailedEvent(evt)}
+                          className="text-center py-2.5 px-3 rounded-xl text-xs font-bold uppercase tracking-wider bg-[#7A9D1C]/10 text-[#7A9D1C] hover:bg-[#7A9D1C] hover:text-white transition-all duration-300 cursor-pointer flex items-center justify-center gap-1.5"
                         >
-                          <Image className="h-4 w-4" />
-                          <span>{tLocal.btnViewImages}</span>
+                          <Activity className="h-3.5 w-3.5" />
+                          <span>{tLocal.btnViewDetails}</span>
                         </button>
-                      )}
+                        {evt.images && evt.images.length > 0 && (
+                          <button
+                            onClick={() => setActiveGalleryEvent(evt)}
+                            className="text-center py-2.5 px-3 rounded-xl text-xs font-bold uppercase tracking-wider bg-[#4040A1]/10 text-[#4040A1] hover:bg-[#4040A1] hover:text-white transition-all duration-300 cursor-pointer flex items-center justify-center gap-1.5"
+                          >
+                            <Image className="h-3.5 w-3.5" />
+                            <span>{tLocal.btnViewImages}</span>
+                          </button>
+                        )}
+                      </div>
                     </div>
                   </article>
                 );
@@ -1028,27 +1040,29 @@ export function Events() {
         </div>
       )}
 
-      {/* FEATURED EVENT DETAILS MODAL */}
-      {showFeaturedDetails && PAST_CAMPAIGNS[0] && (
+      {/* EVENT DETAILS MODAL */}
+      {selectedDetailedEvent && (
         <div className="fixed inset-0 bg-black/60 backdrop-filter backdrop-blur-xs flex items-center justify-center p-4 z-50 animate-fade-in">
           <div className="bg-white border border-border rounded-3xl w-full max-w-3xl max-h-[90vh] flex flex-col relative shadow-2xl overflow-hidden animate-scale-up">
             {/* Header */}
             <div className="p-6 border-b border-slate-100 flex items-center justify-between">
               <div>
                 <div className="flex gap-2 items-center mb-1">
-                  <span className="chip bg-primary/10 text-primary text-[9px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-md">
-                    {tLocal.badgeLatest}
-                  </span>
                   <span className="chip bg-[#7A9D1C]/10 text-[#7A9D1C] text-[9px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-md">
-                    {tLocal.badgeFeatured}
+                    {selectedDetailedEvent.category}
                   </span>
+                  {PAST_CAMPAIGNS[0] && selectedDetailedEvent.id === PAST_CAMPAIGNS[0].id && (
+                    <span className="chip bg-primary/10 text-primary text-[9px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-md">
+                      {tLocal.badgeLatest}
+                    </span>
+                  )}
                 </div>
                 <h3 className="text-xl md:text-2xl font-display font-bold text-slate-900 leading-snug font-gujarati">
                   {tLocal.modalTitleDetails}
                 </h3>
               </div>
               <button
-                onClick={() => setShowFeaturedDetails(false)}
+                onClick={() => setSelectedDetailedEvent(null)}
                 className="text-slate-400 hover:text-slate-600 transition-colors p-2 cursor-pointer rounded-xl hover:bg-slate-50 flex-shrink-0 ml-4"
                 title="Close Details"
               >
@@ -1061,8 +1075,8 @@ export function Events() {
               {/* Cover Image */}
               <div className="relative aspect-[16/9] rounded-2xl overflow-hidden bg-slate-100 border border-slate-100 shadow-xs">
                 <img
-                  src={PAST_CAMPAIGNS[0].img}
-                  alt={PAST_CAMPAIGNS[0].title[language]}
+                  src={selectedDetailedEvent.img}
+                  alt={selectedDetailedEvent.title[language]}
                   className="absolute inset-0 w-full h-full object-cover"
                 />
               </div>
@@ -1073,21 +1087,21 @@ export function Events() {
                   <div className="text-xs font-bold text-slate-400 uppercase tracking-wider">{tLocal.locationLabel}</div>
                   <div className="text-sm font-bold text-slate-800 flex items-center justify-center gap-1 mt-1 font-gujarati">
                     <MapPin className="h-4 w-4 text-[#7A9D1C]" />
-                    {PAST_CAMPAIGNS[0].place[language]}
+                    {selectedDetailedEvent.place[language]}
                   </div>
                 </div>
                 <div>
                   <div className="text-xs font-bold text-slate-400 uppercase tracking-wider">{tLocal.participantsLabel}</div>
                   <div className="text-sm font-bold text-slate-800 flex items-center justify-center gap-1 mt-1">
                     <Users className="h-4 w-4 text-[#4040A1]" />
-                    {PAST_CAMPAIGNS[0].participants.toLocaleString()}
+                    {selectedDetailedEvent.participants.toLocaleString()}
                   </div>
                 </div>
                 <div>
                   <div className="text-xs font-bold text-slate-400 uppercase tracking-wider">{tLocal.volunteersLabel}</div>
                   <div className="text-sm font-bold text-slate-800 flex items-center justify-center gap-1 mt-1">
                     <UserCheck className="h-4 w-4 text-[#7A9D1C]" />
-                    {PAST_CAMPAIGNS[0].volunteers}
+                    {selectedDetailedEvent.volunteers}
                   </div>
                 </div>
               </div>
@@ -1095,23 +1109,23 @@ export function Events() {
               {/* Description */}
               <div className="space-y-4">
                 <h4 className="text-lg font-display font-bold text-slate-900 border-b border-slate-100 pb-2">
-                  {PAST_CAMPAIGNS[0].title[language]}
+                  {selectedDetailedEvent.title[language]}
                 </h4>
                 <div className="text-slate-600 text-sm md:text-base leading-relaxed font-gujarati whitespace-pre-line space-y-3">
-                  {PAST_CAMPAIGNS[0].summary[language]}
+                  {selectedDetailedEvent.summary[language]}
                 </div>
               </div>
 
               {/* Highlights & Impact */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-2">
                 {/* Highlights */}
-                {PAST_CAMPAIGNS[0].highlights && (
+                {selectedDetailedEvent.highlights && (
                   <div className="bg-slate-50 p-5 rounded-2xl border border-slate-100">
                     <h5 className="text-xs font-bold text-slate-800 uppercase tracking-wider mb-3">
                       {tLocal.highlightsLabel}
                     </h5>
                     <ul className="space-y-2">
-                      {PAST_CAMPAIGNS[0].highlights[language].map((hl: string, idx: number) => (
+                      {selectedDetailedEvent.highlights[language].map((hl: string, idx: number) => (
                         <li key={idx} className="flex items-start gap-2 text-xs text-slate-600 font-gujarati">
                           <CheckCircle2 className="h-4.5 w-4.5 text-[#7A9D1C] flex-shrink-0 mt-0.5" />
                           <span>{hl}</span>
@@ -1128,13 +1142,13 @@ export function Events() {
                       {tLocal.impactLabel}
                     </h5>
                     <p className="text-slate-700 text-sm font-bold font-gujarati leading-relaxed">
-                      {PAST_CAMPAIGNS[0].impact[language]}
+                      {selectedDetailedEvent.impact[language]}
                     </p>
                   </div>
                   <button
                     onClick={() => {
-                      setShowFeaturedDetails(false);
-                      setActiveGalleryEvent(PAST_CAMPAIGNS[0]);
+                      setSelectedDetailedEvent(null);
+                      setActiveGalleryEvent(selectedDetailedEvent);
                     }}
                     className="w-full text-center mt-6 py-2.5 px-4 rounded-xl text-xs font-bold uppercase tracking-wider bg-[#4040A1] text-white hover:bg-[#4040A1]/90 transition-all cursor-pointer flex items-center justify-center gap-2 shadow-xs"
                   >

@@ -50,18 +50,18 @@ export function SiteHeader() {
       <div className="container-full flex items-center py-3 md:py-4">
         {/* Left Side: Logo */}
         <div className="flex-1 flex items-center justify-start">
-          <Link to="/" className="flex items-center gap-3 group shrink-0 flex-shrink-0">
+          <Link to="/" className="flex items-center gap-2 min-[380px]:gap-3 group shrink-0 flex-shrink-0">
             <img
               src={SITE.logo}
               alt={`${SITE.name} logo`}
-              className="h-12 w-12 md:h-14 md:w-14 rounded-full ring-2 ring-primary/15 group-hover:ring-primary/35 transition-all flex-shrink-0"
+              className="h-10 w-10 min-[380px]:h-12 min-[380px]:w-12 md:h-14 md:w-14 rounded-full ring-2 ring-primary/15 group-hover:ring-primary/35 transition-all flex-shrink-0"
               loading="eager"
             />
-            <div className="flex flex-col leading-tight whitespace-nowrap">
-              <span className="font-gujarati text-base md:text-lg font-bold text-primary">
+            <div className="flex flex-col leading-tight">
+              <span className="font-gujarati text-sm min-[380px]:text-base md:text-lg font-bold text-primary whitespace-nowrap">
                 {SITE.nameGu}
               </span>
-              <span className="text-[10px] md:text-xs uppercase tracking-[0.18em] text-muted-foreground">
+              <span className="text-[8px] min-[380px]:text-[10px] md:text-xs uppercase tracking-[0.12em] min-[380px]:tracking-[0.18em] text-muted-foreground whitespace-nowrap hidden min-[350px]:block">
                 Uday Foundation Trust
               </span>
             </div>
@@ -87,12 +87,12 @@ export function SiteHeader() {
         </nav>
 
         {/* Right Side: Language Switcher and Donate Button */}
-        <div className="flex-1 flex items-center justify-end gap-3">
+        <div className="flex-1 flex items-center justify-end gap-2.5 min-[380px]:gap-3">
           {/* Language Switcher Dropdown */}
           <div className="relative">
             <button
               onClick={() => setLangOpen(!langOpen)}
-              className="inline-flex items-center gap-1.5 px-3 py-2 rounded-full border border-border bg-white/60 hover:bg-white text-xs font-semibold transition-all select-none text-foreground shadow-xs cursor-pointer whitespace-nowrap shrink-0 flex-shrink-0"
+              className="inline-flex items-center gap-1 px-1.5 py-1.5 min-[380px]:gap-1.5 min-[380px]:px-3 min-[380px]:py-2 rounded-full border border-border bg-white/60 hover:bg-white text-xs font-semibold transition-all select-none text-foreground shadow-xs cursor-pointer whitespace-nowrap shrink-0 flex-shrink-0"
               aria-label="Change Language"
             >
               <Globe className="h-3.5 w-3.5 text-primary" />
@@ -137,7 +137,7 @@ export function SiteHeader() {
           <button
             aria-label="Menu"
             onClick={() => setOpen((v) => !v)}
-            className="lg:hidden inline-flex items-center justify-center h-11 w-11 rounded-full border border-border bg-surface shrink-0 flex-shrink-0"
+            className="lg:hidden inline-flex items-center justify-center h-10 w-10 min-[380px]:h-11 min-[380px]:w-11 rounded-full border border-border bg-surface shrink-0 flex-shrink-0 cursor-pointer"
           >
             {open ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
           </button>

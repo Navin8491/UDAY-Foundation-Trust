@@ -132,6 +132,56 @@ import samman10 from "@/assets/samman_10.jpg";
 import samman11 from "@/assets/samman_11.jpg";
 import samman12 from "@/assets/samman_12.jpg";
 
+// Tree Plantation Imports
+import treePlantation1 from "@/assets/tree_plantation_1.jpg";
+import treePlantation2 from "@/assets/tree_plantation_2.jpg";
+import treePlantation3 from "@/assets/tree_plantation_3.jpg";
+import treePlantation4 from "@/assets/tree_plantation_4.jpg";
+import treePlantation5 from "@/assets/tree_plantation_5.jpg";
+import treePlantation6 from "@/assets/tree_plantation_6.jpg";
+import treePlantation7 from "@/assets/tree_plantation_7.jpg";
+import treePlantation8 from "@/assets/tree_plantation_8.jpg";
+import treePlantation9 from "@/assets/tree_plantation_9.jpg";
+import treePlantation10 from "@/assets/tree_plantation_10.jpg";
+import treePlantation11 from "@/assets/tree_plantation_11.jpg";
+import treePlantation12 from "@/assets/tree_plantation_12.jpg";
+import treePlantation13 from "@/assets/tree_plantation_13.jpg";
+import treePlantation14 from "@/assets/tree_plantation_14.jpg";
+import treePlantation15 from "@/assets/tree_plantation_15.jpg";
+import treePlantation16 from "@/assets/tree_plantation_16.jpg";
+import treePlantation17 from "@/assets/tree_plantation_17.jpg";
+import treePlantation18 from "@/assets/tree_plantation_18.jpg";
+import treePlantation19 from "@/assets/tree_plantation_19.jpg";
+
+// Sports Event Imports
+import sports1 from "@/assets/sports_1.jpg";
+import sports2 from "@/assets/sports_2.jpg";
+import sports3 from "@/assets/sports_3.jpg";
+import sports4 from "@/assets/sports_4.jpg";
+import sports5 from "@/assets/sports_5.jpg";
+import sports6 from "@/assets/sports_6.jpg";
+import sports7 from "@/assets/sports_7.jpg";
+import sports8 from "@/assets/sports_8.jpg";
+import sports9 from "@/assets/sports_9.jpg";
+import sports10 from "@/assets/sports_10.jpg";
+import sports11 from "@/assets/sports_11.jpg";
+import sports12 from "@/assets/sports_12.jpg";
+import sports13 from "@/assets/sports_13.jpg";
+import sports14 from "@/assets/sports_14.jpg";
+import sports15 from "@/assets/sports_15.jpg";
+import sports16 from "@/assets/sports_16.jpg";
+import sports17 from "@/assets/sports_17.jpg";
+import sports18 from "@/assets/sports_18.jpg";
+import sports19 from "@/assets/sports_19.jpg";
+import sports20 from "@/assets/sports_20.jpg";
+import sports21 from "@/assets/sports_21.jpg";
+import sports22 from "@/assets/sports_22.jpg";
+import sports23 from "@/assets/sports_23.jpg";
+import sports24 from "@/assets/sports_24.jpg";
+import sports25 from "@/assets/sports_25.jpg";
+import sports26 from "@/assets/sports_26.jpg";
+import sports27 from "@/assets/sports_27.jpg";
+
 export interface PastEventItem {
   id: string;
   category: string;
@@ -516,6 +566,95 @@ export const SCHOOL_BAG_EVENTS: PastEventItem[] = [
         },
       },
     ],
+  },
+  {
+    id: "sports-day-celebration-2026",
+    category: "Sports Activities",
+    date: "Feb 2026",
+    title: {
+      en: "Sports Day & Community Sports Event",
+      gu: "રમતગમત અને સ્પોર્ટ્સ ડે ઉજવણી",
+      hi: "खेलकूद दिवस एवं सामुदायिक खेल आयोजन",
+    },
+    place: {
+      en: "Sanand, Ahmedabad, Gujarat",
+      gu: "સાણંદ, અમદાવાદ, ગુજરાત",
+      hi: "सानंद, अहमदाबाद, गुजरात",
+    },
+    summary: {
+      en: "Uday Foundation Trust organized a Sports Day & Community Sports Event to encourage physical fitness, teamwork, discipline, and a healthy lifestyle among children, students, and youth. The event featured a variety of indoor and outdoor sports competitions, promoting sportsmanship and community participation. Winners were honored with trophies, medals, and certificates in recognition of their outstanding performance. The event aimed to inspire young people to stay active, build confidence, and embrace teamwork and leadership.",
+      gu: "ઉદય ફાઉન્ડેશન ટ્રસ્ટ દ્વારા યુવાનો અને વિદ્યાર્થીઓમાં રમતગમત પ્રત્યે રસ વધે, સ્વસ્થ જીવનશૈલીને પ્રોત્સાહન મળે અને ટીમવર્ક તથા રમતગમતની ભાવના વિકસે તે હેતુથી રમતગમત અને સ્પોર્ટ્સ ડે ઉજવણીનું આયોજન કરવામાં આવ્યું હતું. કાર્યક્રમ દરમિયાન વિવિધ ઇન્ડોર અને આઉટડોર રમતોનું આયોજન કરવામાં આવ્યું હતું. વિજેતા સ્પર્ધકોને ટ્રોફી, મેડલ અને પ્રમાણપત્ર આપી સન્માનિત કરવામાં આવ્યા. આ કાર્યક્રમ દ્વારા બાળકો અને યુવાનોમાં આત્મવિશ્વાસ, શિસ્ત, નેતૃત્વ અને ટીમ સ્પિરિટનો વિકાસ કરવાનો પ્રયત્ન કરવામાં આવ્યો.",
+      hi: "उदय फाउंडेशन ट्रस्ट ने बच्चों, छात्रों और युवाओं के बीच शारीरिक फिटनेस, टीमवर्क, अनुशासन और स्वस्थ जीवन शैली को प्रोत्साहित करने के लिए खेलकूद दिवस एवं सामुदायिक खेल आयोजन का आयोजन किया। कार्यक्रम में विभिन्न प्रकार की इनडोर और आउटडोर खेल प्रतियोगिताओं का आयोजन किया गया, जिससे खेल भावना और सामुदायिक भागीदारी को बढ़ावा मिला। विजेताओं को उनके उत्कृष्ट प्रदर्शन के सम्मान में ट्रॉफी, पदक और प्रमाण पत्र प्रदान किए गए। इसका उद्देश्य युवाओं को सक्रिय रहने, आत्मविश्वास बढ़ाने और टीमवर्क व नेतृत्व क्षमता विकसित करने के लिए प्रेरित करना था।",
+    },
+    participants: 300,
+    volunteers: 20,
+    impact: {
+      en: "Promoted physical fitness, teamwork, and recognized outstanding performers with awards",
+      gu: "શારીરિક તંદુરસ્તી અને ટીમવર્ક પ્રોત્સાહિત કર્યું અને વિજેતાઓને એવોર્ડ આપી સન્માનિત કર્યા",
+      hi: "शारीरिक फिटनेस व टीमवर्क को बढ़ावा दिया और विजेताओं को पुरस्कारों से सम्मानित किया",
+    },
+    img: sports5,
+    highlights: {
+      en: [
+        "Sports Day Celebration",
+        "Indoor & Outdoor Games",
+        "Running Competitions",
+        "Fun Activities",
+        "Trophy Distribution",
+        "Medal Ceremony",
+        "Certificate Distribution",
+        "Youth & Community Participation"
+      ],
+      gu: [
+        "સ્પોર્ટ્સ ડે ઉજવણી",
+        "ઇન્ડોર અને આઉટડોર રમતો",
+        "દોડવાની સ્પર્ધાઓ",
+        "મનોરંજક પ્રવૃત્તિઓ",
+        "ટ્રોફી વિતરણ",
+        "મેડલ સમારોહ",
+        "પ્રમાણપત્ર વિતરણ",
+        "યુવા અને સમુદાય ભાગીદારી"
+      ],
+      hi: [
+        "खेलकूद दिवस समारोह",
+        "इनडोर और आउटडोर खेल",
+        "दौड़ प्रतियोगिताएं",
+        "मनोरंजक गतिविधियां",
+        "ट्रॉफी वितरण",
+        "पदक समारोह",
+        "प्रमाण पत्र वितरण",
+        "युवा और सामुदायिक भागीदारी"
+      ]
+    },
+    images: [
+      { img: sports1, category: "Sports Activities", caption: { en: "Winner receiving trophy from guest", gu: "મહેમાન તરફથી ટ્રોફી સ્વીકારતો વિજેતા", hi: "अतिथि से ट्रॉफी प्राप्त करता विजेता" } },
+      { img: sports2, category: "Sports Activities", caption: { en: "Students showing their certificates and medals", gu: "પોતાના પ્રમાણપત્રો અને મેડલ પ્રદર્શિત કરતા વિદ્યાર્થીઓ", hi: "अपने प्रमाण पत्र और पदक प्रदर्शित करते छात्र" } },
+      { img: sports3, category: "Sports Activities", caption: { en: "Young student honored with a trophy", gu: "યુવાન વિદ્યાર્થીનું ટ્રોફીથી સન્માન", hi: "युवा छात्र को ट्रॉफी से सम्मानित किया गया" } },
+      { img: sports4, category: "Sports Activities", caption: { en: "Guest distributing sports gear to winners", gu: "વિજેતાઓને રમતગમતના સાધનો વિતરણ કરતા મહેમાન", hi: "विजेताओं को खेल सामग्री वितरित करते अतिथि" } },
+      { img: sports5, category: "Sports Activities", caption: { en: "Group of youth players holding trophies", gu: "ટ્રોફી સાથે યુવા ખેલાડીઓનું જૂથ", hi: "ट्रॉफी के साथ युवा खिलाड़ियों का समूह" } },
+      { img: sports6, category: "Sports Activities", caption: { en: "Award distribution ceremony for running race", gu: "દોડ સ્પર્ધા માટે એવોર્ડ વિતરણ સમારોહ", hi: "दौड़ प्रतियोगिता के लिए पुरस्कार वितरण समारोह" } },
+      { img: sports7, category: "Sports Activities", caption: { en: "Girl student standing on first place podium", gu: "પ્રથમ સ્થાને પોડિયમ પર ઊભેલી વિદ્યાર્થિની", hi: "प्रथम स्थान के पोडियम पर खड़ी छात्रा" } },
+      { img: sports8, category: "Sports Activities", caption: { en: "Winners on the podium receiving prizes", gu: "પોડિયમ પર પુરસ્કાર સ્વીકારતા વિજેતાઓ", hi: "पोडियम पर पुरस्कार प्राप्त करते विजेता" } },
+      { img: sports9, category: "Sports Activities", caption: { en: "Group photo of all participants and organizers", gu: "તમામ ભાગીદારો અને આયોજકોનો ગ્રુપ ફોટો", hi: "सभी प्रतिभागियों और आयोजकों का समूह चित्र" } },
+      { img: sports10, category: "Sports Activities", caption: { en: "Community members posing with winners", gu: "વિજેતાઓ સાથે સામુદાયિક સભ્યોનો ફોટો", hi: "विजेताओं के साथ सामुदायिक सदस्य" } },
+      { img: sports11, category: "Sports Activities", caption: { en: "Encouraging sports and fitness among kids", gu: "બાળકોમાં રમતગમત અને ફિટનેસને પ્રોત્સાહન", hi: "बच्चों में खेल और फिटनेस को बढ़ावा देना" } },
+      { img: sports12, category: "Sports Activities", caption: { en: "Audience watching sports games", gu: "રમતગમતની રમત નિહાળતા પ્રેક્ષકો", hi: "खेलकूद प्रतियोगिता देखते दर्शक" } },
+      { img: sports13, category: "Sports Activities", caption: { en: "Awarding certificate of appreciation to girl student", gu: "વિદ્યાર્થિનીને સન્માન પત્ર એનાયત કરવામાં આવ્યું", hi: "छात्रा को प्रशस्ति पत्र प्रदान किया गया" } },
+      { img: sports14, category: "Sports Activities", caption: { en: "Four girls holding participation certificates", gu: "ભાગીદારી પ્રમાણપત્ર ધરાવતી ચાર છોકરીઓ", hi: "भागदारी प्रमाण पत्र पकड़े चार लड़कियां" } },
+      { img: sports15, category: "Sports Activities", caption: { en: "Winners displaying their sports awards", gu: "ખેલ પુરસ્કારો પ્રદર્શિત કરતા વિજેતાઓ", hi: "खेल पुरस्कार प्रदर्शित करते विजेता" } },
+      { img: sports16, category: "Sports Activities", caption: { en: "Certificate ceremony for sports events", gu: "રમતગમત સ્પર્ધાઓ માટે પ્રમાણપત્ર વિતરણ", hi: "खेल आयोजनों के लिए प्रमाण पत्र समारोह" } },
+      { img: sports17, category: "Sports Activities", caption: { en: "Young girl receiving certificate from coordinator", gu: "સંયોજક પાસેથી પ્રમાણપત્ર મેળવતી નાની બાળકી", hi: "समन्वयक से प्रमाण पत्र प्राप्त करती बच्ची" } },
+      { img: sports18, category: "Sports Activities", caption: { en: "Student receiving trophy from police officer and guests", gu: "પોલીસ અધિકારી અને મહેમાનો પાસેથી ટ્રોફી સ્વીકારતો વિદ્યાર્થી", hi: "पुलिस अधिकारी और अतिथियों से ट्रॉफी प्राप्त करता छात्र" } },
+      { img: sports19, category: "Sports Activities", caption: { en: "Medal presentation by local authority", gu: "સ્થાનિક અધિકારીઓ દ્વારા મેડલ એનાયત", hi: "स्थानीय अधिकारियों द्वारा पदक प्रदान करना" } },
+      { img: sports20, category: "Sports Activities", caption: { en: "Felicitation ceremony for sports day winners", gu: "સ્પોર્ટ્સ ડે વિજેતાઓ માટે સન્માન સમારોહ", hi: "खेलकूद दिवस के विजेताओं के लिए सम्मान समारोह" } },
+      { img: sports21, category: "Sports Activities", caption: { en: "Boys participating in Kabaddi match", gu: "કબડ્ડી મેચમાં ભાગ લેતા છોકરાઓ", hi: "कबड्डी मैच में भाग लेते लड़के" } },
+      { img: sports22, category: "Sports Activities", caption: { en: "Action shot of youth Kabaddi competition", gu: "કબડ્ડી સ્પર્ધાનો એક્શન ફોટો", hi: "कबड्डी प्रतियोगिता का एक्शन शॉट" } },
+      { img: sports23, category: "Sports Activities", caption: { en: "Running race starting line configuration", gu: "દોડ સ્પર્ધાની પ્રારંભિક લાઇન", hi: "दौड़ प्रतियोगिता की शुरुआती लाइन" } },
+      { img: sports24, category: "Sports Activities", caption: { en: "Yoga and fitness session for students", gu: "વિદ્યાર્થીઓ માટે યોગ અને ફિટનેસ સત્ર", hi: "छात्रों के लिए योग और फिटनेस सत्र" } },
+      { img: sports25, category: "Sports Activities", caption: { en: "Mass yoga posture demonstration", gu: "સામૂહિક યોગાસન પ્રદર્શન", hi: "सामूहिक योगासन प्रदर्शन" } },
+      { img: sports26, category: "Sports Activities", caption: { en: "Girls ready at the running race start line", gu: "દોડ સ્પર્ધાની સ્ટાર્ટ લાઇન પર તૈયાર છોકરીઓ", hi: "दौड़ प्रतियोगिता की स्टार्ट लाइन पर तैयार लड़कियां" } },
+      { img: sports27, category: "Sports Activities", caption: { en: "Three-legged race competition in progress", gu: "ત્રણ પગ વાળી દોડ સ્પર્ધા ચાલુ છે", hi: "तीन टांगों वाली दौड़ प्रतियोगिता जारी" } }
+    ]
   },
   {
     id: "hebatpur-school-distribution-2025",
@@ -1077,6 +1216,84 @@ export const SCHOOL_BAG_EVENTS: PastEventItem[] = [
         },
       },
     ],
+  },
+  {
+    id: "tree-plantation-drive-2023",
+    category: "Environmental Activities",
+    date: "Jun 2023",
+    title: {
+      en: "Tree Plantation Drive",
+      gu: "વૃક્ષારોપણ અભિયાન",
+      hi: "वृक्षारोपण अभियान",
+    },
+    place: {
+      en: "Sanand, Ahmedabad, Gujarat",
+      gu: "સાણંદ, અમદાવાદ, ગુજરાત",
+      hi: "सानंद, अहमदाबाद, गुजरात",
+    },
+    summary: {
+      en: "Uday Foundation Trust organized a Tree Plantation Drive to promote environmental conservation and create a greener future. Volunteers, students, and community members actively participated by planting various types of trees. This initiative aimed to increase environmental awareness, reduce pollution, improve biodiversity, and encourage every citizen to contribute towards a cleaner and healthier environment.",
+      gu: "પર્યાવરણનું સંરક્ષણ અને હરિયાળું ભવિષ્ય નિર્માણ કરવાના ઉદ્દેશ્ય સાથે ઉદય ફાઉન્ડેશન ટ્રસ્ટ દ્વારા વૃક્ષારોપણ અભિયાનનું આયોજન કરવામાં આવ્યું હતું. આ અભિયાનમાં સ્વયંસેવકો, વિદ્યાર્થીઓ અને સ્થાનિક નાગરિકોએ ઉત્સાહપૂર્વક ભાગ લીધો અને વિવિધ પ્રકારના વૃક્ષોનું વાવેતર કરવામાં આવ્યું. આ પહેલનો મુખ્ય હેતુ પર્યાવરણ પ્રત્યે જાગૃતિ લાવવાનો, પ્રદૂષણ ઘટાડવાનો અને આવનારી પેઢી માટે હરિયાળું અને સ્વસ્થ પર્યાવરણ તૈયાર કરવાનો હતો.",
+      hi: "उदय फाउंडेशन ट्रस्ट ने पर्यावरण संरक्षण को बढ़ावा देने और एक हरित भविष्य बनाने के लिए एक वृक्षारोपण अभियान का आयोजन किया। स्वयंसेवकों, छात्रों और समुदाय के सदस्यों ने विभिन्न प्रकार के पेड़ लगाकर सक्रिय रूप से भाग लिया। इस पहल का उद्देश्य पर्यावरणीय जागरूकता बढ़ाना, प्रदूषण कम करना, जैव विविधता में सुधार करना और प्रत्येक नागरिक को स्वच्छ और स्वस्थ पर्यावरण के निर्माण में योगदान देने के लिए प्रोत्साहित करना था।",
+    },
+    participants: 150,
+    volunteers: 25,
+    impact: {
+      en: "Hundreds of trees planted & environmental awareness increased",
+      gu: "સેંકડો વૃક્ષોનું વાવેતર અને પર્યાવરણીય જાગૃતિમાં વધારો",
+      hi: "सैकड़ों पेड़ लगाए गए और पर्यावरणीय जागरूकता बढ़ी",
+    },
+    img: treePlantation12,
+    highlights: {
+      en: [
+        "Tree plantation campaign",
+        "Environmental awareness program",
+        "Community participation",
+        "Student participation",
+        "Volunteer engagement",
+        "Green environment initiative",
+        "Nature conservation activities"
+      ],
+      gu: [
+        "વૃક્ષારોપણ ઝુંબેશ",
+        "પર્યાવરણીય જાગૃતિ કાર્યક્રમ",
+        "સામુદાયિક ભાગીદારી",
+        "વિદ્યાર્થીઓની ભાગીદારી",
+        "સ્વયંસેવકો જોડાણ",
+        "હરિયાળું પર્યાવરણ પહેલ",
+        "કુદરત સંરક્ષણ પ્રવૃત્તિઓ"
+      ],
+      hi: [
+        "वृक्षारोपण अभियान",
+        "पर्यावरण जागरूकता कार्यक्रम",
+        "सामुदायिक भागीदारी",
+        "छात्रों की भागीदारी",
+        "स्वयंसेवकों की भागीदारी",
+        "हरित पर्यावरण पहल",
+        "प्रकृति संरक्षण गतिविधियां"
+      ]
+    },
+    images: [
+      { img: treePlantation1, category: "Environmental Activities", caption: { en: "Volunteers planting a sapling together", gu: "સ્વયંસેવકો સાથે મળીને છોડ રોપી રહ્યા છે", hi: "स्वयंसेवक मिलकर पौधे लगा रहे हैं" } },
+      { img: treePlantation2, category: "Environmental Activities", caption: { en: "Community members planting a sapling near a wall", gu: "સામુદાયિક સભ્યો દીવાલ પાસે છોડ રોપી રહ્યા છે", hi: "सामुदायिक सदस्य दीवार के पास पौधे लगा रहे हैं" } },
+      { img: treePlantation3, category: "Environmental Activities", caption: { en: "A young girl planting a small tree in a garden bed", gu: "બગીચાના ક્યારામાં છોડ રોપી રહેલી એક નાની બાળકી", hi: "बगीचे की क्यारी में एक छोटी बच्ची पौधा लगा रही है" } },
+      { img: treePlantation4, category: "Environmental Activities", caption: { en: "Volunteer planting a tree in a rocky field", gu: "પથરાળ ખેતરમાં છોડ રોપી રહેલો સ્વયંસેવક", hi: "पथरीले खेत में पौधा लगाता स्वयंसेवक" } },
+      { img: treePlantation5, category: "Environmental Activities", caption: { en: "Watering a newly planted tree in dry field", gu: "સુકા ખેતરમાં નવા રોપેલા વૃક્ષને પાણી આપવું", hi: "सूखे खेत में नए लगाए गए पेड़ को पानी देना" } },
+      { img: treePlantation6, category: "Environmental Activities", caption: { en: "Volunteer checking on a young sapling in dry soil", gu: "સુકી જમીનમાં નાના છોડની તપાસ કરતો સ્વયંસેવક", hi: "सूखी मिट्टी में छोटे पौधे की जांच करता स्वयंसेवक" } },
+      { img: treePlantation7, category: "Environmental Activities", caption: { en: "Watering the saplings in the dry field", gu: "સુકા ખેતરમાં છોડને પાણી આપવું", hi: "सूखे खेत में पौधों को पानी देना" } },
+      { img: treePlantation8, category: "Environmental Activities", caption: { en: "Preparing the soil for tree plantation", gu: "વૃક્ષારોપણ માટે જમીન તૈયાર કરવી", hi: "वृक्षारोपण के लिए मिट्टी तैयार करना" } },
+      { img: treePlantation9, category: "Environmental Activities", caption: { en: "Volunteer watering the young saplings in the field", gu: "ખેતરમાં નાના છોડને પાણી આપતો સ્વયંસેવક", hi: "खेत में छोटे पौधों को पानी देता स्वयंसेवक" } },
+      { img: treePlantation10, category: "Environmental Activities", caption: { en: "Care and watering of the plants", gu: "છોડની સંભાળ અને પાણી આપવું", hi: "पौधों की देखभाल और पानी देना" } },
+      { img: treePlantation11, category: "Environmental Activities", caption: { en: "Student planting a tree near dry bank", gu: "સુકા કાંઠા પાસે વૃક્ષ રોપતો વિદ્યાર્થી", hi: "सूखे किनारे के पास पौधा लगाता छात्र" } },
+      { img: treePlantation12, category: "Environmental Activities", caption: { en: "Soyla Gram Panchayat Tree Plantation Ceremony", gu: "સોયલા ગ્રામ પંચાયત વૃક્ષારોપણ સમારોહ", hi: "सोयला ग्राम पंचायत वृक्षारोपण समारोह" } },
+      { img: treePlantation13, category: "Environmental Activities", caption: { en: "Stage ceremony with organizers holding saplings", gu: "છોડ સાથેના આયોજકો સાથે સ્ટેજ સમારોહ", hi: "पौधे पकड़े आयोजकों के साथ मंच समारोह" } },
+      { img: treePlantation14, category: "Environmental Activities", caption: { en: "Group of volunteers planting trees on the bank", gu: "ટેકરા પર વૃક્ષારોપણ કરતા સ્વયંસેવકોનું જૂથ", hi: "टीले पर वृक्षारोपण करते स्वयंसेवकों का समूह" } },
+      { img: treePlantation15, category: "Environmental Activities", caption: { en: "Planting a tree on the slope of a sandy bank", gu: "રેતાળ કાંઠાના ઢોળાવ પર વૃક્ષ રોપવું", hi: "रेतीले किनारे के ढलान पर पौधा लगाना" } },
+      { img: treePlantation16, category: "Environmental Activities", caption: { en: "Volunteers planting trees near a small creek", gu: "નાની ખાડી પાસે વૃક્ષારોપણ કરતા સ્વયંસેવકો", hi: "छोटी खाड़ी के पास वृक्षारोपण करते स्वयंसेवक" } },
+      { img: treePlantation17, category: "Environmental Activities", caption: { en: "Watering a young tree in the garden", gu: "બગીચામાં નાના વૃક્ષને પાણી આપવું", hi: "बगीचे में छोटे पेड़ को पानी देना" } },
+      { img: treePlantation18, category: "Environmental Activities", caption: { en: "Students and volunteers watering a tree", gu: "વૃક્ષને પાણી આપતા વિદ્યાર્થીઓ અને સ્વયંસેવકો", hi: "पेड़ को पानी देते छात्र और स्वयंसेवक" } },
+      { img: treePlantation19, category: "Environmental Activities", caption: { en: "Family planting a tree together near their home", gu: "ઘર પાસે સાથે મળીને વૃક્ષારોપણ કરતો પરિવાર", hi: "घर के पास मिलकर वृक्षारोपण करता परिवार" } }
+    ]
   },
   {
     id: "government-welfare-camp-2022",
@@ -1929,4 +2146,54 @@ export const SCHOOL_BAG_SIMPLE_GALLERY: SimpleGalleryItem[] = [
   { img: samman10, cat: "Events", h: "tall" },
   { img: samman11, cat: "Events", h: "tall" },
   { img: samman12, cat: "Events", h: "short" },
+
+  // Tree Plantation Drive
+  { img: treePlantation1, cat: "Environment", h: "short" },
+  { img: treePlantation2, cat: "Environment", h: "tall" },
+  { img: treePlantation3, cat: "Environment", h: "short" },
+  { img: treePlantation4, cat: "Environment", h: "tall" },
+  { img: treePlantation5, cat: "Environment", h: "short" },
+  { img: treePlantation6, cat: "Environment", h: "short" },
+  { img: treePlantation7, cat: "Environment", h: "tall" },
+  { img: treePlantation8, cat: "Environment", h: "short" },
+  { img: treePlantation9, cat: "Environment", h: "short" },
+  { img: treePlantation10, cat: "Environment", h: "short" },
+  { img: treePlantation11, cat: "Environment", h: "short" },
+  { img: treePlantation12, cat: "Events", h: "tall" },
+  { img: treePlantation13, cat: "Events", h: "short" },
+  { img: treePlantation14, cat: "Environment", h: "short" },
+  { img: treePlantation15, cat: "Environment", h: "short" },
+  { img: treePlantation16, cat: "Environment", h: "short" },
+  { img: treePlantation17, cat: "Environment", h: "short" },
+  { img: treePlantation18, cat: "Environment", h: "short" },
+  { img: treePlantation19, cat: "Environment", h: "short" },
+
+  // Sports Day & Community Sports Event
+  { img: sports1, cat: "Sports", h: "short" },
+  { img: sports2, cat: "Sports", h: "tall" },
+  { img: sports3, cat: "Sports", h: "short" },
+  { img: sports4, cat: "Sports", h: "tall" },
+  { img: sports5, cat: "Sports", h: "short" },
+  { img: sports6, cat: "Sports", h: "short" },
+  { img: sports7, cat: "Sports", h: "tall" },
+  { img: sports8, cat: "Sports", h: "short" },
+  { img: sports9, cat: "Sports", h: "short" },
+  { img: sports10, cat: "Sports", h: "short" },
+  { img: sports11, cat: "Sports", h: "short" },
+  { img: sports12, cat: "Sports", h: "short" },
+  { img: sports13, cat: "Sports", h: "short" },
+  { img: sports14, cat: "Sports", h: "short" },
+  { img: sports15, cat: "Sports", h: "short" },
+  { img: sports16, cat: "Sports", h: "short" },
+  { img: sports17, cat: "Sports", h: "short" },
+  { img: sports18, cat: "Events", h: "tall" },
+  { img: sports19, cat: "Sports", h: "short" },
+  { img: sports20, cat: "Events", h: "short" },
+  { img: sports21, cat: "Sports", h: "short" },
+  { img: sports22, cat: "Sports", h: "short" },
+  { img: sports23, cat: "Sports", h: "short" },
+  { img: sports24, cat: "Sports", h: "short" },
+  { img: sports25, cat: "Sports", h: "short" },
+  { img: sports26, cat: "Sports", h: "short" },
+  { img: sports27, cat: "Sports", h: "short" },
 ];

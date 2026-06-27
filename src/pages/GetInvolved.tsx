@@ -875,7 +875,7 @@ export function GetInvolved() {
             </p>
           </div>
 
-          <div className="grid grid-cols-2 lg:grid-cols-6 gap-6 md:gap-8">
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6 md:gap-8">
             {[
               { to: 650, suffix: "+", label: "Volunteers Joined" },
               { to: 12000, suffix: "+", label: "Families Supported" },
@@ -884,7 +884,7 @@ export function GetInvolved() {
               { to: 25000, suffix: "+", label: "Trees Planted" },
               { to: 120, suffix: "+", label: "Villages Reached" },
             ].map(({ to, suffix, label }) => (
-              <div key={label} className="bg-white/10 backdrop-blur-md border border-white/10 rounded-2xl p-6 text-center shadow-md">
+              <div key={label} className="bg-white/10 backdrop-blur-md border border-white/10 rounded-2xl p-4 md:p-6 text-center shadow-md">
                 <span className="block text-3xl md:text-4xl lg:text-5xl font-bold font-display text-secondary tracking-tight">
                   <Counter to={to} suffix={suffix} />
                 </span>
@@ -1085,7 +1085,7 @@ export function GetInvolved() {
                   />
                 </div>
 
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
                     <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1.5">
                       Email Address *
