@@ -1,4 +1,4 @@
-const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
+import { apiRequest } from "./apiClient";
 
 let authState: any = null;
 const listeners = new Set<(user: any | null) => void>();
@@ -34,12 +34,9 @@ export function getAuthHeader(): Record<string, string> {
 export async function signInAdmin(emailAddress: string, pass: string, remember: boolean): Promise<any> {
   const cleanEmail = emailAddress.trim();
 
-  const res = await fetch(`${API_URL}/auth/login`, {
+  const res = await apiRequest("/auth/login", {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({ email: cleanEmail, password: pass }),
+    body: { email: cleanEmail, password: pass },
   });
 
   if (!res.ok) {

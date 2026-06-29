@@ -1,13 +1,15 @@
-import { getAuthHeader } from "./auth";
 import { io } from "socket.io-client";
+import { apiRequest } from "./apiClient";
+import { getAuthHeader } from "./auth";
 
-const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
-const SOCKET_URL = import.meta.env.VITE_SOCKET_URL || "http://localhost:5000";
+const SOCKET_URL = (import.meta.env.VITE_API_URL || "http://localhost:5000").replace(/\/api$/, "");
 
 let socket: any = null;
 function getSocket() {
   if (!socket) {
-    socket = io(SOCKET_URL);
+    socket = io(SOCKET_URL, {
+      withCredentials: true,
+    });
   }
   return socket;
 }
@@ -160,7 +162,8 @@ export async function uploadFile(
 ): Promise<string> {
   return new Promise<string>((resolve, reject) => {
     const xhr = new XMLHttpRequest();
-    xhr.open("POST", `${API_URL}/upload`);
+    const uploadUrl = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
+    xhr.open("POST", `${uploadUrl}/upload`);
 
     // Add authorization token
     const authHeaders = getAuthHeader();
@@ -210,7 +213,7 @@ export async function uploadFile(
 // -------------------------------------------------------------
 export async function fetchEvents(): Promise<EventItem[]> {
   try {
-    const res = await fetch(`${API_URL}/events`);
+    const res = await apiRequest("/events");
     if (!res.ok) throw new Error("Failed to fetch events");
     const data = await res.json();
     return data.map(mapItem);
@@ -222,7 +225,7 @@ export async function fetchEvents(): Promise<EventItem[]> {
 
 export async function fetchPrograms(): Promise<ProgramItem[]> {
   try {
-    const res = await fetch(`${API_URL}/programs`);
+    const res = await apiRequest("/programs");
     if (!res.ok) throw new Error("Failed to fetch programs");
     const data = await res.json();
     return data.map(mapItem);
@@ -234,7 +237,7 @@ export async function fetchPrograms(): Promise<ProgramItem[]> {
 
 export async function fetchTeam(): Promise<TeamMember[]> {
   try {
-    const res = await fetch(`${API_URL}/team`);
+    const res = await apiRequest("/team");
     if (!res.ok) throw new Error("Failed to fetch team members");
     const data = await res.json();
     return data.map(mapItem);
@@ -246,7 +249,7 @@ export async function fetchTeam(): Promise<TeamMember[]> {
 
 export async function fetchGallery(): Promise<GalleryItem[]> {
   try {
-    const res = await fetch(`${API_URL}/gallery`);
+    const res = await apiRequest("/gallery");
     if (!res.ok) throw new Error("Failed to fetch gallery");
     const data = await res.json();
     return data.map(mapItem);
@@ -258,7 +261,7 @@ export async function fetchGallery(): Promise<GalleryItem[]> {
 
 export async function fetchCertificates(): Promise<TransparencyDoc[]> {
   try {
-    const res = await fetch(`${API_URL}/certificates`);
+    const res = await apiRequest("/certificates");
     if (!res.ok) throw new Error("Failed to fetch certificates");
     const data = await res.json();
     return data.map(mapItem);
@@ -270,7 +273,7 @@ export async function fetchCertificates(): Promise<TransparencyDoc[]> {
 
 export async function fetchTransparencyDocuments(): Promise<TransparencyDoc[]> {
   try {
-    const res = await fetch(`${API_URL}/transparency`);
+    const res = await apiRequest("/transparency");
     if (!res.ok) throw new Error("Failed to fetch transparency documents");
     const data = await res.json();
     return data.map(mapItem);
@@ -295,7 +298,7 @@ export async function fetchTransparencyDocs(): Promise<TransparencyDoc[]> {
 
 export async function fetchSettings(): Promise<any> {
   try {
-    const res = await fetch(`${API_URL}/settings`);
+    const res = await apiRequest("/settings");
     if (!res.ok) throw new Error("Failed to fetch settings");
     return mapItem(await res.json());
   } catch (err: any) {
@@ -310,13 +313,9 @@ export async function fetchSettings(): Promise<any> {
 
 // Events CRUD
 export async function addEvent(data: any): Promise<string> {
-  const res = await fetch(`${API_URL}/events`, {
+  const res = await apiRequest("/events", {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      ...getAuthHeader(),
-    },
-    body: JSON.stringify(data),
+    body: data,
   });
   if (!res.ok) {
     const err = await res.json().catch(() => ({}));
@@ -327,13 +326,9 @@ export async function addEvent(data: any): Promise<string> {
 }
 
 export async function updateEvent(id: string, data: any): Promise<void> {
-  const res = await fetch(`${API_URL}/events/${id}`, {
+  const res = await apiRequest(`/events/${id}`, {
     method: "PUT",
-    headers: {
-      "Content-Type": "application/json",
-      ...getAuthHeader(),
-    },
-    body: JSON.stringify(data),
+    body: data,
   });
   if (!res.ok) {
     const err = await res.json().catch(() => ({}));
@@ -342,9 +337,8 @@ export async function updateEvent(id: string, data: any): Promise<void> {
 }
 
 export async function deleteEvent(id: string): Promise<void> {
-  const res = await fetch(`${API_URL}/events/${id}`, {
+  const res = await apiRequest(`/events/${id}`, {
     method: "DELETE",
-    headers: getAuthHeader(),
   });
   if (!res.ok) {
     const err = await res.json().catch(() => ({}));
@@ -354,13 +348,9 @@ export async function deleteEvent(id: string): Promise<void> {
 
 // Programs CRUD
 export async function addProgram(data: any): Promise<string> {
-  const res = await fetch(`${API_URL}/programs`, {
+  const res = await apiRequest("/programs", {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      ...getAuthHeader(),
-    },
-    body: JSON.stringify(data),
+    body: data,
   });
   if (!res.ok) {
     const err = await res.json().catch(() => ({}));
@@ -371,13 +361,9 @@ export async function addProgram(data: any): Promise<string> {
 }
 
 export async function updateProgram(id: string, data: any): Promise<void> {
-  const res = await fetch(`${API_URL}/programs/${id}`, {
+  const res = await apiRequest(`/programs/${id}`, {
     method: "PUT",
-    headers: {
-      "Content-Type": "application/json",
-      ...getAuthHeader(),
-    },
-    body: JSON.stringify(data),
+    body: data,
   });
   if (!res.ok) {
     const err = await res.json().catch(() => ({}));
@@ -386,9 +372,8 @@ export async function updateProgram(id: string, data: any): Promise<void> {
 }
 
 export async function deleteProgram(id: string): Promise<void> {
-  const res = await fetch(`${API_URL}/programs/${id}`, {
+  const res = await apiRequest(`/programs/${id}`, {
     method: "DELETE",
-    headers: getAuthHeader(),
   });
   if (!res.ok) {
     const err = await res.json().catch(() => ({}));
@@ -398,13 +383,9 @@ export async function deleteProgram(id: string): Promise<void> {
 
 // Gallery CRUD
 export async function addGalleryItem(data: any): Promise<string> {
-  const res = await fetch(`${API_URL}/gallery`, {
+  const res = await apiRequest("/gallery", {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      ...getAuthHeader(),
-    },
-    body: JSON.stringify(data),
+    body: data,
   });
   if (!res.ok) {
     const err = await res.json().catch(() => ({}));
@@ -415,13 +396,9 @@ export async function addGalleryItem(data: any): Promise<string> {
 }
 
 export async function updateGalleryItem(id: string, data: any): Promise<void> {
-  const res = await fetch(`${API_URL}/gallery/${id}`, {
+  const res = await apiRequest(`/gallery/${id}`, {
     method: "PUT",
-    headers: {
-      "Content-Type": "application/json",
-      ...getAuthHeader(),
-    },
-    body: JSON.stringify(data),
+    body: data,
   });
   if (!res.ok) {
     const err = await res.json().catch(() => ({}));
@@ -430,9 +407,8 @@ export async function updateGalleryItem(id: string, data: any): Promise<void> {
 }
 
 export async function deleteGalleryItem(id: string): Promise<void> {
-  const res = await fetch(`${API_URL}/gallery/${id}`, {
+  const res = await apiRequest(`/gallery/${id}`, {
     method: "DELETE",
-    headers: getAuthHeader(),
   });
   if (!res.ok) {
     const err = await res.json().catch(() => ({}));
@@ -442,13 +418,9 @@ export async function deleteGalleryItem(id: string): Promise<void> {
 
 // Team CRUD
 export async function addTeamMember(data: any): Promise<string> {
-  const res = await fetch(`${API_URL}/team`, {
+  const res = await apiRequest("/team", {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      ...getAuthHeader(),
-    },
-    body: JSON.stringify(data),
+    body: data,
   });
   if (!res.ok) {
     const err = await res.json().catch(() => ({}));
@@ -459,13 +431,9 @@ export async function addTeamMember(data: any): Promise<string> {
 }
 
 export async function updateTeamMember(id: string, data: any): Promise<void> {
-  const res = await fetch(`${API_URL}/team/${id}`, {
+  const res = await apiRequest(`/team/${id}`, {
     method: "PUT",
-    headers: {
-      "Content-Type": "application/json",
-      ...getAuthHeader(),
-    },
-    body: JSON.stringify(data),
+    body: data,
   });
   if (!res.ok) {
     const err = await res.json().catch(() => ({}));
@@ -474,9 +442,8 @@ export async function updateTeamMember(id: string, data: any): Promise<void> {
 }
 
 export async function deleteTeamMember(id: string): Promise<void> {
-  const res = await fetch(`${API_URL}/team/${id}`, {
+  const res = await apiRequest(`/team/${id}`, {
     method: "DELETE",
-    headers: getAuthHeader(),
   });
   if (!res.ok) {
     const err = await res.json().catch(() => ({}));
@@ -486,13 +453,9 @@ export async function deleteTeamMember(id: string): Promise<void> {
 
 // Certificates CRUD
 export async function addCertificate(data: any): Promise<string> {
-  const res = await fetch(`${API_URL}/certificates`, {
+  const res = await apiRequest("/certificates", {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      ...getAuthHeader(),
-    },
-    body: JSON.stringify(data),
+    body: data,
   });
   if (!res.ok) {
     const err = await res.json().catch(() => ({}));
@@ -503,9 +466,8 @@ export async function addCertificate(data: any): Promise<string> {
 }
 
 export async function deleteCertificate(id: string): Promise<void> {
-  const res = await fetch(`${API_URL}/certificates/${id}`, {
+  const res = await apiRequest(`/certificates/${id}`, {
     method: "DELETE",
-    headers: getAuthHeader(),
   });
   if (!res.ok) {
     const err = await res.json().catch(() => ({}));
@@ -515,13 +477,9 @@ export async function deleteCertificate(id: string): Promise<void> {
 
 // Transparency Document CRUD
 export async function addTransparencyDocument(data: any): Promise<string> {
-  const res = await fetch(`${API_URL}/transparency`, {
+  const res = await apiRequest("/transparency", {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      ...getAuthHeader(),
-    },
-    body: JSON.stringify(data),
+    body: data,
   });
   if (!res.ok) {
     const err = await res.json().catch(() => ({}));
@@ -532,9 +490,8 @@ export async function addTransparencyDocument(data: any): Promise<string> {
 }
 
 export async function deleteTransparencyDocument(id: string): Promise<void> {
-  const res = await fetch(`${API_URL}/transparency/${id}`, {
+  const res = await apiRequest(`/transparency/${id}`, {
     method: "DELETE",
-    headers: getAuthHeader(),
   });
   if (!res.ok) {
     const err = await res.json().catch(() => ({}));
@@ -544,12 +501,9 @@ export async function deleteTransparencyDocument(id: string): Promise<void> {
 
 // Public Ingestion endpoints
 export async function submitContactMessage(data: any): Promise<string> {
-  const res = await fetch(`${API_URL}/contact`, {
+  const res = await apiRequest("/contact", {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(data),
+    body: data,
   });
   if (!res.ok) {
     const err = await res.json().catch(() => ({}));
@@ -560,12 +514,9 @@ export async function submitContactMessage(data: any): Promise<string> {
 }
 
 export async function submitVolunteerApplication(data: any): Promise<string> {
-  const res = await fetch(`${API_URL}/volunteers`, {
+  const res = await apiRequest("/volunteers", {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(data),
+    body: data,
   });
   if (!res.ok) {
     const err = await res.json().catch(() => ({}));
@@ -576,12 +527,9 @@ export async function submitVolunteerApplication(data: any): Promise<string> {
 }
 
 export async function submitPartnershipRequest(data: any): Promise<string> {
-  const res = await fetch(`${API_URL}/partnerships`, {
+  const res = await apiRequest("/partnerships", {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(data),
+    body: data,
   });
   if (!res.ok) {
     const err = await res.json().catch(() => ({}));
@@ -592,12 +540,9 @@ export async function submitPartnershipRequest(data: any): Promise<string> {
 }
 
 export async function submitDonationRecord(data: any): Promise<string> {
-  const res = await fetch(`${API_URL}/donations`, {
+  const res = await apiRequest("/donations", {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(data),
+    body: data,
   });
   if (!res.ok) {
     const err = await res.json().catch(() => ({}));
@@ -612,7 +557,7 @@ export { submitDonationRecord as submitDonation };
 // Dashboard Fetchers
 export async function fetchContactMessages(): Promise<any[]> {
   try {
-    const res = await fetch(`${API_URL}/contact`, { headers: getAuthHeader() });
+    const res = await apiRequest("/contact");
     if (!res.ok) throw new Error("Failed to fetch messages");
     const data = await res.json();
     return data.map(mapItem);
@@ -623,13 +568,9 @@ export async function fetchContactMessages(): Promise<any[]> {
 }
 
 export async function updateContactMessageStatus(id: string, status: "read" | "unread"): Promise<void> {
-  const res = await fetch(`${API_URL}/contact/${id}/status`, {
+  const res = await apiRequest(`/contact/${id}/status`, {
     method: "PUT",
-    headers: {
-      "Content-Type": "application/json",
-      ...getAuthHeader(),
-    },
-    body: JSON.stringify({ status }),
+    body: { status },
   });
   if (!res.ok) {
     const err = await res.json().catch(() => ({}));
@@ -638,9 +579,8 @@ export async function updateContactMessageStatus(id: string, status: "read" | "u
 }
 
 export async function deleteContactMessage(id: string): Promise<void> {
-  const res = await fetch(`${API_URL}/contact/${id}`, {
+  const res = await apiRequest(`/contact/${id}`, {
     method: "DELETE",
-    headers: getAuthHeader(),
   });
   if (!res.ok) {
     const err = await res.json().catch(() => ({}));
@@ -650,7 +590,7 @@ export async function deleteContactMessage(id: string): Promise<void> {
 
 export async function fetchVolunteers(): Promise<VolunteerApplication[]> {
   try {
-    const res = await fetch(`${API_URL}/volunteers`, { headers: getAuthHeader() });
+    const res = await apiRequest("/volunteers");
     if (!res.ok) throw new Error("Failed to fetch volunteers");
     const data = await res.json();
     return data.map(mapItem) as VolunteerApplication[];
@@ -661,13 +601,9 @@ export async function fetchVolunteers(): Promise<VolunteerApplication[]> {
 }
 
 export async function updateVolunteerStatus(id: string, status: "pending" | "approved" | "rejected"): Promise<void> {
-  const res = await fetch(`${API_URL}/volunteers/${id}/status`, {
+  const res = await apiRequest(`/volunteers/${id}/status`, {
     method: "PUT",
-    headers: {
-      "Content-Type": "application/json",
-      ...getAuthHeader(),
-    },
-    body: JSON.stringify({ status }),
+    body: { status },
   });
   if (!res.ok) {
     const err = await res.json().catch(() => ({}));
@@ -676,9 +612,8 @@ export async function updateVolunteerStatus(id: string, status: "pending" | "app
 }
 
 export async function deleteVolunteer(id: string): Promise<void> {
-  const res = await fetch(`${API_URL}/volunteers/${id}`, {
+  const res = await apiRequest(`/volunteers/${id}`, {
     method: "DELETE",
-    headers: getAuthHeader(),
   });
   if (!res.ok) {
     const err = await res.json().catch(() => ({}));
@@ -688,7 +623,7 @@ export async function deleteVolunteer(id: string): Promise<void> {
 
 export async function fetchPartnershipRequests(): Promise<PartnershipRequest[]> {
   try {
-    const res = await fetch(`${API_URL}/partnerships`, { headers: getAuthHeader() });
+    const res = await apiRequest("/partnerships");
     if (!res.ok) throw new Error("Failed to fetch partnerships");
     const data = await res.json();
     return data.map(mapItem) as PartnershipRequest[];
@@ -701,13 +636,9 @@ export async function fetchPartnershipRequests(): Promise<PartnershipRequest[]> 
 export { fetchPartnershipRequests as fetchPartnerships };
 
 export async function updatePartnershipStatus(id: string, status: "pending" | "approved" | "rejected"): Promise<void> {
-  const res = await fetch(`${API_URL}/partnerships/${id}/status`, {
+  const res = await apiRequest(`/partnerships/${id}/status`, {
     method: "PUT",
-    headers: {
-      "Content-Type": "application/json",
-      ...getAuthHeader(),
-    },
-    body: JSON.stringify({ status }),
+    body: { status },
   });
   if (!res.ok) {
     const err = await res.json().catch(() => ({}));
@@ -716,9 +647,8 @@ export async function updatePartnershipStatus(id: string, status: "pending" | "a
 }
 
 export async function deletePartnership(id: string): Promise<void> {
-  const res = await fetch(`${API_URL}/partnerships/${id}`, {
+  const res = await apiRequest(`/partnerships/${id}`, {
     method: "DELETE",
-    headers: getAuthHeader(),
   });
   if (!res.ok) {
     const err = await res.json().catch(() => ({}));
@@ -728,7 +658,7 @@ export async function deletePartnership(id: string): Promise<void> {
 
 export async function fetchDonations(): Promise<any[]> {
   try {
-    const res = await fetch(`${API_URL}/donations`, { headers: getAuthHeader() });
+    const res = await apiRequest("/donations");
     if (!res.ok) throw new Error("Failed to fetch donations");
     const data = await res.json();
     return data.map(mapItem);
@@ -739,13 +669,9 @@ export async function fetchDonations(): Promise<any[]> {
 }
 
 export async function updateSettings(settings: any): Promise<void> {
-  const res = await fetch(`${API_URL}/settings`, {
+  const res = await apiRequest("/settings", {
     method: "PUT",
-    headers: {
-      "Content-Type": "application/json",
-      ...getAuthHeader(),
-    },
-    body: JSON.stringify(settings),
+    body: settings,
   });
   if (!res.ok) {
     const err = await res.json().catch(() => ({}));
