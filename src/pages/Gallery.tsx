@@ -1,9 +1,10 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { PageHero } from "@/components/site/PageHero";
 import { useLanguage } from "@/context/LanguageContext";
 import { useDocumentMetadata } from "@/hooks/useDocumentMetadata";
 import { SCHOOL_BAG_SIMPLE_GALLERY } from "@/constants/schoolEvents";
 import pavaDistributionGroup from "@/assets/pava-distribution-group.jpg";
+import { subscribeGallery } from "@/services/db";
 
 const ITEMS = [
   ...SCHOOL_BAG_SIMPLE_GALLERY,
@@ -30,7 +31,18 @@ export function Gallery() {
 
   const [filter, setFilter] = useState("All");
   const [lightbox, setLightbox] = useState<string | null>(null);
-  const visible = ITEMS.filter((i) => filter === "All" || i.cat === filter);
+  const [itemsList, setItemsList] = useState(ITEMS);
+
+  useEffect(() => {
+    const unsubscribe = subscribeGallery((items) => {
+      if (items && items.length > 0) {
+        setItemsList(items as any);
+      }
+    });
+    return () => unsubscribe();
+  }, []);
+
+  const visible = itemsList.filter((i) => filter === "All" || i.cat === filter);
 
   return (
     <>

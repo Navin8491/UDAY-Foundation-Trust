@@ -1,6 +1,8 @@
+import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { PageHero } from "@/components/site/PageHero";
 import { useLanguage } from "@/context/LanguageContext";
+import { subscribeTeam } from "@/services/db";
 import {
   Instagram,
   Linkedin,
@@ -15,12 +17,7 @@ import {
   Quote,
 } from "lucide-react";
 import presidentImg from "@/assets/president.jpg";
-import vicePresidentImg from "@/assets/vice-president.jpg";
-import treasurerImg from "@/assets/treasurer.jpg";
-import prakashImg from "@/assets/prakash.jpg";
-import kartikeyaImg from "@/assets/kartikeya.jpg";
-import mehulbhaiImg from "@/assets/mehulbhai.jpg";
-import kuldeepImg from "@/assets/kuldeep.jpg";
+import { MEMBERS_DATA } from "@/constants/team";
 import { useDocumentMetadata } from "@/hooks/useDocumentMetadata";
 
 // Local Translations Dictionary
@@ -154,176 +151,7 @@ const TRANSLATIONS_LOCAL = {
   },
 };
 
-const MEMBERS_DATA = [
-  {
-    id: "gulabbhai",
-    name: {
-      en: "Gulabbhai Khodabhai Bauddh",
-      gu: "ગુલાબભાઈ ખોડાભાઈ બૌદ્ધ",
-      hi: "गुलाबभाई खोडाभाई बौद्ध",
-    },
-    role: {
-      en: "President",
-      gu: "પ્રમુખ",
-      hi: "अध्यक्ष",
-    },
-    bio: {
-      en: "Founding trustee leading the vision of inclusive rural development.",
-      gu: "ગામડાઓના સર્વાંગી અને સર્વસમાવેશક વિકાસ માટે વિઝન પૂરું પાડતા સંસ્થાના સ્થાપક ટ્રસ્ટી.",
-      hi: "समावेशी ग्रामीण विकास की दृष्टि का नेतृत्व करने वाले संस्थापक ट्रस्टी।",
-    },
-    email: "udayfts1024@gmail.com",
-    img: presidentImg,
-    socials: {
-      linkedin: "#",
-      instagram: "https://www.instagram.com/uday_foundation_trust_sanand",
-    },
-  },
-  {
-    id: "sanjaykumar",
-    name: {
-      en: "Sanjaykumar Maganbhai Vaghela",
-      gu: "સંજયકુમાર મગનભાઈ વાઘેલા",
-      hi: "संजयकुमार मगनभाई वाघेला",
-    },
-    role: {
-      en: "Vice President",
-      gu: "ઉપપ્રમુખ",
-      hi: "उपाध्यक्ष",
-    },
-    bio: {
-      en: "Drives program strategy and community outreach campaigns.",
-      gu: "સેવાકીય આયોજનોની વ્યૂહરચના અને સામુદાયિક સંપર્ક અભિયાનનું સંચાલન કરે છે.",
-      hi: "कार्यक्रम की रणनीति और सामुदायिक संपर्क अभियानों का संचालन करते हैं।",
-    },
-    email: "udayfts1024@gmail.com",
-    img: vicePresidentImg,
-    socials: {
-      linkedin: "#",
-      instagram: "#",
-    },
-  },
-  {
-    id: "prakash",
-    name: {
-      en: "Prakash Aljibhai Parmar",
-      gu: "પ્રકાશ અલજીભાઈ પરમાર",
-      hi: "प्रकाश अलजीभाई परमार",
-    },
-    role: {
-      en: "Secretary",
-      gu: "મંત્રી",
-      hi: "सचिव",
-    },
-    bio: {
-      en: "Oversees operations, compliance, and field coordination.",
-      gu: "સંસ્થાની રોજિંદી કામગીરી, કાયદાકીય પાલન અને ફિલ્ડ સંકલન સંભાળે છે.",
-      hi: "संस्था के दैनिक संचालन, कानूनी अनुपालन और फील्ड समन्वय की देखरेख करते हैं।",
-    },
-    email: "udayfts1024@gmail.com",
-    img: prakashImg,
-    socials: {
-      linkedin: "#",
-      instagram: "#",
-    },
-  },
-  {
-    id: "kartikeya",
-    name: {
-      en: "Kartikeya Babubhai Jadav",
-      gu: "કાર્તિકેય બાબુભાઈ જાદવ",
-      hi: "कार्तिकेय बाबूभाई जादव",
-    },
-    role: {
-      en: "Joint Secretary",
-      gu: "સહમંત્રી",
-      hi: "संयुक्त सचिव",
-    },
-    bio: {
-      en: "Coordinates volunteer programs, youth engagement, and partnerships.",
-      gu: "સ્વયંસેવક નેટવર્ક, યુવા જોડાણ અને ભાગીદારી પ્રવૃત્તિઓનું સંકલન કરે છે.",
-      hi: "स्वयंसेवक नेटवर्क, युवा जुड़ाव और साझेदारी गतिविधियों का समन्वय करते हैं।",
-    },
-    email: "udayfts1024@gmail.com",
-    img: kartikeyaImg,
-    socials: {
-      linkedin: "#",
-      instagram: "#",
-    },
-  },
-  {
-    id: "rahulkumar",
-    name: {
-      en: "Rahulkumar Natubhai Rathod",
-      gu: "રાહુલકુમાર નટુભાઈ રાઠોડ",
-      hi: "राहुलकुमार नटूभाई राठौड़",
-    },
-    role: {
-      en: "Treasurer",
-      gu: "ખજાનચી",
-      hi: "कोषाध्यक्ष",
-    },
-    bio: {
-      en: "Manages finance, transparency, and donor reporting.",
-      gu: "નાણાકીય વ્યવસ્થાપન, પારદર્શકતા અને દાતાઓ સાથેના અહેવાલનું સંચાલન કરે છે.",
-      hi: "वित्तीय प्रबंधन, पारदर्शिता और दाताओं के साथ रिपोर्टिंग का प्रबंधन करते हैं।",
-    },
-    email: "udayfts1024@gmail.com",
-    img: treasurerImg,
-    socials: {
-      linkedin: "#",
-      instagram: "#",
-    },
-  },
-  {
-    id: "mehulbhai",
-    name: {
-      en: "Mehulbhai Gunvantbhai Bauddh",
-      gu: "મેહુલભાઈ ગુણવંતભાઈ બૌદ્ધ",
-      hi: "मेहुलभाई गुणवंतभाई बौद्ध",
-    },
-    role: {
-      en: "Permanent Member",
-      gu: "કાયમી સભ્ય",
-      hi: "स्थायी सदस्य",
-    },
-    bio: {
-      en: "Strategic advisor and field guide for healthcare initiatives.",
-      gu: "આરોગ્ય અને તબીબી સેવા કેમ્પો માટે વ્યૂહાત્મક સલાહકાર અને ફિલ્ડ માર્ગદર્શક.",
-      hi: "स्वास्थ्य और चिकित्सा शिविरों के लिए रणनीतिक सलाहकार और field मार्गदर्शक।",
-    },
-    email: "udayfts1024@gmail.com",
-    img: mehulbhaiImg,
-    socials: {
-      linkedin: "#",
-      instagram: "#",
-    },
-  },
-  {
-    id: "kuldeep",
-    name: {
-      en: "Kuldeep Bhogilal Meheriya",
-      gu: "કુલદીપ ભોગીલાલ મહેરિયા",
-      hi: "कुलदीप भोगीलाल मेहरिया",
-    },
-    role: {
-      en: "Permanent Member",
-      gu: "કાયમી સભ્ય",
-      hi: "स्थायी सदस्य",
-    },
-    bio: {
-      en: "Drives education support programs and environmental initiatives.",
-      gu: "શિક્ષણ સહાય પ્રોજેક્ટ્સ અને વૃક્ષારોપણ અભિયાનોનું સુકાન સંભાળે છે.",
-      hi: "शिक्षा सहायता परियोजनाओं और वृक्षारोपण अभियानों का संचालन करते हैं।",
-    },
-    email: "udayfts1024@gmail.com",
-    img: kuldeepImg,
-    socials: {
-      linkedin: "#",
-      instagram: "#",
-    },
-  },
-];
+
 
 const PALETTES = [
   "from-[#4040A1]/15 to-[#F7E81D]/10",
@@ -347,15 +175,35 @@ export function Team() {
   const { language, t } = useLanguage();
   const tLocal = TRANSLATIONS_LOCAL[language as "en" | "gu" | "hi"] || TRANSLATIONS_LOCAL["en"];
 
+  const [membersList, setMembersList] = useState(MEMBERS_DATA);
+
+  useEffect(() => {
+    const unsubscribe = subscribeTeam((items) => {
+      if (items && items.length > 0) {
+        const mapped = items.map((item) => ({
+          id: item.id || item.memberId,
+          name: item.name,
+          role: item.role,
+          bio: item.bio,
+          email: item.email,
+          img: item.img,
+          socials: item.socials || {},
+        }));
+        setMembersList(mapped as any);
+      }
+    });
+    return () => unsubscribe();
+  }, []);
+
   useDocumentMetadata(
     "Leadership Team | Uday Foundation Trust",
     "Meet the trustees and leadership team of Uday Foundation Trust, Sanand.",
   );
 
   // Filter members for specific rows in Board of Trustees section
-  const vicePresident = MEMBERS_DATA.find((m) => m.id === "sanjaykumar");
-  const secretaries = MEMBERS_DATA.filter((m) => m.id === "prakash" || m.id === "kartikeya");
-  const permanentMembers = MEMBERS_DATA.filter(
+  const vicePresident = membersList.find((m) => m.id === "sanjaykumar");
+  const secretaries = membersList.filter((m) => m.id === "prakash" || m.id === "kartikeya");
+  const permanentMembers = membersList.filter(
     (m) => m.id === "rahulkumar" || m.id === "mehulbhai" || m.id === "kuldeep"
   );
 
@@ -471,42 +319,42 @@ export function Team() {
           </div>
 
           <div className="about-card-premium p-0! bg-[#F8FAFF] overflow-hidden border border-border shadow-lg">
-            <div className="grid lg:grid-cols-12">
+            <div className="grid grid-cols-1 min-[540px]:grid-cols-12">
               {/* Image side */}
-              <div className="lg:col-span-5 relative min-h-[350px] lg:min-h-full bg-slate-100">
+              <div className="col-span-1 min-[540px]:col-span-5 relative w-full aspect-[4/5] min-[540px]:aspect-auto min-[540px]:min-h-full bg-slate-100 overflow-hidden rounded-t-[2rem] min-[540px]:rounded-t-none min-[540px]:rounded-l-[2rem]">
                 <img
                   src={presidentImg}
                   alt="Gulabbhai Khodabhai Bauddh"
-                  className="absolute inset-0 w-full h-full object-cover object-top"
+                  className="w-full h-full object-cover object-top min-[540px]:absolute min-[540px]:inset-0 min-[540px]:w-full min-[540px]:h-full"
                   loading="eager"
                 />
               </div>
 
               {/* Content side */}
-              <div className="lg:col-span-7 p-8 md:p-12 flex flex-col justify-center bg-white">
-                <div className="mb-6">
+              <div className="col-span-1 min-[540px]:col-span-7 p-6 min-[540px]:p-8 md:p-12 flex flex-col justify-center bg-white">
+                <div className="mb-4 min-[540px]:mb-6">
                   <span className="text-xs font-bold uppercase tracking-wider text-primary bg-primary/10 px-3 py-1 rounded-full">
                     {tLocal.spotlightSub}
                   </span>
                 </div>
 
-                <h3 className="text-3xl font-display font-bold text-slate-900 mb-2">
+                <h3 className="text-xl min-[540px]:text-2xl md:text-3xl font-display font-bold text-slate-900 mb-2">
                   Gulabbhai Khodabhai Bauddh
                 </h3>
-                <p className="text-sm font-semibold text-slate-500 uppercase tracking-widest mb-6">
+                <p className="text-xs md:text-sm font-semibold text-slate-500 uppercase tracking-widest mb-4 min-[540px]:mb-6">
                   {tLocal.heroChip} · {t("pres.role")}
                 </p>
 
-                <div className="relative mb-8">
+                <div className="relative mb-6 min-[540px]:mb-8">
                   <Quote className="absolute -top-4 -left-4 h-10 w-10 text-slate-100 pointer-events-none" />
-                  <p className="text-slate-700 font-display italic text-lg md:text-xl leading-relaxed relative z-10 pl-6 font-gujarati">
+                  <p className="text-slate-700 font-display italic text-sm min-[540px]:text-base md:text-lg lg:text-xl leading-relaxed relative z-10 pl-5 min-[540px]:pl-6 font-gujarati">
                     "{tLocal.spotlightMessage}"
                   </p>
                 </div>
 
-                <div className="grid md:grid-cols-2 gap-6 pt-6 border-t border-slate-100">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 min-[540px]:gap-6 pt-4 min-[540px]:pt-6 border-t border-slate-100">
                   <div>
-                    <h4 className="flex items-center gap-2 text-sm font-bold text-slate-900 mb-2">
+                    <h4 className="flex items-center gap-2 text-xs md:text-sm font-bold text-slate-900 mb-2">
                       <Target className="h-4 w-4 text-[#7A9D1C]" />
                       <span>{tLocal.spotlightVision}</span>
                     </h4>
@@ -515,7 +363,7 @@ export function Team() {
                     </p>
                   </div>
                   <div>
-                    <h4 className="flex items-center gap-2 text-sm font-bold text-slate-900 mb-2">
+                    <h4 className="flex items-center gap-2 text-xs md:text-sm font-bold text-slate-900 mb-2">
                       <ShieldCheck className="h-4 w-4 text-[#4040A1]" />
                       <span>{tLocal.spotlightMission}</span>
                     </h4>

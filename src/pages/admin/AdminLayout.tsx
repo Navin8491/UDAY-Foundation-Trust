@@ -1,20 +1,17 @@
 import { useState, useEffect } from "react";
-import { Link, NavLink, Outlet, useNavigate, useLocation } from "react-router-dom";
+import { NavLink, Outlet, useNavigate, useLocation } from "react-router-dom";
 import {
   LayoutDashboard,
   Heart,
   Calendar,
   Image as ImageIcon,
   GraduationCap,
-  Briefcase,
   Users,
   UserCheck,
   Handshake,
   FileText,
   ShieldCheck,
-  BookOpen,
   Mail,
-  Folder,
   BarChart3,
   Settings,
   LogOut,
@@ -30,6 +27,8 @@ import {
   User,
 } from "lucide-react";
 import { SITE } from "@/constants/site";
+import { signOutAdmin, onAuthStateChanged } from "@/services/auth";
+import { Loader2 } from "lucide-react";
 
 export function AdminLayout() {
   const [collapsed, setCollapsed] = useState(false);
@@ -42,10 +41,30 @@ export function AdminLayout() {
   const navigate = useNavigate();
   const location = useLocation();
 
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged((currentUser) => {
+      setLoading(false);
+      if (!currentUser) {
+        navigate("/admin/login");
+      }
+    });
+    return () => unsubscribe();
+  }, [navigate]);
+
   useEffect(() => {
     // Close mobile drawer on route change
     setMobileOpen(false);
   }, [location.pathname]);
+
+  if (loading) {
+    return (
+      <div className="flex h-screen w-full items-center justify-center bg-slate-950 text-slate-100">
+        <Loader2 className="h-8 w-8 animate-spin text-[#4040A1]" />
+      </div>
+    );
+  }
 
   const menuItems = [
     { label: "Dashboard", to: "/admin/dashboard", icon: LayoutDashboard },
@@ -81,7 +100,7 @@ export function AdminLayout() {
       {/* SIDEBAR CONTAINER */}
       <aside className={`fixed inset-y-0 left-0 z-40 bg-white border-r border-slate-200/80 shadow-xs flex flex-col justify-between transition-all duration-300 lg:sticky lg:translate-x-0 ${
         mobileOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"
-      } ${collapsed ? "w-20" : "w-64"}`}>
+      } w-64 lg:${collapsed ? "w-20" : "w-64"}`}>
         
         {/* Sidebar Header */}
         <div className="p-4 border-b border-slate-100 flex items-center justify-between">
@@ -271,7 +290,15 @@ export function AdminLayout() {
                     </button>
                     <div className="h-px bg-slate-100 my-1" />
                     <button 
-                      onClick={() => navigate("/")}
+                      onClick={async () => {
+                        setProfileOpen(false);
+                        try {
+                          await signOutAdmin();
+                          navigate("/admin/login");
+                        } catch (e) {
+                          console.error("Sign out error:", e);
+                        }
+                      }}
                       className="w-full text-left px-4 py-2 hover:bg-rose-50 text-xs font-semibold text-rose-600 flex items-center gap-2 cursor-pointer"
                     >
                       <LogOut className="h-4 w-4" /> Sign Out

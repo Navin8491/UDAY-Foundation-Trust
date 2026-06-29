@@ -1,5 +1,6 @@
-import { useState } from "react";
-import { Search, Heart, Shield, School, FileText, Check, X } from "lucide-react";
+import { useState, useEffect } from "react";
+import { Check, X } from "lucide-react";
+import { fetchPartnerships, updatePartnershipStatus } from "@/services/db";
 
 const INITIAL_COLLABS = [
   { id: "COL-501", org: "Larsen & Toubro CSR", contact: "csr@larsentoubro.com", type: "CSR Sponsorship", date: "2026-06-25", status: "Reviewing", desc: "Funding request for rural drinking water plants in Ahmedabad peripheral villages." },
@@ -12,6 +13,29 @@ export function Partnerships() {
   const [collabs, setCollabs] = useState(INITIAL_COLLABS);
   const [activeTab, setActiveTab] = useState<"Requests" | "Partners">("Requests");
 
+  useEffect(() => {
+    async function loadPartnerships() {
+      try {
+        const items = await fetchPartnerships();
+        if (items && items.length > 0) {
+          const mapped = items.map((p) => ({
+            id: p.id || "",
+            org: p.organization,
+            contact: p.contactPerson + " <" + p.email + "> - " + p.phone,
+            type: p.type === "csr" ? "CSR Sponsorship" : p.type === "sponsor" ? "Sponsorship" : "NGO Collaboration",
+            date: p.createdAt ? p.createdAt.split("T")[0] : new Date().toISOString().split("T")[0],
+            status: p.status === "approved" ? "Approved" : p.status === "rejected" ? "Rejected" : "Reviewing",
+            desc: p.message,
+          }));
+          setCollabs(mapped);
+        }
+      } catch (e) {
+        console.error("fetchPartnerships in component failed:", e);
+      }
+    }
+    loadPartnerships();
+  }, []);
+
   const partnersList = [
     { name: "TATA Foundation", type: "CSR Partner", logo: "T" },
     { name: "Reliance Industries CSR", type: "Corporate Partner", logo: "R" },
@@ -19,8 +43,14 @@ export function Partnerships() {
     { name: "Ahmedabad High School", type: "School Partner", logo: "S" },
   ];
 
-  const handleStatus = (id: string, stat: string) => {
+  const handleStatus = async (id: string, stat: string) => {
     setCollabs(collabs.map((c) => (c.id === id ? { ...c, status: stat } : c)));
+    try {
+      const dbStatus = stat === "Approved" ? "approved" : stat === "Rejected" ? "rejected" : "pending";
+      await updatePartnershipStatus(id, dbStatus);
+    } catch (e) {
+      console.error("updatePartnershipStatus failed:", e);
+    }
   };
 
   return (

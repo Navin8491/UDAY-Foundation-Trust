@@ -14,6 +14,8 @@ import {
   CheckCircle2,
 } from "lucide-react";
 import { useLanguage } from "@/context/LanguageContext";
+import { submitDonation } from "@/services/db";
+import { toast } from "sonner";
 
 const LOCAL_DONATE_TRANS = {
   en: {
@@ -84,6 +86,8 @@ export function Donate() {
   const [address, setAddress] = useState("");
   const [pan, setPan] = useState("");
   const [touched, setTouched] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [receiptNo, setReceiptNo] = useState("");
 
   const { t, language } = useLanguage();
 
@@ -234,11 +238,29 @@ export function Donate() {
                   </div>
 
                   <form 
-                    onSubmit={(e) => {
+                    onSubmit={async (e) => {
                       e.preventDefault();
                       setTouched(true);
-                      if (isFormValid) {
+                      if (!isFormValid) return;
+                      
+                      setLoading(true);
+                      try {
+                        const receipt = await submitDonation({
+                          donorName: name,
+                          email,
+                          phone,
+                          address,
+                          panNumber: pan,
+                          amount,
+                          purpose: "General Donation"
+                        });
+                        setReceiptNo(receipt);
                         setStep(3);
+                      } catch (err) {
+                        console.error(err);
+                        toast.error("Donation record submission failed. Please try again.");
+                      } finally {
+                        setLoading(false);
                       }
                     }} 
                     className="space-y-4 text-xs font-semibold"
@@ -334,10 +356,10 @@ export function Donate() {
                     {/* Submit Button */}
                     <button
                       type="submit"
-                      disabled={!isFormValid}
+                      disabled={!isFormValid || loading}
                       className="w-full btn-saffron text-sm font-bold uppercase tracking-wider py-4 cursor-pointer flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
                     >
-                      <Heart className="h-4.5 w-4.5 animate-pulse" /> {trans.complete} : ₹{amount.toLocaleString("en-IN")}
+                      <Heart className="h-4.5 w-4.5 animate-pulse" /> {loading ? "Processing..." : `${trans.complete} : ₹${amount.toLocaleString("en-IN")}`}
                     </button>
                   </form>
                 </div>
@@ -371,6 +393,12 @@ export function Donate() {
                       <span className="text-slate-400">PAN CARD NUMBER</span>
                       <span className="uppercase">{pan}</span>
                     </div>
+                    {receiptNo && (
+                      <div className="flex justify-between pb-2 border-b border-slate-100">
+                        <span className="text-slate-400">RECEIPT NUMBER</span>
+                        <span className="font-mono font-bold text-slate-700">{receiptNo}</span>
+                      </div>
+                    )}
                     <div className="text-[10px] text-slate-400 text-left leading-normal">
                       {trans.receiptSent} <span className="text-slate-800 font-bold">{email}</span> and sms receipt to <span className="text-slate-800 font-bold">{phone}</span>.
                     </div>

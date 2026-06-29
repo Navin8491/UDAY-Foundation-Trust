@@ -47,28 +47,37 @@ export function SiteHeader() {
         : "bg-transparent"
         }`}
     >
-      <div className="container-full flex items-center py-3 md:py-4">
-        {/* Left Side: Logo */}
-        <div className="flex-1 flex items-center justify-start">
-          <Link to="/" className="flex items-center gap-2 min-[380px]:gap-3 group shrink-0 flex-shrink-0">
+      <div className="container-full flex flex-col lg:flex-row lg:items-center justify-between py-3 md:py-4 gap-2.5 lg:gap-0">
+        {/* Row 1 (All Viewports): Logo & Title on Left, Hamburger Menu on Right (Mobile/Tablet only) */}
+        <div className="flex items-center justify-between w-full lg:w-auto">
+          <Link to="/" className="flex items-center gap-2 md:gap-3 group shrink-0">
             <img
               src={SITE.logo}
               alt={`${SITE.name} logo`}
-              className="h-10 w-10 min-[380px]:h-12 min-[380px]:w-12 md:h-14 md:w-14 rounded-full ring-2 ring-primary/15 group-hover:ring-primary/35 transition-all flex-shrink-0"
+              className="h-10 w-10 md:h-12 md:w-12 lg:h-14 lg:w-14 rounded-full ring-2 ring-primary/15 group-hover:ring-primary/35 transition-all flex-shrink-0"
               loading="eager"
             />
             <div className="flex flex-col leading-tight">
-              <span className="font-gujarati text-sm min-[380px]:text-base md:text-lg font-bold text-primary whitespace-nowrap">
+              <span className="font-gujarati text-xs min-[350px]:text-sm lg:text-base xl:text-lg font-bold text-primary whitespace-nowrap">
                 {SITE.nameGu}
               </span>
-              <span className="text-[8px] min-[380px]:text-[10px] md:text-xs uppercase tracking-[0.12em] min-[380px]:tracking-[0.18em] text-muted-foreground whitespace-nowrap hidden min-[350px]:block">
+              <span className="text-[8px] min-[350px]:text-[10px] lg:text-xs uppercase tracking-[0.12em] min-[350px]:tracking-[0.18em] text-muted-foreground whitespace-nowrap">
                 Uday Foundation Trust
               </span>
             </div>
           </Link>
+
+          {/* Hamburger Menu (Visible below lg) */}
+          <button
+            aria-label="Menu"
+            onClick={() => setOpen((v) => !v)}
+            className="lg:hidden inline-flex items-center justify-center h-10 w-10 min-[380px]:h-11 min-[380px]:w-11 rounded-full border border-border bg-surface shrink-0 flex-shrink-0 cursor-pointer"
+          >
+            {open ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+          </button>
         </div>
 
-        {/* Center: Desktop Navigation */}
+        {/* Center: Desktop Navigation (Desktop only) */}
         <nav className="hidden lg:flex items-center justify-center gap-1 flex-none">
           {NAV_LINKS.map((l) => (
             <NavLink
@@ -86,13 +95,13 @@ export function SiteHeader() {
           ))}
         </nav>
 
-        {/* Right Side: Language Switcher and Donate Button */}
-        <div className="flex-1 flex items-center justify-end gap-2.5 min-[380px]:gap-3">
+        {/* Row 2 (Mobile/Tablet only) / Right Side (Desktop): Language Selector & Donate Button */}
+        <div className="flex items-center justify-between lg:justify-end w-full lg:w-auto gap-2.5 md:gap-3 mt-1.5 pt-2.5 border-t border-border/40 lg:mt-0 lg:pt-0 lg:border-none">
           {/* Language Switcher Dropdown */}
           <div className="relative">
             <button
               onClick={() => setLangOpen(!langOpen)}
-              className="inline-flex items-center gap-1 px-1.5 py-1.5 min-[380px]:gap-1.5 min-[380px]:px-3 min-[380px]:py-2 rounded-full border border-border bg-white/60 hover:bg-white text-xs font-semibold transition-all select-none text-foreground shadow-xs cursor-pointer whitespace-nowrap shrink-0 flex-shrink-0"
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-border bg-white/60 hover:bg-white text-xs font-semibold transition-all select-none text-foreground shadow-xs cursor-pointer whitespace-nowrap shrink-0 flex-shrink-0"
               aria-label="Change Language"
             >
               <Globe className="h-3.5 w-3.5 text-primary" />
@@ -102,7 +111,7 @@ export function SiteHeader() {
             {langOpen && (
               <>
                 <div className="fixed inset-0 z-40" onClick={() => setLangOpen(false)} />
-                <div className="absolute right-0 mt-2 w-28 rounded-2xl bg-surface border border-border shadow-lg py-1.5 z-50 text-xs font-semibold animate-in fade-in slide-in-from-top-1 duration-200">
+                <div className="absolute left-0 lg:left-auto lg:right-0 mt-2 w-28 rounded-2xl bg-surface border border-border shadow-lg py-1.5 z-50 text-xs font-semibold animate-in fade-in slide-in-from-top-1 duration-200">
                   {[
                     { code: "en", label: "English" },
                     { code: "gu", label: "ગુજરાતી" },
@@ -127,20 +136,13 @@ export function SiteHeader() {
             )}
           </div>
 
+          {/* Donate Button */}
           <Link
             to="/donate"
-            className="hidden sm:inline-flex btn-saffron text-sm shrink-0 flex-shrink-0 whitespace-nowrap"
+            className="btn-saffron text-xs md:text-sm px-4 py-2.5 md:px-5 md:py-3 rounded-full shrink-0 whitespace-nowrap flex items-center gap-1.5 font-bold shadow-md hover:scale-105 transition-transform"
           >
-            <Heart className="h-4 w-4" /> {t("nav.donate")}
+            <Heart className="h-3.5 w-3.5 md:h-4 md:w-4 fill-current" /> {t("nav.donate")}
           </Link>
-
-          <button
-            aria-label="Menu"
-            onClick={() => setOpen((v) => !v)}
-            className="lg:hidden inline-flex items-center justify-center h-10 w-10 min-[380px]:h-11 min-[380px]:w-11 rounded-full border border-border bg-surface shrink-0 flex-shrink-0 cursor-pointer"
-          >
-            {open ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
-          </button>
         </div>
       </div>
 

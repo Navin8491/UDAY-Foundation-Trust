@@ -1,5 +1,6 @@
-import { useState } from "react";
-import { Search, Mail, MailOpen, Trash2, Eye, X, Phone, User, Send, Check } from "lucide-react";
+import { useState, useEffect } from "react";
+import { Search, Mail, MailOpen, Trash2, Phone, User, Send } from "lucide-react";
+import { fetchContactMessages, updateContactMessageStatus, deleteContactMessage } from "@/services/db";
 
 const INITIAL_MESSAGES = [
   { id: "MSG-201", name: "Ramesh Patel", email: "ramesh@example.com", phone: "+91 96245 12345", subject: "Sponsoring School Kits", date: "2026-06-27", status: "Unread", text: "We want to sponsor school bags and stationery kits for 100 students in the upcoming academic drive in Sanand." },
@@ -14,9 +15,40 @@ export function ContactMessages() {
   const [selectedMsg, setSelectedMsg] = useState<typeof INITIAL_MESSAGES[0] | null>(null);
   const [replyText, setReplyText] = useState("");
 
-  const handleOpenMessage = (msg: typeof INITIAL_MESSAGES[0]) => {
+  useEffect(() => {
+    async function loadMessages() {
+      try {
+        const items = await fetchContactMessages();
+        if (items && items.length > 0) {
+          const mapped = items.map((m) => ({
+            id: m.id || "",
+            name: m.name,
+            email: m.email,
+            phone: m.phone,
+            subject: m.subject || "No Subject",
+            date: m.createdAt ? m.createdAt.split("T")[0] : new Date().toISOString().split("T")[0],
+            status: m.status === "unread" ? "Unread" : "Read",
+            text: m.message,
+          }));
+          setMessages(mapped);
+        }
+      } catch (e) {
+        console.error("fetchContactMessages in component failed:", e);
+      }
+    }
+    loadMessages();
+  }, []);
+
+  const handleOpenMessage = async (msg: typeof INITIAL_MESSAGES[0]) => {
     setSelectedMsg(msg);
     setMessages(messages.map((m) => (m.id === msg.id ? { ...m, status: "Read" } : m)));
+    try {
+      if (msg.id) {
+        await updateContactMessageStatus(msg.id, "read");
+      }
+    } catch (e) {
+      console.error("updateContactMessageStatus failed:", e);
+    }
   };
 
   const handleSendReply = (e: React.FormEvent) => {
@@ -26,11 +58,16 @@ export function ContactMessages() {
     setSelectedMsg(null);
   };
 
-  const handleDelete = (id: string) => {
+  const handleDelete = async (id: string) => {
     if (confirm("Are you sure you want to delete this message record?")) {
       setMessages(messages.filter((m) => m.id !== id));
       if (selectedMsg && selectedMsg.id === id) {
         setSelectedMsg(null);
+      }
+      try {
+        await deleteContactMessage(id);
+      } catch (e) {
+        console.error("deleteContactMessage failed:", e);
       }
     }
   };

@@ -3,6 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { useDocumentMetadata } from "@/hooks/useDocumentMetadata";
 import { Counter } from "@/components/site/Counter";
 import { toast } from "sonner";
+import { uploadFile, submitVolunteerApplication, submitPartnershipRequest } from "@/services/db";
 import { motion, AnimatePresence } from "framer-motion";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
@@ -170,6 +171,7 @@ export function GetInvolved() {
   const [formIdDoc, setFormIdDoc] = useState<File | null>(null);
   const [formResetKey, setFormResetKey] = useState(0);
   const [formMessage, setFormMessage] = useState("");
+  const [formSubmitting, setFormSubmitting] = useState(false);
 
   const handleOpenModal = (category: InterestCategory, role: VolunteerRole = "") => {
     setModalCategory(category);
@@ -177,7 +179,7 @@ export function GetInvolved() {
     setIsModalOpen(true);
   };
 
-  const handleFormSubmit = (e: React.FormEvent) => {
+  const handleFormSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (
       !formName ||
@@ -191,21 +193,73 @@ export function GetInvolved() {
       toast.error("Please fill in all required fields and upload all requested documents.");
       return;
     }
-    toast.success("Thank you for your interest! Our team will contact you shortly.", {
-      description: `Registration submitted. Selfie: ${formSelfie.name}, ID: ${formIdDoc.name}`,
-      duration: 6000,
-    });
-    // Reset Form
-    setFormName("");
-    setFormEmail("");
-    setFormPhone("");
-    setFormEducation("");
-    setFormAddress("");
-    setFormSelfie(null);
-    setFormIdDoc(null);
-    setFormResetKey((prev) => prev + 1);
-    setFormMessage("");
-    setIsModalOpen(false);
+
+    setFormSubmitting(true);
+    const toastId = toast.loading("Uploading documents and submitting application... 0%");
+
+    try {
+      if (modalCategory === "volunteer") {
+        // Upload photo and id proof to storage
+        const photoUrl = await uploadFile(formSelfie, "volunteers/photos", (progress) => {
+          toast.loading(`Uploading documents... Photo: ${progress}%`, { id: toastId });
+        });
+        const idProofUrl = await uploadFile(formIdDoc, "volunteers/documents", (progress) => {
+          toast.loading(`Uploading documents... ID Proof: ${progress}%`, { id: toastId });
+        });
+
+        // Submit to Firestore
+        await submitVolunteerApplication({
+          name: formName,
+          email: formEmail,
+          phone: formPhone,
+          address: formAddress,
+          education: formEducation,
+          photoUrl,
+          idProofUrl,
+          message: formMessage || "",
+          role: modalRole || "General Volunteering",
+        });
+
+        toast.success("Thank you! Volunteer application submitted successfully.", { id: toastId });
+      } else {
+        // Upload documents for partnership request
+        const photoUrl = await uploadFile(formSelfie, "partnerships/photos", (progress) => {
+          toast.loading(`Uploading documents... Photo: ${progress}%`, { id: toastId });
+        });
+        const idProofUrl = await uploadFile(formIdDoc, "partnerships/documents", (progress) => {
+          toast.loading(`Uploading documents... ID Proof: ${progress}%`, { id: toastId });
+        });
+
+        // Submit to Firestore
+        await submitPartnershipRequest({
+          organization: formEducation,
+          contactPerson: formName,
+          email: formEmail,
+          phone: formPhone,
+          message: `${formMessage || ""}\n[Attached: Photo=${photoUrl}, ID=${idProofUrl}]`,
+          type: modalCategory,
+        });
+
+        toast.success("Thank you! Partnership inquiry submitted successfully.", { id: toastId });
+      }
+
+      // Reset Form
+      setFormName("");
+      setFormEmail("");
+      setFormPhone("");
+      setFormEducation("");
+      setFormAddress("");
+      setFormSelfie(null);
+      setFormIdDoc(null);
+      setFormResetKey((prev) => prev + 1);
+      setFormMessage("");
+      setIsModalOpen(false);
+    } catch (err: any) {
+      console.error(err);
+      toast.error(err.message || "Failed to submit. Please try again.", { id: toastId });
+    } finally {
+      setFormSubmitting(false);
+    }
   };
 
   // Why Get Involved Cards Data
@@ -1228,9 +1282,10 @@ export function GetInvolved() {
 
                 <button
                   type="submit"
-                  className="w-full py-4 bg-primary text-white text-sm font-semibold rounded-xl hover:bg-primary/95 transition-all shadow-md hover:shadow-primary/20 flex items-center justify-center gap-1.5 mt-2"
+                  disabled={formSubmitting}
+                  className="w-full py-4 bg-primary text-white text-sm font-semibold rounded-xl hover:bg-primary/95 transition-all shadow-md hover:shadow-primary/20 flex items-center justify-center gap-1.5 mt-2 disabled:opacity-50"
                 >
-                  Submit Registration <ArrowRight className="h-4 w-4" />
+                  {formSubmitting ? "Submitting Inquiry..." : "Submit Registration"} <ArrowRight className="h-4 w-4" />
                 </button>
               </form>
             </motion.div>

@@ -1,15 +1,14 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
+import { fetchEvents, fetchVolunteers, fetchDonations } from "@/services/db";
 import {
   Heart,
   Users,
   Calendar,
   Image as ImageIcon,
   DollarSign,
-  TrendingUp,
   Plus,
   CheckCircle2,
-  Clock,
 } from "lucide-react";
 
 // Mock Data
@@ -54,11 +53,33 @@ export function Dashboard() {
   const [selectedChart, setSelectedChart] = useState<"donations" | "volunteers">("donations");
   const [hoveredDonIndex, setHoveredDonIndex] = useState<number | null>(null);
 
+  const [donorsCount, setDonorsCount] = useState(1240);
+  const [volunteersCount, setVolunteersCount] = useState(650);
+  const [eventsCount, setEventsCount] = useState(40);
+
+  useEffect(() => {
+    async function loadStats() {
+      try {
+        const events = await fetchEvents();
+        setEventsCount(events.length);
+
+        const volunteers = await fetchVolunteers();
+        setVolunteersCount(volunteers.length);
+
+        const donations = await fetchDonations();
+        setDonorsCount(donations.length);
+      } catch (e) {
+        console.error("Dashboard stats query failed:", e);
+      }
+    }
+    loadStats();
+  }, []);
+
   const cards = [
-    { title: "Total Donations", value: "₹18,40,000", change: "+14% from last month", icon: DollarSign, color: "text-[#7A9D1C] bg-[#7A9D1C]/10" },
-    { title: "Total Donors", value: "1,240", change: "+8% from last month", icon: Heart, color: "text-rose-500 bg-rose-50/80" },
-    { title: "Active Volunteers", value: "650", change: "+45 this month", icon: Users, color: "text-[#4040A1] bg-[#4040A1]/10" },
-    { title: "Completed Events", value: "40", change: "+2 this month", icon: Calendar, color: "text-amber-500 bg-amber-50" },
+    { title: "Total Donations", value: "₹30,000", change: "Temporary static cap", icon: DollarSign, color: "text-[#7A9D1C] bg-[#7A9D1C]/10" },
+    { title: "Total Donors", value: donorsCount.toLocaleString(), change: "+8% from last month", icon: Heart, color: "text-rose-500 bg-rose-50/80" },
+    { title: "Active Volunteers", value: volunteersCount.toLocaleString(), change: "+45 this month", icon: Users, color: "text-[#4040A1] bg-[#4040A1]/10" },
+    { title: "Completed Events", value: eventsCount.toLocaleString(), change: "+2 this month", icon: Calendar, color: "text-amber-500 bg-amber-50" },
   ];
 
   return (
@@ -152,7 +173,7 @@ export function Dashboard() {
                     />
                     
                     {/* Hover Hotspots for Tooltip */}
-                    {DONATIONS_DATA.map((d, idx) => {
+                    {DONATIONS_DATA.map((_, idx) => {
                       const cx = (idx / 6) * 500;
                       // approximate points
                       const pts = [160, 130, 145, 115, 90, 68, 45];
@@ -214,7 +235,7 @@ export function Dashboard() {
                     />
                     
                     {/* Hover Hotspots */}
-                    {VOLUNTEER_GROWTH.map((v, idx) => {
+                    {VOLUNTEER_GROWTH.map((_, idx) => {
                       const cx = (idx / 6) * 500;
                       const pts = [150, 140, 110, 100, 85, 60, 40];
                       const cy = pts[idx];

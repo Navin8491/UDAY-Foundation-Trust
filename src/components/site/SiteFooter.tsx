@@ -120,16 +120,22 @@ export function SiteFooter() {
 
             <p className="text-[11px] text-[#A3A9BD] leading-relaxed">{t("footer.desc")}</p>
 
-            <div className="pt-2.5 space-y-1.5 text-[10px] font-semibold border-t border-[#29324A]/40">
-              <div className="flex justify-between">
-                <span>Trust Reg:</span>
-                <span className="font-mono text-white select-all">
-                  {SITE.registrations["Trust Reg."]}
+            <div className="pt-2.5 space-y-1.5 text-[10px] border-t border-[#29324A]/40">
+              <div className="flex justify-between items-center">
+                <span className="font-bold text-[#A3A9BD]">Trust Registration No.:</span>
+                <span className="font-mono text-white font-semibold select-all">
+                  F/22598/Ahmedabad
                 </span>
               </div>
-              <div className="flex justify-between">
-                <span>DARPAN Reg:</span>
-                <span className="font-mono text-white select-all">
+              <div className="flex justify-between items-center">
+                <span className="font-bold text-[#A3A9BD]">Society Registration No.:</span>
+                <span className="font-mono text-white font-semibold select-all">
+                  GUJ/23016/Ahmedabad
+                </span>
+              </div>
+              <div className="flex justify-between items-center">
+                <span className="font-bold text-[#A3A9BD]">DARPAN Registration No.:</span>
+                <span className="font-mono text-white font-semibold select-all">
                   {SITE.registrations["DARPAN"]}
                 </span>
               </div>

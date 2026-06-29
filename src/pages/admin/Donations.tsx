@@ -1,5 +1,6 @@
-import { useState } from "react";
-import { Search, Filter, Download, Eye, FileSpreadsheet, X, Check, Clock } from "lucide-react";
+import { useState, useEffect } from "react";
+import { Search, Download, Eye, FileSpreadsheet, X, Check, Clock } from "lucide-react";
+import { fetchDonations } from "@/services/db";
 
 // Mock Donations
 const MOCK_DONATIONS = [
@@ -17,8 +18,46 @@ export function Donations() {
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("All");
   const [selectedDonation, setSelectedDonation] = useState<typeof MOCK_DONATIONS[0] | null>(null);
+  const [donationsList, setDonationsList] = useState(MOCK_DONATIONS);
 
-  const filtered = MOCK_DONATIONS.filter((d) => {
+  useEffect(() => {
+    async function loadDonations() {
+      try {
+        const items = await fetchDonations();
+        if (items && items.length > 0) {
+          const mapped = items.map((item: any) => ({
+            id: item.id || item.receiptNumber,
+            donor: item.donorName,
+            email: item.email,
+            phone: item.phone,
+            pan: item.panNumber,
+            amount: item.amount,
+            date: item.createdAt ? item.createdAt.split('T')[0] : new Date().toISOString().split('T')[0],
+            type: "Online",
+            status: "Success",
+            project: item.purpose || "General Donation",
+          }));
+          setDonationsList(mapped);
+        }
+      } catch (e) {
+        console.error("fetchDonations in admin Donations.tsx failed:", e);
+      }
+    }
+    loadDonations();
+  }, []);
+
+  useEffect(() => {
+    if (selectedDonation) {
+      document.body.classList.add("body-scroll-lock");
+    } else {
+      document.body.classList.remove("body-scroll-lock");
+    }
+    return () => {
+      document.body.classList.remove("body-scroll-lock");
+    };
+  }, [selectedDonation]);
+
+  const filtered = donationsList.filter((d) => {
     const matchesSearch = d.donor.toLowerCase().includes(search.toLowerCase()) || d.id.toLowerCase().includes(search.toLowerCase());
     const matchesStatus = statusFilter === "All" || d.status === statusFilter;
     return matchesSearch && matchesStatus;
@@ -156,7 +195,7 @@ export function Donations() {
       {/* Details Modal */}
       {selectedDonation && (
         <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="bg-white rounded-3xl border border-slate-200 shadow-2xl max-w-md w-full overflow-hidden animate-scale-up">
+          <div className="bg-white rounded-3xl border border-slate-200 shadow-2xl max-w-md w-full overflow-hidden animate-scale-up max-h-[90vh] flex flex-col">
             <div className="p-6 border-b border-slate-100 flex items-center justify-between">
               <h3 className="font-bold text-lg">Donation Details</h3>
               <button
@@ -166,7 +205,9 @@ export function Donations() {
                 <X className="h-5 w-5" />
               </button>
             </div>
-            <div className="p-6 space-y-4 text-xs font-semibold">
+            
+            {/* Modal Body (scrollable) */}
+            <div className="p-6 space-y-4 text-xs font-semibold overflow-y-auto flex-1">
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <span className="text-[10px] text-slate-400 uppercase tracking-wider block">Receipt ID</span>
@@ -210,6 +251,8 @@ export function Donations() {
                 </div>
               </div>
             </div>
+            
+            {/* Modal Footer (fixed) */}
             <div className="p-6 border-t border-slate-100 bg-slate-50/50 flex gap-2">
               <button
                 onClick={() => alert(`Receipt downloaded for ${selectedDonation.id}`)}

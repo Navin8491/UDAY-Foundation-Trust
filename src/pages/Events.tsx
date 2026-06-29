@@ -1,6 +1,5 @@
 import { Link } from "react-router-dom";
 import { PageHero } from "@/components/site/PageHero";
-import { useState } from "react";
 import {
   Calendar,
   MapPin,
@@ -23,6 +22,8 @@ import { Counter } from "@/components/site/Counter";
 import pavaDistributionGroup from "@/assets/pava-distribution-group.jpg";
 import { useDocumentMetadata } from "@/hooks/useDocumentMetadata";
 import { SCHOOL_BAG_EVENTS, PastEventItem } from "@/constants/schoolEvents";
+import { useState, useEffect } from "react";
+import { subscribeEvents } from "@/services/db";
 
 const TRANSLATIONS_LOCAL = {
   en: {
@@ -239,11 +240,21 @@ const TRANSLATIONS_LOCAL = {
 
 const UPCOMING_CAMPAIGNS: any[] = [];
 
-const PAST_CAMPAIGNS = [...SCHOOL_BAG_EVENTS];
-
 export function Events() {
   const { language, t } = useLanguage();
   const tLocal = TRANSLATIONS_LOCAL[language as "en" | "gu" | "hi"] || TRANSLATIONS_LOCAL["en"];
+
+  const [pastCampaigns, setPastCampaigns] = useState<PastEventItem[]>(SCHOOL_BAG_EVENTS);
+  const PAST_CAMPAIGNS = pastCampaigns;
+
+  useEffect(() => {
+    const unsubscribe = subscribeEvents((items) => {
+      if (items && items.length > 0) {
+        setPastCampaigns(items as any);
+      }
+    });
+    return () => unsubscribe();
+  }, []);
 
   useDocumentMetadata(
     "Events & Campaigns | Uday Foundation Trust",
@@ -1111,9 +1122,10 @@ export function Events() {
                 <h4 className="text-lg font-display font-bold text-slate-900 border-b border-slate-100 pb-2">
                   {selectedDetailedEvent.title[language]}
                 </h4>
-                <div className="text-slate-600 text-sm md:text-base leading-relaxed font-gujarati whitespace-pre-line space-y-3">
-                  {selectedDetailedEvent.summary[language]}
-                </div>
+                <div 
+                  className="text-slate-600 text-sm md:text-base leading-relaxed font-gujarati space-y-3 prose prose-slate max-w-none"
+                  dangerouslySetInnerHTML={{ __html: selectedDetailedEvent.summary[language] }}
+                />
               </div>
 
               {/* Highlights & Impact */}

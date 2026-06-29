@@ -4,10 +4,13 @@ import { useDocumentMetadata } from "@/hooks/useDocumentMetadata";
 import { MapPin, Phone, Mail, Send, Instagram, Facebook, MessageCircle } from "lucide-react";
 import { useState } from "react";
 import { useLanguage } from "@/context/LanguageContext";
+import { submitContactMessage } from "@/services/db";
+import { toast } from "sonner";
 
 export function Contact() {
   const { t } = useLanguage();
   const [sent, setSent] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   useDocumentMetadata(
     "Contact Uday Foundation Trust, Sanand",
@@ -109,10 +112,27 @@ export function Contact() {
                   {t("contact.form.sent")}
                 </div>
               ) : (
-                <form
-                  onSubmit={(e) => {
+                 <form
+                  onSubmit={async (e) => {
                     e.preventDefault();
-                    setSent(true);
+                    setLoading(true);
+                    const target = e.currentTarget;
+                    const formData = new FormData(target);
+                    const name = formData.get("name") as string;
+                    const email = formData.get("email") as string;
+                    const phone = formData.get("phone") as string;
+                    const subject = formData.get("subject") as string;
+                    const message = formData.get("message") as string;
+
+                    try {
+                      await submitContactMessage({ name, email, phone, subject, message });
+                      setSent(true);
+                    } catch (err) {
+                      console.error(err);
+                      toast.error("Failed to send message. Please try again.");
+                    } finally {
+                      setLoading(false);
+                    }
                   }}
                   className="mt-8 space-y-4"
                 >
@@ -123,6 +143,7 @@ export function Contact() {
                       </label>
                       <input
                         id="name"
+                        name="name"
                         type="text"
                         required
                         className="w-full h-11 px-4 rounded-xl border border-border bg-surface focus:outline-none focus:border-primary text-sm transition-colors"
@@ -134,6 +155,7 @@ export function Contact() {
                       </label>
                       <input
                         id="email"
+                        name="email"
                         type="email"
                         required
                         className="w-full h-11 px-4 rounded-xl border border-border bg-surface focus:outline-none focus:border-primary text-sm transition-colors"
@@ -148,6 +170,7 @@ export function Contact() {
                       </label>
                       <input
                         id="phone"
+                        name="phone"
                         type="tel"
                         className="w-full h-11 px-4 rounded-xl border border-border bg-surface focus:outline-none focus:border-primary text-sm transition-colors"
                       />
@@ -158,6 +181,7 @@ export function Contact() {
                       </label>
                       <select
                         id="subject"
+                        name="subject"
                         defaultValue="general"
                         className="w-full h-11 px-4 rounded-xl border border-border bg-surface focus:outline-none focus:border-primary text-sm transition-colors cursor-pointer"
                       >
@@ -175,6 +199,7 @@ export function Contact() {
                     </label>
                     <textarea
                       id="message"
+                      name="message"
                       required
                       rows={4}
                       placeholder={t("contact.form.msgPlaceholder")}
@@ -184,9 +209,10 @@ export function Contact() {
 
                   <button
                     type="submit"
-                    className="w-full sm:w-auto btn-primary text-sm mt-2 cursor-pointer"
+                    disabled={loading}
+                    className="w-full sm:w-auto btn-primary text-sm mt-2 cursor-pointer disabled:opacity-50"
                   >
-                    <Send className="h-4 w-4" /> {t("contact.form.submit")}
+                    <Send className="h-4 w-4" /> {loading ? "Sending..." : t("contact.form.submit")}
                   </button>
                 </form>
               )}

@@ -28,6 +28,8 @@ import { SITE } from "@/constants/site";
 import { Counter } from "@/components/site/Counter";
 import { useLanguage } from "@/context/LanguageContext";
 import { useDocumentMetadata } from "@/hooks/useDocumentMetadata";
+import { useState, useEffect } from "react";
+import { subscribeSettings } from "@/services/db";
 
 const TRUST = [
   { label: "Trust Reg.", value: "Guj/23016/Ahmedabad" },
@@ -41,18 +43,36 @@ const TRUST = [
 export function Home() {
   const { t } = useLanguage();
 
+  const [stats, setStats] = useState({
+    families: 12000,
+    students: 4500,
+    camps: 38,
+    trees: 25000,
+    volunteers: 650,
+    villages: 120,
+  });
+
+  useEffect(() => {
+    const unsubscribe = subscribeSettings((siteSettings) => {
+      if (siteSettings && siteSettings.stats) {
+        setStats(siteSettings.stats);
+      }
+    });
+    return () => unsubscribe();
+  }, []);
+
   useDocumentMetadata(
     "Uday Foundation Trust, Sanand — Premium NGO for Education, Healthcare & Rural Uplift",
     "Uday Foundation Trust serves rural Gujarat through education, healthcare, women empowerment, environment and humanitarian relief — one family at a time.",
   );
 
   const STATS = [
-    { value: 12000, suffix: "+", label: t("impact.stat.families") },
-    { value: 4500, suffix: "+", label: t("impact.stat.students") },
-    { value: 38, suffix: "", label: t("impact.stat.camps") },
-    { value: 25000, suffix: "+", label: t("impact.stat.trees") },
-    { value: 650, suffix: "+", label: t("impact.stat.volunteers") },
-    { value: 120, suffix: "+", label: t("impact.stat.villages") },
+    { value: stats.families, suffix: "+", label: t("impact.stat.families") },
+    { value: stats.students, suffix: "+", label: t("impact.stat.students") },
+    { value: stats.camps, suffix: "", label: t("impact.stat.camps") },
+    { value: stats.trees, suffix: "+", label: t("impact.stat.trees") },
+    { value: stats.volunteers, suffix: "+", label: t("impact.stat.volunteers") },
+    { value: stats.villages, suffix: "+", label: t("impact.stat.villages") },
   ];
 
   const PROGRAMS = [

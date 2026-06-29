@@ -30,6 +30,7 @@ const AdminTransparency = lazy(() => import("./pages/admin/Transparency"));
 const AdminContact = lazy(() => import("./pages/admin/ContactMessages"));
 const AdminReports = lazy(() => import("./pages/admin/Reports"));
 const AdminSettings = lazy(() => import("./pages/admin/Settings"));
+const AdminLogin = lazy(() => import("./pages/admin/Login"));
 
 // Loading spinner fallback
 function Loading() {
@@ -87,6 +88,7 @@ export function App() {
           </Route>
 
           {/* Premium Admin Panel Layout (Frontend-only) */}
+          <Route path="/admin/login" element={<AdminLogin />} />
           <Route path="/admin" element={<AdminLayout />}>
             <Route index element={<Navigate to="/admin/dashboard" replace />} />
             <Route path="dashboard" element={<AdminDashboard />} />

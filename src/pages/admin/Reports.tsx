@@ -50,8 +50,8 @@ export function Reports() {
             <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Annual Audit Summary</span>
             <DollarSign className="h-4 w-4 text-primary" />
           </div>
-          <h3 className="text-xl font-bold mt-2">₹18,40,000</h3>
-          <span className="text-[10px] text-slate-400 block mt-1">Total revenue tracked in fiscal 2026</span>
+          <h3 className="text-xl font-bold mt-2">₹30,000</h3>
+          <span className="text-[10px] text-slate-400 block mt-1">Total revenue tracked (temporary cap)</span>
         </div>
 
         <div className="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs">
@@ -151,7 +151,7 @@ export function Reports() {
                 />
                 
                 {/* Hover Hotspots */}
-                {BENEFICIARIES_REACHED.map((b, idx) => {
+                {BENEFICIARIES_REACHED.map((_, idx) => {
                   const cx = (idx / 5) * 500;
                   const pts = [170, 145, 115, 88, 60, 30];
                   const cy = pts[idx];

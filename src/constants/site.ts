@@ -16,7 +16,7 @@ export const SITE = {
     facebook: "https://facebook.com/",
   },
   registrations: {
-    "Trust Reg.": "Guj/23016/Ahmedabad",
+    "Trust Reg.": "F/22598/Ahmedabad",
     "F Reg.": "F/22598/Ahmedabad",
     DARPAN: "GJ/2026/0930211",
     PAN: "AABTU5153H",

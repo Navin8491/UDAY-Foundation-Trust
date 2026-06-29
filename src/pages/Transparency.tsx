@@ -2,47 +2,29 @@ import { PageHero } from "@/components/site/PageHero";
 import { useDocumentMetadata } from "@/hooks/useDocumentMetadata";
 import { BadgeCheck, FileText, ShieldCheck, Download } from "lucide-react";
 import { SITE } from "@/constants/site";
+import { useState, useEffect } from "react";
+import { subscribeTransparencyDocs } from "@/services/db";
 
-const DOCS = [
-  {
-    label: "Trust Registration",
-    value: SITE.registrations["Trust Reg."],
-    desc: "Registered as a public charitable trust in Ahmedabad.",
-    file: "/Uday_Foundeson_3.pdf",
-  },
-  {
-    label: "F Registration",
-    value: SITE.registrations["F Reg."],
-    desc: "Statutory F-form trust registration.",
-    file: "/Uday_Foundeson_2.pdf",
-  },
-  {
-    label: "DARPAN ID",
-    value: SITE.registrations["DARPAN"],
-    desc: "Registered with NITI Aayog NGO DARPAN.",
-    file: "/Uday_Foundeson_.pdf",
-  },
-  {
-    label: "12A Certificate",
-    value: SITE.registrations["12A"],
-    desc: "Income tax exemption granted.",
-    file: "/AABTU5153HE20251_signed_260621192141.pdf",
-  },
-  {
-    label: "80G Certificate",
-    value: SITE.registrations["80G"],
-    desc: "Donations are eligible for 80G tax benefit.",
-    file: "/AABTU5153HF20261_signed_260621192009.pdf",
-  },
-  {
-    label: "PAN",
-    value: SITE.registrations["PAN"],
-    desc: "Trust permanent account number.",
-    file: "/Uday_Foundation_PAN_Card.pdf",
-  },
-];
+import { DOCS } from "@/constants/transparency";
 
 export function Transparency() {
+  const [docsList, setDocsList] = useState(DOCS);
+
+  useEffect(() => {
+    const unsubscribe = subscribeTransparencyDocs((items) => {
+      if (items && items.length > 0) {
+        const mapped = items.map((item) => ({
+          label: item.label,
+          value: item.value,
+          desc: item.desc,
+          file: item.file,
+        }));
+        setDocsList(mapped);
+      }
+    });
+    return () => unsubscribe();
+  }, []);
+
   useDocumentMetadata(
     "Transparency & Registrations | Uday Foundation Trust",
     "All registrations, certifications and trust documents of Uday Foundation Trust — 12A, 80G, DARPAN, PAN and more.",
@@ -60,7 +42,7 @@ export function Transparency() {
 
       <section className="section-y">
         <div className="container-page grid md:grid-cols-2 lg:grid-cols-3 gap-5">
-          {DOCS.map((d) => (
+          {docsList.map((d) => (
             <article
               key={d.label}
               className="rounded-2xl p-6 bg-surface border border-border hover:border-primary/40 transition-colors"

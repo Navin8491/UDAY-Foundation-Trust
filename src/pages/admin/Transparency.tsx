@@ -1,8 +1,11 @@
-import { useState } from "react";
-import { ShieldCheck, Edit, Save, Award, Info, FileText, CheckCircle } from "lucide-react";
+import { useState, useEffect } from "react";
+import { Save } from "lucide-react";
+import { fetchSettings, updateSettings } from "@/services/db";
+import { toast } from "sonner";
 
 export function Transparency() {
   const [editing, setEditing] = useState(false);
+  const [loading, setLoading] = useState(false);
   const [data, setData] = useState({
     pan: "AAATU0124K",
     darpan: "GJ/2022/0315481",
@@ -14,11 +17,45 @@ export function Transparency() {
 
   const [form, setForm] = useState({ ...data });
 
-  const handleSave = (e: React.FormEvent) => {
+  async function loadSettingsData() {
+    try {
+      const siteSettings = await fetchSettings();
+      if (siteSettings) {
+        const newData = {
+          pan: siteSettings.pan || "AAATU0124K",
+          darpan: siteSettings.darpan || "GJ/2022/0315481",
+          regNo: siteSettings.regNo || "E/22754/AHMEDABAD",
+          fcr: siteSettings.fcr || "Not Applicable",
+          twelveA: siteSettings.twelveA || "AABTU4985NE20214",
+          eightyG: siteSettings.eightyG || "AABTU4985NF20221",
+        };
+        setData(newData);
+        setForm(newData);
+      }
+    } catch (e) {
+      console.error(e);
+    }
+  }
+
+  useEffect(() => {
+    loadSettingsData();
+  }, []);
+
+  const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
-    setData({ ...form });
-    setEditing(false);
-    alert("Transparency settings saved successfully in the UI.");
+    setLoading(true);
+    const toastId = toast.loading("Saving registry compliance codes...");
+    try {
+      await updateSettings(form);
+      setData({ ...form });
+      setEditing(false);
+      toast.success("Compliance registry saved successfully!", { id: toastId });
+    } catch (err: any) {
+      console.error(err);
+      toast.error(err.message || "Failed to save data.", { id: toastId });
+    } finally {
+      setLoading(false);
+    }
   };
 
   const cards = [
@@ -130,9 +167,10 @@ export function Transparency() {
             {editing && (
               <button
                 type="submit"
-                className="w-full btn-primary text-xs py-2.5 px-4 cursor-pointer flex items-center justify-center gap-1.5"
+                disabled={loading}
+                className="w-full btn-primary text-xs py-2.5 px-4 cursor-pointer flex items-center justify-center gap-1.5 disabled:opacity-50"
               >
-                <Save className="h-4 w-4" /> Save Compliance Data
+                <Save className="h-4 w-4" /> {loading ? "Saving..." : "Save Compliance Data"}
               </button>
             )}
           </form>

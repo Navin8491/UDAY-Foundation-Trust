@@ -1,11 +1,12 @@
-import { useState } from "react";
-import { Search, Check, X, FileText, Phone, Mail, MapPin, Eye, GraduationCap } from "lucide-react";
+import { useState, useEffect } from "react";
+import { Search, Check, X, FileText, Phone, Mail, MapPin, GraduationCap } from "lucide-react";
+import { fetchVolunteers, updateVolunteerStatus } from "@/services/db";
 
 const INITIAL_VOLUNTEERS = [
-  { id: "VOL-101", name: "Amit Patel", email: "amit@example.com", phone: "+91 98250 12345", location: "Sanand, Ahmedabad", education: "B.Ed. Graduate", role: "Teaching assistance", date: "2026-06-26", status: "Pending", resume: "amit_patel_cv.pdf" },
-  { id: "VOL-102", name: "Sneha Vyas", email: "sneha@example.com", phone: "+91 99799 54321", location: "Ahmedabad", education: "MSW (Master of Social Work)", role: "Healthcare Coordinator", date: "2026-06-25", status: "Approved", resume: "sneha_vyas_resume.pdf" },
-  { id: "VOL-103", name: "Rahul Parmar", email: "rahul@example.com", phone: "+91 97243 98765", location: "Bavla, Ahmedabad", education: "B.Sc. Agriculture", role: "Tree Plantation volunteer", date: "2026-06-22", status: "Pending", resume: "rahul_parmar_cv.pdf" },
-  { id: "VOL-104", name: "Pooja Vaghela", email: "pooja@example.com", phone: "+91 96240 11223", location: "Sanand, Ahmedabad", education: "12th Pass", role: "General welfare support", date: "2026-06-18", status: "Rejected", resume: "pooja_v_profile.pdf" },
+  { id: "VOL-101", name: "Amit Patel", email: "amit@example.com", phone: "+91 98250 12345", location: "Sanand, Ahmedabad", education: "B.Ed. Graduate", role: "Teaching assistance", date: "2026-06-26", status: "Pending", photoUrl: "", idProofUrl: "" },
+  { id: "VOL-102", name: "Sneha Vyas", email: "sneha@example.com", phone: "+91 99799 54321", location: "Ahmedabad", education: "MSW (Master of Social Work)", role: "Healthcare Coordinator", date: "2026-06-25", status: "Approved", photoUrl: "", idProofUrl: "" },
+  { id: "VOL-103", name: "Rahul Parmar", email: "rahul@example.com", phone: "+91 97243 98765", location: "Bavla, Ahmedabad", education: "B.Sc. Agriculture", role: "Tree Plantation volunteer", date: "2026-06-22", status: "Pending", photoUrl: "", idProofUrl: "" },
+  { id: "VOL-104", name: "Pooja Vaghela", email: "pooja@example.com", phone: "+91 96240 11223", location: "Sanand, Ahmedabad", education: "12th Pass", role: "General welfare support", date: "2026-06-18", status: "Rejected", photoUrl: "", idProofUrl: "" },
 ];
 
 export function Volunteers() {
@@ -13,10 +14,43 @@ export function Volunteers() {
   const [search, setSearch] = useState("");
   const [selectedVol, setSelectedVol] = useState<typeof INITIAL_VOLUNTEERS[0] | null>(null);
 
-  const handleStatusChange = (id: string, newStatus: string) => {
+  useEffect(() => {
+    async function loadVolunteers() {
+      try {
+        const items = await fetchVolunteers();
+        if (items && items.length > 0) {
+          const mapped = items.map((v) => ({
+            id: v.id || "",
+            name: v.name,
+            email: v.email,
+            phone: v.phone,
+            location: v.address || "Gujarat",
+            education: v.education || "Graduate",
+            role: v.role || "General Volunteer",
+            date: v.createdAt ? v.createdAt.split("T")[0] : new Date().toISOString().split("T")[0],
+            status: v.status === "approved" ? "Approved" : v.status === "rejected" ? "Rejected" : "Pending",
+            photoUrl: v.photoUrl || "",
+            idProofUrl: v.idProofUrl || "",
+          }));
+          setVolunteers(mapped);
+        }
+      } catch (e) {
+        console.error("fetchVolunteers in component failed:", e);
+      }
+    }
+    loadVolunteers();
+  }, []);
+
+  const handleStatusChange = async (id: string, newStatus: string) => {
     setVolunteers(volunteers.map((v) => (v.id === id ? { ...v, status: newStatus } : v)));
     if (selectedVol && selectedVol.id === id) {
       setSelectedVol({ ...selectedVol, status: newStatus });
+    }
+    try {
+      const dbStatus = newStatus === "Approved" ? "approved" : newStatus === "Rejected" ? "rejected" : "pending";
+      await updateVolunteerStatus(id, dbStatus);
+    } catch (e) {
+      console.error("updateVolunteerStatus failed:", e);
     }
   };
 
@@ -176,20 +210,44 @@ export function Volunteers() {
                 </div>
 
                 {/* Uploaded Documents */}
-                <div className="pt-3 border-t border-slate-50">
-                  <span className="text-[10px] text-slate-400 uppercase tracking-wider block mb-2">Uploaded Document (CV)</span>
-                  <div className="bg-slate-50 border border-slate-200/80 rounded-xl p-3 flex items-center justify-between text-[11px] font-bold">
-                    <div className="flex items-center gap-2 text-slate-700 min-w-0">
-                      <FileText className="h-4.5 w-4.5 text-[#4040A1]" />
-                      <span className="truncate">{selectedVol.resume}</span>
+                <div className="pt-3 border-t border-slate-50 space-y-2">
+                  <span className="text-[10px] text-slate-400 uppercase tracking-wider block">Uploaded Documents</span>
+                  {selectedVol.photoUrl ? (
+                    <div className="bg-slate-50 border border-slate-200/80 rounded-xl p-3 flex items-center justify-between text-[11px] font-bold">
+                      <div className="flex items-center gap-2 text-slate-700 min-w-0">
+                        <FileText className="h-4.5 w-4.5 text-[#4040A1]" />
+                        <span className="truncate">Selfie Photo</span>
+                      </div>
+                      <a 
+                        href={selectedVol.photoUrl} 
+                        target="_blank" 
+                        rel="noreferrer"
+                        className="text-primary hover:underline cursor-pointer flex-none ml-2"
+                      >
+                        View Photo
+                      </a>
                     </div>
-                    <button 
-                      onClick={() => alert(`Simulated document preview for ${selectedVol.resume}`)}
-                      className="text-primary hover:underline cursor-pointer flex-none ml-2"
-                    >
-                      Preview
-                    </button>
-                  </div>
+                  ) : (
+                    <div className="text-[10px] text-slate-400 italic">No selfie photo uploaded</div>
+                  )}
+                  {selectedVol.idProofUrl ? (
+                    <div className="bg-slate-50 border border-slate-200/80 rounded-xl p-3 flex items-center justify-between text-[11px] font-bold">
+                      <div className="flex items-center gap-2 text-slate-700 min-w-0">
+                        <FileText className="h-4.5 w-4.5 text-[#4040A1]" />
+                        <span className="truncate">ID Document</span>
+                      </div>
+                      <a 
+                        href={selectedVol.idProofUrl} 
+                        target="_blank" 
+                        rel="noreferrer"
+                        className="text-primary hover:underline cursor-pointer flex-none ml-2"
+                      >
+                        View ID Document
+                      </a>
+                    </div>
+                  ) : (
+                    <div className="text-[10px] text-slate-400 italic">No ID proof document uploaded</div>
+                  )}
                 </div>
               </div>
 
