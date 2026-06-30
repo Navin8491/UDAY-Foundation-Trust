@@ -81,7 +81,7 @@ export const createVolunteer = async (req, res, next) => {
       ],
     };
 
-    const payload = {
+    const basePayload = {
       name,
       email,
       phone,
@@ -92,6 +92,10 @@ export const createVolunteer = async (req, res, next) => {
       role,
       message: JSON.stringify(extendedObj),
       status: "pending",
+    };
+
+    const fullPayload = {
+      ...basePayload,
       dob: dob || "",
       gender: gender || "",
       city: city || "",
@@ -108,13 +112,24 @@ export const createVolunteer = async (req, res, next) => {
       resumeUrl: resumeUrl || "",
     };
 
-    const { data, error } = await supabase
+    let result = await supabase
       .from("volunteers")
-      .insert([payload])
+      .insert([fullPayload])
       .select()
       .single();
 
-    if (error) throw error;
+    // Fallback if the Supabase database schema lacks the new columns
+    if (result.error && (result.error.message.includes("column") || result.error.code === "PGRST204")) {
+      console.warn("[Backend Fallback] Database columns not found. Saving details inside message JSON string...");
+      result = await supabase
+        .from("volunteers")
+        .insert([basePayload])
+        .select()
+        .single();
+    }
+
+    if (result.error) throw result.error;
+    const data = result.data;
 
     // Send acknowledgement email to user
     sendVolunteerReceived(email, name).catch((err) =>
