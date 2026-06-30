@@ -240,6 +240,14 @@ export function Programs() {
       }));
 
       const programData = {
+        // keyId: required NOT NULL in Supabase — slug derived from English title
+        keyId: editingProg?.keyId ||
+          formTitleEn
+            .toLowerCase()
+            .trim()
+            .replace(/[^a-z0-9]+/g, "-")
+            .replace(/(^-|-$)/g, "") ||
+          `program-${Date.now()}`,
         title: {
           en: formTitleEn,
           gu: formTitleGu,
