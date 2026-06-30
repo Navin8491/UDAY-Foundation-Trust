@@ -56,6 +56,14 @@ app.use(sanitizeXSS);
 app.use(express.json({ limit: "10mb" }));
 app.use(express.urlencoded({ extended: true, limit: "10mb" }));
 
+// Root welcome & health check route
+app.get("/", (req, res) => {
+  res.json({
+    status: "healthy",
+    message: "UDAY Foundation Trust Backend API is running successfully!"
+  });
+});
+
 // Mount API routes
 app.use("/api", apiRouter);
 
