@@ -1,6 +1,7 @@
 import { supabase } from "../config/db.js";
 import { deleteFile } from "../services/storageService.js";
 import { triggerUpdate } from "../utils/realtime.js";
+import { syncEventGallery, extractImageUrls } from "../utils/gallerySync.js";
 
 // @desc    Get all events
 // @route   GET /api/events
@@ -32,6 +33,13 @@ export const createEvent = async (req, res, next) => {
 
     if (error) throw error;
 
+    // Auto-sync event images → gallery (fire-and-forget, non-blocking)
+    if (event.images && Array.isArray(event.images)) {
+      syncEventGallery(event.category, event.images, []).catch((err) =>
+        console.error("[GallerySync] Create sync error:", err.message)
+      );
+    }
+
     triggerUpdate("events");
     res.status(201).json(event);
   } catch (error) {
@@ -44,6 +52,13 @@ export const createEvent = async (req, res, next) => {
 // @access  Private/Admin
 export const updateEvent = async (req, res, next) => {
   try {
+    // Fetch the PREVIOUS state so we can diff old images vs new images
+    const { data: prevEvent } = await supabase
+      .from("events")
+      .select("images, category")
+      .eq("id", req.params.id)
+      .single();
+
     const { data: event, error } = await supabase
       .from("events")
       .update(req.body)
@@ -55,6 +70,18 @@ export const updateEvent = async (req, res, next) => {
       res.status(404);
       return next(new Error(error.message || "Event not found"));
     }
+
+    // Sync gallery: diff previous images vs current images
+    const oldImages = prevEvent?.images || [];
+    const newImages = event.images || [];
+    syncEventGallery(
+      event.category || req.body.category,
+      newImages,
+      oldImages
+    ).catch((err) =>
+      console.error("[GallerySync] Update sync error:", err.message)
+    );
+
     triggerUpdate("events");
     res.json(event);
   } catch (error) {
@@ -78,22 +105,35 @@ export const deleteEvent = async (req, res, next) => {
       return next(new Error("Event not found"));
     }
 
+    // Build the full list of URLs (cover + gallery images)
+    // extractImageUrls handles both string[] and {img,...}[] formats
     const allUrls = [];
-    if (event.img) allUrls.push(event.img);
-    if (event.images && Array.isArray(event.images)) {
-      event.images.forEach(imgUrl => {
-        if (imgUrl) allUrls.push(imgUrl);
-      });
+    if (event.img && typeof event.img === "string") {
+      allUrls.push(event.img);
     }
+    extractImageUrls(event.images || []).forEach((url) => {
+      if (!allUrls.includes(url)) allUrls.push(url);
+    });
 
     if (allUrls.length > 0) {
-      // Delete matching gallery items
-      await supabase.from("gallery").delete().in("img", allUrls);
+      // Remove matching gallery items
+      const { error: galleryDeleteError } = await supabase
+        .from("gallery")
+        .delete()
+        .in("img", allUrls);
+
+      if (galleryDeleteError) {
+        console.error("[GallerySync] Gallery cleanup error:", galleryDeleteError.message);
+      } else {
+        console.log(`[GallerySync] Removed ${allUrls.length} gallery item(s) for deleted event.`);
+      }
       triggerUpdate("gallery");
 
-      // Delete from Storage
-      allUrls.forEach(url => {
-        deleteFile(url).catch(err => console.error("Failed to delete event image from storage:", err));
+      // Delete files from Supabase Storage
+      allUrls.forEach((url) => {
+        deleteFile(url).catch((err) =>
+          console.error("Failed to delete event image from storage:", err)
+        );
       });
     }
 
