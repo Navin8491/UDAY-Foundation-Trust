@@ -247,6 +247,34 @@ export function Events() {
   const [pastCampaigns, setPastCampaigns] = useState<PastEventItem[]>(SCHOOL_BAG_EVENTS);
   const PAST_CAMPAIGNS = pastCampaigns;
 
+  // ── Safe helpers ─────────────────────────────────────────────────────────
+  /** Returns localized text from a multilingual object, plain string, or undefined */
+  const getL = (field: any): string => {
+    if (!field) return "";
+    if (typeof field === "string") return field;
+    if (typeof field === "object") {
+      return field[language] || field["en"] || field["gu"] || field["hi"] || (Object.values(field)[0] as string) || "";
+    }
+    return String(field);
+  };
+
+  /** Normalises an images array — handles both string[] (new events) and GalleryPicture[] (old events) */
+  const normalizeImages = (imgs: any): Array<{ img: string; caption: { en: string; gu: string; hi: string }; category: string }> => {
+    if (!imgs || !Array.isArray(imgs)) return [];
+    return imgs
+      .map((item: any) => {
+        if (typeof item === "string") {
+          return { img: item, caption: { en: "", gu: "", hi: "" }, category: "" };
+        }
+        return {
+          img: item?.img || "",
+          caption: item?.caption || { en: "", gu: "", hi: "" },
+          category: item?.category || "",
+        };
+      })
+      .filter((item) => !!item.img);
+  };
+
   const featuredEvent = useMemo(() => {
     if (pastCampaigns.length === 0) return null;
 
@@ -357,7 +385,7 @@ export function Events() {
                 <div className="lg:col-span-6 relative overflow-hidden bg-slate-100 min-h-[300px] lg:min-h-full">
                   <img
                     src={featuredEvent.img}
-                    alt={featuredEvent.title[language]}
+                    alt={getL(featuredEvent.title)}
                     className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
                     loading="eager"
                   />
@@ -381,16 +409,16 @@ export function Events() {
                       </span>
                       <span className="inline-flex items-center gap-1.5">
                         <MapPin className="h-4 w-4 text-[#7A9D1C]" />{" "}
-                        {featuredEvent.place[language]}
+                        {getL(featuredEvent.place)}
                       </span>
                     </div>
 
                     <h3 className="text-xl md:text-2xl lg:text-3xl font-display font-bold text-slate-900 group-hover:text-primary transition-colors mb-4 font-gujarati leading-tight">
-                      {featuredEvent.title[language]}
+                      {getL(featuredEvent.title)}
                     </h3>
 
                     <p className="text-slate-600 text-sm md:text-base leading-relaxed mb-6 font-gujarati line-clamp-3">
-                      {featuredEvent.summary[language]}
+                      {getL(featuredEvent.summary)}
                     </p>
 
                     {/* Highlights list for Featured Card */}
@@ -400,7 +428,7 @@ export function Events() {
                           {tLocal.highlightsLabel}
                         </h4>
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                          {featuredEvent.highlights[language].slice(0, 6).map((hl: string, idx: number) => (
+                          {(featuredEvent.highlights?.[language] || featuredEvent.highlights?.["en"] || []).slice(0, 6).map((hl: string, idx: number) => (
                             <div key={idx} className="flex items-center gap-2 text-xs text-slate-600 font-gujarati">
                               <CheckCircle2 className="h-4 w-4 text-[#7A9D1C] flex-shrink-0" />
                               <span className="truncate">{hl}</span>
@@ -677,10 +705,10 @@ export function Events() {
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
               {PAST_CAMPAIGNS.map((evt) => {
-                const title = evt.title[language];
-                const summary = evt.summary[language];
-                const place = evt.place[language];
-                const impact = evt.impact[language];
+                const title = getL(evt.title);
+                const summary = getL(evt.summary);
+                const place = getL(evt.place);
+                const impact = getL((evt as any).impact);
   
                 return (
                   <article
@@ -920,7 +948,7 @@ export function Events() {
                   {activeGalleryEvent.category} • {activeGalleryEvent.date}
                 </span>
                 <h3 className="text-xl font-display font-bold text-slate-900 leading-snug">
-                  {activeGalleryEvent.title[language]}
+                  {getL(activeGalleryEvent.title)}
                 </h3>
               </div>
               <button
@@ -934,7 +962,7 @@ export function Events() {
 
             {/* Modal Body (Scrollable Grid) */}
             <div className="p-6 md:p-8 overflow-y-auto grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-              {activeGalleryEvent.images.map((item, idx) => (
+              {normalizeImages(activeGalleryEvent.images).map((item, idx) => (
                 <div
                   key={idx}
                   className="flex flex-col group"
@@ -945,14 +973,16 @@ export function Events() {
                   >
                     <img
                       src={item.img}
-                      alt={item.caption[language] || item.caption["en"]}
+                      alt={getL(item.caption)}
                       loading="lazy"
                       className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                     />
                   </button>
-                  <span className="mt-2 text-xs font-semibold text-slate-600 text-center leading-relaxed block px-2">
-                    {item.caption[language] || item.caption["en"]}
-                  </span>
+                  {getL(item.caption) && (
+                    <span className="mt-2 text-xs font-semibold text-slate-600 text-center leading-relaxed block px-2">
+                      {getL(item.caption)}
+                    </span>
+                  )}
                 </div>
               ))}
             </div>
@@ -1109,7 +1139,7 @@ export function Events() {
               <div className="relative aspect-[16/9] rounded-2xl overflow-hidden bg-slate-100 border border-slate-100 shadow-xs">
                 <img
                   src={selectedDetailedEvent.img}
-                  alt={selectedDetailedEvent.title[language]}
+                  alt={getL(selectedDetailedEvent.title)}
                   className="absolute inset-0 w-full h-full object-cover"
                 />
               </div>
@@ -1120,14 +1150,14 @@ export function Events() {
                   <div className="text-xs font-bold text-slate-400 uppercase tracking-wider">{tLocal.locationLabel}</div>
                   <div className="text-sm font-bold text-slate-800 flex items-center justify-center gap-1 mt-1 font-gujarati">
                     <MapPin className="h-4 w-4 text-[#7A9D1C]" />
-                    {selectedDetailedEvent.place[language]}
+                    {getL(selectedDetailedEvent.place)}
                   </div>
                 </div>
                 <div>
                   <div className="text-xs font-bold text-slate-400 uppercase tracking-wider">{tLocal.participantsLabel}</div>
                   <div className="text-sm font-bold text-slate-800 flex items-center justify-center gap-1 mt-1">
                     <Users className="h-4 w-4 text-[#4040A1]" />
-                    {selectedDetailedEvent.participants.toLocaleString()}
+                    {(selectedDetailedEvent.participants || 0).toLocaleString()}
                   </div>
                 </div>
                 <div>
@@ -1142,11 +1172,11 @@ export function Events() {
               {/* Description */}
               <div className="space-y-4">
                 <h4 className="text-lg font-display font-bold text-slate-900 border-b border-slate-100 pb-2">
-                  {selectedDetailedEvent.title[language]}
+                  {getL(selectedDetailedEvent.title)}
                 </h4>
                 <div 
                   className="text-slate-600 text-sm md:text-base leading-relaxed font-gujarati space-y-3 prose prose-slate max-w-none"
-                  dangerouslySetInnerHTML={{ __html: selectedDetailedEvent.summary[language] }}
+                  dangerouslySetInnerHTML={{ __html: getL(selectedDetailedEvent.summary) }}
                 />
               </div>
 
@@ -1159,7 +1189,7 @@ export function Events() {
                       {tLocal.highlightsLabel}
                     </h5>
                     <ul className="space-y-2">
-                      {selectedDetailedEvent.highlights[language].map((hl: string, idx: number) => (
+                      {(selectedDetailedEvent.highlights?.[language] || selectedDetailedEvent.highlights?.["en"] || []).map((hl: string, idx: number) => (
                         <li key={idx} className="flex items-start gap-2 text-xs text-slate-600 font-gujarati">
                           <CheckCircle2 className="h-4.5 w-4.5 text-[#7A9D1C] flex-shrink-0 mt-0.5" />
                           <span>{hl}</span>
@@ -1176,7 +1206,7 @@ export function Events() {
                       {tLocal.impactLabel}
                     </h5>
                     <p className="text-slate-700 text-sm font-bold font-gujarati leading-relaxed">
-                      {selectedDetailedEvent.impact[language]}
+                      {getL((selectedDetailedEvent as any).impact)}
                     </p>
                   </div>
                   <button

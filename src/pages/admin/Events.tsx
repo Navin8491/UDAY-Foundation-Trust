@@ -156,8 +156,14 @@ export function Events() {
     setFormVolunteers(evt.volunteers);
     setFormFeatured(evt.featured);
     setFormStatus(evt.status);
-    setImagesList(evt.images && evt.images.length > 0 ? evt.images : [evt.img]);
-    setCoverImage(evt.img);
+    // Extract plain URL strings from either string[] or {img,...}[] format
+    const rawImages: any[] = evt.images && evt.images.length > 0 ? evt.images : [evt.img];
+    const urlImages = rawImages
+      .map((item: any) => (typeof item === "string" ? item : item?.img || ""))
+      .filter(Boolean) as string[];
+    setImagesList(urlImages);
+    const coverUrl = typeof evt.img === "string" ? evt.img : evt.img?.img || "";
+    setCoverImage(coverUrl);
     setFormSeoTitle(evt.seoTitle || "");
     setFormSeoDesc(evt.seoDesc || "");
     setModalOpen(true);
@@ -204,7 +210,16 @@ export function Events() {
         status: formStatus,
         featured: formFeatured,
         img: activeCover,
-        images: imagesList,
+        // Always save images as {img, caption, category}[] objects for consistent rendering
+        images: imagesList.map((url: string) => ({
+          img: url,
+          category: formCategory,
+          caption: {
+            en: formTitleEn || "",
+            gu: formTitleGu || "",
+            hi: formTitleHi || formTitleEn || "",
+          },
+        })),
         summary: {
           en: formSummaryEn,
           gu: formSummaryGu,
