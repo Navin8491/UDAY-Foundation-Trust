@@ -42,7 +42,10 @@ export function Gallery() {
     return () => unsubscribe();
   }, []);
 
-  const visible = itemsList.filter((i) => filter === "All" || i.cat === filter);
+  // Filter out items with missing img URLs before rendering — prevents blank cards
+  const visible = itemsList
+    .filter((i) => !!(i as any).img)
+    .filter((i) => filter === "All" || i.cat === filter);
 
   return (
     <>
@@ -89,6 +92,11 @@ export function Gallery() {
                     alt={it.cat}
                     loading="lazy"
                     className="absolute inset-0 h-full w-full object-cover group-hover:scale-105 transition-transform duration-500"
+                    onError={(e) => {
+                      // Hide entire card if image fails to load (broken storage URL etc.)
+                      const card = (e.currentTarget as HTMLElement).closest("button");
+                      if (card) card.style.display = "none";
+                    }}
                   />
                 </div>
                 <div className="p-3 bg-white border-t border-slate-50 flex items-center justify-between text-xs font-semibold text-slate-500">
