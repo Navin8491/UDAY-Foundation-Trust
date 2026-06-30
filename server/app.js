@@ -24,6 +24,14 @@ app.use(helmet({
   }
 }));
 
+// Allow Private Network Access (for accessing localhost:5000 from https://uday-foundation-trust.vercel.app)
+app.use((req, res, next) => {
+  if (req.headers["access-control-request-private-network"]) {
+    res.setHeader("Access-Control-Allow-Private-Network", "true");
+  }
+  next();
+});
+
 // CORS Configuration (Least-privilege)
 app.use(cors({
   origin: (origin, callback) => {
