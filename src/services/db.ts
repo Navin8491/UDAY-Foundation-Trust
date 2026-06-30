@@ -1,20 +1,8 @@
-import { io } from "socket.io-client";
+import { supabase } from "./supabaseClient";
 import { apiRequest } from "./apiClient";
 import { getAuthHeader } from "./auth";
 
-const SOCKET_URL = (import.meta.env.VITE_API_URL || "http://localhost:5000").replace(/\/api$/, "");
-
-let socket: any = null;
-function getSocket() {
-  if (!socket) {
-    socket = io(SOCKET_URL, {
-      withCredentials: true,
-    });
-  }
-  return socket;
-}
-
-// Interfaces matching PRD
+// Interfaces matching original implementation
 export interface EventItem {
   id?: string;
   _id?: string;
@@ -27,11 +15,13 @@ export interface EventItem {
   participants: number;
   volunteers: number;
   impact: { en: string; gu: string; hi: string };
-  img: string; // Featured image URL
-  images: { img: string; category: string; caption: { en: string; gu: string; hi: string } }[];
+  img: string;
+  images: string[] | { img: string; category: string; caption: { en: string; gu: string; hi: string } }[];
   highlights?: { en: string[]; gu: string[]; hi: string[] };
   status: "published" | "draft";
   featured?: boolean;
+  show_in_featured_initiative?: boolean;
+  showInFeaturedInitiative?: boolean;
   createdAt: string;
   updatedAt: string;
 }
@@ -39,7 +29,7 @@ export interface EventItem {
 export interface ProgramItem {
   id?: string;
   _id?: string;
-  keyId: string; // e.g. "education", "child"
+  keyId: string;
   title: { en: string; gu: string; hi: string };
   desc: { en: string; gu: string; hi: string };
   objectives: { en: string; gu: string; hi: string }[];
@@ -59,13 +49,13 @@ export interface TeamMember {
   id?: string;
   _id?: string;
   memberId: string;
-  name: { en: string; gu: string; hi: string };
+  name: { en: string; gu: string; hi: string } | string;
   role: { en: string; gu: string; hi: string };
   bio: { en: string; gu: string; hi: string };
   email: string;
   phone?: string;
   img: string;
-  socials: { linkedin?: string; instagram?: string };
+  socials: { linkedin?: string; instagram?: string; fb?: string; tw?: string; in?: string; ln?: string };
   displayOrder: number;
 }
 
@@ -144,34 +134,51 @@ export interface TransparencyDoc {
   uploadedAt: string;
 }
 
-// Helper to map Mongoose _id to id
 const mapItem = (item: any) => {
-  if (item && item._id) {
-    return { ...item, id: item._id };
+  if (!item) return item;
+  const mapped = { ...item };
+  if (item.id) {
+    mapped._id = item.id;
   }
-  return item;
+  if (item.created_at) {
+    mapped.createdAt = item.created_at;
+  }
+  if (item.updated_at) {
+    mapped.updatedAt = item.updated_at;
+  }
+  if (item.show_in_featured_initiative !== undefined) {
+    mapped.showInFeaturedInitiative = item.show_in_featured_initiative;
+  }
+  return mapped;
 };
 
 // -------------------------------------------------------------
-// File Upload Helper (Multer + Cloudinary via backend)
+// File Upload Helper (Express Backend + Cloudinary)
 // -------------------------------------------------------------
 export async function uploadFile(
   file: File,
   folderPath: string,
   onProgress?: (progress: number) => void
 ): Promise<string> {
+  const cleanFolder = folderPath.replace(/^\/+|\/+$/g, "");
+  
+  let endpoint = "/upload";
+  if (["events", "gallery", "programs", "team"].includes(cleanFolder)) {
+    endpoint = `/${cleanFolder}/upload`;
+  }
+
+  const apiHost = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
+  const uploadUrl = `${apiHost}${endpoint}`;
+
   return new Promise<string>((resolve, reject) => {
     const xhr = new XMLHttpRequest();
-    const uploadUrl = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
-    xhr.open("POST", `${uploadUrl}/upload`);
+    xhr.open("POST", uploadUrl);
 
-    // Add authorization token
     const authHeaders = getAuthHeader();
     if (authHeaders.Authorization) {
       xhr.setRequestHeader("Authorization", authHeaders.Authorization);
     }
 
-    // Track upload progress
     xhr.upload.addEventListener("progress", (event) => {
       if (event.lengthComputable && onProgress) {
         const percent = Math.round((event.loaded / event.total) * 100);
@@ -182,15 +189,15 @@ export async function uploadFile(
     xhr.addEventListener("load", () => {
       if (xhr.status >= 200 && xhr.status < 300) {
         try {
-          const data = JSON.parse(xhr.responseText);
-          resolve(data.url);
+          const response = JSON.parse(xhr.responseText);
+          resolve(response.url);
         } catch (e) {
           reject(new Error("Failed to parse upload response."));
         }
       } else {
         try {
           const errData = JSON.parse(xhr.responseText || "{}");
-          reject(new Error(errData.message || "Failed to upload file."));
+          reject(new Error(errData.error?.message || errData.message || "Upload failed."));
         } catch (e) {
           reject(new Error(`Upload failed with status code ${xhr.status}`));
         }
@@ -198,120 +205,32 @@ export async function uploadFile(
     });
 
     xhr.addEventListener("error", () => {
-      reject(new Error("Network upload error occurred. Ensure backend is running."));
+      reject(new Error("Network error occurred during upload."));
     });
 
     const formData = new FormData();
     formData.append("file", file);
-    formData.append("folder", folderPath);
+    formData.append("folder", cleanFolder);
+    if (cleanFolder === "gallery") {
+      formData.append("category", "Education");
+    }
+
     xhr.send(formData);
   });
 }
 
 // -------------------------------------------------------------
-// Public Data Loading Routines
-// -------------------------------------------------------------
-export async function fetchEvents(): Promise<EventItem[]> {
-  try {
-    const res = await apiRequest("/events");
-    if (!res.ok) throw new Error("Failed to fetch events");
-    const data = await res.json();
-    return data.map(mapItem);
-  } catch (err: any) {
-    console.error("fetchEvents failed:", err);
-    return [];
-  }
-}
-
-export async function fetchPrograms(): Promise<ProgramItem[]> {
-  try {
-    const res = await apiRequest("/programs");
-    if (!res.ok) throw new Error("Failed to fetch programs");
-    const data = await res.json();
-    return data.map(mapItem);
-  } catch (err: any) {
-    console.error("fetchPrograms failed:", err);
-    return [];
-  }
-}
-
-export async function fetchTeam(): Promise<TeamMember[]> {
-  try {
-    const res = await apiRequest("/team");
-    if (!res.ok) throw new Error("Failed to fetch team members");
-    const data = await res.json();
-    return data.map(mapItem);
-  } catch (err: any) {
-    console.error("fetchTeam failed:", err);
-    return [];
-  }
-}
-
-export async function fetchGallery(): Promise<GalleryItem[]> {
-  try {
-    const res = await apiRequest("/gallery");
-    if (!res.ok) throw new Error("Failed to fetch gallery");
-    const data = await res.json();
-    return data.map(mapItem);
-  } catch (err: any) {
-    console.error("fetchGallery failed:", err);
-    return [];
-  }
-}
-
-export async function fetchCertificates(): Promise<TransparencyDoc[]> {
-  try {
-    const res = await apiRequest("/certificates");
-    if (!res.ok) throw new Error("Failed to fetch certificates");
-    const data = await res.json();
-    return data.map(mapItem);
-  } catch (err: any) {
-    console.error("fetchCertificates failed:", err);
-    return [];
-  }
-}
-
-export async function fetchTransparencyDocuments(): Promise<TransparencyDoc[]> {
-  try {
-    const res = await apiRequest("/transparency");
-    if (!res.ok) throw new Error("Failed to fetch transparency documents");
-    const data = await res.json();
-    return data.map(mapItem);
-  } catch (err: any) {
-    console.error("fetchTransparencyDocuments failed:", err);
-    return [];
-  }
-}
-
-export async function fetchTransparencyDocs(): Promise<TransparencyDoc[]> {
-  try {
-    const [certs, docs] = await Promise.all([
-      fetchCertificates(),
-      fetchTransparencyDocuments()
-    ]);
-    return [...certs, ...docs];
-  } catch (err: any) {
-    console.error("fetchTransparencyDocs failed:", err);
-    return [];
-  }
-}
-
-export async function fetchSettings(): Promise<any> {
-  try {
-    const res = await apiRequest("/settings");
-    if (!res.ok) throw new Error("Failed to fetch settings");
-    return mapItem(await res.json());
-  } catch (err: any) {
-    console.error("fetchSettings failed:", err);
-    return null;
-  }
-}
-
-// -------------------------------------------------------------
-// Administrator Panel Mutation Handlers
+// CRUD Operations via Express Backend API
 // -------------------------------------------------------------
 
 // Events CRUD
+export async function fetchEvents(): Promise<EventItem[]> {
+  const res = await apiRequest("/events");
+  if (!res.ok) throw new Error("Failed to fetch events");
+  const data = await res.json();
+  return data.map(mapItem);
+}
+
 export async function addEvent(data: any): Promise<string> {
   const res = await apiRequest("/events", {
     method: "POST",
@@ -322,7 +241,7 @@ export async function addEvent(data: any): Promise<string> {
     throw new Error(err.message || "Failed to create event");
   }
   const created = await res.json();
-  return created._id;
+  return created.id || created._id;
 }
 
 export async function updateEvent(id: string, data: any): Promise<void> {
@@ -347,6 +266,13 @@ export async function deleteEvent(id: string): Promise<void> {
 }
 
 // Programs CRUD
+export async function fetchPrograms(): Promise<ProgramItem[]> {
+  const res = await apiRequest("/programs");
+  if (!res.ok) throw new Error("Failed to fetch programs");
+  const data = await res.json();
+  return data.map(mapItem);
+}
+
 export async function addProgram(data: any): Promise<string> {
   const res = await apiRequest("/programs", {
     method: "POST",
@@ -357,7 +283,7 @@ export async function addProgram(data: any): Promise<string> {
     throw new Error(err.message || "Failed to create program");
   }
   const created = await res.json();
-  return created._id;
+  return created.id || created._id;
 }
 
 export async function updateProgram(id: string, data: any): Promise<void> {
@@ -382,6 +308,13 @@ export async function deleteProgram(id: string): Promise<void> {
 }
 
 // Gallery CRUD
+export async function fetchGallery(): Promise<GalleryItem[]> {
+  const res = await apiRequest("/gallery");
+  if (!res.ok) throw new Error("Failed to fetch gallery");
+  const data = await res.json();
+  return data.map(mapItem);
+}
+
 export async function addGalleryItem(data: any): Promise<string> {
   const res = await apiRequest("/gallery", {
     method: "POST",
@@ -392,7 +325,7 @@ export async function addGalleryItem(data: any): Promise<string> {
     throw new Error(err.message || "Failed to create gallery item");
   }
   const created = await res.json();
-  return created._id;
+  return created.id || created._id;
 }
 
 export async function updateGalleryItem(id: string, data: any): Promise<void> {
@@ -417,6 +350,13 @@ export async function deleteGalleryItem(id: string): Promise<void> {
 }
 
 // Team CRUD
+export async function fetchTeam(): Promise<TeamMember[]> {
+  const res = await apiRequest("/team");
+  if (!res.ok) throw new Error("Failed to fetch team");
+  const data = await res.json();
+  return data.map(mapItem);
+}
+
 export async function addTeamMember(data: any): Promise<string> {
   const res = await apiRequest("/team", {
     method: "POST",
@@ -427,7 +367,7 @@ export async function addTeamMember(data: any): Promise<string> {
     throw new Error(err.message || "Failed to create team member");
   }
   const created = await res.json();
-  return created._id;
+  return created.id || created._id;
 }
 
 export async function updateTeamMember(id: string, data: any): Promise<void> {
@@ -452,6 +392,13 @@ export async function deleteTeamMember(id: string): Promise<void> {
 }
 
 // Certificates CRUD
+export async function fetchCertificates(): Promise<any[]> {
+  const res = await apiRequest("/certificates");
+  if (!res.ok) throw new Error("Failed to fetch certificates");
+  const data = await res.json();
+  return data.map(mapItem);
+}
+
 export async function addCertificate(data: any): Promise<string> {
   const res = await apiRequest("/certificates", {
     method: "POST",
@@ -462,7 +409,7 @@ export async function addCertificate(data: any): Promise<string> {
     throw new Error(err.message || "Failed to create certificate");
   }
   const created = await res.json();
-  return created._id;
+  return created.id || created._id;
 }
 
 export async function deleteCertificate(id: string): Promise<void> {
@@ -476,6 +423,13 @@ export async function deleteCertificate(id: string): Promise<void> {
 }
 
 // Transparency Document CRUD
+export async function fetchTransparencyDocs(): Promise<TransparencyDoc[]> {
+  const res = await apiRequest("/transparency");
+  if (!res.ok) throw new Error("Failed to fetch transparency documents");
+  const data = await res.json();
+  return data.map(mapItem);
+}
+
 export async function addTransparencyDocument(data: any): Promise<string> {
   const res = await apiRequest("/transparency", {
     method: "POST",
@@ -486,7 +440,7 @@ export async function addTransparencyDocument(data: any): Promise<string> {
     throw new Error(err.message || "Failed to create document");
   }
   const created = await res.json();
-  return created._id;
+  return created.id || created._id;
 }
 
 export async function deleteTransparencyDocument(id: string): Promise<void> {
@@ -510,7 +464,35 @@ export async function submitContactMessage(data: any): Promise<string> {
     throw new Error(err.message || "Failed to submit message");
   }
   const created = await res.json();
-  return created._id;
+  return created.id || created._id;
+}
+
+export async function fetchContactMessages(): Promise<ContactMessage[]> {
+  const res = await apiRequest("/contact");
+  if (!res.ok) throw new Error("Failed to fetch messages");
+  const data = await res.json();
+  return data.map(mapItem);
+}
+
+export async function deleteContactMessage(id: string): Promise<void> {
+  const res = await apiRequest(`/contact/${id}`, {
+    method: "DELETE",
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.message || "Failed to delete message");
+  }
+}
+
+export async function updateContactMessageStatus(id: string, status: "unread" | "read"): Promise<void> {
+  const res = await apiRequest(`/contact/${id}/status`, {
+    method: "PUT",
+    body: { status },
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.message || "Failed to update contact message status");
+  }
 }
 
 export async function submitVolunteerApplication(data: any): Promise<string> {
@@ -523,80 +505,23 @@ export async function submitVolunteerApplication(data: any): Promise<string> {
     throw new Error(err.message || "Failed to submit application");
   }
   const created = await res.json();
-  return created._id;
+  return created.id || created._id;
 }
 
-export async function submitPartnershipRequest(data: any): Promise<string> {
-  const res = await apiRequest("/partnerships", {
-    method: "POST",
-    body: data,
-  });
-  if (!res.ok) {
-    const err = await res.json().catch(() => ({}));
-    throw new Error(err.message || "Failed to submit partnership request");
-  }
-  const created = await res.json();
-  return created._id;
+export async function fetchVolunteerApplications(): Promise<VolunteerApplication[]> {
+  const res = await apiRequest("/volunteers");
+  if (!res.ok) throw new Error("Failed to fetch volunteers");
+  const data = await res.json();
+  return data.map(mapItem);
 }
 
-export async function submitDonationRecord(data: any): Promise<string> {
-  const res = await apiRequest("/donations", {
-    method: "POST",
-    body: data,
-  });
-  if (!res.ok) {
-    const err = await res.json().catch(() => ({}));
-    throw new Error(err.message || "Failed to record donation");
-  }
-  const created = await res.json();
-  return created._id;
-}
-
-export { submitDonationRecord as submitDonation };
-
-// Dashboard Fetchers
-export async function fetchContactMessages(): Promise<any[]> {
-  try {
-    const res = await apiRequest("/contact");
-    if (!res.ok) throw new Error("Failed to fetch messages");
-    const data = await res.json();
-    return data.map(mapItem);
-  } catch (err) {
-    console.error(err);
-    return [];
-  }
-}
-
-export async function updateContactMessageStatus(id: string, status: "read" | "unread"): Promise<void> {
-  const res = await apiRequest(`/contact/${id}/status`, {
-    method: "PUT",
-    body: { status },
-  });
-  if (!res.ok) {
-    const err = await res.json().catch(() => ({}));
-    throw new Error(err.message || "Failed to update contact message status");
-  }
-}
-
-export async function deleteContactMessage(id: string): Promise<void> {
-  const res = await apiRequest(`/contact/${id}`, {
+export async function deleteVolunteer(id: string): Promise<void> {
+  const res = await apiRequest(`/volunteers/${id}`, {
     method: "DELETE",
   });
   if (!res.ok) {
     const err = await res.json().catch(() => ({}));
-    throw new Error(err.message || "Failed to delete contact message");
-  }
-}
-
-export async function fetchVolunteers(): Promise<VolunteerApplication[]> {
-  try {
-    const res = await apiRequest("/volunteers");
-    if (!res.ok) throw new Error("Failed to fetch volunteers");
-    const data = await res.json();
-    return data.map(mapItem) as VolunteerApplication[];
-  } catch (err) {
-    console.error(err);
-    return [];
+    throw new Error(err.message || "Failed to delete volunteer record");
   }
 }
 
@@ -611,28 +536,25 @@ export async function updateVolunteerStatus(id: string, status: "pending" | "app
   }
 }
 
-export async function deleteVolunteer(id: string): Promise<void> {
-  const res = await apiRequest(`/volunteers/${id}`, {
-    method: "DELETE",
+export async function submitPartnershipRequest(data: any): Promise<string> {
+  const res = await apiRequest("/partnerships", {
+    method: "POST",
+    body: data,
   });
   if (!res.ok) {
     const err = await res.json().catch(() => ({}));
-    throw new Error(err.message || "Failed to delete volunteer record");
+    throw new Error(err.message || "Failed to submit partnership request");
   }
+  const created = await res.json();
+  return created.id || created._id;
 }
 
 export async function fetchPartnershipRequests(): Promise<PartnershipRequest[]> {
-  try {
-    const res = await apiRequest("/partnerships");
-    if (!res.ok) throw new Error("Failed to fetch partnerships");
-    const data = await res.json();
-    return data.map(mapItem) as PartnershipRequest[];
-  } catch (err) {
-    console.error(err);
-    return [];
-  }
+  const res = await apiRequest("/partnerships");
+  if (!res.ok) throw new Error("Failed to fetch partnerships");
+  const data = await res.json();
+  return data.map(mapItem);
 }
-
 export { fetchPartnershipRequests as fetchPartnerships };
 
 export async function updatePartnershipStatus(id: string, status: "pending" | "approved" | "rejected"): Promise<void> {
@@ -657,15 +579,32 @@ export async function deletePartnership(id: string): Promise<void> {
 }
 
 export async function fetchDonations(): Promise<any[]> {
-  try {
-    const res = await apiRequest("/donations");
-    if (!res.ok) throw new Error("Failed to fetch donations");
-    const data = await res.json();
-    return data.map(mapItem);
-  } catch (err) {
-    console.error(err);
-    return [];
+  const res = await apiRequest("/donations");
+  if (!res.ok) throw new Error("Failed to fetch donations");
+  const data = await res.json();
+  return data.map(mapItem);
+}
+
+export async function submitDonation(data: any): Promise<string> {
+  const res = await apiRequest("/donations", {
+    method: "POST",
+    body: data,
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.message || "Failed to submit donation");
   }
+  const created = await res.json();
+  return created.id || created._id;
+}
+
+export { fetchVolunteerApplications as fetchVolunteers };
+
+export async function fetchSettings(): Promise<any> {
+  const res = await apiRequest("/settings");
+  if (!res.ok) throw new Error("Failed to fetch settings");
+  const data = await res.json();
+  return mapItem(data);
 }
 
 export async function updateSettings(settings: any): Promise<void> {
@@ -680,7 +619,7 @@ export async function updateSettings(settings: any): Promise<void> {
 }
 
 // -------------------------------------------------------------
-// Real-time synchronization listeners using Socket.io
+// Real-time synchronization listeners using Supabase Channels
 // -------------------------------------------------------------
 
 export function subscribeEvents(callback: (items: EventItem[]) => void, onError?: (err: any) => void) {
@@ -690,18 +629,19 @@ export function subscribeEvents(callback: (items: EventItem[]) => void, onError?
       if (onError) onError(err);
     });
 
-  const socketConn = getSocket();
-  const handleUpdate = () => {
-    fetchEvents()
-      .then(callback)
-      .catch((err) => {
-        if (onError) onError(err);
-      });
-  };
+  const channel = supabase
+    .channel("public-events-changes")
+    .on(
+      "postgres_changes",
+      { event: "*", schema: "public", table: "events" },
+      () => {
+        fetchEvents().then(callback).catch(onError);
+      }
+    )
+    .subscribe();
 
-  socketConn.on("events_changed", handleUpdate);
   return () => {
-    socketConn.off("events_changed", handleUpdate);
+    supabase.removeChannel(channel);
   };
 }
 
@@ -712,18 +652,19 @@ export function subscribePrograms(callback: (items: ProgramItem[]) => void, onEr
       if (onError) onError(err);
     });
 
-  const socketConn = getSocket();
-  const handleUpdate = () => {
-    fetchPrograms()
-      .then(callback)
-      .catch((err) => {
-        if (onError) onError(err);
-      });
-  };
+  const channel = supabase
+    .channel("public-programs-changes")
+    .on(
+      "postgres_changes",
+      { event: "*", schema: "public", table: "programs" },
+      () => {
+        fetchPrograms().then(callback).catch(onError);
+      }
+    )
+    .subscribe();
 
-  socketConn.on("programs_changed", handleUpdate);
   return () => {
-    socketConn.off("programs_changed", handleUpdate);
+    supabase.removeChannel(channel);
   };
 }
 
@@ -734,18 +675,19 @@ export function subscribeGallery(callback: (items: GalleryItem[]) => void, onErr
       if (onError) onError(err);
     });
 
-  const socketConn = getSocket();
-  const handleUpdate = () => {
-    fetchGallery()
-      .then(callback)
-      .catch((err) => {
-        if (onError) onError(err);
-      });
-  };
+  const channel = supabase
+    .channel("public-gallery-changes")
+    .on(
+      "postgres_changes",
+      { event: "*", schema: "public", table: "gallery" },
+      () => {
+        fetchGallery().then(callback).catch(onError);
+      }
+    )
+    .subscribe();
 
-  socketConn.on("gallery_changed", handleUpdate);
   return () => {
-    socketConn.off("gallery_changed", handleUpdate);
+    supabase.removeChannel(channel);
   };
 }
 
@@ -756,18 +698,19 @@ export function subscribeTeam(callback: (items: TeamMember[]) => void, onError?:
       if (onError) onError(err);
     });
 
-  const socketConn = getSocket();
-  const handleUpdate = () => {
-    fetchTeam()
-      .then(callback)
-      .catch((err) => {
-        if (onError) onError(err);
-      });
-  };
+  const channel = supabase
+    .channel("public-team-changes")
+    .on(
+      "postgres_changes",
+      { event: "*", schema: "public", table: "team" },
+      () => {
+        fetchTeam().then(callback).catch(onError);
+      }
+    )
+    .subscribe();
 
-  socketConn.on("team_changed", handleUpdate);
   return () => {
-    socketConn.off("team_changed", handleUpdate);
+    supabase.removeChannel(channel);
   };
 }
 
@@ -778,21 +721,31 @@ export function subscribeTransparencyDocs(callback: (items: TransparencyDoc[]) =
       if (onError) onError(err);
     });
 
-  const socketConn = getSocket();
-  const handleUpdate = () => {
-    fetchTransparencyDocs()
-      .then(callback)
-      .catch((err) => {
-        if (onError) onError(err);
-      });
-  };
+  const channelCert = supabase
+    .channel("public-certificates-changes")
+    .on(
+      "postgres_changes",
+      { event: "*", schema: "public", table: "certificates" },
+      () => {
+        fetchTransparencyDocs().then(callback).catch(onError);
+      }
+    )
+    .subscribe();
 
-  socketConn.on("certificates_changed", handleUpdate);
-  socketConn.on("transparency_documents_changed", handleUpdate);
+  const channelDoc = supabase
+    .channel("public-transparency-changes")
+    .on(
+      "postgres_changes",
+      { event: "*", schema: "public", table: "transparency_documents" },
+      () => {
+        fetchTransparencyDocs().then(callback).catch(onError);
+      }
+    )
+    .subscribe();
 
   return () => {
-    socketConn.off("certificates_changed", handleUpdate);
-    socketConn.off("transparency_documents_changed", handleUpdate);
+    supabase.removeChannel(channelCert);
+    supabase.removeChannel(channelDoc);
   };
 }
 
@@ -805,19 +758,22 @@ export function subscribeSettings(callback: (settings: any) => void, onError?: (
       if (onError) onError(err);
     });
 
-  const socketConn = getSocket();
-  const handleUpdate = () => {
-    fetchSettings()
-      .then((data) => {
-        if (data) callback(data);
-      })
-      .catch((err) => {
-        if (onError) onError(err);
-      });
-  };
+  const channel = supabase
+    .channel("public-settings-changes")
+    .on(
+      "postgres_changes",
+      { event: "*", schema: "public", table: "settings" },
+      () => {
+        fetchSettings()
+          .then((data) => {
+            if (data) callback(data);
+          })
+          .catch(onError);
+      }
+    )
+    .subscribe();
 
-  socketConn.on("settings_changed", handleUpdate);
   return () => {
-    socketConn.off("settings_changed", handleUpdate);
+    supabase.removeChannel(channel);
   };
 }

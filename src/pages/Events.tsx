@@ -22,7 +22,7 @@ import { Counter } from "@/components/site/Counter";
 import pavaDistributionGroup from "@/assets/pava-distribution-group.jpg";
 import { useDocumentMetadata } from "@/hooks/useDocumentMetadata";
 import { SCHOOL_BAG_EVENTS, PastEventItem } from "@/constants/schoolEvents";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { subscribeEvents } from "@/services/db";
 
 const TRANSLATIONS_LOCAL = {
@@ -247,6 +247,24 @@ export function Events() {
   const [pastCampaigns, setPastCampaigns] = useState<PastEventItem[]>(SCHOOL_BAG_EVENTS);
   const PAST_CAMPAIGNS = pastCampaigns;
 
+  const featuredEvent = useMemo(() => {
+    if (pastCampaigns.length === 0) return null;
+
+    // 1. Search for showInFeaturedInitiative = true
+    const marked = pastCampaigns.find((e) => e.showInFeaturedInitiative === true);
+    if (marked) return marked;
+
+    // 2. Default fallback
+    const fallback = pastCampaigns.find(
+      (e) =>
+        (e.title && e.title.en === "Certificate of Appreciation & Felicitation Ceremony") ||
+        (e.title && e.title.gu === "Certificate of Appreciation & Felicitation Ceremony")
+    );
+    if (fallback) return fallback;
+
+    return null;
+  }, [pastCampaigns]);
+
   useEffect(() => {
     const unsubscribe = subscribeEvents((items) => {
       if (items && items.length > 0) {
@@ -319,27 +337,27 @@ export function Events() {
         breadcrumbActive={t("nav.events")}
       />
       {/* FEATURED EVENT SECTION */}
-      {PAST_CAMPAIGNS.length > 0 && (
-        <section className="py-16 md:py-24 bg-white border-b border-border animate-fade-in">
-          <div className="about-section-container">
-            <div className="text-center max-w-3xl mx-auto mb-16">
-              <span className="inline-block px-3 py-1.5 text-xs font-bold uppercase tracking-[0.12em] text-[#4040A1] bg-[#4040A1]/10 rounded-full mb-4 animate-pulse">
-                {tLocal.featuredSub || "HIGHLIGHTED EVENT"}
-              </span>
-              <h2 className="text-3xl md:text-4xl font-display font-bold text-slate-900 tracking-tight font-gujarati">
-                {tLocal.featuredTitle || "Featured Initiative"}
-              </h2>
-              <div className="w-16 h-1 bg-[#F7E81D] mx-auto mt-4 rounded-full" />
-            </div>
+      <section className="py-16 md:py-24 bg-white border-b border-border animate-fade-in">
+        <div className="about-section-container">
+          <div className="text-center max-w-3xl mx-auto mb-16">
+            <span className="inline-block px-3 py-1.5 text-xs font-bold uppercase tracking-[0.12em] text-[#4040A1] bg-[#4040A1]/10 rounded-full mb-4 animate-pulse">
+              {tLocal.featuredSub || "HIGHLIGHTED EVENT"}
+            </span>
+            <h2 className="text-3xl md:text-4xl font-display font-bold text-slate-900 tracking-tight font-gujarati">
+              {tLocal.featuredTitle || "Featured Initiative"}
+            </h2>
+            <div className="w-16 h-1 bg-[#F7E81D] mx-auto mt-4 rounded-full" />
+          </div>
 
-            {/* Featured Event Card: Visually larger horizontal card */}
+          {featuredEvent ? (
+            /* Featured Event Card: Visually larger horizontal card */
             <div className="about-card-premium p-0! bg-[#F8FAFF] overflow-hidden border border-border shadow-lg max-w-6xl mx-auto rounded-3xl group">
               <div className="grid grid-cols-1 lg:grid-cols-12 min-h-[420px]">
                 {/* Image side */}
                 <div className="lg:col-span-6 relative overflow-hidden bg-slate-100 min-h-[300px] lg:min-h-full">
                   <img
-                    src={PAST_CAMPAIGNS[0].img}
-                    alt={PAST_CAMPAIGNS[0].title[language]}
+                    src={featuredEvent.img}
+                    alt={featuredEvent.title[language]}
                     className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
                     loading="eager"
                   />
@@ -359,30 +377,30 @@ export function Events() {
                     <div className="flex flex-wrap gap-4 text-xs font-bold text-slate-400 uppercase tracking-wider mb-4">
                       <span className="inline-flex items-center gap-1.5">
                         <Calendar className="h-4 w-4 text-[#4040A1]" />{" "}
-                        {PAST_CAMPAIGNS[0].date}
+                        {featuredEvent.date}
                       </span>
                       <span className="inline-flex items-center gap-1.5">
                         <MapPin className="h-4 w-4 text-[#7A9D1C]" />{" "}
-                        {PAST_CAMPAIGNS[0].place[language]}
+                        {featuredEvent.place[language]}
                       </span>
                     </div>
 
                     <h3 className="text-xl md:text-2xl lg:text-3xl font-display font-bold text-slate-900 group-hover:text-primary transition-colors mb-4 font-gujarati leading-tight">
-                      {PAST_CAMPAIGNS[0].title[language]}
+                      {featuredEvent.title[language]}
                     </h3>
 
                     <p className="text-slate-600 text-sm md:text-base leading-relaxed mb-6 font-gujarati line-clamp-3">
-                      {PAST_CAMPAIGNS[0].summary[language]}
+                      {featuredEvent.summary[language]}
                     </p>
 
                     {/* Highlights list for Featured Card */}
-                    {PAST_CAMPAIGNS[0].highlights && (
+                    {featuredEvent.highlights && (
                       <div className="border-t border-slate-100 pt-5 mb-6">
                         <h4 className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-3">
                           {tLocal.highlightsLabel}
                         </h4>
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                          {PAST_CAMPAIGNS[0].highlights[language].slice(0, 6).map((hl: string, idx: number) => (
+                          {featuredEvent.highlights[language].slice(0, 6).map((hl: string, idx: number) => (
                             <div key={idx} className="flex items-center gap-2 text-xs text-slate-600 font-gujarati">
                               <CheckCircle2 className="h-4 w-4 text-[#7A9D1C] flex-shrink-0" />
                               <span className="truncate">{hl}</span>
@@ -395,7 +413,7 @@ export function Events() {
 
                   <div className="flex flex-wrap items-center gap-4 border-t border-slate-100 pt-6 mt-auto">
                     <button
-                      onClick={() => setSelectedDetailedEvent(PAST_CAMPAIGNS[0])}
+                      onClick={() => setSelectedDetailedEvent(featuredEvent)}
                       className="btn-saffron text-xs font-bold uppercase tracking-wider px-6 py-3.5 cursor-pointer flex items-center gap-1.5"
                     >
                       <Activity className="h-4 w-4" />
@@ -403,7 +421,7 @@ export function Events() {
                     </button>
 
                     <button
-                      onClick={() => setActiveGalleryEvent(PAST_CAMPAIGNS[0])}
+                      onClick={() => setActiveGalleryEvent(featuredEvent)}
                       className="btn-ghost text-xs font-bold uppercase tracking-wider px-6 py-3.5 border-slate-200 text-[#4040A1] hover:bg-slate-50 cursor-pointer flex items-center gap-1.5"
                     >
                       <Image className="h-4 w-4" />
@@ -411,22 +429,26 @@ export function Events() {
                     </button>
 
                     <button
-                      onClick={() => handleShare(PAST_CAMPAIGNS[0].id)}
+                      onClick={() => handleShare(featuredEvent.id || "")}
                       className="btn-ghost text-xs font-bold uppercase tracking-wider px-5 py-3.5 hover:bg-slate-50 inline-flex items-center gap-1.5 cursor-pointer border-slate-200 text-slate-500 hover:text-[#4040A1]"
                       title="Share Event"
                     >
                       <Share2 className="h-4 w-4" />
                       <span>
-                        {copiedId === PAST_CAMPAIGNS[0].id ? tLocal.copiedAlert : tLocal.btnShare}
+                        {copiedId === featuredEvent.id ? tLocal.copiedAlert : tLocal.btnShare}
                       </span>
                     </button>
                   </div>
                 </div>
               </div>
             </div>
-          </div>
-        </section>
-      )}
+          ) : (
+            <div className="max-w-6xl mx-auto rounded-3xl p-12 text-center border border-dashed border-slate-200 bg-slate-50 text-slate-500">
+              No Featured Event Available
+            </div>
+          )}
+        </div>
+      </section>
       {/* EVENT CATEGORIES SECTION */}
       <section className="py-16 md:py-24 bg-[#F8FAFF] border-b border-border">
         <div className="about-section-container">
