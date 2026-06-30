@@ -32,14 +32,15 @@ app.use((req, res, next) => {
   next();
 });
 
-// CORS Configuration (Least-privilege with localhost DX support)
+// CORS Configuration (Least-privilege with localhost and Vercel DX support)
 app.use(cors({
   origin: (origin, callback) => {
     if (!origin) {
       return callback(null, true);
     }
     const isLocalhost = /^http:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(origin);
-    if (isLocalhost || allowedOrigins.includes(origin)) {
+    const isVercel = /^https:\/\/.*\.vercel\.app$/.test(origin);
+    if (isLocalhost || isVercel || allowedOrigins.includes(origin)) {
       callback(null, true);
     } else {
       callback(new Error(`Not allowed by CORS: ${origin}`));
