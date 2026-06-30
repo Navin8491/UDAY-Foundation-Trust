@@ -176,6 +176,7 @@ export function Home() {
                   className="h-full w-full object-cover"
                   width={1536}
                   height={1024}
+                  fetchPriority="high"
                 />
                 <div className="absolute inset-x-0 bottom-0 p-5 bg-gradient-to-t from-black/60 to-transparent text-white">
                   <div className="text-xs uppercase tracking-[0.2em] opacity-80">

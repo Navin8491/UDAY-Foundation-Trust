@@ -1,11 +1,23 @@
 import express from "express";
 import cors from "cors";
 import helmet from "helmet";
+import compression from "compression";
 import apiRouter from "./routes/api.js";
 import { errorHandler } from "./middleware/errorHandler.js";
 import { sanitizeNoSQL, sanitizeXSS } from "./middleware/validation.js";
 
 const app = express();
+
+// Enable GZIP compression for all responses
+app.use(compression());
+
+// Force ETag revalidation for API requests
+app.use((req, res, next) => {
+  if (req.method === "GET") {
+    res.setHeader("Cache-Control", "no-cache, must-revalidate");
+  }
+  next();
+});
 
 const allowedOrigins = (process.env.FRONTEND_URL || "http://localhost:5173").split(",");
 

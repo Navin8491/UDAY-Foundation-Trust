@@ -223,15 +223,39 @@ export async function uploadFile(
 // CRUD Operations via Express Backend API
 // -------------------------------------------------------------
 
+// -------------------------------------------------------------
+// Client-Side Cache Layer for public read endpoints
+// -------------------------------------------------------------
+const apiCache = new Map<string, { data: any; expiry: number }>();
+const CACHE_DURATION = 15000; // Cache read data for 15 seconds
+
+async function getCached<T>(key: string, fetcher: () => Promise<T>): Promise<T> {
+  const now = Date.now();
+  const cached = apiCache.get(key);
+  if (cached && cached.expiry > now) {
+    return cached.data;
+  }
+  const data = await fetcher();
+  apiCache.set(key, { data, expiry: Date.now() + CACHE_DURATION });
+  return data;
+}
+
+export function invalidateCache(key: string) {
+  apiCache.delete(key);
+}
+
 // Events CRUD
 export async function fetchEvents(): Promise<EventItem[]> {
-  const res = await apiRequest("/events");
-  if (!res.ok) throw new Error("Failed to fetch events");
-  const data = await res.json();
-  return data.map(mapItem);
+  return getCached("events", async () => {
+    const res = await apiRequest("/events");
+    if (!res.ok) throw new Error("Failed to fetch events");
+    const data = await res.json();
+    return data.map(mapItem);
+  });
 }
 
 export async function addEvent(data: any): Promise<string> {
+  invalidateCache("events");
   const res = await apiRequest("/events", {
     method: "POST",
     body: data,
@@ -245,6 +269,7 @@ export async function addEvent(data: any): Promise<string> {
 }
 
 export async function updateEvent(id: string, data: any): Promise<void> {
+  invalidateCache("events");
   const res = await apiRequest(`/events/${id}`, {
     method: "PUT",
     body: data,
@@ -256,6 +281,7 @@ export async function updateEvent(id: string, data: any): Promise<void> {
 }
 
 export async function deleteEvent(id: string): Promise<void> {
+  invalidateCache("events");
   const res = await apiRequest(`/events/${id}`, {
     method: "DELETE",
   });
@@ -267,13 +293,16 @@ export async function deleteEvent(id: string): Promise<void> {
 
 // Programs CRUD
 export async function fetchPrograms(): Promise<ProgramItem[]> {
-  const res = await apiRequest("/programs");
-  if (!res.ok) throw new Error("Failed to fetch programs");
-  const data = await res.json();
-  return data.map(mapItem);
+  return getCached("programs", async () => {
+    const res = await apiRequest("/programs");
+    if (!res.ok) throw new Error("Failed to fetch programs");
+    const data = await res.json();
+    return data.map(mapItem);
+  });
 }
 
 export async function addProgram(data: any): Promise<string> {
+  invalidateCache("programs");
   const res = await apiRequest("/programs", {
     method: "POST",
     body: data,
@@ -287,6 +316,7 @@ export async function addProgram(data: any): Promise<string> {
 }
 
 export async function updateProgram(id: string, data: any): Promise<void> {
+  invalidateCache("programs");
   const res = await apiRequest(`/programs/${id}`, {
     method: "PUT",
     body: data,
@@ -298,6 +328,7 @@ export async function updateProgram(id: string, data: any): Promise<void> {
 }
 
 export async function deleteProgram(id: string): Promise<void> {
+  invalidateCache("programs");
   const res = await apiRequest(`/programs/${id}`, {
     method: "DELETE",
   });
@@ -309,13 +340,16 @@ export async function deleteProgram(id: string): Promise<void> {
 
 // Gallery CRUD
 export async function fetchGallery(): Promise<GalleryItem[]> {
-  const res = await apiRequest("/gallery");
-  if (!res.ok) throw new Error("Failed to fetch gallery");
-  const data = await res.json();
-  return data.map(mapItem);
+  return getCached("gallery", async () => {
+    const res = await apiRequest("/gallery");
+    if (!res.ok) throw new Error("Failed to fetch gallery");
+    const data = await res.json();
+    return data.map(mapItem);
+  });
 }
 
 export async function addGalleryItem(data: any): Promise<string> {
+  invalidateCache("gallery");
   const res = await apiRequest("/gallery", {
     method: "POST",
     body: data,
@@ -329,6 +363,7 @@ export async function addGalleryItem(data: any): Promise<string> {
 }
 
 export async function updateGalleryItem(id: string, data: any): Promise<void> {
+  invalidateCache("gallery");
   const res = await apiRequest(`/gallery/${id}`, {
     method: "PUT",
     body: data,
@@ -340,6 +375,7 @@ export async function updateGalleryItem(id: string, data: any): Promise<void> {
 }
 
 export async function deleteGalleryItem(id: string): Promise<void> {
+  invalidateCache("gallery");
   const res = await apiRequest(`/gallery/${id}`, {
     method: "DELETE",
   });
@@ -351,13 +387,16 @@ export async function deleteGalleryItem(id: string): Promise<void> {
 
 // Team CRUD
 export async function fetchTeam(): Promise<TeamMember[]> {
-  const res = await apiRequest("/team");
-  if (!res.ok) throw new Error("Failed to fetch team");
-  const data = await res.json();
-  return data.map(mapItem);
+  return getCached("team", async () => {
+    const res = await apiRequest("/team");
+    if (!res.ok) throw new Error("Failed to fetch team");
+    const data = await res.json();
+    return data.map(mapItem);
+  });
 }
 
 export async function addTeamMember(data: any): Promise<string> {
+  invalidateCache("team");
   const res = await apiRequest("/team", {
     method: "POST",
     body: data,
@@ -371,6 +410,7 @@ export async function addTeamMember(data: any): Promise<string> {
 }
 
 export async function updateTeamMember(id: string, data: any): Promise<void> {
+  invalidateCache("team");
   const res = await apiRequest(`/team/${id}`, {
     method: "PUT",
     body: data,
@@ -382,6 +422,7 @@ export async function updateTeamMember(id: string, data: any): Promise<void> {
 }
 
 export async function deleteTeamMember(id: string): Promise<void> {
+  invalidateCache("team");
   const res = await apiRequest(`/team/${id}`, {
     method: "DELETE",
   });
@@ -393,13 +434,17 @@ export async function deleteTeamMember(id: string): Promise<void> {
 
 // Certificates CRUD
 export async function fetchCertificates(): Promise<any[]> {
-  const res = await apiRequest("/certificates");
-  if (!res.ok) throw new Error("Failed to fetch certificates");
-  const data = await res.json();
-  return data.map(mapItem);
+  return getCached("certificates", async () => {
+    const res = await apiRequest("/certificates");
+    if (!res.ok) throw new Error("Failed to fetch certificates");
+    const data = await res.json();
+    return data.map(mapItem);
+  });
 }
 
 export async function addCertificate(data: any): Promise<string> {
+  invalidateCache("certificates");
+  invalidateCache("docs");
   const res = await apiRequest("/certificates", {
     method: "POST",
     body: data,
@@ -413,6 +458,8 @@ export async function addCertificate(data: any): Promise<string> {
 }
 
 export async function deleteCertificate(id: string): Promise<void> {
+  invalidateCache("certificates");
+  invalidateCache("docs");
   const res = await apiRequest(`/certificates/${id}`, {
     method: "DELETE",
   });
@@ -424,13 +471,16 @@ export async function deleteCertificate(id: string): Promise<void> {
 
 // Transparency Document CRUD
 export async function fetchTransparencyDocs(): Promise<TransparencyDoc[]> {
-  const res = await apiRequest("/transparency");
-  if (!res.ok) throw new Error("Failed to fetch transparency documents");
-  const data = await res.json();
-  return data.map(mapItem);
+  return getCached("docs", async () => {
+    const res = await apiRequest("/transparency");
+    if (!res.ok) throw new Error("Failed to fetch transparency documents");
+    const data = await res.json();
+    return data.map(mapItem);
+  });
 }
 
 export async function addTransparencyDocument(data: any): Promise<string> {
+  invalidateCache("docs");
   const res = await apiRequest("/transparency", {
     method: "POST",
     body: data,
@@ -444,6 +494,7 @@ export async function addTransparencyDocument(data: any): Promise<string> {
 }
 
 export async function deleteTransparencyDocument(id: string): Promise<void> {
+  invalidateCache("docs");
   const res = await apiRequest(`/transparency/${id}`, {
     method: "DELETE",
   });
@@ -601,13 +652,16 @@ export async function submitDonation(data: any): Promise<string> {
 export { fetchVolunteerApplications as fetchVolunteers };
 
 export async function fetchSettings(): Promise<any> {
-  const res = await apiRequest("/settings");
-  if (!res.ok) throw new Error("Failed to fetch settings");
-  const data = await res.json();
-  return mapItem(data);
+  return getCached("settings", async () => {
+    const res = await apiRequest("/settings");
+    if (!res.ok) throw new Error("Failed to fetch settings");
+    const data = await res.json();
+    return mapItem(data);
+  });
 }
 
 export async function updateSettings(settings: any): Promise<void> {
+  invalidateCache("settings");
   const res = await apiRequest("/settings", {
     method: "PUT",
     body: settings,
@@ -635,6 +689,7 @@ export function subscribeEvents(callback: (items: EventItem[]) => void, onError?
       "postgres_changes",
       { event: "*", schema: "public", table: "events" },
       () => {
+        invalidateCache("events");
         fetchEvents().then(callback).catch(onError);
       }
     )
@@ -658,6 +713,7 @@ export function subscribePrograms(callback: (items: ProgramItem[]) => void, onEr
       "postgres_changes",
       { event: "*", schema: "public", table: "programs" },
       () => {
+        invalidateCache("programs");
         fetchPrograms().then(callback).catch(onError);
       }
     )
@@ -681,6 +737,7 @@ export function subscribeGallery(callback: (items: GalleryItem[]) => void, onErr
       "postgres_changes",
       { event: "*", schema: "public", table: "gallery" },
       () => {
+        invalidateCache("gallery");
         fetchGallery().then(callback).catch(onError);
       }
     )
@@ -704,6 +761,7 @@ export function subscribeTeam(callback: (items: TeamMember[]) => void, onError?:
       "postgres_changes",
       { event: "*", schema: "public", table: "team" },
       () => {
+        invalidateCache("team");
         fetchTeam().then(callback).catch(onError);
       }
     )
@@ -727,6 +785,8 @@ export function subscribeTransparencyDocs(callback: (items: TransparencyDoc[]) =
       "postgres_changes",
       { event: "*", schema: "public", table: "certificates" },
       () => {
+        invalidateCache("certificates");
+        invalidateCache("docs");
         fetchTransparencyDocs().then(callback).catch(onError);
       }
     )
@@ -738,6 +798,7 @@ export function subscribeTransparencyDocs(callback: (items: TransparencyDoc[]) =
       "postgres_changes",
       { event: "*", schema: "public", table: "transparency_documents" },
       () => {
+        invalidateCache("docs");
         fetchTransparencyDocs().then(callback).catch(onError);
       }
     )
@@ -764,6 +825,7 @@ export function subscribeSettings(callback: (settings: any) => void, onError?: (
       "postgres_changes",
       { event: "*", schema: "public", table: "settings" },
       () => {
+        invalidateCache("settings");
         fetchSettings()
           .then((data) => {
             if (data) callback(data);
