@@ -9,8 +9,8 @@ const supabase = createClient(
   { auth: { persistSession: false, autoRefreshToken: false } }
 );
 
-const ADMIN_EMAIL = "admin@udayfoundationtrust.org";
-const ADMIN_PASSWORD = "UdayAdmin2026!";
+const ADMIN_EMAIL = process.env.ADMIN_EMAIL || "admin@udayfoundationtrust.org";
+const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || "UdayAdmin2026!";
 
 async function createAdmin() {
   console.log("Creating admin user in Supabase Auth...");

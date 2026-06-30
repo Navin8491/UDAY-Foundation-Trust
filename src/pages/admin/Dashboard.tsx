@@ -1,17 +1,16 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { fetchEvents, fetchVolunteers, fetchDonations } from "@/services/db";
+import { fetchEvents, fetchVolunteers, fetchDonations, fetchPartnerships } from "@/services/db";
 import {
   Heart,
   Users,
-  Calendar,
-  Image as ImageIcon,
   DollarSign,
   Plus,
-  CheckCircle2,
+  Building2,
+  ArrowUpRight
 } from "lucide-react";
 
-// Mock Data
+// Mock Data for charts
 const DONATIONS_DATA = [
   { month: "Jan", amount: 120000, display: "₹1,20,000" },
   { month: "Feb", amount: 180000, display: "₹1,80,000" },
@@ -53,9 +52,14 @@ export function Dashboard() {
   const [selectedChart, setSelectedChart] = useState<"donations" | "volunteers">("donations");
   const [hoveredDonIndex, setHoveredDonIndex] = useState<number | null>(null);
 
-  const [donorsCount, setDonorsCount] = useState(1240);
-  const [volunteersCount, setVolunteersCount] = useState(650);
-  const [eventsCount, setEventsCount] = useState(40);
+  const [donorsCount, setDonorsCount] = useState(0);
+  const [totalDonationsAmount, setTotalDonationsAmount] = useState(166500);
+  const [volunteersCount, setVolunteersCount] = useState(0);
+  const [partnersCount, setPartnersCount] = useState(0);
+  const [eventsCount, setEventsCount] = useState(0);
+
+  const [recentVolunteers, setRecentVolunteers] = useState<any[]>([]);
+  const [recentPartners, setRecentPartners] = useState<any[]>([]);
 
   useEffect(() => {
     async function loadStats() {
@@ -65,9 +69,18 @@ export function Dashboard() {
 
         const volunteers = await fetchVolunteers();
         setVolunteersCount(volunteers.length);
+        // Take latest 4 for list
+        setRecentVolunteers([...volunteers].reverse().slice(0, 4));
 
         const donations = await fetchDonations();
         setDonorsCount(donations.length);
+        const sum = donations.reduce((acc, curr) => acc + (Number(curr.amount) || 0), 0);
+        setTotalDonationsAmount(166500 + sum);
+
+        const partnerships = await fetchPartnerships();
+        setPartnersCount(partnerships.length);
+        // Take latest 4 for list
+        setRecentPartners([...partnerships].reverse().slice(0, 4));
       } catch (e) {
         console.error("Dashboard stats query failed:", e);
       }
@@ -76,10 +89,10 @@ export function Dashboard() {
   }, []);
 
   const cards = [
-    { title: "Total Donations", value: "₹30,000", change: "Temporary static cap", icon: DollarSign, color: "text-[#7A9D1C] bg-[#7A9D1C]/10" },
+    { title: "Total Donations", value: `₹${totalDonationsAmount.toLocaleString()}`, change: "Estimated total value", icon: DollarSign, color: "text-[#7A9D1C] bg-[#7A9D1C]/10" },
     { title: "Total Donors", value: donorsCount.toLocaleString(), change: "+8% from last month", icon: Heart, color: "text-rose-500 bg-rose-50/80" },
-    { title: "Active Volunteers", value: volunteersCount.toLocaleString(), change: "+45 this month", icon: Users, color: "text-[#4040A1] bg-[#4040A1]/10" },
-    { title: "Completed Events", value: eventsCount.toLocaleString(), change: "+2 this month", icon: Calendar, color: "text-amber-500 bg-amber-50" },
+    { title: "Volunteers App", value: volunteersCount.toLocaleString(), change: "Total applications filed", icon: Users, color: "text-[#4040A1] bg-[#4040A1]/10" },
+    { title: "Partnerships", value: partnersCount.toLocaleString(), change: "CSR & Institutional links", icon: Building2, color: "text-amber-500 bg-amber-50" },
   ];
 
   return (
@@ -146,47 +159,44 @@ export function Dashboard() {
           <div className="h-72 mt-4 flex flex-col justify-between relative">
             {selectedChart === "donations" ? (
               <div className="flex-1 flex flex-col justify-between pt-4">
-                {/* Custom Interactive SVG Line/Area chart */}
                 <div className="flex-1 relative flex items-end">
-                  <div className="absolute inset-0 flex flex-col justify-between pointer-events-none opacity-50">
-                    <div className="border-b border-slate-100 w-full" />
-                    <div className="border-b border-slate-100 w-full" />
-                    <div className="border-b border-slate-100 w-full" />
-                  </div>
-                  
-                  <svg className="w-full h-full overflow-visible" viewBox="0 0 500 200" preserveAspectRatio="none">
+                  <svg className="w-full h-full overflow-visible" viewBox="0 0 600 200" preserveAspectRatio="none">
                     <defs>
-                      <linearGradient id="gradDon" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="0%" stopColor="#4040A1" stopOpacity={0.2} />
-                        <stop offset="100%" stopColor="#4040A1" stopOpacity={0} />
+                      <linearGradient id="donGrad" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="0%" stopColor="#7A9D1C" stopOpacity="0.2" />
+                        <stop offset="100%" stopColor="#7A9D1C" stopOpacity="0" />
                       </linearGradient>
                     </defs>
-                    <path
-                      d="M 0 160 Q 80 120 160 145 T 320 90 T 500 45 L 500 200 L 0 200 Z"
-                      fill="url(#gradDon)"
+                    <path 
+                      d="M0,150 Q100,110 200,130 T400,80 T600,40" 
+                      fill="none" 
+                      stroke="#7A9D1C" 
+                      strokeWidth="3.5" 
+                      strokeLinecap="round"
                     />
-                    <path
-                      d="M 0 160 Q 80 120 160 145 T 320 90 T 500 45"
-                      fill="none"
-                      stroke="#4040A1"
-                      strokeWidth="3.5"
+                    <path 
+                      d="M0,150 Q100,110 200,130 T400,80 T600,40 L600,200 L0,200 Z" 
+                      fill="url(#donGrad)"
                     />
-                    
-                    {/* Hover Hotspots for Tooltip */}
-                    {DONATIONS_DATA.map((_, idx) => {
-                      const cx = (idx / 6) * 500;
-                      // approximate points
-                      const pts = [160, 130, 145, 115, 90, 68, 45];
-                      const cy = pts[idx];
+                    {DONATIONS_DATA.map((d, i) => {
+                      const x = (i / 6) * 600;
+                      const y = i === 0 ? 150 : i === 1 ? 120 : i === 2 ? 135 : i === 3 ? 90 : i === 4 ? 60 : i === 5 ? 75 : 40;
                       return (
-                        <g key={idx} className="cursor-pointer" onMouseEnter={() => setHoveredDonIndex(idx)} onMouseLeave={() => setHoveredDonIndex(null)}>
-                          <circle cx={cx} cy={cy} r="6" fill="#4040A1" stroke="#fff" strokeWidth="2" className={`transition-all ${hoveredDonIndex === idx ? "r-8 opacity-100" : "opacity-0 hover:opacity-100"}`} />
-                        </g>
+                        <circle 
+                          key={d.month}
+                          cx={x} 
+                          cy={y} 
+                          r="5.5" 
+                          fill="#white" 
+                          stroke="#7A9D1C" 
+                          strokeWidth="3"
+                          className="cursor-pointer hover:r-[7.5] transition-all"
+                          onMouseEnter={() => setHoveredDonIndex(i)}
+                          onMouseLeave={() => setHoveredDonIndex(null)}
+                        />
                       );
                     })}
                   </svg>
-
-                  {/* Interactive Tooltip representation */}
                   {hoveredDonIndex !== null && (
                     <div 
                       className="absolute bg-slate-800 text-white rounded-xl p-2.5 shadow-md text-[10px] pointer-events-none z-10 transition-all border border-slate-700"
@@ -196,7 +206,7 @@ export function Dashboard() {
                       }}
                     >
                       <p className="font-bold">{DONATIONS_DATA[hoveredDonIndex].month}</p>
-                      <p className="text-primary font-bold mt-0.5">{DONATIONS_DATA[hoveredDonIndex].display}</p>
+                      <p className="text-secondary font-bold mt-0.5">{DONATIONS_DATA[hoveredDonIndex].display}</p>
                     </div>
                   )}
                 </div>
@@ -210,43 +220,43 @@ export function Dashboard() {
             ) : (
               <div className="flex-1 flex flex-col justify-between pt-4">
                 <div className="flex-1 relative flex items-end">
-                  <div className="absolute inset-0 flex flex-col justify-between pointer-events-none opacity-50">
-                    <div className="border-b border-slate-100 w-full" />
-                    <div className="border-b border-slate-100 w-full" />
-                    <div className="border-b border-slate-100 w-full" />
-                  </div>
-                  
-                  <svg className="w-full h-full overflow-visible" viewBox="0 0 500 200" preserveAspectRatio="none">
+                  <svg className="w-full h-full overflow-visible" viewBox="0 0 600 200" preserveAspectRatio="none">
                     <defs>
-                      <linearGradient id="gradVol" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="0%" stopColor="#7A9D1C" stopOpacity={0.2} />
-                        <stop offset="100%" stopColor="#7A9D1C" stopOpacity={0} />
+                      <linearGradient id="volGrad" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="0%" stopColor="#4040A1" stopOpacity="0.2" />
+                        <stop offset="100%" stopColor="#4040A1" stopOpacity="0" />
                       </linearGradient>
                     </defs>
-                    <path
-                      d="M 0 150 Q 80 135 160 110 T 320 85 T 500 40 L 500 200 L 0 200 Z"
-                      fill="url(#gradVol)"
+                    <path 
+                      d="M0,160 Q100,140 200,110 T400,100 T600,60" 
+                      fill="none" 
+                      stroke="#4040A1" 
+                      strokeWidth="3.5" 
+                      strokeLinecap="round"
                     />
-                    <path
-                      d="M 0 150 Q 80 135 160 110 T 320 85 T 500 40"
-                      fill="none"
-                      stroke="#7A9D1C"
-                      strokeWidth="3.5"
+                    <path 
+                      d="M0,160 Q100,140 200,110 T400,100 T600,60 L600,200 L0,200 Z" 
+                      fill="url(#volGrad)"
                     />
-                    
-                    {/* Hover Hotspots */}
-                    {VOLUNTEER_GROWTH.map((_, idx) => {
-                      const cx = (idx / 6) * 500;
-                      const pts = [150, 140, 110, 100, 85, 60, 40];
-                      const cy = pts[idx];
+                    {VOLUNTEER_GROWTH.map((v, i) => {
+                      const x = (i / 6) * 600;
+                      const y = i === 0 ? 160 : i === 1 ? 145 : i === 2 ? 115 : i === 3 ? 120 : i === 4 ? 100 : i === 5 ? 80 : 60;
                       return (
-                        <g key={idx} className="cursor-pointer" onMouseEnter={() => setHoveredDonIndex(idx)} onMouseLeave={() => setHoveredDonIndex(null)}>
-                          <circle cx={cx} cy={cy} r="6" fill="#7A9D1C" stroke="#fff" strokeWidth="2" className={`transition-all ${hoveredDonIndex === idx ? "r-8 opacity-100" : "opacity-0 hover:opacity-100"}`} />
-                        </g>
+                        <circle 
+                          key={v.month}
+                          cx={x} 
+                          cy={y} 
+                          r="5.5" 
+                          fill="#white" 
+                          stroke="#4040A1" 
+                          strokeWidth="3"
+                          className="cursor-pointer hover:r-[7.5] transition-all"
+                          onMouseEnter={() => setHoveredDonIndex(i)}
+                          onMouseLeave={() => setHoveredDonIndex(null)}
+                        />
                       );
                     })}
                   </svg>
-
                   {hoveredDonIndex !== null && (
                     <div 
                       className="absolute bg-slate-800 text-white rounded-xl p-2.5 shadow-md text-[10px] pointer-events-none z-10 transition-all border border-slate-700"
@@ -271,7 +281,7 @@ export function Dashboard() {
           </div>
         </div>
 
-        {/* Category Breakdown (Pie Chart Mockup using pure SVG circles) */}
+        {/* Category Breakdown */}
         <div className="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs flex flex-col justify-between">
           <div>
             <h3 className="font-bold text-base">Events by Sector</h3>
@@ -279,20 +289,15 @@ export function Dashboard() {
           </div>
           
           <div className="h-44 relative flex items-center justify-center mt-2">
-            {/* Native SVG donut / pie representation */}
             <svg className="w-36 h-36 transform -rotate-90 overflow-visible" viewBox="0 0 36 36">
               <circle cx="18" cy="18" r="15.9155" fill="none" stroke="#e2e8f0" strokeWidth="3" />
-              {/* Education sector: 37.5% */}
               <circle cx="18" cy="18" r="15.9155" fill="none" stroke="#4040A1" strokeWidth="3.5" strokeDasharray="37.5 62.5" strokeDashoffset="100" />
-              {/* Healthcare sector: 30% */}
               <circle cx="18" cy="18" r="15.9155" fill="none" stroke="#7A9D1C" strokeWidth="3.5" strokeDasharray="30 70" strokeDashoffset="62.5" />
-              {/* Environment sector: 20% */}
               <circle cx="18" cy="18" r="15.9155" fill="none" stroke="#22C55E" strokeWidth="3.5" strokeDasharray="20 80" strokeDashoffset="32.5" />
-              {/* Relief sector: 12.5% */}
               <circle cx="18" cy="18" r="15.9155" fill="none" stroke="#E25C5C" strokeWidth="3.5" strokeDasharray="12.5 87.5" strokeDashoffset="12.5" />
             </svg>
             <div className="absolute flex flex-col text-center">
-              <span className="text-2xl font-bold text-slate-900">40</span>
+              <span className="text-2xl font-bold text-slate-900">{eventsCount || 40}</span>
               <span className="text-[9px] uppercase tracking-wider text-slate-400 font-semibold">Events</span>
             </div>
           </div>
@@ -301,7 +306,7 @@ export function Dashboard() {
             {EVENTS_CAT_DATA.map((c) => (
               <div key={c.name} className="flex items-center gap-2 bg-slate-50 border border-slate-100 p-2 rounded-xl">
                 <span className="h-2.5 w-2.5 rounded-full flex-none" style={{ backgroundColor: c.color }} />
-                <span className="text-slate-600 truncate">{c.name} ({c.value})</span>
+                <span className="text-slate-600 truncate">{c.name} ({Math.round((eventsCount || 40) * (c.percent / 100))})</span>
               </div>
             ))}
           </div>
@@ -312,7 +317,7 @@ export function Dashboard() {
       {/* 4. Traffic & Recent Activity Row */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         
-        {/* Website Traffic (Interactive CSS Bar Chart) */}
+        {/* Website Traffic */}
         <div className="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs flex flex-col justify-between">
           <div>
             <h3 className="font-bold text-base">Visitor Statistics</h3>
@@ -338,27 +343,90 @@ export function Dashboard() {
           </div>
         </div>
 
-        {/* Recent Activity Timeline */}
-        <div className="lg:col-span-2 bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs">
-          <h3 className="font-bold text-base mb-4">Recent System Logs</h3>
-          <div className="space-y-4">
-            {[
-              { text: "Gulabbhai Khodabhai Bauddh approved volunteer registration", time: "10 mins ago", icon: CheckCircle2, iconColor: "text-emerald-600 bg-emerald-50" },
-              { text: "Gallery updated with 27 new images from 'Sports Day 2026'", time: "1 hour ago", icon: ImageIcon, iconColor: "text-blue-500 bg-blue-50" },
-              { text: "New donation record of ₹50,000 inserted manually", time: "3 hours ago", icon: Heart, iconColor: "text-rose-500 bg-rose-50" },
-              { text: "SEO Tags for 'Transparency' page updated in settings", time: "1 day ago", icon: ImageIcon, iconColor: "text-slate-500 bg-slate-50" },
-            ].map((log, idx) => (
-              <div key={idx} className="flex gap-3 text-xs font-semibold">
-                <div className={`h-8 w-8 rounded-full flex items-center justify-center flex-none ${log.iconColor}`}>
-                  <log.icon className="h-4 w-4" />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <p className="text-slate-700 leading-snug">{log.text}</p>
-                  <span className="text-[10px] text-slate-400 block mt-0.5">{log.time}</span>
-                </div>
-              </div>
-            ))}
+        {/* Pending Approvals / Recent submissions */}
+        <div className="lg:col-span-2 bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs space-y-4">
+          <div className="flex items-center justify-between pb-2 border-b border-slate-100">
+            <div>
+              <h3 className="font-bold text-base">Inquiries & Application Queue</h3>
+              <p className="text-xs text-slate-400">Review recent requests for partnership and volunteer roles</p>
+            </div>
+            <span className="text-[10px] font-bold bg-[#4040A1]/10 text-primary py-1 px-2.5 rounded-full uppercase tracking-wider">
+              Pending Actions
+            </span>
           </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            
+            {/* Volunteer Side */}
+            <div className="space-y-3">
+              <div className="flex justify-between items-center text-xs font-bold text-slate-400 uppercase">
+                <span>Recent Volunteer Applicants</span>
+                <Link to="/admin/volunteers" className="text-primary hover:underline flex items-center gap-0.5">
+                  View all <ArrowUpRight className="h-3 w-3" />
+                </Link>
+              </div>
+
+              <div className="space-y-2">
+                {recentVolunteers.length === 0 ? (
+                  <div className="text-xs text-slate-400 italic py-4">No recent volunteer applications.</div>
+                ) : (
+                  recentVolunteers.map((v) => (
+                    <div key={v.id} className="bg-slate-50/75 border border-slate-100 p-2.5 rounded-xl flex items-center justify-between text-xs font-semibold">
+                      <div className="min-w-0">
+                        <div className="text-slate-800 font-bold truncate">{v.name}</div>
+                        <div className="text-[10px] text-slate-400 truncate mt-0.5">{v.role || "General"}</div>
+                      </div>
+                      <span className={`px-2 py-0.5 rounded-full text-[8px] font-bold uppercase tracking-wider shrink-0 ${
+                        v.status === "approved" 
+                          ? "bg-emerald-50 text-emerald-600 border border-emerald-100" 
+                          : v.status === "rejected"
+                          ? "bg-rose-50 text-rose-600 border border-rose-100"
+                          : "bg-amber-50 text-amber-600 border border-amber-100"
+                      }`}>
+                        {v.status || "pending"}
+                      </span>
+                    </div>
+                  ))
+                )}
+              </div>
+            </div>
+
+            {/* Partnership Side */}
+            <div className="space-y-3">
+              <div className="flex justify-between items-center text-xs font-bold text-slate-400 uppercase">
+                <span>Recent Partnership Inquiries</span>
+                <Link to="/admin/partnerships" className="text-primary hover:underline flex items-center gap-0.5">
+                  View all <ArrowUpRight className="h-3 w-3" />
+                </Link>
+              </div>
+
+              <div className="space-y-2">
+                {recentPartners.length === 0 ? (
+                  <div className="text-xs text-slate-400 italic py-4">No recent partnership inquiries.</div>
+                ) : (
+                  recentPartners.map((c) => (
+                    <div key={c.id} className="bg-slate-50/75 border border-slate-100 p-2.5 rounded-xl flex items-center justify-between text-xs font-semibold">
+                      <div className="min-w-0">
+                        <div className="text-slate-800 font-bold truncate">{c.orgName}</div>
+                        <div className="text-[10px] text-slate-400 truncate mt-0.5">{c.contactName}</div>
+                      </div>
+                      <span className={`px-2 py-0.5 rounded-full text-[8px] font-bold uppercase tracking-wider shrink-0 ${
+                        c.status === "approved" 
+                          ? "bg-emerald-50 text-emerald-600 border border-emerald-100" 
+                          : c.status === "rejected"
+                          ? "bg-rose-50 text-rose-600 border border-rose-100"
+                          : "bg-amber-50 text-amber-600 border border-amber-100"
+                      }`}>
+                        {c.status || "pending"}
+                      </span>
+                    </div>
+                  ))
+                )}
+              </div>
+            </div>
+
+          </div>
+
         </div>
 
       </div>

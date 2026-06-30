@@ -173,41 +173,143 @@ export function GetInvolved() {
   const [formMessage, setFormMessage] = useState("");
   const [formSubmitting, setFormSubmitting] = useState(false);
 
+  // Extended Volunteer States
+  const [formDob, setFormDob] = useState("");
+  const [formGender, setFormGender] = useState("");
+  const [formCity, setFormCity] = useState("");
+  const [formState, setFormState] = useState("");
+  const [formCountry, setFormCountry] = useState("India");
+  const [formPincode, setFormPincode] = useState("");
+  const [formOccupation, setFormOccupation] = useState("");
+  const [formSkills, setFormSkills] = useState("");
+  const [formLanguages, setFormLanguages] = useState("");
+  const [formExperience, setFormExperience] = useState("");
+  const [formAvailability, setFormAvailability] = useState("");
+  const [formEmergencyName, setFormEmergencyName] = useState("");
+  const [formEmergencyPhone, setFormEmergencyPhone] = useState("");
+  const [formResume, setFormResume] = useState<File | null>(null);
+
+  // Extended Partnership States
+  const [formOrgName, setFormOrgName] = useState("");
+  const [formContactName, setFormContactName] = useState("");
+  const [formOrgWebsite, setFormOrgWebsite] = useState("");
+  const [formOrgAddress, setFormOrgAddress] = useState("");
+  const [formOrgType, setFormOrgType] = useState("NGO");
+  const [formProposal, setFormProposal] = useState("");
+
   const handleOpenModal = (category: InterestCategory, role: VolunteerRole = "") => {
     setModalCategory(category);
     setModalRole(role);
     setIsModalOpen(true);
   };
 
+  const validateEmail = (email: string) => {
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+  };
+
+  const validatePhone = (phone: string) => {
+    return /^[0-9+() -]{10,15}$/.test(phone);
+  };
+
   const handleFormSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (
-      !formName ||
-      !formEmail ||
-      !formPhone ||
-      !formEducation ||
-      !formAddress ||
-      !formSelfie ||
-      !formIdDoc
-    ) {
-      toast.error("Please fill in all required fields and upload all requested documents.");
+
+    const isVol = modalCategory === "volunteer";
+
+    // Common validations
+    if (isVol) {
+      if (
+        !formName.trim() ||
+        !formEmail.trim() ||
+        !formPhone.trim() ||
+        !formDob ||
+        !formGender ||
+        !formAddress.trim() ||
+        !formCity.trim() ||
+        !formState.trim() ||
+        !formPincode.trim() ||
+        !formOccupation.trim() ||
+        !formEducation.trim() ||
+        !formSkills.trim() ||
+        !formLanguages.trim() ||
+        !formExperience.trim() ||
+        !formAvailability.trim() ||
+        !formEmergencyName.trim() ||
+        !formEmergencyPhone.trim() ||
+        !formMessage.trim() ||
+        !formIdDoc
+      ) {
+        toast.error("Please fill in all required fields and upload your ID document.");
+        return;
+      }
+    } else {
+      if (
+        !formOrgName.trim() ||
+        !formContactName.trim() ||
+        !formEmail.trim() ||
+        !formPhone.trim() ||
+        !formOrgAddress.trim() ||
+        !formProposal.trim() ||
+        !formIdDoc
+      ) {
+        toast.error("Please fill in all required fields and upload your proposal documents.");
+        return;
+      }
+    }
+
+    const targetEmail = isVol ? formEmail : formEmail;
+    const targetPhone = isVol ? formPhone : formPhone;
+
+    if (!validateEmail(targetEmail)) {
+      toast.error("Please enter a valid email address.");
       return;
     }
 
+    if (!validatePhone(targetPhone)) {
+      toast.error("Please enter a valid phone number (minimum 10 digits).");
+      return;
+    }
+
+    // File validation: check file size (max 5MB)
+    const MAX_SIZE = 5 * 1024 * 1024;
+    const checkFile = (f: File | null) => {
+      if (f && f.size > MAX_SIZE) {
+        toast.error(`File "${f.name}" exceeds the maximum limit of 5MB.`);
+        return false;
+      }
+      return true;
+    };
+
+    if (!checkFile(formSelfie)) return;
+    if (!checkFile(formIdDoc)) return;
+    if (!checkFile(formResume)) return;
+
     setFormSubmitting(true);
-    const toastId = toast.loading("Uploading documents and submitting application... 0%");
+    const toastId = toast.loading("Uploading documents and submitting application...");
 
     try {
-      if (modalCategory === "volunteer") {
-        // Upload photo and id proof to storage
-        const photoUrl = await uploadFile(formSelfie, "volunteers/photos", (progress) => {
-          toast.loading(`Uploading documents... Photo: ${progress}%`, { id: toastId });
-        });
+      if (isVol) {
+        // Upload photo, id doc, and resume to storage
+        let photoUrl = "";
+        let resumeUrl = "";
+        
+        if (formSelfie) {
+          photoUrl = await uploadFile(formSelfie, "volunteers/photos", (progress) => {
+            toast.loading(`Uploading profile photo: ${progress}%`, { id: toastId });
+          });
+        }
+        
         const idProofUrl = await uploadFile(formIdDoc, "volunteers/documents", (progress) => {
-          toast.loading(`Uploading documents... ID Proof: ${progress}%`, { id: toastId });
+          toast.loading(`Uploading ID Proof: ${progress}%`, { id: toastId });
         });
 
-        // Submit to Firestore
+        if (formResume) {
+          resumeUrl = await uploadFile(formResume, "volunteers/resumes", (progress) => {
+            toast.loading(`Uploading Resume: ${progress}%`, { id: toastId });
+          });
+        }
+
+        // Submit to API
         await submitVolunteerApplication({
           name: formName,
           email: formEmail,
@@ -216,34 +318,48 @@ export function GetInvolved() {
           education: formEducation,
           photoUrl,
           idProofUrl,
-          message: formMessage || "",
           role: modalRole || "General Volunteering",
+          message: formMessage,
+          dob: formDob,
+          gender: formGender,
+          city: formCity,
+          state: formState,
+          country: formCountry,
+          pincode: formPincode,
+          occupation: formOccupation,
+          skills: formSkills,
+          languages: formLanguages,
+          experience: formExperience,
+          availability: formAvailability,
+          emergencyName: formEmergencyName,
+          emergencyPhone: formEmergencyPhone,
+          resumeUrl,
         });
 
-        toast.success("Thank you! Volunteer application submitted successfully.", { id: toastId });
+        toast.success("Thank you! Your volunteer application has been submitted successfully.", { id: toastId });
       } else {
-        // Upload documents for partnership request
-        const photoUrl = await uploadFile(formSelfie, "partnerships/photos", (progress) => {
-          toast.loading(`Uploading documents... Photo: ${progress}%`, { id: toastId });
-        });
-        const idProofUrl = await uploadFile(formIdDoc, "partnerships/documents", (progress) => {
-          toast.loading(`Uploading documents... ID Proof: ${progress}%`, { id: toastId });
+        // Upload proposal document
+        const documentUrl = await uploadFile(formIdDoc, "partnerships/documents", (progress) => {
+          toast.loading(`Uploading proposal document: ${progress}%`, { id: toastId });
         });
 
-        // Submit to Firestore
+        // Submit to API
         await submitPartnershipRequest({
-          organization: formEducation,
-          contactPerson: formName,
+          organization: formOrgName,
+          contactPerson: formContactName,
           email: formEmail,
           phone: formPhone,
-          message: `${formMessage || ""}\n[Attached: Photo=${photoUrl}, ID=${idProofUrl}]`,
-          type: modalCategory,
+          website: formOrgWebsite,
+          address: formOrgAddress,
+          type: formOrgType,
+          proposal: formProposal,
+          documentUrl,
         });
 
-        toast.success("Thank you! Partnership inquiry submitted successfully.", { id: toastId });
+        toast.success("Thank you! Your partnership request has been submitted successfully.", { id: toastId });
       }
 
-      // Reset Form
+      // Reset Volunteer Form
       setFormName("");
       setFormEmail("");
       setFormPhone("");
@@ -251,12 +367,35 @@ export function GetInvolved() {
       setFormAddress("");
       setFormSelfie(null);
       setFormIdDoc(null);
-      setFormResetKey((prev) => prev + 1);
       setFormMessage("");
+      setFormDob("");
+      setFormGender("");
+      setFormCity("");
+      setFormState("");
+      setFormCountry("India");
+      setFormPincode("");
+      setFormOccupation("");
+      setFormSkills("");
+      setFormLanguages("");
+      setFormExperience("");
+      setFormAvailability("");
+      setFormEmergencyName("");
+      setFormEmergencyPhone("");
+      setFormResume(null);
+
+      // Reset Partnership Form
+      setFormOrgName("");
+      setFormContactName("");
+      setFormOrgWebsite("");
+      setFormOrgAddress("");
+      setFormOrgType("NGO");
+      setFormProposal("");
+
+      setFormResetKey((prev) => prev + 1);
       setIsModalOpen(false);
     } catch (err: any) {
       console.error(err);
-      toast.error(err.message || "Failed to submit. Please try again.", { id: toastId });
+      toast.error(err.message || "Failed to submit application. Please try again.", { id: toastId });
     } finally {
       setFormSubmitting(false);
     }
@@ -1086,206 +1225,549 @@ export function GetInvolved() {
               </p>
 
               <form onSubmit={handleFormSubmit} className="mt-6 space-y-4">
-                {/* 1. Selfie/Profile Picture Upload */}
-                <div>
-                  <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1.5">
-                    Profile Picture / Selfie *
-                  </label>
-                  <div className="flex items-center gap-4 bg-slate-50 p-4 border border-slate-200 rounded-2xl">
-                    <div className="relative h-14 w-14 rounded-full bg-slate-200 border border-slate-300 flex items-center justify-center overflow-hidden flex-none">
-                      {formSelfie && formSelfie.type.startsWith("image/") ? (
-                        <img
-                          src={URL.createObjectURL(formSelfie)}
-                          alt="Selfie preview"
-                          className="h-full w-full object-cover"
+                {modalCategory === "volunteer" ? (
+                  // ───────────────────────────────────────────────────────────
+                  // VOLUNTEER REGISTRATION FORM
+                  // ───────────────────────────────────────────────────────────
+                  <>
+                    {/* Profile Picture */}
+                    <div>
+                      <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1.5">
+                        Profile Picture / Selfie (Optional)
+                      </label>
+                      <div className="flex items-center gap-4 bg-slate-50 p-4 border border-slate-200 rounded-2xl">
+                        <div className="relative h-14 w-14 rounded-full bg-slate-200 border border-slate-300 flex items-center justify-center overflow-hidden flex-none">
+                          {formSelfie && formSelfie.type.startsWith("image/") ? (
+                            <img
+                              src={URL.createObjectURL(formSelfie)}
+                              alt="Selfie preview"
+                              className="h-full w-full object-cover"
+                            />
+                          ) : (
+                            <Users className="h-6 w-6 text-slate-400" />
+                          )}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <input
+                            key={`selfie-${formResetKey}`}
+                            type="file"
+                            accept="image/*"
+                            onChange={(e) => setFormSelfie(e.target.files?.[0] || null)}
+                            className="block w-full text-xs text-slate-500
+                              file:mr-3 file:py-1.5 file:px-3
+                              file:rounded-full file:border-0
+                              file:text-xs file:font-semibold
+                              file:bg-primary/10 file:text-primary
+                              file:hover:bg-primary/20
+                              cursor-pointer file:cursor-pointer"
+                          />
+                          <p className="text-[9px] text-slate-400 mt-1">
+                            JPG, JPEG, or PNG formats. Max 5MB.
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Name */}
+                    <div>
+                      <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1.5">
+                        Full Name *
+                      </label>
+                      <input
+                        type="text"
+                        required
+                        value={formName}
+                        onChange={(e) => setFormName(e.target.value)}
+                        className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary text-sm font-light text-slate-900 bg-slate-50"
+                        placeholder="Enter your full name"
+                      />
+                    </div>
+
+                    {/* DOB & Gender */}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1.5">
+                          Date of Birth *
+                        </label>
+                        <input
+                          type="date"
+                          required
+                          value={formDob}
+                          onChange={(e) => setFormDob(e.target.value)}
+                          className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary text-sm font-light text-slate-900 bg-slate-50"
                         />
-                      ) : (
-                        <Users className="h-6 w-6 text-slate-400" />
-                      )}
+                      </div>
+                      <div>
+                        <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1.5">
+                          Gender *
+                        </label>
+                        <select
+                          required
+                          value={formGender}
+                          onChange={(e) => setFormGender(e.target.value)}
+                          className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary text-sm font-light text-slate-900 bg-slate-50"
+                        >
+                          <option value="">Select Gender</option>
+                          <option value="Male">Male</option>
+                          <option value="Female">Female</option>
+                          <option value="Other">Other</option>
+                        </select>
+                      </div>
                     </div>
-                    <div className="flex-1 min-w-0">
+
+                    {/* Email & Phone */}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1.5">
+                          Email Address *
+                        </label>
+                        <input
+                          type="email"
+                          required
+                          value={formEmail}
+                          onChange={(e) => setFormEmail(e.target.value)}
+                          className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary text-sm font-light text-slate-900 bg-slate-50"
+                          placeholder="name@example.com"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1.5">
+                          Mobile Number *
+                        </label>
+                        <input
+                          type="tel"
+                          required
+                          value={formPhone}
+                          onChange={(e) => setFormPhone(e.target.value)}
+                          className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary text-sm font-light text-slate-900 bg-slate-50"
+                          placeholder="10-digit number"
+                        />
+                      </div>
+                    </div>
+
+                    {/* Address */}
+                    <div>
+                      <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1.5">
+                        Address *
+                      </label>
                       <input
-                        key={`selfie-${formResetKey}`}
-                        type="file"
+                        type="text"
                         required
-                        accept=".jpg,.jpeg,.png,.pdf"
-                        onChange={(e) => setFormSelfie(e.target.files?.[0] || null)}
-                        className="block w-full text-xs text-slate-500
-                          file:mr-3 file:py-1.5 file:px-3
-                          file:rounded-full file:border-0
-                          file:text-xs file:font-semibold
-                          file:bg-primary/10 file:text-primary
-                          file:hover:bg-primary/20
-                          cursor-pointer file:cursor-pointer"
+                        value={formAddress}
+                        onChange={(e) => setFormAddress(e.target.value)}
+                        className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary text-sm font-light text-slate-900 bg-slate-50"
+                        placeholder="House, Street, Area..."
                       />
-                      <p className="text-[9px] text-slate-400 mt-1">
-                        JPG, PNG, or PDF formats allowed. Required.
-                      </p>
                     </div>
-                  </div>
-                </div>
 
-                <div>
-                  <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1.5">
-                    Full Name *
-                  </label>
-                  <input
-                    type="text"
-                    required
-                    value={formName}
-                    onChange={(e) => setFormName(e.target.value)}
-                    className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary text-sm font-light text-slate-900 bg-slate-50"
-                    placeholder="Enter your name"
-                  />
-                </div>
-
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1.5">
-                      Email Address *
-                    </label>
-                    <input
-                      type="email"
-                      required
-                      value={formEmail}
-                      onChange={(e) => setFormEmail(e.target.value)}
-                      className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary text-sm font-light text-slate-900 bg-slate-50"
-                      placeholder="name@example.com"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1.5">
-                      Phone Number *
-                    </label>
-                    <input
-                      type="tel"
-                      required
-                      value={formPhone}
-                      onChange={(e) => setFormPhone(e.target.value)}
-                      className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary text-sm font-light text-slate-900 bg-slate-50"
-                      placeholder="+91 XXXXX XXXXX"
-                    />
-                  </div>
-                </div>
-
-                {/* 2. Manual Education Level Input */}
-                <div>
-                  <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1.5">
-                    Education Level *
-                  </label>
-                  <input
-                    type="text"
-                    required
-                    value={formEducation}
-                    onChange={(e) => setFormEducation(e.target.value)}
-                    className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary text-sm font-light text-slate-900 bg-slate-50"
-                    placeholder="e.g., Bachelor of Arts, High School, Post-Graduate"
-                  />
-                </div>
-
-                {/* 3. Address / Location field */}
-                <div>
-                  <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1.5">
-                    Location Address *
-                  </label>
-                  <input
-                    type="text"
-                    required
-                    value={formAddress}
-                    onChange={(e) => setFormAddress(e.target.value)}
-                    className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary text-sm font-light text-slate-900 bg-slate-50"
-                    placeholder="Enter your city/village, district, pincode"
-                  />
-                </div>
-
-                {modalCategory === "volunteer" && (
-                  <div>
-                    <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1.5">
-                      Selected Role / Area of Interest
-                    </label>
-                    <select
-                      value={modalRole}
-                      onChange={(e) => setModalRole(e.target.value as VolunteerRole)}
-                      className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary text-sm font-light text-slate-900 bg-slate-50"
-                    >
-                      <option value="">Select general volunteering</option>
-                      <option value="Medical Camp Volunteer">Medical Camp Volunteer</option>
-                      <option value="Teaching Volunteer">Teaching Volunteer</option>
-                      <option value="Community Outreach">Community Outreach</option>
-                      <option value="Event Management">Event Management</option>
-                      <option value="Environmental Volunteer">Environmental Volunteer</option>
-                      <option value="Social Media Volunteer">Social Media Volunteer</option>
-                    </select>
-                  </div>
-                )}
-
-                {modalCategory !== "volunteer" && (
-                  <div>
-                    <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1.5">
-                      Collaboration Type
-                    </label>
-                    <select
-                      value={modalCategory}
-                      onChange={(e) => setModalCategory(e.target.value as InterestCategory)}
-                      className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary text-sm font-light text-slate-900 bg-slate-50"
-                    >
-                      <option value="csr">CSR Collaboration</option>
-                      <option value="sponsor">Project Sponsorship</option>
-                      <option value="general">Other / Long-Term Partnership</option>
-                    </select>
-                  </div>
-                )}
-
-                <div>
-                  <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1.5">
-                    Brief Message / Availability (Optional)
-                  </label>
-                  <textarea
-                    rows={3}
-                    value={formMessage}
-                    onChange={(e) => setFormMessage(e.target.value)}
-                    className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary text-sm font-light text-slate-900 bg-slate-50 resize-none"
-                    placeholder="Tell us a bit about yourself or availability..."
-                  />
-                </div>
-
-                {/* 4. Aadhaar Card / PAN Card Upload Field */}
-                <div>
-                  <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1.5">
-                    Upload Identity Document (Aadhaar / PAN Card) *
-                  </label>
-                  <div className="border border-dashed border-slate-200 hover:border-primary/50 transition-colors rounded-xl p-4 bg-slate-50 flex items-center gap-3">
-                    <div className="h-10 w-10 rounded-lg bg-leaf/10 text-leaf flex items-center justify-center flex-none">
-                      <FileText className="h-5 w-5" />
+                    {/* City, State & Pincode */}
+                    <div className="grid grid-cols-3 gap-2">
+                      <div className="col-span-1">
+                        <label className="block text-[10px] font-semibold text-slate-500 uppercase tracking-wider mb-1">
+                          City *
+                        </label>
+                        <input
+                          type="text"
+                          required
+                          value={formCity}
+                          onChange={(e) => setFormCity(e.target.value)}
+                          className="w-full px-3 py-2 border border-slate-200 rounded-lg focus:outline-none text-xs bg-slate-50 font-light"
+                          placeholder="City"
+                        />
+                      </div>
+                      <div className="col-span-1">
+                        <label className="block text-[10px] font-semibold text-slate-500 uppercase tracking-wider mb-1">
+                          State *
+                        </label>
+                        <input
+                          type="text"
+                          required
+                          value={formState}
+                          onChange={(e) => setFormState(e.target.value)}
+                          className="w-full px-3 py-2 border border-slate-200 rounded-lg focus:outline-none text-xs bg-slate-50 font-light"
+                          placeholder="State"
+                        />
+                      </div>
+                      <div className="col-span-1">
+                        <label className="block text-[10px] font-semibold text-slate-500 uppercase tracking-wider mb-1">
+                          PIN Code *
+                        </label>
+                        <input
+                          type="text"
+                          required
+                          value={formPincode}
+                          onChange={(e) => setFormPincode(e.target.value)}
+                          className="w-full px-3 py-2 border border-slate-200 rounded-lg focus:outline-none text-xs bg-slate-50 font-light"
+                          placeholder="6 digits"
+                        />
+                      </div>
                     </div>
-                    <div className="flex-1 min-w-0">
+
+                    {/* Occupation & Education */}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1.5">
+                          Occupation *
+                        </label>
+                        <input
+                          type="text"
+                          required
+                          value={formOccupation}
+                          onChange={(e) => setFormOccupation(e.target.value)}
+                          className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary text-sm font-light text-slate-900 bg-slate-50"
+                          placeholder="Student, Doctor, Business..."
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1.5">
+                          Qualification / Education *
+                        </label>
+                        <input
+                          type="text"
+                          required
+                          value={formEducation}
+                          onChange={(e) => setFormEducation(e.target.value)}
+                          className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary text-sm font-light text-slate-900 bg-slate-50"
+                          placeholder="High School, Graduate, etc."
+                        />
+                      </div>
+                    </div>
+
+                    {/* Skills & Languages */}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1.5">
+                          Skills *
+                        </label>
+                        <input
+                          type="text"
+                          required
+                          value={formSkills}
+                          onChange={(e) => setFormSkills(e.target.value)}
+                          className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary text-sm font-light text-slate-900 bg-slate-50"
+                          placeholder="Teaching, Admin, Nursing..."
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1.5">
+                          Languages Known *
+                        </label>
+                        <input
+                          type="text"
+                          required
+                          value={formLanguages}
+                          onChange={(e) => setFormLanguages(e.target.value)}
+                          className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary text-sm font-light text-slate-900 bg-slate-50"
+                          placeholder="Gujarati, English, Hindi..."
+                        />
+                      </div>
+                    </div>
+
+                    {/* Role / Area of Interest Selection */}
+                    <div>
+                      <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1.5">
+                        Selected Role / Area of Interest *
+                      </label>
+                      <select
+                        required
+                        value={modalRole}
+                        onChange={(e) => setModalRole(e.target.value as VolunteerRole)}
+                        className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary text-sm font-light text-slate-900 bg-slate-50"
+                      >
+                        <option value="">Select an interest area</option>
+                        <option value="Medical Camp Volunteer">Medical Camp Volunteer</option>
+                        <option value="Teaching Volunteer">Teaching Volunteer</option>
+                        <option value="Community Outreach">Community Outreach</option>
+                        <option value="Event Management">Event Management</option>
+                        <option value="Environmental Volunteer">Environmental Volunteer</option>
+                        <option value="Social Media Volunteer">Social Media Volunteer</option>
+                      </select>
+                    </div>
+
+                    {/* Previous Experience & Availability */}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1.5">
+                          Previous Experience *
+                        </label>
+                        <input
+                          type="text"
+                          required
+                          value={formExperience}
+                          onChange={(e) => setFormExperience(e.target.value)}
+                          className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary text-sm font-light text-slate-900 bg-slate-50"
+                          placeholder="None, 1 year at school, etc."
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1.5">
+                          Availability *
+                        </label>
+                        <select
+                          required
+                          value={formAvailability}
+                          onChange={(e) => setFormAvailability(e.target.value)}
+                          className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary text-sm font-light text-slate-900 bg-slate-50"
+                        >
+                          <option value="">Select availability</option>
+                          <option value="Weekends">Weekends only</option>
+                          <option value="Weekdays">Weekdays only</option>
+                          <option value="Full-time">Full-time</option>
+                          <option value="Part-time">Part-time</option>
+                          <option value="Flexible">Flexible</option>
+                        </select>
+                      </div>
+                    </div>
+
+                    {/* Emergency Contacts */}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1.5">
+                          Emergency Contact Name *
+                        </label>
+                        <input
+                          type="text"
+                          required
+                          value={formEmergencyName}
+                          onChange={(e) => setFormEmergencyName(e.target.value)}
+                          className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary text-sm font-light text-slate-900 bg-slate-50"
+                          placeholder="Parent, Spouse, Friend..."
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1.5">
+                          Emergency Contact Phone *
+                        </label>
+                        <input
+                          type="tel"
+                          required
+                          value={formEmergencyPhone}
+                          onChange={(e) => setFormEmergencyPhone(e.target.value)}
+                          className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary text-sm font-light text-slate-900 bg-slate-50"
+                          placeholder="Mobile number"
+                        />
+                      </div>
+                    </div>
+
+                    {/* Message / Why Join */}
+                    <div>
+                      <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1.5">
+                        Why do you want to join? *
+                      </label>
+                      <textarea
+                        rows={3}
+                        required
+                        value={formMessage}
+                        onChange={(e) => setFormMessage(e.target.value)}
+                        className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary text-sm font-light text-slate-900 bg-slate-50 resize-none"
+                        placeholder="Brief statement on your motivation to join Uday Trust..."
+                      />
+                    </div>
+
+                    {/* Resume Upload (Optional) */}
+                    <div>
+                      <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1.5">
+                        Upload Resume (Optional)
+                      </label>
+                      <div className="border border-dashed border-slate-200 hover:border-primary/50 transition-colors rounded-xl p-3 bg-slate-50 flex items-center gap-3">
+                        <div className="h-8 w-8 rounded-lg bg-primary/10 text-primary flex items-center justify-center flex-none">
+                          <FileText className="h-4 w-4" />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <input
+                            key={`resume-${formResetKey}`}
+                            type="file"
+                            accept=".pdf,.doc,.docx"
+                            onChange={(e) => setFormResume(e.target.files?.[0] || null)}
+                            className="block w-full text-xs text-slate-500 file:mr-2 file:py-1 file:px-2 file:rounded-full file:border-0 file:bg-primary/10 file:text-primary cursor-pointer"
+                          />
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* ID Document Upload (Required) */}
+                    <div>
+                      <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1.5">
+                        Upload Identity Document (Aadhaar / PAN Card) *
+                      </label>
+                      <div className="border border-dashed border-slate-200 hover:border-primary/50 transition-colors rounded-xl p-3 bg-slate-50 flex items-center gap-3">
+                        <div className="h-8 w-8 rounded-lg bg-leaf/10 text-leaf flex items-center justify-center flex-none">
+                          <FileText className="h-4 w-4" />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <input
+                            key={`iddoc-vol-${formResetKey}`}
+                            type="file"
+                            required
+                            accept=".pdf,.jpg,.jpeg,.png"
+                            onChange={(e) => setFormIdDoc(e.target.files?.[0] || null)}
+                            className="block w-full text-xs text-slate-500 file:mr-2 file:py-1 file:px-2 file:rounded-full file:border-0 file:bg-leaf/10 file:text-leaf cursor-pointer"
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  </>
+                ) : (
+                  // ───────────────────────────────────────────────────────────
+                  // PARTNERSHIP INQUIRY FORM
+                  // ───────────────────────────────────────────────────────────
+                  <>
+                    {/* Organization Name */}
+                    <div>
+                      <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1.5">
+                        Organization Name *
+                      </label>
                       <input
-                        key={`iddoc-${formResetKey}`}
-                        type="file"
+                        type="text"
                         required
-                        accept=".jpg,.jpeg,.png,.pdf"
-                        onChange={(e) => setFormIdDoc(e.target.files?.[0] || null)}
-                        className="block w-full text-xs text-slate-500
-                          file:mr-3 file:py-1.5 file:px-3
-                          file:rounded-full file:border-0
-                          file:text-xs file:font-semibold
-                          file:bg-leaf/10 file:text-leaf
-                          file:hover:bg-leaf/20
-                          cursor-pointer file:cursor-pointer"
+                        value={formOrgName}
+                        onChange={(e) => setFormOrgName(e.target.value)}
+                        className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary text-sm font-light text-slate-900 bg-slate-50"
+                        placeholder="Company, School, Trust name"
                       />
-                      <p className="text-[9px] text-slate-400 mt-1">
-                        PDF, JPG, or PNG formats. Required before submission.
-                      </p>
                     </div>
-                  </div>
-                </div>
+
+                    {/* Contact Person */}
+                    <div>
+                      <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1.5">
+                        Contact Person Name *
+                      </label>
+                      <input
+                        type="text"
+                        required
+                        value={formContactName}
+                        onChange={(e) => setFormContactName(e.target.value)}
+                        className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary text-sm font-light text-slate-900 bg-slate-50"
+                        placeholder="Your full name"
+                      />
+                    </div>
+
+                    {/* Email & Phone */}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1.5">
+                          Work Email Address *
+                        </label>
+                        <input
+                          type="email"
+                          required
+                          value={formEmail}
+                          onChange={(e) => setFormEmail(e.target.value)}
+                          className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary text-sm font-light text-slate-900 bg-slate-50"
+                          placeholder="corporate@company.com"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1.5">
+                          Mobile/Phone *
+                        </label>
+                        <input
+                          type="tel"
+                          required
+                          value={formPhone}
+                          onChange={(e) => setFormPhone(e.target.value)}
+                          className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary text-sm font-light text-slate-900 bg-slate-50"
+                          placeholder="Contact phone"
+                        />
+                      </div>
+                    </div>
+
+                    {/* Website Website (Optional) */}
+                    <div>
+                      <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1.5">
+                        Organization Website (Optional)
+                      </label>
+                      <input
+                        type="url"
+                        value={formOrgWebsite}
+                        onChange={(e) => setFormOrgWebsite(e.target.value)}
+                        className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary text-sm font-light text-slate-900 bg-slate-50"
+                        placeholder="https://example.com"
+                      />
+                    </div>
+
+                    {/* Organization Address */}
+                    <div>
+                      <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1.5">
+                        Organization Address *
+                      </label>
+                      <input
+                        type="text"
+                        required
+                        value={formOrgAddress}
+                        onChange={(e) => setFormOrgAddress(e.target.value)}
+                        className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary text-sm font-light text-slate-900 bg-slate-50"
+                        placeholder="Full registered address of your organization"
+                      />
+                    </div>
+
+                    {/* Organization Type Selector */}
+                    <div>
+                      <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1.5">
+                        Organization Type *
+                      </label>
+                      <select
+                        required
+                        value={formOrgType}
+                        onChange={(e) => setFormOrgType(e.target.value)}
+                        className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary text-sm font-light text-slate-900 bg-slate-50"
+                      >
+                        <option value="NGO">NGO</option>
+                        <option value="School">School</option>
+                        <option value="College">College</option>
+                        <option value="CSR">CSR Sponsorship</option>
+                        <option value="Corporate">Corporate / CSR Partner</option>
+                        <option value="Government">Government body</option>
+                        <option value="Trust">Trust</option>
+                        <option value="Other">Other</option>
+                      </select>
+                    </div>
+
+                    {/* Proposal description */}
+                    <div>
+                      <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1.5">
+                        Brief Partnership Proposal *
+                      </label>
+                      <textarea
+                        rows={4}
+                        required
+                        value={formProposal}
+                        onChange={(e) => setFormProposal(e.target.value)}
+                        className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary text-sm font-light text-slate-900 bg-slate-50 resize-none"
+                        placeholder="Describe the collaboration proposal, project target, or CSR objectives..."
+                      />
+                    </div>
+
+                    {/* Document uploads */}
+                    <div>
+                      <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1.5">
+                        Upload Proposal Document / Brochure (Required) *
+                      </label>
+                      <div className="border border-dashed border-slate-200 hover:border-primary/50 transition-colors rounded-xl p-3 bg-slate-50 flex items-center gap-3">
+                        <div className="h-8 w-8 rounded-lg bg-leaf/10 text-leaf flex items-center justify-center flex-none">
+                          <FileText className="h-4 w-4" />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <input
+                            key={`iddoc-partner-${formResetKey}`}
+                            type="file"
+                            required
+                            accept=".pdf,.jpg,.jpeg,.png,.doc,.docx"
+                            onChange={(e) => setFormIdDoc(e.target.files?.[0] || null)}
+                            className="block w-full text-xs text-slate-500 file:mr-2 file:py-1 file:px-2 file:rounded-full file:border-0 file:bg-leaf/10 file:text-leaf cursor-pointer"
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  </>
+                )}
 
                 <button
                   type="submit"
                   disabled={formSubmitting}
-                  className="w-full py-4 bg-primary text-white text-sm font-semibold rounded-xl hover:bg-primary/95 transition-all shadow-md hover:shadow-primary/20 flex items-center justify-center gap-1.5 mt-2 disabled:opacity-50"
+                  className="w-full py-4 bg-primary text-white text-sm font-semibold rounded-xl hover:bg-primary/95 transition-all shadow-md hover:shadow-primary/20 flex items-center justify-center gap-1.5 mt-2 disabled:opacity-50 cursor-pointer"
                 >
-                  {formSubmitting ? "Submitting Inquiry..." : "Submit Registration"} <ArrowRight className="h-4 w-4" />
+                  {formSubmitting ? "Uploading Documents..." : "Submit Registration"} <ArrowRight className="h-4 w-4" />
                 </button>
               </form>
             </motion.div>

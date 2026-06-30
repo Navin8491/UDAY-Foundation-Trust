@@ -18,8 +18,8 @@ import {
   getTransparencyDocuments, createTransparencyDocument, deleteTransparencyDocument
 } from "../controllers/docController.js";
 import {
-  getVolunteers, createVolunteer, updateVolunteerStatus, deleteVolunteer,
-  getPartnerships, createPartnership, updatePartnershipStatus, deletePartnership,
+  getVolunteers, createVolunteer, updateVolunteerStatus, deleteVolunteer, addVolunteerNote,
+  getPartnerships, createPartnership, updatePartnershipStatus, deletePartnership, addPartnershipNote,
   getContactMessages, createContactMessage, deleteContactMessage, updateContactMessageStatus,
   getDonations, createDonation
 } from "../controllers/formController.js";
@@ -89,11 +89,13 @@ router.delete("/transparency/:id", protectAdmin, deleteTransparencyDocument);
 router.get("/volunteers", protectAdmin, getVolunteers);
 router.post("/volunteers", publicFormLimiter, validateBody(volunteerSchema), createVolunteer);
 router.put("/volunteers/:id/status", protectAdmin, updateVolunteerStatus);
+router.post("/volunteers/:id/notes", protectAdmin, addVolunteerNote);
 router.delete("/volunteers/:id", protectAdmin, deleteVolunteer);
 
 router.get("/partnerships", protectAdmin, getPartnerships);
 router.post("/partnerships", publicFormLimiter, validateBody(partnershipSchema), createPartnership);
 router.put("/partnerships/:id/status", protectAdmin, updatePartnershipStatus);
+router.post("/partnerships/:id/notes", protectAdmin, addPartnershipNote);
 router.delete("/partnerships/:id", protectAdmin, deletePartnership);
 
 // Contact routes

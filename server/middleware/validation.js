@@ -89,10 +89,26 @@ export const volunteerSchema = z.object({
   phone: z.string().regex(/^\+?[0-9\s-]{8,25}$/, "Must be a valid phone number"),
   address: z.string().min(5, "Address must be at least 5 characters"),
   education: z.string().min(2, "Education must be at least 2 characters"),
-  photoUrl: z.string().url("Photo must be a valid URL"),
-  idProofUrl: z.string().url("ID proof must be a valid URL"),
+  photoUrl: z.string().optional().or(z.literal("")),
+  idProofUrl: z.string().min(1, "ID proof document is required"),
   role: z.string().min(2, "Role must be at least 2 characters"),
-  message: z.string().optional(),
+  message: z.string().optional().or(z.literal("")),
+  
+  // Extended fields
+  dob: z.string().min(1, "Date of birth is required"),
+  gender: z.string().min(1, "Gender is required"),
+  city: z.string().min(1, "City is required"),
+  state: z.string().min(1, "State is required"),
+  country: z.string().min(1, "Country is required"),
+  pincode: z.string().min(1, "Pincode is required"),
+  occupation: z.string().min(1, "Occupation is required"),
+  skills: z.string().min(1, "Skills are required"),
+  languages: z.string().min(1, "Languages are required"),
+  experience: z.string().min(1, "Previous experience is required"),
+  availability: z.string().min(1, "Availability is required"),
+  emergencyName: z.string().min(1, "Emergency contact name is required"),
+  emergencyPhone: z.string().min(1, "Emergency contact phone is required"),
+  resumeUrl: z.string().optional().or(z.literal("")),
 });
 
 export const donationSchema = z.object({
@@ -110,8 +126,14 @@ export const partnershipSchema = z.object({
   contactPerson: z.string().min(2, "Contact person name must be at least 2 characters"),
   email: z.string().email("Must be a valid email address"),
   phone: z.string().regex(/^\+?[0-9\s-]{8,25}$/, "Must be a valid phone number"),
-  message: z.string().min(5, "Message must be at least 5 characters"),
+  message: z.string().optional(), // kept for backward compatibility
   type: z.string().min(2, "Partnership type must be specified"),
+
+  // Extended fields
+  website: z.string().optional().or(z.literal("")),
+  address: z.string().min(2, "Address must be specified"),
+  proposal: z.string().min(5, "Proposal description must be at least 5 characters"),
+  documentUrl: z.string().min(1, "Proposal document is required"),
 });
 
 export const contactSchema = z.object({

@@ -1,5 +1,28 @@
 import { supabase } from "../config/db.js";
 import { triggerUpdate } from "../utils/realtime.js";
+import {
+  sendVolunteerReceived,
+  sendPartnershipReceived,
+  sendVolunteerApproved,
+  sendPartnershipApproved,
+  sendVolunteerRejected,
+  sendPartnershipRejected,
+  sendAdminAlert,
+} from "../utils/emailService.js";
+
+// Helper to safely parse JSON message payload
+const parseExtendedMessage = (messageStr) => {
+  if (!messageStr) return { isExtended: false, whyJoin: "" };
+  try {
+    const parsed = JSON.parse(messageStr);
+    if (parsed && typeof parsed === "object" && parsed.isExtended) {
+      return parsed;
+    }
+  } catch (e) {
+    // Not a JSON string — treat as standard plain message
+  }
+  return { isExtended: false, whyJoin: messageStr };
+};
 
 // Volunteers CRUD
 export const getVolunteers = async (req, res, next) => {
@@ -18,13 +41,97 @@ export const getVolunteers = async (req, res, next) => {
 
 export const createVolunteer = async (req, res, next) => {
   try {
+    const {
+      name,
+      email,
+      phone,
+      address,
+      education,
+      photoUrl,
+      idProofUrl,
+      role,
+      message, // acts as whyJoin
+      dob,
+      gender,
+      city,
+      state,
+      country,
+      pincode,
+      occupation,
+      skills,
+      languages,
+      experience,
+      availability,
+      emergencyName,
+      emergencyPhone,
+      resumeUrl,
+    } = req.body;
+
+    const extendedObj = {
+      isExtended: true,
+      whyJoin: message || "",
+      notes: [],
+      timeline: [
+        {
+          action: "Submitted",
+          admin: null,
+          date: new Date().toISOString(),
+          notes: "Application submitted successfully via website form.",
+        },
+      ],
+    };
+
+    const payload = {
+      name,
+      email,
+      phone,
+      address,
+      education,
+      photoUrl: photoUrl || "",
+      idProofUrl,
+      role,
+      message: JSON.stringify(extendedObj),
+      status: "pending",
+      dob: dob || "",
+      gender: gender || "",
+      city: city || "",
+      state: state || "",
+      country: country || "India",
+      pincode: pincode || "",
+      occupation: occupation || "",
+      skills: skills || "",
+      languages: languages || "",
+      experience: experience || "",
+      availability: availability || "",
+      emergencyName: emergencyName || "",
+      emergencyPhone: emergencyPhone || "",
+      resumeUrl: resumeUrl || "",
+    };
+
     const { data, error } = await supabase
       .from("volunteers")
-      .insert([req.body])
+      .insert([payload])
       .select()
       .single();
 
     if (error) throw error;
+
+    // Send acknowledgement email to user
+    sendVolunteerReceived(email, name).catch((err) =>
+      console.error("[EmailService] Failed to send volunteer confirmation:", err.message)
+    );
+
+    // Send admin notification
+    sendAdminAlert("volunteer", name, {
+      Email: email,
+      Phone: phone,
+      City: city || "Gujarat",
+      Role: role,
+      "Applied At": new Date().toLocaleString(),
+    }).catch((err) =>
+      console.error("[EmailService] Failed to send admin alert:", err.message)
+    );
+
     triggerUpdate("volunteers");
     res.status(201).json(data);
   } catch (error) {
@@ -34,17 +141,121 @@ export const createVolunteer = async (req, res, next) => {
 
 export const updateVolunteerStatus = async (req, res, next) => {
   try {
+    const { status, reason } = req.body;
+    const adminEmail = req.user?.email || "admin@udayfoundationtrust.org";
+
+    // 1. Fetch current application to update its timeline
+    const { data: current, error: fetchErr } = await supabase
+      .from("volunteers")
+      .select("*")
+      .eq("id", req.params.id)
+      .single();
+
+    if (fetchErr || !current) {
+      res.status(404);
+      return next(new Error("Volunteer record not found"));
+    }
+
+    const parsedMsg = parseExtendedMessage(current.message);
+    
+    // Ensure notes and timeline arrays exist
+    if (!parsedMsg.notes) parsedMsg.notes = [];
+    if (!parsedMsg.timeline) parsedMsg.timeline = [];
+
+    // Append to timeline
+    parsedMsg.timeline.push({
+      action: status === "approved" ? "Approved" : status === "rejected" ? "Rejected" : "Marked Pending",
+      admin: adminEmail,
+      date: new Date().toISOString(),
+      notes: status === "rejected" && reason ? `Rejection reason: ${reason}` : `Status updated to ${status}.`,
+    });
+
     const { data, error } = await supabase
       .from("volunteers")
-      .update({ status: req.body.status })
+      .update({
+        status,
+        message: JSON.stringify({
+          ...parsedMsg,
+          isExtended: true, // ensure it's flagged
+        }),
+      })
       .eq("id", req.params.id)
       .select()
       .single();
 
-    if (error) {
-      res.status(404);
-      return next(new Error(error.message || "Volunteer record not found"));
+    if (error) throw error;
+
+    // Send email notification based on status
+    if (status === "approved") {
+      sendVolunteerApproved(current.email, current.name).catch((err) =>
+        console.error("[EmailService] Approved status email failed:", err.message)
+      );
+    } else if (status === "rejected") {
+      sendVolunteerRejected(current.email, current.name, reason).catch((err) =>
+        console.error("[EmailService] Rejected status email failed:", err.message)
+      );
     }
+
+    triggerUpdate("volunteers");
+    res.json(data);
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const addVolunteerNote = async (req, res, next) => {
+  try {
+    const { text } = req.body;
+    const adminEmail = req.user?.email || "admin@udayfoundationtrust.org";
+
+    if (!text || !text.trim()) {
+      res.status(400);
+      return next(new Error("Note text cannot be empty"));
+    }
+
+    const { data: current, error: fetchErr } = await supabase
+      .from("volunteers")
+      .select("*")
+      .eq("id", req.params.id)
+      .single();
+
+    if (fetchErr || !current) {
+      res.status(404);
+      return next(new Error("Volunteer record not found"));
+    }
+
+    const parsedMsg = parseExtendedMessage(current.message);
+    if (!parsedMsg.notes) parsedMsg.notes = [];
+    if (!parsedMsg.timeline) parsedMsg.timeline = [];
+
+    // Append internal note
+    parsedMsg.notes.push({
+      admin: adminEmail,
+      text: text.trim(),
+      date: new Date().toISOString(),
+    });
+
+    // Append note action to timeline
+    parsedMsg.timeline.push({
+      action: "Note Added",
+      admin: adminEmail,
+      date: new Date().toISOString(),
+      notes: `Note details: "${text.substring(0, 30)}..."`,
+    });
+
+    const { data, error } = await supabase
+      .from("volunteers")
+      .update({
+        message: JSON.stringify({
+          ...parsedMsg,
+          isExtended: true,
+        }),
+      })
+      .eq("id", req.params.id)
+      .select()
+      .single();
+
+    if (error) throw error;
     triggerUpdate("volunteers");
     res.json(data);
   } catch (error) {
@@ -87,17 +298,43 @@ export const getPartnerships = async (req, res, next) => {
 
 export const createPartnership = async (req, res, next) => {
   try {
-    // Map organization -> orgName, contactPerson -> contactName if necessary, 
-    // but the frontend already maps it or the backend schema requires mapping:
+    const {
+      organization,
+      contactPerson,
+      email,
+      phone,
+      website,
+      address,
+      type,
+      proposal, // acts as description/message
+      documentUrl,
+    } = req.body;
+
+    const extendedObj = {
+      isExtended: true,
+      website: website || "",
+      address: address || "",
+      proposal: proposal || "",
+      notes: [],
+      timeline: [
+        {
+          action: "Submitted",
+          admin: null,
+          date: new Date().toISOString(),
+          notes: "Partnership inquiry submitted successfully via website form.",
+        },
+      ],
+    };
+
     const payload = {
-      orgName: req.body.organization || req.body.orgName,
-      contactName: req.body.contactPerson || req.body.contactName,
-      email: req.body.email,
-      phone: req.body.phone,
-      message: req.body.message,
-      documentUrl: req.body.documentUrl,
-      type: req.body.type,
-      status: req.body.status || "pending",
+      orgName: organization || req.body.orgName,
+      contactName: contactPerson || req.body.contactName,
+      email,
+      phone,
+      type,
+      message: JSON.stringify(extendedObj),
+      documentUrl: documentUrl || "",
+      status: "pending",
     };
 
     const { data, error } = await supabase
@@ -107,6 +344,23 @@ export const createPartnership = async (req, res, next) => {
       .single();
 
     if (error) throw error;
+
+    // Send confirmation email to client
+    sendPartnershipReceived(email, contactPerson, organization).catch((err) =>
+      console.error("[EmailService] Failed to send partnership confirmation:", err.message)
+    );
+
+    // Send admin notification
+    sendAdminAlert("partnership", contactPerson, {
+      Organization: organization,
+      Email: email,
+      Phone: phone,
+      Type: type,
+      "Applied At": new Date().toLocaleString(),
+    }).catch((err) =>
+      console.error("[EmailService] Failed to send admin alert:", err.message)
+    );
+
     triggerUpdate("partnership_requests");
     res.status(201).json(data);
   } catch (error) {
@@ -116,17 +370,115 @@ export const createPartnership = async (req, res, next) => {
 
 export const updatePartnershipStatus = async (req, res, next) => {
   try {
+    const { status, reason } = req.body;
+    const adminEmail = req.user?.email || "admin@udayfoundationtrust.org";
+
+    const { data: current, error: fetchErr } = await supabase
+      .from("partnerships")
+      .select("*")
+      .eq("id", req.params.id)
+      .single();
+
+    if (fetchErr || !current) {
+      res.status(404);
+      return next(new Error("Partnership record not found"));
+    }
+
+    const parsedMsg = parseExtendedMessage(current.message);
+    if (!parsedMsg.notes) parsedMsg.notes = [];
+    if (!parsedMsg.timeline) parsedMsg.timeline = [];
+
+    parsedMsg.timeline.push({
+      action: status === "approved" ? "Approved" : status === "rejected" ? "Rejected" : "Marked Pending",
+      admin: adminEmail,
+      date: new Date().toISOString(),
+      notes: status === "rejected" && reason ? `Rejection reason: ${reason}` : `Status updated to ${status}.`,
+    });
+
     const { data, error } = await supabase
       .from("partnerships")
-      .update({ status: req.body.status })
+      .update({
+        status,
+        message: JSON.stringify({
+          ...parsedMsg,
+          isExtended: true,
+        }),
+      })
       .eq("id", req.params.id)
       .select()
       .single();
 
-    if (error) {
-      res.status(404);
-      return next(new Error(error.message || "Partnership record not found"));
+    if (error) throw error;
+
+    // Send email notification based on status
+    if (status === "approved") {
+      sendPartnershipApproved(current.email, current.contactName, current.orgName).catch((err) =>
+        console.error("[EmailService] Approved status email failed:", err.message)
+      );
+    } else if (status === "rejected") {
+      sendPartnershipRejected(current.email, current.contactName, current.orgName, reason).catch((err) =>
+        console.error("[EmailService] Rejected status email failed:", err.message)
+      );
     }
+
+    triggerUpdate("partnership_requests");
+    res.json(data);
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const addPartnershipNote = async (req, res, next) => {
+  try {
+    const { text } = req.body;
+    const adminEmail = req.user?.email || "admin@udayfoundationtrust.org";
+
+    if (!text || !text.trim()) {
+      res.status(400);
+      return next(new Error("Note text cannot be empty"));
+    }
+
+    const { data: current, error: fetchErr } = await supabase
+      .from("partnerships")
+      .select("*")
+      .eq("id", req.params.id)
+      .single();
+
+    if (fetchErr || !current) {
+      res.status(404);
+      return next(new Error("Partnership record not found"));
+    }
+
+    const parsedMsg = parseExtendedMessage(current.message);
+    if (!parsedMsg.notes) parsedMsg.notes = [];
+    if (!parsedMsg.timeline) parsedMsg.timeline = [];
+
+    parsedMsg.notes.push({
+      admin: adminEmail,
+      text: text.trim(),
+      date: new Date().toISOString(),
+    });
+
+    parsedMsg.timeline.push({
+      action: "Note Added",
+      admin: adminEmail,
+      date: new Date().toISOString(),
+      notes: `Note details: "${text.substring(0, 30)}..."`,
+    });
+
+    const { data, error } = await supabase
+      .from("partnerships")
+      .update({
+        message: JSON.stringify({
+          ...parsedMsg,
+          isExtended: true,
+        }),
+      })
+      .eq("id", req.params.id)
+      .select()
+      .single();
+
+    if (error) throw error;
     triggerUpdate("partnership_requests");
     res.json(data);
   } catch (error) {

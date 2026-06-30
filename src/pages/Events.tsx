@@ -283,11 +283,19 @@ export function Events() {
     if (marked) return marked;
 
     // 2. Default fallback
-    const fallback = pastCampaigns.find(
-      (e) =>
-        (e.title && e.title.en === "Certificate of Appreciation & Felicitation Ceremony") ||
-        (e.title && e.title.gu === "Certificate of Appreciation & Felicitation Ceremony")
-    );
+    const fallback = pastCampaigns.find((e) => {
+      if (!e.title) return false;
+      if (typeof e.title === "object") {
+        return (
+          e.title.en === "Certificate of Appreciation & Felicitation Ceremony" ||
+          e.title.gu === "Certificate of Appreciation & Felicitation Ceremony"
+        );
+      }
+      if (typeof e.title === "string") {
+        return e.title === "Certificate of Appreciation & Felicitation Ceremony";
+      }
+      return false;
+    });
     if (fallback) return fallback;
 
     return null;

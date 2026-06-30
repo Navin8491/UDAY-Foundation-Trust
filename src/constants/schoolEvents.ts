@@ -195,6 +195,7 @@ export interface PastEventItem {
   img: string;
   images: GalleryPicture[];
   highlights?: { en: string[]; gu: string[]; hi: string[] };
+  showInFeaturedInitiative?: boolean;
 }
 
 export interface GalleryPicture {

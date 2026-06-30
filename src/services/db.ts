@@ -96,6 +96,22 @@ export interface VolunteerApplication {
   role?: string;
   status: "pending" | "approved" | "rejected";
   createdAt: string;
+
+  // Extended fields in database columns
+  dob?: string;
+  gender?: string;
+  city?: string;
+  state?: string;
+  country?: string;
+  pincode?: string;
+  occupation?: string;
+  skills?: string;
+  languages?: string;
+  experience?: string;
+  availability?: string;
+  emergencyName?: string;
+  emergencyPhone?: string;
+  resumeUrl?: string;
 }
 
 export interface PartnershipRequest {
@@ -576,14 +592,29 @@ export async function deleteVolunteer(id: string): Promise<void> {
   }
 }
 
-export async function updateVolunteerStatus(id: string, status: "pending" | "approved" | "rejected"): Promise<void> {
+export async function updateVolunteerStatus(
+  id: string,
+  status: "pending" | "approved" | "rejected",
+  reason?: string
+): Promise<void> {
   const res = await apiRequest(`/volunteers/${id}/status`, {
     method: "PUT",
-    body: { status },
+    body: { status, reason },
   });
   if (!res.ok) {
     const err = await res.json().catch(() => ({}));
     throw new Error(err.message || "Failed to update volunteer status");
+  }
+}
+
+export async function addVolunteerNote(id: string, text: string): Promise<void> {
+  const res = await apiRequest(`/volunteers/${id}/notes`, {
+    method: "POST",
+    body: { text },
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.message || "Failed to add volunteer note");
   }
 }
 
@@ -606,16 +637,31 @@ export async function fetchPartnershipRequests(): Promise<PartnershipRequest[]> 
   const data = await res.json();
   return data.map(mapItem);
 }
-export { fetchPartnershipRequests as fetchPartnerships };
+export { fetchPartnershipRequests as fetchPartnerships, fetchVolunteerApplications as fetchVolunteers };
 
-export async function updatePartnershipStatus(id: string, status: "pending" | "approved" | "rejected"): Promise<void> {
+export async function updatePartnershipStatus(
+  id: string,
+  status: "pending" | "approved" | "rejected",
+  reason?: string
+): Promise<void> {
   const res = await apiRequest(`/partnerships/${id}/status`, {
     method: "PUT",
-    body: { status },
+    body: { status, reason },
   });
   if (!res.ok) {
     const err = await res.json().catch(() => ({}));
     throw new Error(err.message || "Failed to update partnership status");
+  }
+}
+
+export async function addPartnershipNote(id: string, text: string): Promise<void> {
+  const res = await apiRequest(`/partnerships/${id}/notes`, {
+    method: "POST",
+    body: { text },
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.message || "Failed to add partnership note");
   }
 }
 
@@ -649,7 +695,7 @@ export async function submitDonation(data: any): Promise<string> {
   return created.id || created._id;
 }
 
-export { fetchVolunteerApplications as fetchVolunteers };
+
 
 export async function fetchSettings(): Promise<any> {
   return getCached("settings", async () => {
