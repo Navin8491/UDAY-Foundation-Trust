@@ -19,7 +19,7 @@ app.use(helmet({
       styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
       fontSrc: ["'self'", "https://fonts.gstatic.com"],
       imgSrc: ["'self'", "data:", "https://*.supabase.co"], // Allow loading images from Supabase Storage
-      connectSrc: ["'self'", ...allowedOrigins],
+      connectSrc: ["'self'", "http://localhost:*", "http://127.0.0.1:*", ...allowedOrigins],
     }
   }
 }));
@@ -32,13 +32,17 @@ app.use((req, res, next) => {
   next();
 });
 
-// CORS Configuration (Least-privilege)
+// CORS Configuration (Least-privilege with localhost DX support)
 app.use(cors({
   origin: (origin, callback) => {
-    if (!origin || allowedOrigins.includes(origin)) {
+    if (!origin) {
+      return callback(null, true);
+    }
+    const isLocalhost = /^http:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(origin);
+    if (isLocalhost || allowedOrigins.includes(origin)) {
       callback(null, true);
     } else {
-      callback(new Error("Not allowed by CORS"));
+      callback(new Error(`Not allowed by CORS: ${origin}`));
     }
   },
   credentials: true,
