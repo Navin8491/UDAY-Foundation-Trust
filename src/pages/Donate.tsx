@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { PageHero } from "@/components/site/PageHero";
 import { useDocumentMetadata } from "@/hooks/useDocumentMetadata";
 import {
@@ -12,9 +12,13 @@ import {
   Users,
   ArrowLeft,
   CheckCircle2,
+  Printer,
+  Download,
+  Loader2,
+  XCircle,
 } from "lucide-react";
 import { useLanguage } from "@/context/LanguageContext";
-import { submitDonation } from "@/services/db";
+import { initiateDonationPayment, fetchPaymentStatus } from "@/services/db";
 import { toast } from "sonner";
 
 const LOCAL_DONATE_TRANS = {
@@ -88,8 +92,70 @@ export function Donate() {
   const [touched, setTouched] = useState(false);
   const [loading, setLoading] = useState(false);
   const [receiptNo, setReceiptNo] = useState("");
+  
+  const [idempotencyKey, setIdempotencyKey] = useState(() => {
+    return window.crypto?.randomUUID?.() || 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+      var r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
+      return v.toString(16);
+    });
+  });
+  const [verifying, setVerifying] = useState(false);
+  const [verificationError, setVerificationError] = useState("");
+  const [donationId, setDonationId] = useState("");
 
   const { t, language } = useLanguage();
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const status = params.get("status");
+    const key = params.get("idempotency_key");
+
+    if (status === "success" && key) {
+      setStep(3);
+      setVerifying(true);
+      setVerificationError("");
+
+      // Poll backend status for transaction completion
+      let pollCount = 0;
+      const interval = setInterval(async () => {
+        pollCount++;
+        try {
+          const res = await fetchPaymentStatus(key);
+          
+          if (["COMPLETED", "DONATION_SAVED", "EMAIL_SENT", "ADMIN_NOTIFIED"].includes(res.currentState)) {
+            clearInterval(interval);
+            setName(res.donorName || "");
+            setEmail(res.email || "");
+            setPhone(res.phone || "");
+            if (res.donationId) {
+              setDonationId(res.donationId);
+            }
+            if (res.receiptNumber) {
+              setReceiptNo(res.receiptNumber);
+            }
+            setVerifying(false);
+          } else if (res.currentState === "FAILED") {
+            clearInterval(interval);
+            setVerificationError(res.lastError || "Payment failed at gateway.");
+            setVerifying(false);
+          }
+        } catch (e: any) {
+          console.error("Error polling payment status:", e.message);
+        }
+
+        if (pollCount >= 20) {
+          clearInterval(interval);
+          setVerificationError("Verification timeout. Please check your email or contact support.");
+          setVerifying(false);
+        }
+      }, 1000);
+
+      return () => clearInterval(interval);
+    } else if (status === "cancel") {
+      toast.error("Donation checkout cancelled.");
+      setStep(1);
+    }
+  }, []);
 
   const trans = LOCAL_DONATE_TRANS[language as "en" | "gu" | "hi"] || LOCAL_DONATE_TRANS.en;
   const amount = custom ? Number(custom) : selected;
@@ -138,6 +204,15 @@ export function Donate() {
     setPan("");
     setTouched(false);
     setStep(1);
+    setVerificationError("");
+    setVerifying(false);
+    // Clear URL search params
+    window.history.replaceState({}, document.title, window.location.pathname);
+    // Generate new key
+    setIdempotencyKey(window.crypto?.randomUUID?.() || 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+      var r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
+      return v.toString(16);
+    }));
   };
 
   return (
@@ -245,20 +320,30 @@ export function Donate() {
                       
                       setLoading(true);
                       try {
-                        const receipt = await submitDonation({
+                        const session = await initiateDonationPayment({
                           donorName: name,
                           email,
                           phone,
                           address,
                           panNumber: pan,
                           amount,
-                          purpose: "General Donation"
+                          purpose: "General Donation",
+                          idempotencyKey
                         });
-                        setReceiptNo(receipt);
-                        setStep(3);
+
+                        if (session.status === "already_completed") {
+                          toast.success("This donation has already been processed!");
+                          if (session.eventId) setDonationId(session.eventId);
+                          setStep(3);
+                        } else if (session.url) {
+                          // Redirect to checkout URL (Stripe, Razorpay, or Mock portal)
+                          window.location.href = session.url;
+                        } else {
+                          throw new Error("No checkout URL returned from payment gateway.");
+                        }
                       } catch (err) {
                         console.error(err);
-                        toast.error("Donation record submission failed. Please try again.");
+                        toast.error("Failed to initiate payment session. Please try again.");
                       } finally {
                         setLoading(false);
                       }
@@ -367,49 +452,99 @@ export function Donate() {
 
               {/* STEP 3: Success Confirmation */}
               {step === 3 && (
-                <div className="text-center py-6 space-y-6 animate-scale-up">
-                  <div className="h-16 w-16 bg-emerald-50 text-emerald-500 rounded-full flex items-center justify-center mx-auto shadow-xs">
-                    <CheckCircle2 className="h-10 w-10" />
-                  </div>
-                  <div>
-                    <h2 className="text-2xl md:text-3xl font-display font-bold text-slate-900">
-                      {trans.successMsg}
-                    </h2>
-                    <p className="text-sm text-slate-500 mt-2 font-medium">
-                      Thank you, <span className="font-bold text-slate-800">{name}</span>!
-                    </p>
-                  </div>
-
-                  <div className="max-w-md mx-auto bg-slate-50 border border-slate-200/60 rounded-3xl p-5 text-xs font-semibold text-slate-600 space-y-3">
-                    <div className="flex justify-between pb-2 border-b border-slate-100">
-                      <span className="text-slate-400">DONATION AMOUNT</span>
-                      <span className="text-primary font-bold text-sm">₹{amount.toLocaleString("en-IN")}</span>
+                <div className="text-center py-6 space-y-6">
+                  {verifying ? (
+                    <div className="py-12 flex flex-col items-center justify-center space-y-4">
+                      <Loader2 className="h-10 w-10 text-primary animate-spin" />
+                      <h3 className="font-display text-lg font-bold text-slate-800">Verifying Payment Status...</h3>
+                      <p className="text-xs text-slate-400 font-semibold max-w-xs leading-relaxed">
+                        Please do not refresh the page. We are securely validating your contribution with the bank.
+                      </p>
                     </div>
-                    <div className="flex justify-between pb-2 border-b border-slate-100">
-                      <span className="text-slate-400">DONOR EMAIL</span>
-                      <span>{email}</span>
-                    </div>
-                    <div className="flex justify-between pb-2 border-b border-slate-100">
-                      <span className="text-slate-400">PAN CARD NUMBER</span>
-                      <span className="uppercase">{pan}</span>
-                    </div>
-                    {receiptNo && (
-                      <div className="flex justify-between pb-2 border-b border-slate-100">
-                        <span className="text-slate-400">RECEIPT NUMBER</span>
-                        <span className="font-mono font-bold text-slate-700">{receiptNo}</span>
+                  ) : verificationError ? (
+                    <div className="py-8 space-y-4 text-center">
+                      <div className="h-14 w-14 bg-rose-50 text-rose-500 rounded-full flex items-center justify-center mx-auto">
+                        <XCircle className="h-8 w-8" />
                       </div>
-                    )}
-                    <div className="text-[10px] text-slate-400 text-left leading-normal">
-                      {trans.receiptSent} <span className="text-slate-800 font-bold">{email}</span> and sms receipt to <span className="text-slate-800 font-bold">{phone}</span>.
+                      <h3 className="font-display text-lg font-bold text-slate-800">Verification Failed</h3>
+                      <p className="text-xs text-rose-500 font-bold max-w-sm mx-auto leading-relaxed">
+                        {verificationError}
+                      </p>
+                      <button
+                        onClick={handleReset}
+                        className="btn-ghost text-xs font-bold uppercase tracking-wider py-2.5 px-6 border border-slate-200"
+                      >
+                        Try Again
+                      </button>
                     </div>
-                  </div>
+                  ) : (
+                    <div className="space-y-6 animate-scale-up">
+                      <div className="h-16 w-16 bg-emerald-50 text-emerald-500 rounded-full flex items-center justify-center mx-auto shadow-xs">
+                        <CheckCircle2 className="h-10 w-10" />
+                      </div>
+                      <div>
+                        <h2 className="text-2xl md:text-3xl font-display font-bold text-slate-900">
+                          {trans.successMsg}
+                        </h2>
+                        <p className="text-sm text-slate-500 mt-2 font-medium">
+                          Thank you, <span className="font-bold text-slate-800">{name}</span>!
+                        </p>
+                      </div>
 
-                  <button
-                    onClick={handleReset}
-                    className="btn-primary text-xs font-bold uppercase tracking-wider py-3 px-6 cursor-pointer"
-                  >
-                    {trans.donateAgain}
-                  </button>
+                      <div className="max-w-md mx-auto bg-slate-50 border border-slate-200/60 rounded-3xl p-5 text-xs font-semibold text-slate-600 space-y-3">
+                        <div className="flex justify-between pb-2 border-b border-slate-100">
+                          <span className="text-slate-400">DONATION AMOUNT</span>
+                          <span className="text-primary font-bold text-sm">₹{amount.toLocaleString("en-IN")}</span>
+                        </div>
+                        <div className="flex justify-between pb-2 border-b border-slate-100">
+                          <span className="text-slate-400">DONOR EMAIL</span>
+                          <span>{email}</span>
+                        </div>
+                        <div className="flex justify-between pb-2 border-b border-slate-100">
+                          <span className="text-slate-400">PAN CARD NUMBER</span>
+                          <span className="uppercase">{pan}</span>
+                        </div>
+                        {receiptNo && (
+                          <div className="flex justify-between pb-2 border-b border-slate-100">
+                            <span className="text-slate-400">RECEIPT NUMBER</span>
+                            <span className="font-mono font-bold text-slate-700">{receiptNo}</span>
+                          </div>
+                        )}
+                        <div className="text-[10px] text-slate-400 text-left leading-normal">
+                          {trans.receiptSent} <span className="text-slate-800 font-bold">{email}</span>.
+                        </div>
+                      </div>
+
+                      {/* Interactive Receipt Actions */}
+                      <div className="flex flex-wrap items-center justify-center gap-3 pt-2">
+                        {donationId && (
+                          <a
+                            href={`${import.meta.env.VITE_API_URL || "http://localhost:5000/api"}/payments/receipt/${donationId}`}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="inline-flex items-center gap-1.5 bg-[#7A9D1C]/15 hover:bg-[#7A9D1C]/20 text-[#7A9D1C] text-xs font-bold py-2.5 px-4 rounded-xl transition-all cursor-pointer"
+                          >
+                            <Download className="h-4 w-4" /> Download PDF Receipt
+                          </a>
+                        )}
+                        <button
+                          onClick={() => window.print()}
+                          className="inline-flex items-center gap-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold py-2.5 px-4 rounded-xl transition-all cursor-pointer"
+                        >
+                          <Printer className="h-4 w-4" /> Print Page
+                        </button>
+                      </div>
+
+                      <div className="pt-4">
+                        <button
+                          onClick={handleReset}
+                          className="btn-primary text-xs font-bold uppercase tracking-wider py-3 px-6 cursor-pointer"
+                        >
+                          {trans.donateAgain}
+                        </button>
+                      </div>
+                    </div>
+                  )}
                 </div>
               )}
 
