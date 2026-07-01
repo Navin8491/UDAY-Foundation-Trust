@@ -2,6 +2,7 @@ import { supabase } from "../config/db.js";
 import { deleteFile } from "../services/storageService.js";
 import { triggerUpdate } from "../utils/realtime.js";
 import { syncEventGallery, extractImageUrls } from "../utils/gallerySync.js";
+import { createNotification } from "../utils/notificationService.js";
 
 // @desc    Get all events
 // @route   GET /api/events
@@ -39,6 +40,14 @@ export const createEvent = async (req, res, next) => {
         console.error("[GallerySync] Create sync error:", err.message)
       );
     }
+
+    // Create admin notification
+    createNotification(
+      "event",
+      "New Event Created",
+      `Event "${event.title?.en || req.body.title?.en || "Untitled Event"}" has been created.`,
+      event.id
+    );
 
     triggerUpdate("events");
     res.status(201).json(event);

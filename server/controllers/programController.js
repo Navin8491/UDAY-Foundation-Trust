@@ -1,6 +1,7 @@
 import { supabase } from "../config/db.js";
 import { deleteFile } from "../services/storageService.js";
 import { triggerUpdate } from "../utils/realtime.js";
+import { createNotification } from "../utils/notificationService.js";
 
 // @desc    Get all programs
 // @route   GET /api/programs
@@ -31,6 +32,15 @@ export const createProgram = async (req, res, next) => {
       .single();
 
     if (error) throw error;
+
+    // Create admin notification
+    createNotification(
+      "program",
+      "New Program Created",
+      `Program "${program.title?.en || req.body.title?.en || "Untitled Program"}" has been created.`,
+      program.id
+    );
+
     triggerUpdate("programs");
     res.status(201).json(program);
   } catch (error) {

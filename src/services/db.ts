@@ -908,3 +908,64 @@ export function subscribeDonations(callback: (items: any[]) => void, onError?: (
     supabase.removeChannel(channel);
   };
 }
+
+export interface NotificationItem {
+  id: string;
+  type: "volunteer" | "partnership" | "donation" | "contact" | "event" | "program";
+  title: string;
+  message: string;
+  related_record_id?: string;
+  read_status: boolean;
+  created_at: string;
+}
+
+export async function fetchNotifications(): Promise<NotificationItem[]> {
+  const res = await apiRequest("/notifications");
+  if (!res.ok) throw new Error("Failed to fetch notifications");
+  return res.json();
+}
+
+export async function markNotificationRead(id: string): Promise<NotificationItem> {
+  const res = await apiRequest(`/notifications/${id}/read`, {
+    method: "PUT",
+  });
+  if (!res.ok) throw new Error("Failed to mark notification as read");
+  return res.json();
+}
+
+export async function markAllNotificationsRead(): Promise<void> {
+  const res = await apiRequest("/notifications/read-all", {
+    method: "PUT",
+  });
+  if (!res.ok) throw new Error("Failed to mark all notifications as read");
+}
+
+export async function deleteNotification(id: string): Promise<void> {
+  const res = await apiRequest(`/notifications/${id}`, {
+    method: "DELETE",
+  });
+  if (!res.ok) throw new Error("Failed to delete notification");
+}
+
+export function subscribeNotifications(callback: (items: NotificationItem[]) => void, onError?: (err: any) => void) {
+  fetchNotifications()
+    .then(callback)
+    .catch((err) => {
+      if (onError) onError(err);
+    });
+
+  const channel = supabase
+    .channel("public-notifications-changes")
+    .on(
+      "postgres_changes",
+      { event: "*", schema: "public", table: "notifications" },
+      () => {
+        fetchNotifications().then(callback).catch(onError);
+      }
+    )
+    .subscribe();
+
+  return () => {
+    supabase.removeChannel(channel);
+  };
+}

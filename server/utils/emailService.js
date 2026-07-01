@@ -324,3 +324,43 @@ export async function sendAdminAlert(type, applicantName, details = {}) {
   const html = getHtmlTemplate(`New ${isVol ? "Volunteer" : "Partnership"} Application`, "New Application Alert", body);
   await sendMail(ADMIN_NOTIFICATION_EMAIL, `Alert: New ${isVol ? "Volunteer" : "Partnership"} Submission`, html);
 }
+
+// 8. Donation Confirmation (User Acknowledgement)
+export async function sendDonationReceived(email, donorName, amount, txId) {
+  const formattedAmount = Number(amount).toLocaleString("en-IN");
+  const dateStr = new Date().toLocaleDateString("en-IN", {
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+  });
+  
+  const body = `
+    <h1 class="h1">Thank You for Your Donation!</h1>
+    <div class="badge badge-approved">Completed</div>
+    <p>Dear ${donorName},</p>
+    <p>We are deeply grateful for your generous contribution of <strong>₹${formattedAmount}</strong> to <strong>Uday Foundation Trust</strong>.</p>
+    <p>Your support helps us continue our vital community welfare, educational, and healthcare initiatives across rural Gujarat.</p>
+    
+    <div class="field-box">
+      <div style="font-weight:bold; margin-bottom:12px; font-size:14px; color:#1e3a8a;">Transaction Details:</div>
+      <div class="field-row">
+        <span class="field-label">Transaction ID:</span>
+        <span class="field-value">${txId}</span>
+      </div>
+      <div class="field-row">
+        <span class="field-label">Amount Paid:</span>
+        <span class="field-value">₹${formattedAmount}</span>
+      </div>
+      <div class="field-row">
+        <span class="field-label">Date:</span>
+        <span class="field-value">${dateStr}</span>
+      </div>
+    </div>
+    
+    <p>A formal donation receipt eligible for 80G tax exemption will be generated and emailed to you shortly once the audit process completes.</p>
+    <p>Thank you again for making a difference.</p>
+    <p>Regards,<br>Uday Foundation Trust Team</p>
+  `;
+  const html = getHtmlTemplate("Thank You For Your Donation", "Donation receipt confirmation", body);
+  await sendMail(email, "Thank You For Your Donation", html);
+}

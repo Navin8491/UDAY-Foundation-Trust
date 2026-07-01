@@ -1,13 +1,22 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { fetchEvents, fetchVolunteers, fetchDonations, fetchPartnerships, subscribeDonations } from "@/services/db";
+import {
+  fetchEvents,
+  fetchVolunteers,
+  fetchPartnerships,
+  subscribeDonations,
+  subscribeNotifications,
+  NotificationItem
+} from "@/services/db";
 import {
   Heart,
   Users,
   DollarSign,
   Plus,
   Building2,
-  ArrowUpRight
+  ArrowUpRight,
+  Bell,
+  Activity
 } from "lucide-react";
 
 // Mock Data for charts
@@ -58,6 +67,20 @@ export function Dashboard() {
   const [partnersCount, setPartnersCount] = useState(0);
   const [eventsCount, setEventsCount] = useState(0);
 
+  const [volPending, setVolPending] = useState(0);
+  const [volApproved, setVolApproved] = useState(0);
+  const [volRejected, setVolRejected] = useState(0);
+
+  const [partPending, setPartPending] = useState(0);
+  const [partApproved, setPartApproved] = useState(0);
+  const [partRejected, setPartRejected] = useState(0);
+
+  const [donationsToday, setDonationsToday] = useState(0);
+  const [donationsThisMonth, setDonationsThisMonth] = useState(0);
+
+  const [unreadNotificationsCount, setUnreadNotificationsCount] = useState(0);
+  const [recentActivities, setRecentActivities] = useState<NotificationItem[]>([]);
+
   const [recentVolunteers, setRecentVolunteers] = useState<any[]>([]);
   const [recentPartners, setRecentPartners] = useState<any[]>([]);
 
@@ -69,11 +92,17 @@ export function Dashboard() {
 
         const volunteers = await fetchVolunteers();
         setVolunteersCount(volunteers.length);
+        setVolPending(volunteers.filter((v) => v.status === "pending").length);
+        setVolApproved(volunteers.filter((v) => v.status === "approved").length);
+        setVolRejected(volunteers.filter((v) => v.status === "rejected").length);
         // Take latest 4 for list
         setRecentVolunteers([...volunteers].reverse().slice(0, 4));
 
         const partnerships = await fetchPartnerships();
         setPartnersCount(partnerships.length);
+        setPartPending(partnerships.filter((p) => p.status === "pending").length);
+        setPartApproved(partnerships.filter((p) => p.status === "approved").length);
+        setPartRejected(partnerships.filter((p) => p.status === "rejected").length);
         // Take latest 4 for list
         setRecentPartners([...partnerships].reverse().slice(0, 4));
       } catch (e) {
@@ -87,20 +116,46 @@ export function Dashboard() {
       setDonorsCount(donations.length);
       const sum = donations.reduce((acc, curr) => acc + (Number(curr.amount) || 0), 0);
       setTotalDonationsAmount(166500 + sum);
+
+      const todayStr = new Date().toISOString().split("T")[0];
+      const currentMonthStr = new Date().toISOString().substring(0, 7);
+
+      const todaySum = donations.filter((d) => {
+        const dDate = d.createdAt || d.created_at;
+        return dDate && dDate.split("T")[0] === todayStr;
+      }).reduce((acc, curr) => acc + (Number(curr.amount) || 0), 0);
+
+      const monthSum = donations.filter((d) => {
+        const dDate = d.createdAt || d.created_at;
+        return dDate && dDate.substring(0, 7) === currentMonthStr;
+      }).reduce((acc, curr) => acc + (Number(curr.amount) || 0), 0);
+
+      setDonationsToday(todaySum);
+      setDonationsThisMonth(monthSum);
     }, (err) => {
       console.error("Realtime donations subscription failed:", err);
     });
 
+    // Subscribe to notifications changes in real-time
+    const unsubscribeNotifications = subscribeNotifications((items) => {
+      setUnreadNotificationsCount(items.filter((n) => !n.read_status).length);
+      setRecentActivities(items.slice(0, 5));
+    }, (err) => {
+      console.error("Realtime notifications subscription failed in Dashboard:", err);
+    });
+
     return () => {
       unsubscribeDonations();
+      unsubscribeNotifications();
     };
   }, []);
 
   const cards = [
-    { title: "Total Donations", value: `₹${totalDonationsAmount.toLocaleString()}`, change: "Estimated total value", icon: DollarSign, color: "text-[#7A9D1C] bg-[#7A9D1C]/10" },
-    { title: "Total Donors", value: donorsCount.toLocaleString(), change: "+8% from last month", icon: Heart, color: "text-rose-500 bg-rose-50/80" },
-    { title: "Volunteers App", value: volunteersCount.toLocaleString(), change: "Total applications filed", icon: Users, color: "text-[#4040A1] bg-[#4040A1]/10" },
-    { title: "Partnerships", value: partnersCount.toLocaleString(), change: "CSR & Institutional links", icon: Building2, color: "text-amber-500 bg-amber-50" },
+    { title: "Total Donations", value: `₹${totalDonationsAmount.toLocaleString()}`, change: `Today: ₹${donationsToday.toLocaleString()} | Month: ₹${donationsThisMonth.toLocaleString()}`, icon: DollarSign, color: "text-[#7A9D1C] bg-[#7A9D1C]/10" },
+    { title: "Total Donors", value: donorsCount.toLocaleString(), change: "Verified supporters", icon: Heart, color: "text-rose-500 bg-rose-50/80" },
+    { title: "Volunteers App", value: volunteersCount.toLocaleString(), change: `P: ${volPending} | A: ${volApproved} | R: ${volRejected}`, icon: Users, color: "text-[#4040A1] bg-[#4040A1]/10" },
+    { title: "Partnerships", value: partnersCount.toLocaleString(), change: `P: ${partPending} | A: ${partApproved} | R: ${partRejected}`, icon: Building2, color: "text-amber-500 bg-amber-50" },
+    { title: "Unread Alerts", value: unreadNotificationsCount.toLocaleString(), change: "Actionable alerts", icon: Bell, color: "text-rose-600 bg-rose-50 animate-pulse" },
   ];
 
   return (
@@ -123,7 +178,7 @@ export function Dashboard() {
       </div>
 
       {/* 2. KPI Cards Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
         {cards.map((c) => (
           <div key={c.title} className="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs flex items-start gap-4">
             <div className={`h-11 w-11 rounded-xl flex items-center justify-center flex-none ${c.color}`}>
@@ -351,12 +406,43 @@ export function Dashboard() {
           </div>
         </div>
 
+        {/* Real-time Activities Log */}
+        <div className="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs flex flex-col justify-between">
+          <div>
+            <h3 className="font-bold text-base">Recent Activities</h3>
+            <p className="text-xs text-slate-400">Live operational events audit trail</p>
+          </div>
+          <div className="space-y-3 mt-4 overflow-y-auto no-scrollbar max-h-48">
+            {recentActivities.length === 0 ? (
+              <div className="text-center py-6 text-slate-400 text-xs font-semibold flex flex-col items-center justify-center gap-1">
+                <Activity className="h-8 w-8 text-slate-200" />
+                <span>No activities recorded</span>
+              </div>
+            ) : (
+              recentActivities.map((act) => (
+                <div key={act.id} className="flex items-start gap-2.5 text-xs">
+                  <span className={`h-2 w-2 rounded-full mt-1.5 shrink-0 ${
+                    act.type === "volunteer" ? "bg-blue-500" :
+                    act.type === "partnership" ? "bg-amber-500" :
+                    act.type === "donation" ? "bg-emerald-500" :
+                    "bg-slate-400"
+                  }`} />
+                  <div>
+                    <p className="font-bold text-slate-800 leading-snug">{act.title}</p>
+                    <p className="text-slate-500 text-[11px] leading-relaxed">{act.message}</p>
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
+        </div>
+
         {/* Pending Approvals / Recent submissions */}
-        <div className="lg:col-span-2 bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs space-y-4">
+        <div className="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs space-y-4">
           <div className="flex items-center justify-between pb-2 border-b border-slate-100">
             <div>
-              <h3 className="font-bold text-base">Inquiries & Application Queue</h3>
-              <p className="text-xs text-slate-400">Review recent requests for partnership and volunteer roles</p>
+              <h3 className="font-bold text-base">Submissions Queue</h3>
+              <p className="text-xs text-slate-400">Latest applicant submissions</p>
             </div>
             <span className="text-[10px] font-bold bg-[#4040A1]/10 text-primary py-1 px-2.5 rounded-full uppercase tracking-wider">
               Pending Actions
@@ -368,7 +454,7 @@ export function Dashboard() {
             {/* Volunteer Side */}
             <div className="space-y-3">
               <div className="flex justify-between items-center text-xs font-bold text-slate-400 uppercase">
-                <span>Recent Volunteer Applicants</span>
+                <span>Volunteers</span>
                 <Link to="/admin/volunteers" className="text-primary hover:underline flex items-center gap-0.5">
                   View all <ArrowUpRight className="h-3 w-3" />
                 </Link>
@@ -376,15 +462,15 @@ export function Dashboard() {
 
               <div className="space-y-2">
                 {recentVolunteers.length === 0 ? (
-                  <div className="text-xs text-slate-400 italic py-4">No recent volunteer applications.</div>
+                  <div className="text-xs text-slate-400 italic py-4">None</div>
                 ) : (
-                  recentVolunteers.map((v) => (
-                    <div key={v.id} className="bg-slate-50/75 border border-slate-100 p-2.5 rounded-xl flex items-center justify-between text-xs font-semibold">
+                  recentVolunteers.slice(0, 3).map((v) => (
+                    <div key={v.id} className="bg-slate-50/75 border border-slate-100 p-2 rounded-xl flex items-center justify-between text-xs font-semibold">
                       <div className="min-w-0">
                         <div className="text-slate-800 font-bold truncate">{v.name}</div>
                         <div className="text-[10px] text-slate-400 truncate mt-0.5">{v.role || "General"}</div>
                       </div>
-                      <span className={`px-2 py-0.5 rounded-full text-[8px] font-bold uppercase tracking-wider shrink-0 ${
+                      <span className={`px-1.5 py-0.5 rounded-full text-[8px] font-bold uppercase tracking-wider shrink-0 ${
                         v.status === "approved" 
                           ? "bg-emerald-50 text-emerald-600 border border-emerald-100" 
                           : v.status === "rejected"
@@ -402,7 +488,7 @@ export function Dashboard() {
             {/* Partnership Side */}
             <div className="space-y-3">
               <div className="flex justify-between items-center text-xs font-bold text-slate-400 uppercase">
-                <span>Recent Partnership Inquiries</span>
+                <span>Partnerships</span>
                 <Link to="/admin/partnerships" className="text-primary hover:underline flex items-center gap-0.5">
                   View all <ArrowUpRight className="h-3 w-3" />
                 </Link>
@@ -410,15 +496,15 @@ export function Dashboard() {
 
               <div className="space-y-2">
                 {recentPartners.length === 0 ? (
-                  <div className="text-xs text-slate-400 italic py-4">No recent partnership inquiries.</div>
+                  <div className="text-xs text-slate-400 italic py-4">None</div>
                 ) : (
-                  recentPartners.map((c) => (
-                    <div key={c.id} className="bg-slate-50/75 border border-slate-100 p-2.5 rounded-xl flex items-center justify-between text-xs font-semibold">
+                  recentPartners.slice(0, 3).map((c) => (
+                    <div key={c.id} className="bg-slate-50/75 border border-slate-100 p-2 rounded-xl flex items-center justify-between text-xs font-semibold">
                       <div className="min-w-0">
                         <div className="text-slate-800 font-bold truncate">{c.orgName}</div>
                         <div className="text-[10px] text-slate-400 truncate mt-0.5">{c.contactName}</div>
                       </div>
-                      <span className={`px-2 py-0.5 rounded-full text-[8px] font-bold uppercase tracking-wider shrink-0 ${
+                      <span className={`px-1.5 py-0.5 rounded-full text-[8px] font-bold uppercase tracking-wider shrink-0 ${
                         c.status === "approved" 
                           ? "bg-emerald-50 text-emerald-600 border border-emerald-100" 
                           : c.status === "rejected"

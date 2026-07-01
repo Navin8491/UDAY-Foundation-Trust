@@ -8,7 +8,9 @@ import {
   sendVolunteerRejected,
   sendPartnershipRejected,
   sendAdminAlert,
+  sendDonationReceived,
 } from "../utils/emailService.js";
+import { createNotification } from "../utils/notificationService.js";
 
 // Helper to safely parse JSON message payload
 const parseExtendedMessage = (messageStr) => {
@@ -145,6 +147,14 @@ export const createVolunteer = async (req, res, next) => {
       "Applied At": new Date().toLocaleString(),
     }).catch((err) =>
       console.error("[EmailService] Failed to send admin alert:", err.message)
+    );
+
+    // Create admin notification
+    createNotification(
+      "volunteer",
+      "New Volunteer Application",
+      `${name} has applied to become a volunteer.`,
+      data.id
     );
 
     triggerUpdate("volunteers");
@@ -376,6 +386,14 @@ export const createPartnership = async (req, res, next) => {
       console.error("[EmailService] Failed to send admin alert:", err.message)
     );
 
+    // Create admin notification
+    createNotification(
+      "partnership",
+      "New Partnership Request",
+      `${organization} submitted a partnership request.`,
+      data.id
+    );
+
     triggerUpdate("partnership_requests");
     res.status(201).json(data);
   } catch (error) {
@@ -543,6 +561,15 @@ export const createContactMessage = async (req, res, next) => {
       .single();
 
     if (error) throw error;
+
+    // Create admin notification
+    createNotification(
+      "contact",
+      "New Contact Message",
+      `New inquiry: "${req.body.subject}" from ${req.body.name}.`,
+      data.id
+    );
+
     triggerUpdate("contact_messages");
     res.status(201).json(data);
   } catch (error) {
@@ -612,6 +639,20 @@ export const createDonation = async (req, res, next) => {
       .single();
 
     if (error) throw error;
+
+    // Send thank you confirmation email to donor
+    sendDonationReceived(data.email, data.donorName, data.amount, data.id).catch((err) =>
+      console.error("[EmailService] Failed to send donation confirmation email:", err.message)
+    );
+
+    // Create admin notification
+    createNotification(
+      "donation",
+      "New Donation Received",
+      `₹${Number(data.amount).toLocaleString("en-IN")} donated by ${data.donorName}.`,
+      data.id
+    );
+
     triggerUpdate("donations");
     res.status(201).json(data);
   } catch (error) {

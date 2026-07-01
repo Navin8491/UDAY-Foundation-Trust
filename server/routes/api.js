@@ -24,6 +24,12 @@ import {
   getDonations, createDonation
 } from "../controllers/formController.js";
 import { getSettings, updateSettings } from "../controllers/settingsController.js";
+import {
+  getNotifications,
+  markNotificationRead,
+  markAllNotificationsRead,
+  deleteNotification
+} from "../controllers/notificationController.js";
 
 // Import Security Middleware (Rate Limiters & Validators)
 import { authLimiter, publicFormLimiter, generalLimiter } from "../middleware/rateLimiters.js";
@@ -111,5 +117,11 @@ router.post("/donations", publicFormLimiter, validateBody(donationSchema), creat
 // Settings routes
 router.get("/settings", getSettings);
 router.put("/settings", protectAdmin, updateSettings);
+
+// Notifications routes
+router.get("/notifications", protectAdmin, getNotifications);
+router.put("/notifications/read-all", protectAdmin, markAllNotificationsRead);
+router.put("/notifications/:id/read", protectAdmin, markNotificationRead);
+router.delete("/notifications/:id", protectAdmin, deleteNotification);
 
 export default router;

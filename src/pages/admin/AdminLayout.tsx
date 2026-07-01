@@ -28,7 +28,14 @@ import {
 } from "lucide-react";
 import { SITE } from "@/constants/site";
 import { signOutAdmin, onAuthStateChanged } from "@/services/auth";
-import { Loader2 } from "lucide-react";
+import { Loader2, Trash2, CheckCircle2 } from "lucide-react";
+import {
+  subscribeNotifications,
+  markNotificationRead,
+  markAllNotificationsRead,
+  deleteNotification,
+  NotificationItem
+} from "@/services/db";
 
 export function AdminLayout() {
   const [collapsed, setCollapsed] = useState(false);
@@ -42,6 +49,86 @@ export function AdminLayout() {
   const location = useLocation();
 
   const [loading, setLoading] = useState(true);
+  const [notifications, setNotifications] = useState<NotificationItem[]>([]);
+
+  useEffect(() => {
+    const unsubscribe = subscribeNotifications(
+      (items) => {
+        setNotifications(items || []);
+      },
+      (err) => {
+        console.error("Realtime notifications subscription failed in AdminLayout:", err);
+      }
+    );
+    return () => unsubscribe();
+  }, []);
+
+  const unreadCount = notifications.filter((n) => !n.read_status).length;
+
+  const getRelativeTime = (dateStr: string) => {
+    const now = Date.now();
+    const past = new Date(dateStr).getTime();
+    const diffMs = now - past;
+    const diffSec = Math.max(0, Math.floor(diffMs / 1000));
+    const diffMin = Math.floor(diffSec / 60);
+    const diffHr = Math.floor(diffMin / 60);
+    const diffDay = Math.floor(diffHr / 24);
+
+    if (diffSec < 60) return "Just now";
+    if (diffMin < 60) return `${diffMin}m ago`;
+    if (diffHr < 24) return `${diffHr}h ago`;
+    return `${diffDay}d ago`;
+  };
+
+  const handleMarkRead = async (id: string) => {
+    try {
+      await markNotificationRead(id);
+    } catch (e) {
+      console.error("Failed to mark notification read:", e);
+    }
+  };
+
+  const handleMarkAllRead = async () => {
+    try {
+      await markAllNotificationsRead();
+    } catch (e) {
+      console.error("Failed to mark all notifications read:", e);
+    }
+  };
+
+  const handleDelete = async (id: string) => {
+    try {
+      await deleteNotification(id);
+    } catch (e) {
+      console.error("Failed to delete notification:", e);
+    }
+  };
+
+  const handleNavigate = (type: string) => {
+    setNotifOpen(false);
+    switch (type) {
+      case "volunteer":
+        navigate("/admin/volunteers");
+        break;
+      case "partnership":
+        navigate("/admin/partnerships");
+        break;
+      case "donation":
+        navigate("/admin/donations");
+        break;
+      case "contact":
+        navigate("/admin/contact");
+        break;
+      case "event":
+        navigate("/admin/events");
+        break;
+      case "program":
+        navigate("/admin/programs");
+        break;
+      default:
+        navigate("/admin/dashboard");
+    }
+  };
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged((currentUser) => {
@@ -223,31 +310,98 @@ export function AdminLayout() {
                   setProfileOpen(false);
                 }}
                 className="h-10 w-10 rounded-xl border border-slate-200 hover:bg-slate-50 flex items-center justify-center relative cursor-pointer"
-                title="Notifications"
+                title={`Notifications (${unreadCount} unread)`}
               >
                 <Bell className="h-4 w-4 text-slate-500" />
-                <span className="absolute top-2 right-2 h-2.5 w-2.5 rounded-full bg-rose-500 animate-pulse border-2 border-white" />
+                {unreadCount > 0 && (
+                  <span className="absolute top-2 right-2 h-2.5 w-2.5 rounded-full bg-rose-500 animate-pulse border-2 border-white" />
+                )}
               </button>
 
               {notifOpen && (
                 <>
                   <div className="fixed inset-0 z-40" onClick={() => setNotifOpen(false)} />
-                  <div className="absolute right-0 mt-2 w-72 bg-white border border-slate-200 shadow-xl rounded-2xl p-4 z-50 animate-in fade-in slide-in-from-top-1 duration-200">
+                  <div className="absolute right-0 mt-2 w-80 bg-white border border-slate-200 shadow-xl rounded-2xl p-4 z-50 animate-in fade-in slide-in-from-top-1 duration-200">
                     <div className="flex items-center justify-between pb-2 border-b border-slate-100 mb-2">
-                      <span className="font-bold text-xs uppercase tracking-wider">Notifications</span>
-                      <span className="text-[10px] text-primary font-bold cursor-pointer hover:underline">Mark all read</span>
+                      <span className="font-bold text-xs uppercase tracking-wider text-slate-900">
+                        Notifications ({unreadCount})
+                      </span>
+                      {unreadCount > 0 && (
+                        <button
+                          onClick={handleMarkAllRead}
+                          className="text-[10px] text-primary font-bold hover:underline cursor-pointer bg-transparent border-0"
+                        >
+                          Mark all read
+                        </button>
+                      )}
                     </div>
-                    <div className="space-y-2 text-xs divide-y divide-slate-50">
-                      <div className="pt-2">
-                        <p className="font-bold text-slate-800">New donation received</p>
-                        <p className="text-slate-400 mt-0.5">₹25,000 from Soyla CSR</p>
-                        <p className="text-[9px] text-[#4040A1] font-semibold mt-1">2 mins ago</p>
-                      </div>
-                      <div className="pt-2">
-                        <p className="font-bold text-slate-800">New volunteer application</p>
-                        <p className="text-slate-400 mt-0.5">Amit Patel applied for Teaching</p>
-                        <p className="text-[9px] text-[#4040A1] font-semibold mt-1">1 hour ago</p>
-                      </div>
+                    <div className="max-h-80 overflow-y-auto no-scrollbar space-y-2.5 divide-y divide-slate-100/50">
+                      {notifications.length === 0 ? (
+                        <div className="text-center py-6 text-slate-400 font-semibold flex flex-col items-center justify-center gap-1">
+                          <CheckCircle2 className="h-8 w-8 text-slate-300" />
+                          <span>No notifications yet</span>
+                        </div>
+                      ) : (
+                        notifications.map((n) => (
+                          <div
+                            key={n.id}
+                            className={`pt-2.5 first:pt-0 group relative flex flex-col ${
+                              n.read_status ? "opacity-75" : ""
+                            }`}
+                          >
+                            <div className="flex items-start gap-2 justify-between pr-10">
+                              <div>
+                                <span className={`text-[10px] font-extrabold uppercase tracking-wider px-1.5 py-0.5 rounded-md ${
+                                  n.type === "volunteer" ? "bg-blue-50 text-blue-600" :
+                                  n.type === "partnership" ? "bg-amber-50 text-amber-600" :
+                                  n.type === "donation" ? "bg-emerald-50 text-emerald-600" :
+                                  "bg-slate-50 text-slate-600"
+                                }`}>
+                                  {n.type}
+                                </span>
+                                <h4 className="font-bold text-slate-800 text-[13px] mt-1 leading-snug">
+                                  {n.title}
+                                </h4>
+                                <p className="text-slate-500 text-[11px] mt-0.5 leading-relaxed">
+                                  {n.message}
+                                </p>
+                                <span className="text-[9px] text-slate-400 font-bold block mt-1">
+                                  {getRelativeTime(n.created_at)}
+                                </span>
+                              </div>
+                            </div>
+
+                            {/* Actions toolbar */}
+                            <div className="absolute right-0 top-2.5 flex items-center gap-1.5 opacity-100 sm:opacity-0 group-hover:opacity-100 transition-opacity">
+                              {!n.read_status && (
+                                <button
+                                  onClick={() => handleMarkRead(n.id)}
+                                  className="h-6 w-6 rounded-md hover:bg-emerald-50 text-emerald-600 flex items-center justify-center cursor-pointer border border-transparent hover:border-emerald-100"
+                                  title="Mark as Read"
+                                >
+                                  <CheckCircle2 className="h-3.5 w-3.5" />
+                                </button>
+                              )}
+                              {n.related_record_id && (
+                                <button
+                                  onClick={() => handleNavigate(n.type)}
+                                  className="h-6 w-6 rounded-md hover:bg-slate-100 text-slate-600 flex items-center justify-center cursor-pointer border border-transparent hover:border-slate-200"
+                                  title="View Details"
+                                >
+                                  <Eye className="h-3.5 w-3.5" />
+                                </button>
+                              )}
+                              <button
+                                onClick={() => handleDelete(n.id)}
+                                className="h-6 w-6 rounded-md hover:bg-rose-50 text-rose-600 flex items-center justify-center cursor-pointer border border-transparent hover:border-rose-100"
+                                title="Delete"
+                              >
+                                <Trash2 className="h-3.5 w-3.5" />
+                              </button>
+                            </div>
+                          </div>
+                        ))
+                      )}
                     </div>
                   </div>
                 </>
