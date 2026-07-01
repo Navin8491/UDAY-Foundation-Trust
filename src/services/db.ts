@@ -866,7 +866,7 @@ export function subscribeSettings(callback: (settings: any) => void, onError?: (
     });
 
   const channel = supabase
-    .channel("public-settings-changes")
+    .channel("public-settings-changes-" + Math.random().toString(36).slice(2))
     .on(
       "postgres_changes",
       { event: "*", schema: "public", table: "settings" },
@@ -894,7 +894,7 @@ export function subscribeDonations(callback: (items: any[]) => void, onError?: (
     });
 
   const channel = supabase
-    .channel("public-donations-changes")
+    .channel("public-donations-changes-" + Math.random().toString(36).slice(2))
     .on(
       "postgres_changes",
       { event: "*", schema: "public", table: "donations" },
@@ -955,7 +955,7 @@ export function subscribeNotifications(callback: (items: NotificationItem[]) => 
     });
 
   const channel = supabase
-    .channel("public-notifications-changes")
+    .channel("public-notifications-changes-" + Math.random().toString(36).slice(2))
     .on(
       "postgres_changes",
       { event: "*", schema: "public", table: "notifications" },

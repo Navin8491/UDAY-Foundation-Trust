@@ -1,6 +1,11 @@
 import { supabase } from "../config/db.js";
 import { triggerUpdate } from "../utils/realtime.js";
 
+// Helper to check if database error is due to missing table
+const isTableMissingError = (error) => {
+  return error && (error.code === "42P01" || (error.message && error.message.includes("does not exist")));
+};
+
 // Fetch all notifications ordered by created_at DESC
 export const getNotifications = async (req, res, next) => {
   try {
@@ -9,7 +14,13 @@ export const getNotifications = async (req, res, next) => {
       .select("*")
       .order("created_at", { ascending: false });
 
-    if (error) throw error;
+    if (error) {
+      if (isTableMissingError(error)) {
+        console.warn("⚠️ [NotificationController] notifications table not found in database. Returning empty array.");
+        return res.json([]);
+      }
+      throw error;
+    }
     res.json(data || []);
   } catch (error) {
     next(error);
@@ -28,6 +39,10 @@ export const markNotificationRead = async (req, res, next) => {
       .single();
 
     if (error) {
+      if (isTableMissingError(error)) {
+        console.warn("⚠️ [NotificationController] notifications table not found in database.");
+        return res.json({ id, read_status: true });
+      }
       res.status(404);
       return next(new Error(error.message || "Notification not found"));
     }
@@ -48,7 +63,13 @@ export const markAllNotificationsRead = async (req, res, next) => {
       .eq("read_status", false)
       .select();
 
-    if (error) throw error;
+    if (error) {
+      if (isTableMissingError(error)) {
+        console.warn("⚠️ [NotificationController] notifications table not found in database.");
+        return res.json({ message: "All notifications marked as read", count: 0 });
+      }
+      throw error;
+    }
 
     triggerUpdate("notifications");
     res.json({ message: "All notifications marked as read", count: data?.length || 0 });
@@ -67,6 +88,10 @@ export const deleteNotification = async (req, res, next) => {
       .eq("id", id);
 
     if (error) {
+      if (isTableMissingError(error)) {
+        console.warn("⚠️ [NotificationController] notifications table not found in database.");
+        return res.json({ message: "Notification deleted successfully" });
+      }
       res.status(404);
       return next(new Error(error.message || "Notification not found"));
     }
