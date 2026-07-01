@@ -8,7 +8,7 @@ import { toast } from "sonner";
 
 export function Events() {
   const [eventsList, setEventsList] = useState<any[]>([]);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [modalOpen, setModalOpen] = useState(false);
   const [editingEvent, setEditingEvent] = useState<any>(null);
@@ -43,6 +43,7 @@ export function Events() {
 
   async function loadEvents() {
     try {
+      setLoading(true);
       const items = await fetchEvents();
       if (items && items.length > 0) {
         const mapped = items.map((evt: any) => ({
@@ -70,33 +71,13 @@ export function Events() {
         }));
         setEventsList(mapped);
       } else {
-        // Fallback to static list
-        setEventsList(SCHOOL_BAG_EVENTS.map((evt) => ({
-          id: evt.id,
-          titleEn: evt.title["en"],
-          titleGu: evt.title["gu"],
-          titleHi: evt.title["hi"] || evt.title["en"],
-          date: evt.date,
-          placeEn: evt.place["en"],
-          placeGu: evt.place["gu"] || evt.place["en"],
-          placeHi: evt.place["hi"] || evt.place["en"],
-          participants: evt.participants,
-          volunteers: evt.volunteers,
-          category: evt.category,
-          featured: false,
-          status: "published",
-          img: evt.img,
-          images: evt.images || [],
-          summaryEn: evt.summary?.en || "",
-          summaryGu: evt.summary?.gu || "",
-          summaryHi: evt.summary?.hi || "",
-          seoTitle: "",
-          seoDesc: "",
-          rawItem: evt,
-        })));
+        setEventsList([]);
       }
     } catch (e) {
       console.error(e);
+      setEventsList([]);
+    } finally {
+      setLoading(false);
     }
   }
 
@@ -321,7 +302,23 @@ export function Events() {
 
       {/* Cards Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {filtered.map((evt) => (
+        {loading ? (
+          Array.from({ length: 6 }).map((_, idx) => (
+            <div key={idx} className="bg-white rounded-3xl border border-slate-200/85 p-5 space-y-4 animate-pulse">
+              <div className="aspect-[16/10] bg-slate-100 rounded-2xl w-full" />
+              <div className="space-y-2">
+                <div className="h-4 w-1/4 bg-slate-100 rounded" />
+                <div className="h-4 w-3/4 bg-slate-100 rounded" />
+                <div className="h-3 w-1/2 bg-slate-100 rounded" />
+              </div>
+              <div className="h-10 bg-slate-50 rounded-xl w-full" />
+            </div>
+          ))
+        ) : filtered.length === 0 ? (
+          <div className="col-span-full text-center py-12 text-slate-400 font-bold">
+            No events found.
+          </div>
+        ) : filtered.map((evt) => (
           <article
             key={evt.id}
             className="bg-white rounded-3xl border border-slate-200/85 shadow-xs hover:shadow-md transition-all overflow-hidden flex flex-col justify-between group"

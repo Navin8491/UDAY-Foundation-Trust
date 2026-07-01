@@ -23,7 +23,11 @@ export function Reports() {
   const [hoveredYearIndex, setHoveredYearIndex] = useState<number | null>(null);
 
   const handleDownloadPDF = () => {
-    alert("Simulated PDF Report compilation!\nYour device is downloading 'uday_trust_annual_audit_report.pdf'.");
+    // Request annual audit report via email — PDF generation to be implemented
+    window.open(
+      "mailto:udayfts1024@gmail.com?subject=Request%3A%20Annual%20Audit%20Report&body=Dear%20Uday%20Foundation%20Trust%2C%0A%0APlease%20share%20the%20annual%20audit%20report%20PDF.%0A%0AThank%20you.",
+      "_blank"
+    );
   };
 
   return (
@@ -34,12 +38,14 @@ export function Reports() {
         <div>
           <h1 className="text-2xl md:text-3xl font-display font-bold">Reports</h1>
           <p className="text-sm text-slate-500 font-medium font-gujarati">નાણાકીય આવક-જાવક અને સામાજિક સેવાની સત્તાવાર રીપોર્ટ</p>
+          <p className="text-xs text-amber-600 font-semibold mt-1">⚠ Charts show projected / estimated data for illustration purposes.</p>
         </div>
         <button
           onClick={handleDownloadPDF}
           className="btn-primary text-xs py-2.5 px-4 cursor-pointer self-start sm:self-center"
+          title="Request annual audit report via email"
         >
-          <FileDown className="h-4 w-4" /> Download PDF Audit Report
+          <FileDown className="h-4 w-4" /> Request Audit Report
         </button>
       </div>
 

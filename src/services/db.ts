@@ -695,6 +695,24 @@ export async function submitDonation(data: any): Promise<string> {
   return created.id || created._id;
 }
 
+export async function initiateDonationPayment(data: any): Promise<{ sessionId: string; url: string; idempotencyKey: string; eventId: string; status?: string }> {
+  const res = await apiRequest("/payments/create-session", {
+    method: "POST",
+    body: data,
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.message || "Failed to initiate payment session");
+  }
+  return res.json();
+}
+
+export async function fetchPaymentStatus(idempotencyKey: string): Promise<any> {
+  const res = await apiRequest(`/payments/status/${idempotencyKey}`);
+  if (!res.ok) throw new Error("Failed to fetch payment status");
+  return res.json();
+}
+
 
 
 export async function fetchSettings(): Promise<any> {
@@ -961,6 +979,46 @@ export function subscribeNotifications(callback: (items: NotificationItem[]) => 
       { event: "*", schema: "public", table: "notifications" },
       () => {
         fetchNotifications().then(callback).catch(onError);
+      }
+    )
+    .subscribe();
+
+  return () => {
+    supabase.removeChannel(channel);
+  };
+}
+
+export async function fetchPaymentEvents(): Promise<any[]> {
+  const res = await apiRequest("/payments");
+  if (!res.ok) throw new Error("Failed to fetch payment events");
+  return res.json();
+}
+
+export async function refundPaymentEvent(id: string): Promise<any> {
+  const res = await apiRequest(`/payments/refund/${id}`, {
+    method: "POST"
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.message || "Failed to refund payment");
+  }
+  return res.json();
+}
+
+export function subscribePaymentEvents(callback: (items: any[]) => void, onError?: (err: any) => void) {
+  fetchPaymentEvents()
+    .then(callback)
+    .catch((err) => {
+      if (onError) onError(err);
+    });
+
+  const channel = supabase
+    .channel("public-payment-events-changes-" + Math.random().toString(36).slice(2))
+    .on(
+      "postgres_changes",
+      { event: "*", schema: "public", table: "payment_events" },
+      () => {
+        fetchPaymentEvents().then(callback).catch(onError);
       }
     )
     .subscribe();

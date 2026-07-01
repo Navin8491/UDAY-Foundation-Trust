@@ -172,12 +172,13 @@ export function Contact() {
                         id="phone"
                         name="phone"
                         type="tel"
+                        required
                         className="w-full h-11 px-4 rounded-xl border border-border bg-surface focus:outline-none focus:border-primary text-sm transition-colors"
                       />
                     </div>
                     <div className="space-y-1.5">
                       <label htmlFor="subject" className="text-sm font-semibold text-foreground/80">
-                        Subject
+                        {t("contact.form.subject") || "Subject"}
                       </label>
                       <select
                         id="subject"
@@ -195,7 +196,7 @@ export function Contact() {
 
                   <div className="space-y-1.5">
                     <label htmlFor="message" className="text-sm font-semibold text-foreground/80">
-                      Message
+                      {t("contact.form.message") || "Message"}
                     </label>
                     <textarea
                       id="message"

@@ -30,6 +30,15 @@ import {
   markAllNotificationsRead,
   deleteNotification
 } from "../controllers/notificationController.js";
+import {
+  createCheckoutSession,
+  handleWebhook,
+  downloadReceipt,
+  refundDonation,
+  getPaymentTimeline,
+  getPaymentStatus,
+  getPaymentEvents
+} from "../controllers/paymentController.js";
 
 // Import Security Middleware (Rate Limiters & Validators)
 import { authLimiter, publicFormLimiter, generalLimiter } from "../middleware/rateLimiters.js";
@@ -113,6 +122,15 @@ router.delete("/contact/:id", protectAdmin, deleteContactMessage);
 // Donation routes
 router.get("/donations", protectAdmin, getDonations);
 router.post("/donations", publicFormLimiter, validateBody(donationSchema), createDonation);
+
+// Payment Gateway routes
+router.post("/payments/create-session", publicFormLimiter, createCheckoutSession);
+router.post("/payments/webhook", handleWebhook);
+router.get("/payments/receipt/:id", downloadReceipt);
+router.get("/payments/status/:idempotencyKey", getPaymentStatus);
+router.post("/payments/refund/:id", protectAdmin, refundDonation);
+router.get("/payments/timeline/:id", protectAdmin, getPaymentTimeline);
+router.get("/payments", protectAdmin, getPaymentEvents);
 
 // Settings routes
 router.get("/settings", getSettings);

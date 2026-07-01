@@ -19,7 +19,7 @@ import {
   Activity
 } from "lucide-react";
 
-// Mock Data for charts
+// Projected/estimated trend data for chart illustration — not live database figures
 const DONATIONS_DATA = [
   { month: "Jan", amount: 120000, display: "₹1,20,000" },
   { month: "Feb", amount: 180000, display: "₹1,80,000" },
@@ -83,10 +83,12 @@ export function Dashboard() {
 
   const [recentVolunteers, setRecentVolunteers] = useState<any[]>([]);
   const [recentPartners, setRecentPartners] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     async function loadStats() {
       try {
+        setLoading(true);
         const events = await fetchEvents();
         setEventsCount(events.length);
 
@@ -107,6 +109,8 @@ export function Dashboard() {
         setRecentPartners([...partnerships].reverse().slice(0, 4));
       } catch (e) {
         console.error("Dashboard stats query failed:", e);
+      } finally {
+        setLoading(false);
       }
     }
     loadStats();
@@ -158,6 +162,28 @@ export function Dashboard() {
     { title: "Unread Alerts", value: unreadNotificationsCount.toLocaleString(), change: "Actionable alerts", icon: Bell, color: "text-rose-600 bg-rose-50 animate-pulse" },
   ];
 
+  if (loading) {
+    return (
+      <div className="space-y-6 animate-pulse">
+        {/* Header */}
+        <div className="h-10 bg-slate-100 rounded w-1/3" />
+        
+        {/* Stats Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
+          {Array.from({ length: 5 }).map((_, idx) => (
+            <div key={idx} className="h-28 bg-slate-100 rounded-3xl" />
+          ))}
+        </div>
+
+        {/* Charts & Tasks Grid */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <div className="lg:col-span-2 h-96 bg-slate-100 rounded-3xl" />
+          <div className="h-96 bg-slate-100 rounded-3xl" />
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6">
       
@@ -202,6 +228,7 @@ export function Dashboard() {
             <div>
               <h3 className="font-bold text-base">Analytical Overview</h3>
               <p className="text-xs text-slate-400">Monthly donation and volunteer trends</p>
+              <span className="inline-block mt-1 text-[10px] font-bold text-amber-500 bg-amber-50 border border-amber-200 rounded-full px-2 py-0.5">Projected Trends</span>
             </div>
             <div className="flex bg-slate-50 border border-slate-200 rounded-xl p-1 text-xs font-bold">
               <button 

@@ -12,12 +12,14 @@ export function Gallery() {
   const [uploadCategory, setUploadCategory] = useState("Education");
   const [uploading, setUploading] = useState(false);
   const [progress, setProgress] = useState(0);
+  const [loading, setLoading] = useState(true);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
   const replaceInputRefs = useRef<{ [key: string]: HTMLInputElement | null }>({});
 
   async function loadPhotos() {
     try {
+      setLoading(true);
       const items = await fetchGallery();
       if (items && items.length > 0) {
         // Ensure they have displayOrder
@@ -27,18 +29,13 @@ export function Gallery() {
         }));
         setPhotos(mapped.sort((a, b) => a.displayOrder - b.displayOrder));
       } else {
-        // Fallback
-        setPhotos(SCHOOL_BAG_SIMPLE_GALLERY.map((p, idx) => ({
-          id: `img-${idx}`,
-          _id: `img-${idx}`,
-          img: p.img,
-          cat: p.cat,
-          h: p.h,
-          displayOrder: idx,
-        })));
+        setPhotos([]);
       }
     } catch (e) {
       console.error(e);
+      setPhotos([]);
+    } finally {
+      setLoading(false);
     }
   }
 
@@ -249,7 +246,15 @@ export function Gallery() {
 
       {/* Grid List */}
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
-        {filtered.map((item, index) => (
+        {loading ? (
+          Array.from({ length: 10 }).map((_, idx) => (
+            <div key={idx} className="bg-slate-100 animate-pulse rounded-2xl aspect-square w-full" />
+          ))
+        ) : filtered.length === 0 ? (
+          <div className="col-span-full text-center py-12 text-slate-400 font-bold">
+            No gallery items found.
+          </div>
+        ) : filtered.map((item, index) => (
           <div
             key={item.id || item._id}
             className="group bg-white border border-slate-200/80 rounded-2xl overflow-hidden shadow-xs hover:shadow-md transition-all relative aspect-square"

@@ -35,6 +35,7 @@ const COLORS_PRESETS = [
 export function Programs() {
   const [programsList, setProgramsList] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
+  const [fetching, setFetching] = useState(true);
   const [modalOpen, setModalOpen] = useState(false);
   const [editingProg, setEditingProg] = useState<any>(null);
 
@@ -85,12 +86,14 @@ export function Programs() {
 
   async function loadPrograms() {
     try {
+      setFetching(true);
       const items = await fetchPrograms();
-      if (items && items.length > 0) {
-        setProgramsList(items);
-      }
+      setProgramsList(items || []);
     } catch (e) {
       console.error(e);
+      setProgramsList([]);
+    } finally {
+      setFetching(false);
     }
   }
 
@@ -339,7 +342,22 @@ export function Programs() {
 
       {/* Grid of Programs */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-        {programsList.map((p) => (
+        {fetching ? (
+          Array.from({ length: 4 }).map((_, idx) => (
+            <div key={idx} className="bg-white rounded-3xl border border-slate-200/80 p-5 space-y-4 animate-pulse">
+              <div className="aspect-[16/10] bg-slate-100 rounded-2xl w-full" />
+              <div className="space-y-2">
+                <div className="h-4 w-1/4 bg-slate-100 rounded" />
+                <div className="h-4 w-3/4 bg-slate-100 rounded" />
+                <div className="h-3 w-1/2 bg-slate-100 rounded" />
+              </div>
+            </div>
+          ))
+        ) : programsList.length === 0 ? (
+          <div className="col-span-full text-center py-12 text-slate-400 font-bold">
+            No programs found.
+          </div>
+        ) : programsList.map((p) => (
           <div
             key={p.id || p._id}
             className="bg-white rounded-3xl border border-slate-200/80 shadow-xs hover:shadow-md transition-all overflow-hidden flex flex-col justify-between group"

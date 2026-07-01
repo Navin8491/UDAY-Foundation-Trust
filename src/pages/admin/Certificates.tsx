@@ -17,24 +17,29 @@ export function Certificates() {
   const [formName, setFormName] = useState("");
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [loading, setLoading] = useState(false);
+  const [fetching, setFetching] = useState(true);
 
   async function loadCerts() {
     try {
+      setFetching(true);
       const items = await fetchCertificates();
       if (items && items.length > 0) {
         const mapped = items.map((c: any) => ({
           id: c.id || "",
           name: c.label,
           file: c.file,
-          size: "1.2 MB", // dummy display size
+          size: "PDF Document", // actual size not stored in DB
           date: c.uploadedAt ? c.uploadedAt.split("T")[0] : new Date().toISOString().split("T")[0],
         }));
         setCerts(mapped);
       } else {
-        setCerts(INITIAL_CERTIFICATES);
+        setCerts([]);
       }
     } catch (e) {
       console.error(e);
+      setCerts([]);
+    } finally {
+      setFetching(false);
     }
   }
 
@@ -158,7 +163,27 @@ export function Certificates() {
 
         {/* List of Files (Right side, takes 2 cols) */}
         <div className="lg:col-span-2 space-y-4">
-          {certs.map((c) => (
+          {fetching ? (
+            Array.from({ length: 3 }).map((_, idx) => (
+              <div key={idx} className="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs flex items-center justify-between animate-pulse">
+                <div className="flex items-center gap-4 w-full">
+                  <div className="h-10 w-10 rounded-xl bg-slate-100 flex-none" />
+                  <div className="space-y-2 w-1/2">
+                    <div className="h-4 bg-slate-100 rounded w-3/4" />
+                    <div className="h-3 bg-slate-100 rounded w-1/2" />
+                  </div>
+                </div>
+                <div className="flex gap-2">
+                  <div className="h-8 w-8 bg-slate-100 rounded-lg" />
+                  <div className="h-8 w-8 bg-slate-100 rounded-lg" />
+                </div>
+              </div>
+            ))
+          ) : certs.length === 0 ? (
+            <div className="bg-white p-8 rounded-2xl border border-slate-200/80 shadow-xs text-center text-slate-400 font-bold">
+              No statutory documents found.
+            </div>
+          ) : certs.map((c) => (
             <div
               key={c.id}
               className="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-4"

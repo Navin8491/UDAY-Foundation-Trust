@@ -244,6 +244,28 @@ export function SiteFooter() {
         </div>
       </div>
 
+      {/* Legal Links Strip */}
+      <div className="bg-[#0F1730] border-t border-[#29324A]/60 py-3 text-[10px] font-semibold relative z-10">
+        <div className="container-full flex flex-wrap items-center justify-center gap-x-5 gap-y-1 text-[#A3A9BD]/70">
+          <span className="text-[#A3A9BD]/40 uppercase tracking-widest text-[9px]">Legal</span>
+          {[
+            { label: "Privacy Policy", to: "/privacy-policy" },
+            { label: "Terms & Conditions", to: "/terms-and-conditions" },
+            { label: "Refund Policy", to: "/refund-policy" },
+            { label: "Return Policy", to: "/return-policy" },
+            { label: "Disclaimer", to: "/disclaimer" },
+          ].map((link) => (
+            <Link
+              key={link.to}
+              to={link.to}
+              className="hover:text-white transition-colors duration-200"
+            >
+              {link.label}
+            </Link>
+          ))}
+        </div>
+      </div>
+
       {/* Bottom Strip */}
       <div className="bg-[#0F1730] border-t border-[#29324A] py-4 text-xs font-semibold relative z-10">
         <div className="container-full flex flex-col md:flex-row items-center justify-between gap-4">
@@ -297,3 +319,4 @@ export function SiteFooter() {
     </footer>
   );
 }
+

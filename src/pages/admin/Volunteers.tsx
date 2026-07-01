@@ -14,6 +14,7 @@ export function Volunteers() {
   const [cityFilter, setCityFilter] = useState("all");
   const [dateFilter, setDateFilter] = useState("");
   const [selectedVol, setSelectedVol] = useState<any | null>(null);
+  const [loading, setLoading] = useState(true);
   
   // Modals for actions
   const [showRejectModal, setShowRejectModal] = useState(false);
@@ -24,6 +25,7 @@ export function Volunteers() {
   // Load volunteers
   const loadVolunteers = async () => {
     try {
+      setLoading(true);
       const items = await fetchVolunteers();
       if (items) {
         setVolunteers(items);
@@ -32,10 +34,15 @@ export function Volunteers() {
           const updated = items.find(v => v.id === selectedVol.id);
           if (updated) setSelectedVol(updated);
         }
+      } else {
+        setVolunteers([]);
       }
     } catch (e: any) {
       console.error("fetchVolunteers failed:", e);
       toast.error("Failed to load volunteer applications.");
+      setVolunteers([]);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -302,7 +309,26 @@ export function Volunteers() {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100 text-xs font-semibold text-slate-600">
-                  {filtered.length === 0 ? (
+                  {loading ? (
+                    Array.from({ length: 5 }).map((_, idx) => (
+                      <tr key={idx} className="animate-pulse">
+                        <td className="py-5 px-5">
+                          <div className="flex items-center gap-3">
+                            <div className="h-8 w-8 rounded-full bg-slate-100 flex-none" />
+                            <div className="space-y-2">
+                              <div className="h-4 w-28 bg-slate-100 rounded" />
+                              <div className="h-3 w-36 bg-slate-100 rounded" />
+                            </div>
+                          </div>
+                        </td>
+                        <td className="py-5 px-5"><div className="h-4 w-16 bg-slate-100 rounded" /></td>
+                        <td className="py-5 px-5"><div className="h-4 w-20 bg-slate-100 rounded" /></td>
+                        <td className="py-5 px-5"><div className="h-4 w-16 bg-slate-100 rounded" /></td>
+                        <td className="py-5 px-5"><div className="h-5 w-16 bg-slate-100 rounded-full" /></td>
+                        <td className="py-5 px-5 text-right"><div className="h-8 w-8 bg-slate-100 rounded-lg ml-auto" /></td>
+                      </tr>
+                    ))
+                  ) : filtered.length === 0 ? (
                     <tr>
                       <td colSpan={6} className="py-10 text-center text-slate-400 font-bold">
                         No volunteer records match the filters.

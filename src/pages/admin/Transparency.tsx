@@ -6,34 +6,38 @@ import { toast } from "sonner";
 export function Transparency() {
   const [editing, setEditing] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [fetching, setFetching] = useState(true);
   const [data, setData] = useState({
-    pan: "AAATU0124K",
-    darpan: "GJ/2022/0315481",
-    regNo: "E/22754/AHMEDABAD",
-    fcr: "Not Applicable",
-    twelveA: "AABTU4985NE20214",
-    eightyG: "AABTU4985NF20221",
+    pan: "",
+    darpan: "",
+    regNo: "",
+    fcr: "",
+    twelveA: "",
+    eightyG: "",
   });
 
   const [form, setForm] = useState({ ...data });
 
   async function loadSettingsData() {
     try {
+      setFetching(true);
       const siteSettings = await fetchSettings();
       if (siteSettings) {
         const newData = {
-          pan: siteSettings.pan || "AAATU0124K",
-          darpan: siteSettings.darpan || "GJ/2022/0315481",
-          regNo: siteSettings.regNo || "E/22754/AHMEDABAD",
-          fcr: siteSettings.fcr || "Not Applicable",
-          twelveA: siteSettings.twelveA || "AABTU4985NE20214",
-          eightyG: siteSettings.eightyG || "AABTU4985NF20221",
+          pan: siteSettings.pan || "",
+          darpan: siteSettings.darpan || "",
+          regNo: siteSettings.regNo || "",
+          fcr: siteSettings.fcr || "",
+          twelveA: siteSettings.twelveA || "",
+          eightyG: siteSettings.eightyG || "",
         };
         setData(newData);
         setForm(newData);
       }
     } catch (e) {
       console.error(e);
+    } finally {
+      setFetching(false);
     }
   }
 
@@ -65,6 +69,22 @@ export function Transparency() {
     { title: "12A Registration Number", val: data.twelveA, desc: "Income tax exemption status code" },
     { title: "80G Certificate Code", val: data.eightyG, desc: "Tax exemption eligibility code for donors" },
   ];
+
+  if (fetching) {
+    return (
+      <div className="space-y-6 animate-pulse">
+        <div className="h-10 bg-slate-100 rounded w-1/3" />
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <div className="lg:col-span-2 grid grid-cols-1 sm:grid-cols-2 gap-4">
+            {Array.from({ length: 5 }).map((_, idx) => (
+              <div key={idx} className="h-28 bg-slate-100 rounded-2xl" />
+            ))}
+          </div>
+          <div className="h-64 bg-slate-100 rounded-3xl" />
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">

@@ -7,31 +7,33 @@ export function Settings() {
   const [activeTab, setActiveTab] = useState<"org" | "seo" | "social" | "stats">("org");
 
   // Form states
-  const [orgName, setOrgName] = useState("Uday Foundation Trust");
-  const [orgPhone, setOrgPhone] = useState("+91 96246 68484");
-  const [orgEmail, setOrgEmail] = useState("info@udaytrust.org");
-  const [orgAddress, setOrgAddress] = useState("Sanand, Ahmedabad, Gujarat, India");
+  const [orgName, setOrgName] = useState("");
+  const [orgPhone, setOrgPhone] = useState("");
+  const [orgEmail, setOrgEmail] = useState("");
+  const [orgAddress, setOrgAddress] = useState("");
 
-  const [seoTitle, setSeoTitle] = useState("Uday Foundation Trust | NGO for Rural Welfare");
-  const [seoDesc, setSeoDesc] = useState("Official portal of Uday Foundation Trust, working on education, health, and rural empowerment.");
-  const [seoKeywords, setSeoKeywords] = useState("ngo, uday trust, rural development, tree plantation");
+  const [seoTitle, setSeoTitle] = useState("");
+  const [seoDesc, setSeoDesc] = useState("");
+  const [seoKeywords, setSeoKeywords] = useState("");
 
-  const [socialFb, setSocialFb] = useState("https://facebook.com/udaytrust");
-  const [socialTw, setSocialTw] = useState("https://twitter.com/udaytrust");
-  const [socialIn, setSocialIn] = useState("https://instagram.com/udaytrust");
+  const [socialFb, setSocialFb] = useState("");
+  const [socialTw, setSocialTw] = useState("");
+  const [socialIn, setSocialIn] = useState("");
 
-  const [statsFamilies, setStatsFamilies] = useState(12000);
-  const [statsStudents, setStatsStudents] = useState(4500);
-  const [statsCamps, setStatsCamps] = useState(38);
-  const [statsTrees, setStatsTrees] = useState(25000);
-  const [statsVolunteers, setStatsVolunteers] = useState(650);
-  const [statsVillages, setStatsVillages] = useState(120);
+  const [statsFamilies, setStatsFamilies] = useState(0);
+  const [statsStudents, setStatsStudents] = useState(0);
+  const [statsCamps, setStatsCamps] = useState(0);
+  const [statsTrees, setStatsTrees] = useState(0);
+  const [statsVolunteers, setStatsVolunteers] = useState(0);
+  const [statsVillages, setStatsVillages] = useState(0);
 
   const [loading, setLoading] = useState(false);
+  const [fetching, setFetching] = useState(true);
 
   useEffect(() => {
     async function loadSettings() {
       try {
+        setFetching(true);
         const siteSettings = await fetchSettings();
         if (siteSettings) {
           if (siteSettings.name) setOrgName(siteSettings.name);
@@ -45,16 +47,18 @@ export function Settings() {
           if (siteSettings.socialTw) setSocialTw(siteSettings.socialTw);
           if (siteSettings.socialIn) setSocialIn(siteSettings.socialIn);
           if (siteSettings.stats) {
-            setStatsFamilies(siteSettings.stats.families || 12000);
-            setStatsStudents(siteSettings.stats.students || 4500);
-            setStatsCamps(siteSettings.stats.camps || 38);
-            setStatsTrees(siteSettings.stats.trees || 25000);
-            setStatsVolunteers(siteSettings.stats.volunteers || 650);
-            setStatsVillages(siteSettings.stats.villages || 120);
+            setStatsFamilies(siteSettings.stats.families || 0);
+            setStatsStudents(siteSettings.stats.students || 0);
+            setStatsCamps(siteSettings.stats.camps || 0);
+            setStatsTrees(siteSettings.stats.trees || 0);
+            setStatsVolunteers(siteSettings.stats.volunteers || 0);
+            setStatsVillages(siteSettings.stats.villages || 0);
           }
         }
       } catch (e) {
         console.error(e);
+      } finally {
+        setFetching(false);
       }
     }
     loadSettings();
@@ -94,6 +98,22 @@ export function Settings() {
       setLoading(false);
     }
   };
+
+  if (fetching) {
+    return (
+      <div className="space-y-6 animate-pulse">
+        <div className="h-10 bg-slate-100 rounded w-1/3" />
+        <div className="bg-white border border-slate-200/80 rounded-3xl p-8 space-y-6">
+          <div className="h-8 bg-slate-100 rounded w-1/4" />
+          <div className="space-y-4">
+            <div className="h-11 bg-slate-100 rounded-xl" />
+            <div className="h-11 bg-slate-100 rounded-xl" />
+            <div className="h-11 bg-slate-100 rounded-xl" />
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">

@@ -97,10 +97,11 @@ export function Team() {
   const [formDisplayOrder, setFormDisplayOrder] = useState(0);
 
   const [coverImages, setCoverImages] = useState<string[]>([]);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
 
   async function loadTeam() {
     try {
+      setLoading(true);
       const items = await fetchTeam();
       if (items && items.length > 0) {
         const mapped = items.map((m: any, idx: number) => ({
@@ -117,11 +118,13 @@ export function Team() {
         }));
         setTeam(mapped.sort((a, b) => a.displayOrder - b.displayOrder));
       } else {
-        // Fallback
-        setTeam(INITIAL_TEAM);
+        setTeam([]);
       }
     } catch (e) {
       console.error(e);
+      setTeam([]);
+    } finally {
+      setLoading(false);
     }
   }
 
@@ -274,7 +277,22 @@ export function Team() {
 
       {/* Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        {team.map((m, index) => (
+        {loading ? (
+          Array.from({ length: 4 }).map((_, idx) => (
+            <div key={idx} className="bg-white rounded-3xl border border-slate-200/80 p-5 space-y-4 animate-pulse">
+              <div className="aspect-square bg-slate-100 rounded-2xl w-full" />
+              <div className="space-y-2">
+                <div className="h-4 w-1/4 bg-slate-100 rounded" />
+                <div className="h-4 w-3/4 bg-slate-100 rounded" />
+                <div className="h-3 w-1/2 bg-slate-100 rounded" />
+              </div>
+            </div>
+          ))
+        ) : team.length === 0 ? (
+          <div className="col-span-full text-center py-12 text-slate-400 font-bold">
+            No team members found.
+          </div>
+        ) : team.map((m, index) => (
           <div
             key={m.id || m._id}
             className="bg-white rounded-3xl border border-slate-200/80 shadow-xs hover:shadow-md transition-all overflow-hidden flex flex-col justify-between"

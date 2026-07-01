@@ -15,6 +15,13 @@ const Donate = lazy(() => import("./pages/Donate"));
 const Contact = lazy(() => import("./pages/Contact"));
 const Transparency = lazy(() => import("./pages/Transparency"));
 
+// Legal pages
+const PrivacyPolicy = lazy(() => import("./pages/PrivacyPolicy"));
+const TermsAndConditions = lazy(() => import("./pages/TermsAndConditions"));
+const RefundPolicy = lazy(() => import("./pages/RefundPolicy"));
+const ReturnPolicy = lazy(() => import("./pages/ReturnPolicy"));
+const Disclaimer = lazy(() => import("./pages/Disclaimer"));
+
 // Lazy-loaded admin pages
 const AdminLayout = lazy(() => import("./pages/admin/AdminLayout"));
 const AdminDashboard = lazy(() => import("./pages/admin/Dashboard"));
@@ -83,9 +90,16 @@ export function App() {
             <Route path="/donate" element={<Donate />} />
             <Route path="/contact" element={<Contact />} />
             <Route path="/transparency" element={<Transparency />} />
+            <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+            <Route path="/terms-and-conditions" element={<TermsAndConditions />} />
+            <Route path="/refund-policy" element={<RefundPolicy />} />
+            <Route path="/return-policy" element={<ReturnPolicy />} />
+            <Route path="/disclaimer" element={<Disclaimer />} />
             <Route path="/blog" element={<Navigate to="/events" replace />} />
             <Route path="*" element={<NotFound />} />
           </Route>
+
+
 
           {/* Premium Admin Panel Layout (Frontend-only) */}
           <Route path="/admin/login" element={<AdminLogin />} />

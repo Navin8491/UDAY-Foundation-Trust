@@ -14,6 +14,7 @@ export function Partnerships() {
   const [typeFilter, setTypeFilter] = useState("all");
   const [dateFilter, setDateFilter] = useState("");
   const [selectedCollab, setSelectedCollab] = useState<any | null>(null);
+  const [loading, setLoading] = useState(true);
 
   // Modals / Actions state
   const [showRejectModal, setShowRejectModal] = useState(false);
@@ -24,6 +25,7 @@ export function Partnerships() {
   // Load partnerships
   const loadPartnerships = async () => {
     try {
+      setLoading(true);
       const items = await fetchPartnerships();
       if (items) {
         setCollabs(items);
@@ -31,10 +33,15 @@ export function Partnerships() {
           const updated = items.find(c => c.id === selectedCollab.id);
           if (updated) setSelectedCollab(updated);
         }
+      } else {
+        setCollabs([]);
       }
     } catch (e: any) {
       console.error("fetchPartnerships failed:", e);
       toast.error("Failed to load partnership inquiries.");
+      setCollabs([]);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -264,7 +271,26 @@ export function Partnerships() {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100 text-xs font-semibold text-slate-600">
-                  {filtered.length === 0 ? (
+                  {loading ? (
+                    Array.from({ length: 5 }).map((_, idx) => (
+                      <tr key={idx} className="animate-pulse">
+                        <td className="py-5 px-5">
+                          <div className="flex items-center gap-2">
+                            <div className="h-4 w-4 bg-slate-100 rounded shrink-0" />
+                            <div className="space-y-2">
+                              <div className="h-4 w-28 bg-slate-100 rounded" />
+                              <div className="h-3 w-36 bg-slate-100 rounded" />
+                            </div>
+                          </div>
+                        </td>
+                        <td className="py-5 px-5"><div className="h-4 w-20 bg-slate-100 rounded" /></td>
+                        <td className="py-5 px-5"><div className="h-4 w-16 bg-slate-100 rounded" /></td>
+                        <td className="py-5 px-5"><div className="h-4 w-16 bg-slate-100 rounded" /></td>
+                        <td className="py-5 px-5"><div className="h-5 w-16 bg-slate-100 rounded-full" /></td>
+                        <td className="py-5 px-5 text-right"><div className="h-8 w-8 bg-slate-100 rounded-lg ml-auto" /></td>
+                      </tr>
+                    ))
+                  ) : filtered.length === 0 ? (
                     <tr>
                       <td colSpan={6} className="py-10 text-center text-slate-400 font-bold">
                         No partnership requests found matching the filters.

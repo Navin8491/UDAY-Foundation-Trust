@@ -176,7 +176,7 @@ function getHtmlTemplate(title, preheader, bodyContent) {
 }
 
 // ── Generic Email Sender ──────────────────────────────────────────────────────
-async function sendMail(to, subject, htmlContent) {
+export async function sendMail(to, subject, htmlContent, attachments = []) {
   if (transporter) {
     try {
       await transporter.sendMail({
@@ -184,6 +184,7 @@ async function sendMail(to, subject, htmlContent) {
         to,
         subject,
         html: htmlContent,
+        attachments,
       });
       console.log(`✉️  Email successfully sent to ${to} (${subject})`);
     } catch (error) {
@@ -194,6 +195,9 @@ async function sendMail(to, subject, htmlContent) {
     console.log(`To:      ${to}`);
     console.log(`Subject: ${subject}`);
     console.log(`Content:\n${htmlContent.replace(/<[^>]*>/g, " ").trim().substring(0, 300)}...`);
+    if (attachments && attachments.length > 0) {
+      console.log(`Attachments: ${attachments.map(a => a.filename).join(", ")}`);
+    }
     console.log(`-----------------------------\n`);
   }
 }

@@ -2,22 +2,17 @@ import { useState, useEffect } from "react";
 import { Search, Mail, MailOpen, Trash2, Phone, User, Send } from "lucide-react";
 import { fetchContactMessages, updateContactMessageStatus, deleteContactMessage } from "@/services/db";
 
-const INITIAL_MESSAGES = [
-  { id: "MSG-201", name: "Ramesh Patel", email: "ramesh@example.com", phone: "+91 96245 12345", subject: "Sponsoring School Kits", date: "2026-06-27", status: "Unread", text: "We want to sponsor school bags and stationery kits for 100 students in the upcoming academic drive in Sanand." },
-  { id: "MSG-202", name: "Jaya Shah", email: "jaya@example.com", phone: "+91 98250 54321", subject: "Medical Camp Location Inquiry", date: "2026-06-25", status: "Read", text: "Could you please share the upcoming dental check-up camp details? My family wants to join as helper volunteers." },
-  { id: "MSG-203", name: "Ketan Vora", email: "ketan@example.com", phone: "+91 99799 98765", subject: "80G Receipt Delay", date: "2026-06-22", status: "Read", text: "I made a donation of ₹5,000 on June 15th but have not received the tax exemption certificate yet. Please check." },
-  { id: "MSG-204", name: "Nila Bauddh", email: "nila@example.com", phone: "+91 97243 11223", subject: "Women self-help groups", date: "2026-06-18", status: "Read", text: "I want to donate two sewing machines to the Uday trust training facility in Ahmedabad. Please contact." },
-];
-
 export function ContactMessages() {
-  const [messages, setMessages] = useState(INITIAL_MESSAGES);
+  const [messages, setMessages] = useState<any[]>([]);
   const [search, setSearch] = useState("");
-  const [selectedMsg, setSelectedMsg] = useState<typeof INITIAL_MESSAGES[0] | null>(null);
+  const [selectedMsg, setSelectedMsg] = useState<any | null>(null);
   const [replyText, setReplyText] = useState("");
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     async function loadMessages() {
       try {
+        setLoading(true);
         const items = await fetchContactMessages();
         if (items && items.length > 0) {
           const mapped = items.map((m) => ({
@@ -31,15 +26,20 @@ export function ContactMessages() {
             text: m.message,
           }));
           setMessages(mapped);
+        } else {
+          setMessages([]);
         }
       } catch (e) {
         console.error("fetchContactMessages in component failed:", e);
+        setMessages([]);
+      } finally {
+        setLoading(false);
       }
     }
     loadMessages();
   }, []);
 
-  const handleOpenMessage = async (msg: typeof INITIAL_MESSAGES[0]) => {
+  const handleOpenMessage = async (msg: any) => {
     setSelectedMsg(msg);
     setMessages(messages.map((m) => (m.id === msg.id ? { ...m, status: "Read" } : m)));
     try {
@@ -115,7 +115,17 @@ export function ContactMessages() {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100 text-xs font-semibold text-slate-600">
-                  {filtered.length === 0 ? (
+                  {loading ? (
+                    Array.from({ length: 4 }).map((_, idx) => (
+                      <tr key={idx} className="animate-pulse">
+                        <td className="py-5 px-5"><div className="h-4 w-28 bg-slate-100 rounded" /></td>
+                        <td className="py-5 px-5"><div className="h-4 w-40 bg-slate-100 rounded" /></td>
+                        <td className="py-5 px-5"><div className="h-4 w-16 bg-slate-100 rounded" /></td>
+                        <td className="py-5 px-5"><div className="h-5 w-12 bg-slate-100 rounded-full" /></td>
+                        <td className="py-5 px-5 text-right"><div className="h-6 w-16 bg-slate-100 rounded ml-auto" /></td>
+                      </tr>
+                    ))
+                  ) : filtered.length === 0 ? (
                     <tr>
                       <td colSpan={5} className="py-10 text-center text-slate-400 font-bold">
                         No contact messages found.
