@@ -52,10 +52,13 @@ app.use(cors({
     }
     const isLocalhost = /^http:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(origin);
     const isVercel = /^https:\/\/.*\.vercel\.app$/.test(origin);
-    if (isLocalhost || isVercel || allowedOrigins.includes(origin)) {
+    const isUdayTrust = /^https:\/\/(.*\.)?udayfoundation(s)?trust\.org$/.test(origin);
+    if (isLocalhost || isVercel || isUdayTrust || allowedOrigins.includes(origin)) {
       callback(null, true);
     } else {
-      callback(new Error(`Not allowed by CORS: ${origin}`));
+      // Return false instead of an Error to reject the origin gracefully (no CORS headers)
+      // without throwing a 500 Internal Server Error in the server logs.
+      callback(null, false);
     }
   },
   credentials: true,
@@ -66,7 +69,12 @@ app.use(sanitizeNoSQL);
 app.use(sanitizeXSS);
 
 // Request body parsers
-app.use(express.json({ limit: "10mb" }));
+app.use(express.json({
+  limit: "10mb",
+  verify: (req, res, buf) => {
+    req.rawBody = buf;
+  }
+}));
 app.use(express.urlencoded({ extended: true, limit: "10mb" }));
 
 // Root welcome & health check route
