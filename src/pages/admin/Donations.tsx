@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Search, Download, Eye, FileSpreadsheet, X, Check, Clock } from "lucide-react";
-import { fetchDonations } from "@/services/db";
+import { subscribeDonations } from "@/services/db";
 
 // Mock Donations
 const MOCK_DONATIONS = [
@@ -21,29 +21,31 @@ export function Donations() {
   const [donationsList, setDonationsList] = useState(MOCK_DONATIONS);
 
   useEffect(() => {
-    async function loadDonations() {
-      try {
-        const items = await fetchDonations();
-        if (items && items.length > 0) {
-          const mapped = items.map((item: any) => ({
-            id: item.id || item.receiptNumber,
-            donor: item.donorName,
-            email: item.email,
-            phone: item.phone,
-            pan: item.panNumber,
-            amount: item.amount,
-            date: item.createdAt ? item.createdAt.split('T')[0] : new Date().toISOString().split('T')[0],
-            type: "Online",
-            status: "Success",
-            project: item.purpose || "General Donation",
-          }));
-          setDonationsList(mapped);
-        }
-      } catch (e) {
-        console.error("fetchDonations in admin Donations.tsx failed:", e);
+    const unsubscribe = subscribeDonations((items) => {
+      if (items && items.length > 0) {
+        const mapped = items.map((item: any) => ({
+          id: item.id || item.receiptNumber,
+          donor: item.donorName,
+          email: item.email,
+          phone: item.phone,
+          pan: item.panNumber,
+          amount: item.amount,
+          date: item.createdAt ? item.createdAt.split('T')[0] : new Date().toISOString().split('T')[0],
+          type: "Online",
+          status: "Success",
+          project: item.purpose || "General Donation",
+        }));
+        setDonationsList(mapped);
+      } else {
+        setDonationsList(MOCK_DONATIONS);
       }
-    }
-    loadDonations();
+    }, (err) => {
+      console.error("subscribeDonations in admin Donations.tsx failed:", err);
+    });
+
+    return () => {
+      unsubscribe();
+    };
   }, []);
 
   useEffect(() => {

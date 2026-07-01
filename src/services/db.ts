@@ -885,3 +885,26 @@ export function subscribeSettings(callback: (settings: any) => void, onError?: (
     supabase.removeChannel(channel);
   };
 }
+
+export function subscribeDonations(callback: (items: any[]) => void, onError?: (err: any) => void) {
+  fetchDonations()
+    .then(callback)
+    .catch((err) => {
+      if (onError) onError(err);
+    });
+
+  const channel = supabase
+    .channel("public-donations-changes")
+    .on(
+      "postgres_changes",
+      { event: "*", schema: "public", table: "donations" },
+      () => {
+        fetchDonations().then(callback).catch(onError);
+      }
+    )
+    .subscribe();
+
+  return () => {
+    supabase.removeChannel(channel);
+  };
+}

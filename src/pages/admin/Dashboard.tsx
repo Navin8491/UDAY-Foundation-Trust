@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { fetchEvents, fetchVolunteers, fetchDonations, fetchPartnerships } from "@/services/db";
+import { fetchEvents, fetchVolunteers, fetchDonations, fetchPartnerships, subscribeDonations } from "@/services/db";
 import {
   Heart,
   Users,
@@ -72,11 +72,6 @@ export function Dashboard() {
         // Take latest 4 for list
         setRecentVolunteers([...volunteers].reverse().slice(0, 4));
 
-        const donations = await fetchDonations();
-        setDonorsCount(donations.length);
-        const sum = donations.reduce((acc, curr) => acc + (Number(curr.amount) || 0), 0);
-        setTotalDonationsAmount(166500 + sum);
-
         const partnerships = await fetchPartnerships();
         setPartnersCount(partnerships.length);
         // Take latest 4 for list
@@ -86,6 +81,19 @@ export function Dashboard() {
       }
     }
     loadStats();
+
+    // Subscribe to donations changes in real-time
+    const unsubscribeDonations = subscribeDonations((donations) => {
+      setDonorsCount(donations.length);
+      const sum = donations.reduce((acc, curr) => acc + (Number(curr.amount) || 0), 0);
+      setTotalDonationsAmount(166500 + sum);
+    }, (err) => {
+      console.error("Realtime donations subscription failed:", err);
+    });
+
+    return () => {
+      unsubscribeDonations();
+    };
   }, []);
 
   const cards = [
