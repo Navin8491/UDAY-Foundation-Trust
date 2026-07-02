@@ -154,8 +154,8 @@ function getHtmlTemplate(title, preheader, bodyContent) {
             <p style="margin: 0 0 8px 0; font-size: 12px;">Uday Foundation Trust, Sanand, Ahmedabad, Gujarat</p>
             <p style="margin: 0 0 12px 0; font-size: 11px;">Registered NGO (Reg No: Guj/23016/Ahmedabad)</p>
             <div class="social-links">
-              <a href="https://uday-foundation-trust.vercel.app">Official Website</a> ·
-              <a href="https://uday-foundation-trust.vercel.app/contact">Support Desk</a>
+              <a href="https://www.udayfoundationstrust.org">Official Website</a> ·
+              <a href="https://www.udayfoundationstrust.org/contact">Support Desk</a>
             </div>
           </div>
         </div>
