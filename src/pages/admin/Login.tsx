@@ -11,7 +11,7 @@ export function Login() {
   const [rememberMe, setRememberMe] = useState(true);
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
-  
+
   const navigate = useNavigate();
 
   // Redirect if already logged in
@@ -46,7 +46,7 @@ export function Login() {
 
   return (
     <div className="min-h-screen font-sans flex items-center justify-center bg-slate-950 text-slate-100 relative overflow-hidden">
-      
+
       {/* Background decorations (Glows matching dashboard) */}
       <div className="absolute top-0 right-1/4 w-96 h-96 bg-[#4040A1]/10 rounded-full blur-[120px] pointer-events-none" />
       <div className="absolute bottom-10 left-10 w-96 h-96 bg-[#7A9D1C]/10 rounded-full blur-[120px] pointer-events-none" />
@@ -61,10 +61,10 @@ export function Login() {
       />
 
       <div className="w-full max-w-md p-4 relative z-10">
-        
+
         {/* Card wrapper */}
         <div className="bg-slate-900/50 backdrop-blur-xl border border-slate-800 rounded-3xl p-8 shadow-2xl space-y-6">
-          
+
           {/* Logo & Header */}
           <div className="text-center space-y-3">
             <div className="inline-flex h-16 w-16 bg-slate-800/80 border border-slate-700/50 rounded-full items-center justify-center shadow-lg">
@@ -78,7 +78,7 @@ export function Login() {
 
           {/* Form */}
           <form onSubmit={handleSubmit} className="space-y-4">
-            
+
             {/* Email Field */}
             <div className="space-y-1.5">
               <label htmlFor="email" className="text-xs font-semibold text-slate-400 uppercase tracking-wider">
@@ -92,7 +92,7 @@ export function Login() {
                   id="email"
                   type="email"
                   required
-                  placeholder="admin@udayfoundationtrust.org"
+                  placeholder="Enter the email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   className="w-full h-11 pl-10 pr-4 rounded-xl border border-slate-800 bg-slate-950/60 focus:outline-none focus:border-[#4040A1] text-sm text-white placeholder-slate-600 transition-colors"
