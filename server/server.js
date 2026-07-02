@@ -8,6 +8,12 @@ import { runSaga } from "./services/sagaEngine.js";
 
 dotenv.config();
 
+// Validate critical environment variables
+if (!process.env.JWT_SECRET) {
+  console.error("CRITICAL: JWT_SECRET environment variable is missing in server/.env.");
+  process.exit(1);
+}
+
 // Connect Database & Initialize Storage
 const startServer = async () => {
   try {
@@ -40,3 +46,4 @@ const startServer = async () => {
 };
 
 startServer();
+// Trigger reload 3

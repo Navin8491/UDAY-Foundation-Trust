@@ -9,11 +9,11 @@ import dotenv from "dotenv";
 
 dotenv.config();
 
-const supabaseUrl = process.env.SUPABASE_URL || "https://euhlbtlwbtsyrjryoesk.supabase.co";
+const supabaseUrl = process.env.SUPABASE_URL;
 const supabaseServiceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
-if (!supabaseServiceRoleKey) {
-  console.error("CRITICAL: SUPABASE_SERVICE_ROLE_KEY is required in environment variables.");
+if (!supabaseUrl || !supabaseServiceRoleKey) {
+  console.error("CRITICAL: SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY are required in environment variables.");
   process.exit(1);
 }
 
@@ -29,8 +29,12 @@ async function seed() {
     console.log("Starting Supabase Seeding...");
 
     // 1. Create or Check Admin User in Auth
-    const adminEmail = "admin@udayfoundationtrust.org";
-    const adminPassword = "UdayAdmin2026!";
+    const adminEmail = process.env.ADMIN_EMAIL;
+    const adminPassword = process.env.ADMIN_PASSWORD;
+
+    if (!adminEmail || !adminPassword) {
+      throw new Error("Missing required environment variables: ADMIN_EMAIL and ADMIN_PASSWORD");
+    }
 
     console.log(`Checking if admin user exists: ${adminEmail}...`);
     const { data: usersData, error: listError } = await supabase.auth.admin.listUsers();
