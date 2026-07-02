@@ -1,12 +1,11 @@
+import "dotenv/config";
 import app from "./app.js";
-import dotenv from "dotenv";
 import { connectDB } from "./config/db.js";
 import { initializeStorage } from "./services/storageService.js";
 import { initializeBroker } from "./utils/eventQueue.js";
 import { startCrashRecovery } from "./services/crashRecovery.js";
 import { runSaga } from "./services/sagaEngine.js";
 
-dotenv.config();
 
 // Validate critical environment variables
 if (!process.env.JWT_SECRET) {

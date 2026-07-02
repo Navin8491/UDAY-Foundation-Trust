@@ -19,7 +19,21 @@ app.use((req, res, next) => {
   next();
 });
 
-const allowedOrigins = (process.env.FRONTEND_URL || "http://localhost:5173").split(",");
+const parsedOrigins = process.env.FRONTEND_URL
+  ? process.env.FRONTEND_URL.split(",").map(origin => origin.trim()).filter(Boolean)
+  : [];
+
+const defaultOrigins = [
+  "http://localhost:5173",
+  "https://www.udayfoundationstrust.org",
+  "https://udayfoundationstrust.org",
+  "https://www.udayfoundationtrust.org",
+  "https://udayfoundationtrust.org",
+  "https://uday-foundation-trust.vercel.app"
+];
+
+// Combine and deduplicate
+const allowedOrigins = Array.from(new Set([...parsedOrigins, ...defaultOrigins]));
 
 // Security Middleware (Helmet & CSP)
 app.use(helmet({
@@ -53,7 +67,16 @@ app.use(cors({
     const isLocalhost = /^http:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(origin);
     const isVercel = /^https:\/\/.*\.vercel\.app$/.test(origin);
     const isUdayTrust = /^https:\/\/(.*\.)?udayfoundation(s)?trust\.org$/.test(origin);
-    if (isLocalhost || isVercel || isUdayTrust || allowedOrigins.includes(origin)) {
+
+    // Development only support for localhost/127.0.0.1
+    if (isLocalhost) {
+      if (process.env.NODE_ENV === "production") {
+        return callback(null, false);
+      }
+      return callback(null, true);
+    }
+
+    if (isVercel || isUdayTrust || allowedOrigins.includes(origin)) {
       callback(null, true);
     } else {
       // Return false instead of an Error to reject the origin gracefully (no CORS headers)
@@ -62,6 +85,7 @@ app.use(cors({
     }
   },
   credentials: true,
+  optionsSuccessStatus: 200,
 }));
 
 // Global sanitizers for NoSQL injection and XSS

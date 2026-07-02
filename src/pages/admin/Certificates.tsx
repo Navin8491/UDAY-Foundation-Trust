@@ -13,7 +13,7 @@ const INITIAL_CERTIFICATES = [
 export function Certificates() {
   const [certs, setCerts] = useState<any[]>([]);
   const [previewFile, setPreviewFile] = useState<string | null>(null);
-  
+
   const [formName, setFormName] = useState("");
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [loading, setLoading] = useState(false);
@@ -105,7 +105,7 @@ export function Certificates() {
 
   return (
     <div className="space-y-6">
-      
+
       {/* Header */}
       <div>
         <h1 className="text-2xl md:text-3xl font-display font-bold">Certificates</h1>
@@ -113,7 +113,7 @@ export function Certificates() {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
-        
+
         {/* Upload Form (Left side, takes 1 col) */}
         <div className="bg-white rounded-3xl border border-slate-200/80 shadow-xs p-6 space-y-4">
           <div>
@@ -132,7 +132,7 @@ export function Certificates() {
                 placeholder="e.g. CSR-1 Registration Certificate"
               />
             </div>
-            
+
             <div className="space-y-1.5">
               <label className="text-slate-500 uppercase tracking-wider">Select PDF File *</label>
               <div className="relative border border-dashed border-slate-200 rounded-2xl p-6 bg-slate-50 flex flex-col items-center justify-center text-center cursor-pointer hover:border-primary/50 transition-colors">

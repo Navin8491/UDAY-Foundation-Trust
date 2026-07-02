@@ -695,7 +695,19 @@ export async function submitDonation(data: any): Promise<string> {
   return created.id || created._id;
 }
 
-export async function initiateDonationPayment(data: any): Promise<{ sessionId: string; url: string; idempotencyKey: string; eventId: string; status?: string }> {
+export async function initiateDonationPayment(data: any): Promise<{
+  sessionId?: string | null;
+  url?: string | null;
+  orderId?: string | null;
+  amount?: number | null;
+  currency?: string | null;
+  idempotencyKey: string;
+  eventId: string;
+  status?: string;
+  donorName?: string | null;
+  email?: string | null;
+  phone?: string | null;
+}> {
   const res = await apiRequest("/payments/create-session", {
     method: "POST",
     body: data,
@@ -1026,4 +1038,21 @@ export function subscribePaymentEvents(callback: (items: any[]) => void, onError
   return () => {
     supabase.removeChannel(channel);
   };
+}
+
+export async function verifyRazorpaySignature(payload: {
+  idempotencyKey: string;
+  razorpay_payment_id: string;
+  razorpay_order_id: string;
+  razorpay_signature: string;
+}): Promise<any> {
+  const res = await apiRequest("/payments/verify-signature", {
+    method: "POST",
+    body: payload,
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.message || "Failed to verify payment signature");
+  }
+  return res.json();
 }

@@ -166,37 +166,32 @@ class RazorpayGateway extends PaymentGateway {
   }
 
   async createCheckoutSession(params) {
-    const successUrl = `${process.env.FRONTEND_URL?.split(",")[0] || "http://localhost:5173"}/donate?status=success&idempotency_key=${params.idempotencyKey}`;
+    const amountInPaise = Math.round(params.amount * 100);
+    if (amountInPaise < 100) {
+      throw new Error("Minimum donation amount is 100 paise (₹1)");
+    }
 
-    // Create a hosted Razorpay Payment Link
-    const paymentLink = await this.razorpay.paymentLink.create({
-      amount: Math.round(params.amount * 100), // Razorpay expects paise
+    const options = {
+      amount: amountInPaise,
       currency: params.currency.toUpperCase(),
-      accept_partial: false,
-      description: params.description,
-      customer: {
-        name: params.donorName,
-        email: params.email,
-        contact: params.phone,
-      },
-      notify: {
-        sms: false,
-        email: false
-      },
-      reminder_enable: false,
+      receipt: params.idempotencyKey,
       notes: {
         idempotencyKey: params.idempotencyKey,
         donorName: params.donorName,
         phone: params.phone,
       },
-      callback_url: successUrl,
-      callback_method: "get"
-    });
+    };
+
+    const order = await this.razorpay.orders.create(options);
 
     return {
-      sessionId: paymentLink.id,
-      url: paymentLink.short_url,
-      gatewayTransactionId: paymentLink.id,
+      orderId: order.id,
+      amount: order.amount,
+      currency: order.currency,
+      idempotencyKey: params.idempotencyKey,
+      donorName: params.donorName,
+      email: params.email,
+      phone: params.phone,
     };
   }
 
@@ -256,8 +251,9 @@ class RazorpayGateway extends PaymentGateway {
         refundId: refund.id,
       };
     } catch (err) {
-      console.error("[RazorpayGateway] Refund failed:", err.message);
-      throw err;
+      const errMsg = err.description || err.error?.description || err.message || (typeof err === "string" ? err : JSON.stringify(err));
+      console.error("[RazorpayGateway] Refund failed:", errMsg);
+      throw new Error(errMsg);
     }
   }
 }

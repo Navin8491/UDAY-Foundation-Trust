@@ -17,7 +17,7 @@ export function Events() {
   const [formTitleEn, setFormTitleEn] = useState("");
   const [formTitleGu, setFormTitleGu] = useState("");
   const [formTitleHi, setFormTitleHi] = useState("");
-  
+
   const [formSummaryEn, setFormSummaryEn] = useState("");
   const [formSummaryGu, setFormSummaryGu] = useState("");
   const [formSummaryHi, setFormSummaryHi] = useState("");
@@ -32,7 +32,7 @@ export function Events() {
   const [formVolunteers, setFormVolunteers] = useState(25);
   const [formFeatured, setFormFeatured] = useState(false);
   const [formStatus, setFormStatus] = useState<"published" | "draft">("published");
-  
+
   // Media State
   const [imagesList, setImagesList] = useState<string[]>([]);
   const [coverImage, setCoverImage] = useState<string>("");
@@ -333,11 +333,10 @@ export function Events() {
                 />
                 <button
                   onClick={() => toggleFeatured(evt.id)}
-                  className={`absolute top-4 right-4 h-9 w-9 rounded-full flex items-center justify-center backdrop-blur-md transition-colors cursor-pointer ${
-                    evt.featured
-                      ? "bg-[#F7E81D] text-[#121B34] shadow animate-pulse"
-                      : "bg-black/40 text-white hover:bg-black/60"
-                  }`}
+                  className={`absolute top-4 right-4 h-9 w-9 rounded-full flex items-center justify-center backdrop-blur-md transition-colors cursor-pointer ${evt.featured
+                    ? "bg-[#F7E81D] text-[#121B34] shadow animate-pulse"
+                    : "bg-black/40 text-white hover:bg-black/60"
+                    }`}
                   title={evt.featured ? "Unmark Featured" : "Mark Featured"}
                 >
                   <Star className="h-4.5 w-4.5 fill-current" />
@@ -424,240 +423,240 @@ export function Events() {
             <form onSubmit={handleSave} className="flex-1 flex flex-col overflow-hidden">
               {/* Scrollable Form Body */}
               <div className="flex-1 overflow-y-auto p-6 space-y-5 text-xs font-semibold">
-              
-              {/* Event Title inputs */}
-              <div className="space-y-4 border-b border-slate-100 pb-4">
-                <h4 className="text-sm font-bold text-slate-800">Event Title</h4>
-                <div className="space-y-3">
+
+                {/* Event Title inputs */}
+                <div className="space-y-4 border-b border-slate-100 pb-4">
+                  <h4 className="text-sm font-bold text-slate-800">Event Title</h4>
+                  <div className="space-y-3">
+                    <div className="space-y-1.5">
+                      <label className="text-slate-500 uppercase tracking-wider">English Title *</label>
+                      <input
+                        type="text"
+                        required
+                        value={formTitleEn}
+                        onChange={(e) => setFormTitleEn(e.target.value)}
+                        className="w-full h-11 px-4 rounded-xl border border-slate-200 bg-slate-50 focus:outline-none focus:border-primary text-sm font-medium"
+                        placeholder="e.g. Tree Plantation Drive"
+                      />
+                    </div>
+                    <div className="space-y-1.5">
+                      <label className="text-slate-500 uppercase tracking-wider">Gujarati Title *</label>
+                      <input
+                        type="text"
+                        required
+                        value={formTitleGu}
+                        onChange={(e) => setFormTitleGu(e.target.value)}
+                        className="w-full h-11 px-4 rounded-xl border border-slate-200 bg-slate-50 focus:outline-none focus:border-primary text-sm font-medium font-gujarati"
+                        placeholder="વૃક્ષારોપણ અભિયાન"
+                      />
+                    </div>
+                    <div className="space-y-1.5">
+                      <label className="text-slate-500 uppercase tracking-wider">Hindi Title</label>
+                      <input
+                        type="text"
+                        value={formTitleHi}
+                        onChange={(e) => setFormTitleHi(e.target.value)}
+                        className="w-full h-11 px-4 rounded-xl border border-slate-200 bg-slate-50 focus:outline-none focus:border-primary text-sm font-medium"
+                        placeholder="वृक्षारोपण अभियान"
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Event Location inputs */}
+                <div className="space-y-4 border-b border-slate-100 pb-4">
+                  <h4 className="text-sm font-bold text-slate-800">Location / Place</h4>
+                  <div className="space-y-3">
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                      <div className="space-y-1.5">
+                        <label className="text-slate-500 uppercase tracking-wider">English Location *</label>
+                        <input
+                          type="text"
+                          required
+                          value={formPlaceEn}
+                          onChange={(e) => setFormPlaceEn(e.target.value)}
+                          className="w-full h-11 px-3 rounded-xl border border-slate-200 bg-slate-50 focus:outline-none focus:border-primary text-sm font-medium"
+                        />
+                      </div>
+                      <div className="space-y-1.5">
+                        <label className="text-slate-500 uppercase tracking-wider">Gujarati Location *</label>
+                        <input
+                          type="text"
+                          required
+                          value={formPlaceGu}
+                          onChange={(e) => setFormPlaceGu(e.target.value)}
+                          className="w-full h-11 px-3 rounded-xl border border-slate-200 bg-slate-50 focus:outline-none focus:border-primary text-sm font-medium font-gujarati"
+                        />
+                      </div>
+                      <div className="space-y-1.5">
+                        <label className="text-slate-500 uppercase tracking-wider">Hindi Location *</label>
+                        <input
+                          type="text"
+                          required
+                          value={formPlaceHi}
+                          onChange={(e) => setFormPlaceHi(e.target.value)}
+                          className="w-full h-11 px-3 rounded-xl border border-slate-200 bg-slate-50 focus:outline-none focus:border-primary text-sm font-medium"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Metadata columns */}
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 border-b border-slate-100 pb-4">
                   <div className="space-y-1.5">
-                    <label className="text-slate-500 uppercase tracking-wider">English Title *</label>
+                    <label className="text-slate-500 uppercase tracking-wider">Category *</label>
+                    <select
+                      value={formCategory}
+                      onChange={(e) => setFormCategory(e.target.value)}
+                      className="w-full h-11 px-3 rounded-xl border border-slate-200 bg-slate-50 focus:outline-none focus:border-primary text-sm font-medium cursor-pointer"
+                    >
+                      <option value="Education">Education</option>
+                      <option value="Healthcare">Healthcare</option>
+                      <option value="Environment">Environment</option>
+                      <option value="Sports">Sports</option>
+                      <option value="Relief">Relief</option>
+                      <option value="Community">Community</option>
+                    </select>
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <label className="text-slate-500 uppercase tracking-wider">Date *</label>
                     <input
                       type="text"
                       required
-                      value={formTitleEn}
-                      onChange={(e) => setFormTitleEn(e.target.value)}
-                      className="w-full h-11 px-4 rounded-xl border border-slate-200 bg-slate-50 focus:outline-none focus:border-primary text-sm font-medium"
-                      placeholder="e.g. Tree Plantation Drive"
+                      value={formDate}
+                      onChange={(e) => setFormDate(e.target.value)}
+                      className="w-full h-11 px-3 rounded-xl border border-slate-200 bg-slate-50 focus:outline-none focus:border-primary text-sm font-medium"
+                      placeholder="e.g. Jun 2026"
                     />
                   </div>
+
                   <div className="space-y-1.5">
-                    <label className="text-slate-500 uppercase tracking-wider">Gujarati Title *</label>
+                    <label className="text-slate-500 uppercase tracking-wider">Participants *</label>
                     <input
-                      type="text"
+                      type="number"
                       required
-                      value={formTitleGu}
-                      onChange={(e) => setFormTitleGu(e.target.value)}
-                      className="w-full h-11 px-4 rounded-xl border border-slate-200 bg-slate-50 focus:outline-none focus:border-primary text-sm font-medium font-gujarati"
-                      placeholder="વૃક્ષારોપણ અભિયાન"
+                      value={formParticipants}
+                      onChange={(e) => setFormParticipants(Number(e.target.value))}
+                      className="w-full h-11 px-3 rounded-xl border border-slate-200 bg-slate-50 focus:outline-none focus:border-primary text-sm font-medium"
                     />
                   </div>
+
                   <div className="space-y-1.5">
-                    <label className="text-slate-500 uppercase tracking-wider">Hindi Title</label>
+                    <label className="text-slate-500 uppercase tracking-wider">Volunteers *</label>
                     <input
-                      type="text"
-                      value={formTitleHi}
-                      onChange={(e) => setFormTitleHi(e.target.value)}
-                      className="w-full h-11 px-4 rounded-xl border border-slate-200 bg-slate-50 focus:outline-none focus:border-primary text-sm font-medium"
-                      placeholder="वृक्षारोपण अभियान"
+                      type="number"
+                      required
+                      value={formVolunteers}
+                      onChange={(e) => setFormVolunteers(Number(e.target.value))}
+                      className="w-full h-11 px-3 rounded-xl border border-slate-200 bg-slate-50 focus:outline-none focus:border-primary text-sm font-medium"
                     />
                   </div>
                 </div>
-              </div>
 
-              {/* Event Location inputs */}
-              <div className="space-y-4 border-b border-slate-100 pb-4">
-                <h4 className="text-sm font-bold text-slate-800">Location / Place</h4>
-                <div className="space-y-3">
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                    <div className="space-y-1.5">
-                      <label className="text-slate-500 uppercase tracking-wider">English Location *</label>
-                      <input
-                        type="text"
-                        required
-                        value={formPlaceEn}
-                        onChange={(e) => setFormPlaceEn(e.target.value)}
-                        className="w-full h-11 px-3 rounded-xl border border-slate-200 bg-slate-50 focus:outline-none focus:border-primary text-sm font-medium"
-                      />
-                    </div>
-                    <div className="space-y-1.5">
-                      <label className="text-slate-500 uppercase tracking-wider">Gujarati Location *</label>
-                      <input
-                        type="text"
-                        required
-                        value={formPlaceGu}
-                        onChange={(e) => setFormPlaceGu(e.target.value)}
-                        className="w-full h-11 px-3 rounded-xl border border-slate-200 bg-slate-50 focus:outline-none focus:border-primary text-sm font-medium font-gujarati"
-                      />
-                    </div>
-                    <div className="space-y-1.5">
-                      <label className="text-slate-500 uppercase tracking-wider">Hindi Location *</label>
-                      <input
-                        type="text"
-                        required
-                        value={formPlaceHi}
-                        onChange={(e) => setFormPlaceHi(e.target.value)}
-                        className="w-full h-11 px-3 rounded-xl border border-slate-200 bg-slate-50 focus:outline-none focus:border-primary text-sm font-medium"
-                      />
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Metadata columns */}
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 border-b border-slate-100 pb-4">
-                <div className="space-y-1.5">
-                  <label className="text-slate-500 uppercase tracking-wider">Category *</label>
-                  <select
-                    value={formCategory}
-                    onChange={(e) => setFormCategory(e.target.value)}
-                    className="w-full h-11 px-3 rounded-xl border border-slate-200 bg-slate-50 focus:outline-none focus:border-primary text-sm font-medium cursor-pointer"
-                  >
-                    <option value="Education">Education</option>
-                    <option value="Healthcare">Healthcare</option>
-                    <option value="Environment">Environment</option>
-                    <option value="Sports">Sports</option>
-                    <option value="Relief">Relief</option>
-                    <option value="Community">Community</option>
-                  </select>
-                </div>
-
-                <div className="space-y-1.5">
-                  <label className="text-slate-500 uppercase tracking-wider">Date *</label>
-                  <input
-                    type="text"
-                    required
-                    value={formDate}
-                    onChange={(e) => setFormDate(e.target.value)}
-                    className="w-full h-11 px-3 rounded-xl border border-slate-200 bg-slate-50 focus:outline-none focus:border-primary text-sm font-medium"
-                    placeholder="e.g. Jun 2026"
-                  />
-                </div>
-
-                <div className="space-y-1.5">
-                  <label className="text-slate-500 uppercase tracking-wider">Participants *</label>
-                  <input
-                    type="number"
-                    required
-                    value={formParticipants}
-                    onChange={(e) => setFormParticipants(Number(e.target.value))}
-                    className="w-full h-11 px-3 rounded-xl border border-slate-200 bg-slate-50 focus:outline-none focus:border-primary text-sm font-medium"
-                  />
-                </div>
-
-                <div className="space-y-1.5">
-                  <label className="text-slate-500 uppercase tracking-wider">Volunteers *</label>
-                  <input
-                    type="number"
-                    required
-                    value={formVolunteers}
-                    onChange={(e) => setFormVolunteers(Number(e.target.value))}
-                    className="w-full h-11 px-3 rounded-xl border border-slate-200 bg-slate-50 focus:outline-none focus:border-primary text-sm font-medium"
-                  />
-                </div>
-              </div>
-
-              {/* Status and Banner Toggles */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 border-b border-slate-100 pb-4">
-                <div className="space-y-1.5">
-                  <label className="text-slate-500 uppercase tracking-wider">Publish Status *</label>
-                  <select
-                    value={formStatus}
-                    onChange={(e) => setFormStatus(e.target.value as any)}
-                    className="w-full h-11 px-3 rounded-xl border border-slate-200 bg-slate-50 focus:outline-none focus:border-primary text-sm font-medium cursor-pointer"
-                  >
-                    <option value="published">Published</option>
-                    <option value="draft">Draft</option>
-                  </select>
-                </div>
-                
-                <div className="flex items-center gap-2 pt-5">
-                  <input
-                    id="featured"
-                    type="checkbox"
-                    checked={formFeatured}
-                    onChange={(e) => setFormFeatured(e.target.checked)}
-                    className="h-5 w-5 rounded border-slate-300 text-primary focus:ring-primary/20 cursor-pointer"
-                  />
-                  <label htmlFor="featured" className="text-slate-700 font-bold cursor-pointer text-xs uppercase tracking-wide">
-                    Mark as featured on home banner
-                  </label>
-                </div>
-              </div>
-
-              {/* Image Manager Area */}
-              <div className="space-y-2 border-b border-slate-100 pb-4">
-                <h4 className="text-sm font-bold text-slate-800">Event Images</h4>
-                <ImageManager
-                  images={imagesList}
-                  coverImage={coverImage}
-                  onChange={(newImages, newCover) => {
-                    setImagesList(newImages);
-                    setCoverImage(newCover);
-                  }}
-                  folder="events"
-                />
-              </div>
-
-              {/* Full Description (Rich Text) */}
-              <div className="space-y-4 border-b border-slate-100 pb-4">
-                <h4 className="text-sm font-bold text-slate-800">Full Description / Summary Details</h4>
-                <div className="space-y-3">
+                {/* Status and Banner Toggles */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 border-b border-slate-100 pb-4">
                   <div className="space-y-1.5">
-                    <label className="text-slate-500 uppercase tracking-wider">English Description *</label>
-                    <RichTextEditor
-                      value={formSummaryEn}
-                      onChange={setFormSummaryEn}
-                      placeholder="Write comprehensive English details..."
-                    />
+                    <label className="text-slate-500 uppercase tracking-wider">Publish Status *</label>
+                    <select
+                      value={formStatus}
+                      onChange={(e) => setFormStatus(e.target.value as any)}
+                      className="w-full h-11 px-3 rounded-xl border border-slate-200 bg-slate-50 focus:outline-none focus:border-primary text-sm font-medium cursor-pointer"
+                    >
+                      <option value="published">Published</option>
+                      <option value="draft">Draft</option>
+                    </select>
                   </div>
-                  <div className="space-y-1.5">
-                    <label className="text-slate-500 uppercase tracking-wider">Gujarati Description *</label>
-                    <RichTextEditor
-                      value={formSummaryGu}
-                      onChange={setFormSummaryGu}
-                      placeholder="ગુજરાતીમાં વિગતો લખો..."
-                    />
-                  </div>
-                  <div className="space-y-1.5">
-                    <label className="text-slate-500 uppercase tracking-wider">Hindi Description</label>
-                    <RichTextEditor
-                      value={formSummaryHi}
-                      onChange={setFormSummaryHi}
-                      placeholder="हिंदी में विवरण लिखें..."
-                    />
-                  </div>
-                </div>
-              </div>
 
-              {/* SEO Tags */}
-              <div className="space-y-4 pb-2">
-                <h4 className="text-sm font-bold text-slate-800">SEO Meta Parameters</h4>
-                <div className="space-y-3">
-                  <div className="space-y-1.5">
-                    <label className="text-slate-500 uppercase tracking-wider">SEO Title Tag</label>
+                  <div className="flex items-center gap-2 pt-5">
                     <input
-                      type="text"
-                      value={formSeoTitle}
-                      onChange={(e) => setFormSeoTitle(e.target.value)}
-                      className="w-full h-11 px-4 rounded-xl border border-slate-200 bg-slate-50 focus:outline-none focus:border-primary text-sm font-medium"
-                      placeholder="Title shown in browser tab and Google results"
+                      id="featured"
+                      type="checkbox"
+                      checked={formFeatured}
+                      onChange={(e) => setFormFeatured(e.target.checked)}
+                      className="h-5 w-5 rounded border-slate-300 text-primary focus:ring-primary/20 cursor-pointer"
                     />
-                  </div>
-                  <div className="space-y-1.5">
-                    <label className="text-slate-500 uppercase tracking-wider">SEO Meta Description</label>
-                    <textarea
-                      rows={2}
-                      value={formSeoDesc}
-                      onChange={(e) => setFormSeoDesc(e.target.value)}
-                      className="w-full p-4 rounded-xl border border-slate-200 bg-slate-50 focus:outline-none focus:border-primary text-sm font-medium"
-                      placeholder="Short summary displayed under the search result link"
-                    />
+                    <label htmlFor="featured" className="text-slate-700 font-bold cursor-pointer text-xs uppercase tracking-wide">
+                      Mark as featured on home banner
+                    </label>
                   </div>
                 </div>
-              </div>
+
+                {/* Image Manager Area */}
+                <div className="space-y-2 border-b border-slate-100 pb-4">
+                  <h4 className="text-sm font-bold text-slate-800">Event Images</h4>
+                  <ImageManager
+                    images={imagesList}
+                    coverImage={coverImage}
+                    onChange={(newImages, newCover) => {
+                      setImagesList(newImages);
+                      setCoverImage(newCover);
+                    }}
+                    folder="events"
+                  />
+                </div>
+
+                {/* Full Description (Rich Text) */}
+                <div className="space-y-4 border-b border-slate-100 pb-4">
+                  <h4 className="text-sm font-bold text-slate-800">Full Description / Summary Details</h4>
+                  <div className="space-y-3">
+                    <div className="space-y-1.5">
+                      <label className="text-slate-500 uppercase tracking-wider">English Description *</label>
+                      <RichTextEditor
+                        value={formSummaryEn}
+                        onChange={setFormSummaryEn}
+                        placeholder="Write comprehensive English details..."
+                      />
+                    </div>
+                    <div className="space-y-1.5">
+                      <label className="text-slate-500 uppercase tracking-wider">Gujarati Description *</label>
+                      <RichTextEditor
+                        value={formSummaryGu}
+                        onChange={setFormSummaryGu}
+                        placeholder="ગુજરાતીમાં વિગતો લખો..."
+                      />
+                    </div>
+                    <div className="space-y-1.5">
+                      <label className="text-slate-500 uppercase tracking-wider">Hindi Description</label>
+                      <RichTextEditor
+                        value={formSummaryHi}
+                        onChange={setFormSummaryHi}
+                        placeholder="हिंदी में विवरण लिखें..."
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                {/* SEO Tags */}
+                <div className="space-y-4 pb-2">
+                  <h4 className="text-sm font-bold text-slate-800">SEO Meta Parameters</h4>
+                  <div className="space-y-3">
+                    <div className="space-y-1.5">
+                      <label className="text-slate-500 uppercase tracking-wider">SEO Title Tag</label>
+                      <input
+                        type="text"
+                        value={formSeoTitle}
+                        onChange={(e) => setFormSeoTitle(e.target.value)}
+                        className="w-full h-11 px-4 rounded-xl border border-slate-200 bg-slate-50 focus:outline-none focus:border-primary text-sm font-medium"
+                        placeholder="Title shown in browser tab and Google results"
+                      />
+                    </div>
+                    <div className="space-y-1.5">
+                      <label className="text-slate-500 uppercase tracking-wider">SEO Meta Description</label>
+                      <textarea
+                        rows={2}
+                        value={formSeoDesc}
+                        onChange={(e) => setFormSeoDesc(e.target.value)}
+                        className="w-full p-4 rounded-xl border border-slate-200 bg-slate-50 focus:outline-none focus:border-primary text-sm font-medium"
+                        placeholder="Short summary displayed under the search result link"
+                      />
+                    </div>
+                  </div>
+                </div>
 
               </div>
-              
+
               {/* Fixed Footer Submit Buttons */}
               <div className="p-4 border-t border-slate-100 bg-slate-50/50 flex gap-2">
                 <button

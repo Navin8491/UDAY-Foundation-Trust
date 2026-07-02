@@ -37,7 +37,8 @@ import {
   refundDonation,
   getPaymentTimeline,
   getPaymentStatus,
-  getPaymentEvents
+  getPaymentEvents,
+  verifyRazorpayPaymentSignature
 } from "../controllers/paymentController.js";
 
 // Import Security Middleware (Rate Limiters & Validators)
@@ -126,6 +127,7 @@ router.post("/donations", publicFormLimiter, validateBody(donationSchema), creat
 // Payment Gateway routes
 router.post("/payments/create-session", publicFormLimiter, createCheckoutSession);
 router.post("/payments/webhook", handleWebhook);
+router.post("/payments/verify-signature", verifyRazorpayPaymentSignature);
 router.get("/payments/receipt/:id", downloadReceipt);
 router.get("/payments/status/:idempotencyKey", getPaymentStatus);
 router.post("/payments/refund/:id", protectAdmin, refundDonation);
