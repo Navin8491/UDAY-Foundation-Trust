@@ -136,7 +136,7 @@ export function Donate() {
     }
 
     const options = {
-      key: import.meta.env.VITE_RAZORPAY_KEY_ID || "rzp_test_T8ZPJRLY7gu0e8",
+      key: sessionData.keyId || import.meta.env.VITE_RAZORPAY_KEY_ID || "rzp_test_T8ZPJRLY7gu0e8",
       amount: sessionData.amount,
       currency: sessionData.currency,
       name: "Uday Foundation Trust",

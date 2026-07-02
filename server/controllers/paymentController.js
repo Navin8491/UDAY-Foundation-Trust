@@ -51,41 +51,48 @@ export async function createCheckoutSession(req, res, next) {
         });
       }
 
-      // If the checkout session is already created and not expired/failed, return the existing URL
+      // If the checkout session is already created and not expired/failed, recover it
       if (existingEvent.current_state === "CHECKOUT_CREATED" && existingEvent.payment_id) {
-        // Retrieve the redirect URL from the gateway session or return stored info
         const gateway = getPaymentGateway();
-        let url = "";
 
         if (process.env.PAYMENT_PROVIDER?.toLowerCase() === "stripe") {
           try {
             const session = await gateway.stripe.checkout.sessions.retrieve(existingEvent.payment_id);
-            url = session.url;
+            return res.status(200).json({
+              status: "session_recovered",
+              sessionId: existingEvent.payment_id,
+              url: session.url,
+              idempotencyKey,
+              eventId: existingEvent.id,
+            });
           } catch (e) {
             console.warn("[PaymentController] Failed to retrieve Stripe session, creating a new one:", e.message);
           }
-        } else {
-          // Razorpay/Mock URLs are deterministically constructable or stored
-          // Re-generate the URL for the mock/razorpay provider
-          const tempUrl = await gateway.createCheckoutSession({
-            amount: existingEvent.amount,
-            currency: existingEvent.currency,
-            idempotencyKey: existingEvent.idempotency_key,
-            donorName: existingEvent.donor_name,
-            email: existingEvent.email,
-            phone: existingEvent.phone,
-            description: existingEvent.purpose,
-          });
-          url = tempUrl.url;
-        }
-
-        if (url) {
-          return res.status(200).json({
-            status: "session_recovered",
-            sessionId: existingEvent.payment_id,
-            url,
-            idempotencyKey,
-          });
+        } else if (process.env.PAYMENT_PROVIDER?.toLowerCase() === "razorpay") {
+          try {
+            const orderResult = await gateway.createCheckoutSession({
+              amount: existingEvent.amount,
+              currency: existingEvent.currency,
+              idempotencyKey: existingEvent.idempotency_key,
+              donorName: existingEvent.donor_name,
+              email: existingEvent.email,
+              phone: existingEvent.phone,
+              description: existingEvent.purpose,
+            });
+            return res.status(200).json({
+              status: "session_recovered",
+              orderId: orderResult.orderId,
+              amount: orderResult.amount,
+              currency: orderResult.currency,
+              idempotencyKey,
+              eventId: existingEvent.id,
+              donorName: orderResult.donorName,
+              email: orderResult.email,
+              phone: orderResult.phone,
+            });
+          } catch (e) {
+            console.warn("[PaymentController] Failed to retrieve/recreate Razorpay order:", e.message);
+          }
         }
       }
 
@@ -153,11 +160,11 @@ export async function createCheckoutSession(req, res, next) {
         description: eventRecord.purpose,
       });
 
-      // 4. Update event record: State: CHECKOUT_CREATED, payment_id: gateway session id
+      // 4. Update event record: State: CHECKOUT_CREATED, payment_id: gateway session id or order id
       const { data: updatedRecord, error: updateError } = await supabase
         .from("payment_events")
         .update({
-          payment_id: sessionResult.sessionId,
+          payment_id: sessionResult.sessionId || sessionResult.orderId,
           current_state: "CHECKOUT_CREATED",
           updated_at: new Date().toISOString(),
         })
@@ -169,10 +176,17 @@ export async function createCheckoutSession(req, res, next) {
 
       res.status(201).json({
         status: "created",
-        sessionId: sessionResult.sessionId,
-        url: sessionResult.url,
+        keyId: process.env.RAZORPAY_KEY_ID || null,
+        sessionId: sessionResult.sessionId || null,
+        url: sessionResult.url || null,
+        orderId: sessionResult.orderId || null,
+        amount: sessionResult.amount || null,
+        currency: sessionResult.currency || null,
         idempotencyKey,
         eventId: updatedRecord.id,
+        donorName: sessionResult.donorName || null,
+        email: sessionResult.email || null,
+        phone: sessionResult.phone || null,
       });
 
     } catch (gatewayErr) {
@@ -233,22 +247,32 @@ export async function handleWebhook(req, res, next) {
         return res.status(200).json({ received: true, status: "already_processed" });
       }
 
-      // Update state to CHARGED and transaction ID
-      await supabase
+      // Update state to CHARGED and transaction ID only if it is in a pending checkout state
+      const { data: updatedEvent, error: updateError } = await supabase
         .from("payment_events")
         .update({
           gateway_transaction_id: verification.gatewayTransactionId,
           current_state: "CHARGED",
           updated_at: new Date().toISOString(),
         })
-        .eq("id", event.id);
+        .eq("id", event.id)
+        .in("current_state", ["INITIATED", "CHECKOUT_CREATED"])
+        .select()
+        .maybeSingle();
+
+      if (updateError) throw updateError;
+
+      if (!updatedEvent) {
+        console.log(`[PaymentController] Webhook: State has already transitioned. Skipping duplicate Saga execution.`);
+        return res.status(200).json({ received: true, status: "already_processed" });
+      }
 
       // Run Saga orchestrator asynchronously in the background so the webhook response returns immediately
       setImmediate(async () => {
         try {
-          await runSaga(event.id);
+          await runSaga(updatedEvent.id);
         } catch (sagaErr) {
-          console.error(`[PaymentController] Background Saga execution failed for ${event.id}:`, sagaErr.message);
+          console.error(`[PaymentController] Background Saga execution failed for ${updatedEvent.id}:`, sagaErr.message);
         }
       });
     }
@@ -451,3 +475,88 @@ export async function getPaymentStatus(req, res, next) {
     next(err);
   }
 }
+
+/**
+ * Verifies standard checkout Razorpay signatures.
+ */
+export async function verifyRazorpayPaymentSignature(req, res, next) {
+  try {
+    const { idempotencyKey, razorpay_payment_id, razorpay_order_id, razorpay_signature } = req.body;
+
+    if (!idempotencyKey || !razorpay_payment_id || !razorpay_order_id || !razorpay_signature) {
+      res.status(400);
+      return next(new Error("Missing signature verification payload parameters"));
+    }
+
+    // Verify signature signature
+    const secret = process.env.RAZORPAY_KEY_SECRET || "";
+    const body = razorpay_order_id + "|" + razorpay_payment_id;
+    const expectedSignature = crypto
+      .createHmac("sha256", secret)
+      .update(body.toString())
+      .digest("hex");
+
+    if (expectedSignature !== razorpay_signature) {
+      res.status(400);
+      return next(new Error("Razorpay payment signature mismatch. Transaction not verified."));
+    }
+
+    // Fetch the payment event
+    const { data: event, error: fetchError } = await supabase
+      .from("payment_events")
+      .select("*")
+      .eq("idempotency_key", idempotencyKey)
+      .maybeSingle();
+
+    if (fetchError || !event) {
+      res.status(404);
+      return next(new Error("Payment session transaction record not found"));
+    }
+
+    // If already fully completed, just return details
+    if (["COMPLETED", "DONATION_SAVED", "EMAIL_SENT", "ADMIN_NOTIFIED"].includes(event.current_state)) {
+      return res.json({
+        success: true,
+        eventId: event.id,
+        donationId: event.id,
+      });
+    }
+
+    // Update state to CHARGED with the verified transaction ID only if it is still pending
+    const { data: updatedEvent, error: updateError } = await supabase
+      .from("payment_events")
+      .update({
+        gateway_transaction_id: razorpay_payment_id,
+        current_state: "CHARGED",
+        updated_at: new Date().toISOString(),
+      })
+      .eq("id", event.id)
+      .in("current_state", ["INITIATED", "CHECKOUT_CREATED"])
+      .select()
+      .maybeSingle();
+
+    if (updateError) throw updateError;
+
+    if (!updatedEvent) {
+      console.log(`[PaymentController] verifySignature: State has already transitioned. Skipping duplicate Saga execution.`);
+      return res.json({
+        success: true,
+        eventId: event.id,
+        donationId: event.id,
+      });
+    }
+
+    // Asynchronously trigger Saga Engine execution
+    await runSaga(updatedEvent.id);
+
+    res.json({
+      success: true,
+      eventId: event.id,
+      donationId: event.id,
+    });
+
+  } catch (err) {
+    next(err);
+  }
+}
+
