@@ -1,30 +1,19 @@
-import nodemailer from "nodemailer";
+import { Resend } from "resend";
 import dotenv from "dotenv";
 
 dotenv.config();
 
-const EMAIL_HOST = process.env.EMAIL_HOST;
-const EMAIL_PORT = parseInt(process.env.EMAIL_PORT || "587");
-const EMAIL_USER = process.env.EMAIL_USER;
-const EMAIL_PASS = process.env.EMAIL_PASS;
-const EMAIL_FROM = process.env.EMAIL_FROM || '"Uday Foundation Trust" <noreply@udayfoundationtrust.org>';
-const ADMIN_NOTIFICATION_EMAIL = process.env.ADMIN_NOTIFICATION_EMAIL || "admin@udayfoundationtrust.org";
+const RESEND_API_KEY = process.env.RESEND_API_KEY;
+const EMAIL_FROM = process.env.EMAIL_FROM || "onboarding@resend.dev";
+const ADMIN_NOTIFICATION_EMAIL = process.env.ADMIN_NOTIFICATION_EMAIL || "udayfts1024@gmail.com";
 
-let transporter = null;
+let resend = null;
 
-if (EMAIL_HOST && EMAIL_USER && EMAIL_PASS) {
-  transporter = nodemailer.createTransport({
-    host: EMAIL_HOST,
-    port: EMAIL_PORT,
-    secure: EMAIL_PORT === 465,
-    auth: {
-      user: EMAIL_USER,
-      pass: EMAIL_PASS,
-    },
-  });
-  console.log("✅ Nodemailer SMTP Transporter configured successfully.");
+if (RESEND_API_KEY) {
+  resend = new Resend(RESEND_API_KEY);
+  console.log("✅ Resend client initialized successfully.");
 } else {
-  console.log("⚠️  SMTP credentials not set. Email service will run in DRY-RUN / MOCK mode (logging to console).");
+  console.log("⚠️  RESEND_API_KEY not set. Email service will run in DRY-RUN / MOCK mode (logging to console).");
 }
 
 // ── HTML Email Wrapper ────────────────────────────────────────────────────────
@@ -177,18 +166,25 @@ function getHtmlTemplate(title, preheader, bodyContent) {
 
 // ── Generic Email Sender ──────────────────────────────────────────────────────
 export async function sendMail(to, subject, htmlContent, attachments = []) {
-  if (transporter) {
+  if (resend) {
     try {
-      await transporter.sendMail({
+      const data = await resend.emails.send({
         from: EMAIL_FROM,
         to,
         subject,
         html: htmlContent,
-        attachments,
+        attachments: attachments.map(att => ({
+          filename: att.filename,
+          content: att.content,
+        })),
       });
-      console.log(`✉️  Email successfully sent to ${to} (${subject})`);
+      if (data.error) {
+        console.error(`❌ Resend failed to send email to ${to}:`, data.error.message);
+      } else {
+        console.log(`✉️  Email successfully sent to ${to} (${subject}). ID: ${data.data?.id}`);
+      }
     } catch (error) {
-      console.error(`❌ Nodemailer failed to send email to ${to}:`, error.message);
+      console.error(`❌ Resend failed to send email to ${to}:`, error.message);
     }
   } else {
     console.log(`\n--- [MOCK EMAIL DRY-RUN] ---`);
