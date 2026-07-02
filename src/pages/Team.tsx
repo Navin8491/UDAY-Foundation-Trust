@@ -181,7 +181,7 @@ export function Team() {
     const unsubscribe = subscribeTeam((items) => {
       if (items && items.length > 0) {
         const mapped = items.map((item) => ({
-          id: item.id || item.memberId,
+          id: item.memberId || item.id,
           name: item.name,
           role: item.role,
           bio: item.bio,
