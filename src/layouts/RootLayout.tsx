@@ -3,7 +3,7 @@ import { SiteHeader } from "@/components/site/SiteHeader";
 import { SiteFooter } from "@/components/site/SiteFooter";
 import { FloatingActions } from "@/components/site/FloatingActions";
 import { LanguageProvider } from "@/context/LanguageContext";
-import { Analytics } from "@vercel/analytics/react";
+
 
 export function RootLayout() {
   return (
@@ -14,7 +14,7 @@ export function RootLayout() {
       </main>
       <SiteFooter />
       <FloatingActions />
-      <Analytics />
+
     </LanguageProvider>
   );
 }
