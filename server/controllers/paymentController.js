@@ -190,10 +190,11 @@ export async function createCheckoutSession(req, res, next) {
       });
 
     } catch (gatewayErr) {
-      console.error("[PaymentController] Payment Gateway Checkout Creation failed:", gatewayErr.message);
-      await transitionToState(eventRecord.id, "FAILED", `Gateway checkout creation failed: ${gatewayErr.message}`);
+      const errorMsg = gatewayErr.description || gatewayErr.error?.description || gatewayErr.message || (typeof gatewayErr === "string" ? gatewayErr : JSON.stringify(gatewayErr));
+      console.error("[PaymentController] Payment Gateway Checkout Creation failed:", gatewayErr);
+      await transitionToState(eventRecord.id, "FAILED", `Gateway checkout creation failed: ${errorMsg}`);
       res.status(502);
-      throw new Error(`Failed to initialize payment with gateway: ${gatewayErr.message}`);
+      throw new Error(`Failed to initialize payment with gateway: ${errorMsg}`);
     }
 
   } catch (err) {
