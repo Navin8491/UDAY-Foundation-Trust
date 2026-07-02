@@ -3,37 +3,6 @@ import { Upload, FileText, Trash2, Eye, X } from "lucide-react";
 import { fetchCertificates, addCertificate, deleteCertificate, uploadFile } from "@/services/db";
 import { toast } from "sonner";
 
-const INITIAL_CERTIFICATES = [
-  {
-    id: "CERT-01",
-    name: "80G Tax Exemption Certificate",
-    file: "uday_trust_80g_2024.pdf",
-    size: "1.4 MB",
-    date: "2024-03-12",
-  },
-  {
-    id: "CERT-02",
-    name: "12A Registration Certificate",
-    file: "uday_trust_12a_approved.pdf",
-    size: "2.1 MB",
-    date: "2024-03-12",
-  },
-  {
-    id: "CERT-03",
-    name: "Trust Deed Registration",
-    file: "uday_foundation_deed_signed.pdf",
-    size: "4.8 MB",
-    date: "2019-11-05",
-  },
-  {
-    id: "CERT-04",
-    name: "NGO Darpan Registration ID",
-    file: "darpan_id_card_uday.pdf",
-    size: "850 KB",
-    date: "2022-06-20",
-  },
-];
-
 export function Certificates() {
   const [certs, setCerts] = useState<any[]>([]);
   const [previewFile, setPreviewFile] = useState<string | null>(null);

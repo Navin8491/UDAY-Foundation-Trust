@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react";
 import { Plus, Search, Edit, Trash2, Calendar, Users, Star, X } from "lucide-react";
-import { SCHOOL_BAG_EVENTS } from "@/constants/schoolEvents";
 import { fetchEvents, addEvent, updateEvent, deleteEvent } from "@/services/db";
 import { RichTextEditor } from "@/components/admin/RichTextEditor";
 import { ImageManager } from "@/components/admin/ImageManager";

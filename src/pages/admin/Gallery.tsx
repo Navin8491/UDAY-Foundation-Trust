@@ -1,6 +1,5 @@
 import { useState, useEffect, useRef } from "react";
 import { Trash2, Eye, X, Upload, ArrowLeft, ArrowRight, RefreshCw } from "lucide-react";
-import { SCHOOL_BAG_SIMPLE_GALLERY } from "@/constants/schoolEvents";
 import {
   fetchGallery,
   addGalleryItem,

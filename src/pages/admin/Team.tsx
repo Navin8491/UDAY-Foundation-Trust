@@ -1,88 +1,8 @@
 import { useState, useEffect } from "react";
 import { Plus, Edit, Trash2, Mail, Phone, X, ArrowLeft, ArrowRight } from "lucide-react";
-import presidentImg from "@/assets/president.jpg";
-import vicePresidentImg from "@/assets/vice-president.jpg";
-import prakashImg from "@/assets/prakash.jpg";
-import kartikeyaImg from "@/assets/kartikeya.jpg";
-import treasurerImg from "@/assets/treasurer.jpg";
-import mehulbhaiImg from "@/assets/mehulbhai.jpg";
-import kuldeepImg from "@/assets/kuldeep.jpg";
 import { fetchTeam, addTeamMember, updateTeamMember, deleteTeamMember } from "@/services/db";
 import { ImageManager } from "@/components/admin/ImageManager";
 import { toast } from "sonner";
-
-const INITIAL_TEAM = [
-  {
-    id: "TM-01",
-    name: "Gulabbhai Khodabhai Bauddh",
-    role: "President",
-    bio: "Founding trustee leading the vision of inclusive rural development.",
-    email: "udayfts1024@gmail.com",
-    phone: "+91 96246 68484",
-    img: presidentImg,
-    displayOrder: 0,
-  },
-  {
-    id: "TM-02",
-    name: "Sanjaykumar Maganbhai Vaghela",
-    role: "Vice President",
-    bio: "Drives program strategy and community outreach campaigns.",
-    email: "udayfts1024@gmail.com",
-    phone: "+91 98250 12345",
-    img: vicePresidentImg,
-    displayOrder: 1,
-  },
-  {
-    id: "TM-03",
-    name: "Prakash Aljibhai Parmar",
-    role: "Secretary",
-    bio: "Oversees operations, compliance, and field coordination.",
-    email: "udayfts1024@gmail.com",
-    phone: "+91 99799 54321",
-    img: prakashImg,
-    displayOrder: 2,
-  },
-  {
-    id: "TM-04",
-    name: "Kartikeya Babubhai Jadav",
-    role: "Joint Secretary",
-    bio: "Coordinates volunteer programs, youth engagement, and partnerships.",
-    email: "udayfts1024@gmail.com",
-    phone: "+91 97243 98765",
-    img: kartikeyaImg,
-    displayOrder: 3,
-  },
-  {
-    id: "TM-05",
-    name: "Rahulkumar Natubhai Rathod",
-    role: "Treasurer",
-    bio: "Manages finance, transparency, and donor reporting.",
-    email: "udayfts1024@gmail.com",
-    phone: "+91 98980 11223",
-    img: treasurerImg,
-    displayOrder: 4,
-  },
-  {
-    id: "TM-06",
-    name: "Mehulbhai Gunvantbhai Bauddh",
-    role: "Permanent Member",
-    bio: "Strategic advisor and field guide for healthcare initiatives.",
-    email: "udayfts1024@gmail.com",
-    phone: "+91 97123 45678",
-    img: mehulbhaiImg,
-    displayOrder: 5,
-  },
-  {
-    id: "TM-07",
-    name: "Kuldeep Bhogilal Meheriya",
-    role: "Permanent Member",
-    bio: "Drives education support programs and environmental initiatives.",
-    email: "udayfts1024@gmail.com",
-    phone: "+91 96112 23344",
-    img: kuldeepImg,
-    displayOrder: 6,
-  },
-];
 
 export function Team() {
   const [team, setTeam] = useState<any[]>([]);
