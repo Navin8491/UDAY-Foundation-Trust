@@ -1,4 +1,6 @@
 import PDFDocument from "pdfkit";
+import path from "path";
+import { fileURLToPath } from "url";
 
 /**
  * Converts a number into Indian currency words format.
@@ -73,46 +75,61 @@ export function generateReceiptPdf(donation) {
       doc.rect(20, 20, 555, 802).lineWidth(1.5).stroke("#7A9D1C");
       doc.rect(23, 23, 549, 796).lineWidth(0.5).stroke("#ff9933");
 
-      // HEADER
-      doc.fillColor("#7A9D1C");
-      doc.fontSize(22).font("Helvetica-Bold").text("UDAY FOUNDATION TRUST", 40, 45, { align: "center" });
+      // HEADER WITH LOGO
+      try {
+        const __filename = fileURLToPath(import.meta.url);
+        const __dirname = path.dirname(__filename);
+        const logoPath = path.join(__dirname, "../../src/assets/uday-logo.png");
+        doc.image(logoPath, 45, 42, { width: 55 });
+      } catch (err) {
+        console.warn("[PDFGenerator] Could not load logo image:", err.message);
+      }
+
+      doc.fillColor("#1e3a8a");
+      doc.fontSize(18).font("Helvetica-Bold").text("UDAY FOUNDATION TRUST", 115, 42);
       
       doc.fillColor("#475569");
-      doc.fontSize(9).font("Helvetica").text("Registered Office: Ahmedabad, Gujarat, India", 40, 70, { align: "center" });
-      doc.text("Email: contact@udayfoundationtrust.org | Web: www.udayfoundationtrust.org", 40, 83, { align: "center" });
-      doc.text("Approved under section 80G of the Income Tax Act, 1961", 40, 96, { align: "center" });
+      doc.fontSize(8).font("Helvetica").text("Registered NGO (Reg No: Guj/23016/Ahmedabad) | Sanand, Ahmedabad, Gujarat", 115, 60);
+      doc.text("Email: udayfts1024@gmail.com | Website: www.udayfoundationstrust.org", 115, 72);
+      doc.fillColor("#7A9D1C").font("Helvetica-Bold").text("Eligible for 80G Tax Exemption (Ref No: AABTU5153HF20261)", 115, 84);
 
       // Horizontal line
-      doc.moveTo(40, 115).lineTo(555, 115).lineWidth(1).stroke("#e2e8f0");
+      doc.moveTo(40, 110).lineTo(555, 110).lineWidth(1).stroke("#e2e8f0");
 
       // TITLE BANNER
       doc.rect(40, 130, 515, 30).fill("#F4F7EB");
       doc.fillColor("#7A9D1C");
       doc.fontSize(12).font("Helvetica-Bold").text("OFFICIAL DONATION RECEIPT (80G TAX EXEMPTION)", 40, 139, { align: "center" });
 
-      // DETAILS BLOCK
-      doc.fillColor("#334155");
-      doc.fontSize(10);
+      // DETAILS TABLE BOX
+      doc.rect(40, 175, 515, 50).fill("#F8FAFC");
+      doc.rect(40, 175, 515, 50).lineWidth(0.5).stroke("#E2E8F0");
+
+      doc.fillColor("#475569");
+      doc.fontSize(9);
       
       // Column 1
-      doc.font("Helvetica-Bold").text("Receipt Number:", 50, 185);
-      doc.font("Helvetica").text(donation.receiptNumber || `UFT/REC-${donation.id?.substring(0, 8).toUpperCase()}`, 150, 185);
+      doc.font("Helvetica-Bold").text("Receipt Number:", 55, 185);
+      doc.fillColor("#0F172A").font("Helvetica").text(donation.receiptNumber || `UFT/REC-${donation.id?.substring(0, 8).toUpperCase()}`, 145, 185);
 
-      doc.font("Helvetica-Bold").text("Donation Date:", 50, 205);
+      doc.fillColor("#475569");
+      doc.font("Helvetica-Bold").text("Donation Date:", 55, 205);
       const dateStr = donation.createdAt 
         ? new Date(donation.createdAt).toLocaleDateString("en-IN", { day: "numeric", month: "long", year: "numeric" })
         : new Date().toLocaleDateString("en-IN", { day: "numeric", month: "long", year: "numeric" });
-      doc.font("Helvetica").text(dateStr, 150, 205);
+      doc.fillColor("#0F172A").font("Helvetica").text(dateStr, 145, 205);
 
       // Column 2
-      doc.font("Helvetica-Bold").text("PAN Ref:", 340, 185);
-      doc.font("Helvetica").text(donation.panNumber || "N/A", 410, 185);
+      doc.fillColor("#475569");
+      doc.font("Helvetica-Bold").text("PAN Ref:", 330, 185);
+      doc.fillColor("#0F172A").font("Helvetica").text(donation.panNumber || "N/A", 410, 185);
 
-      doc.font("Helvetica-Bold").text("Payment ID:", 340, 205);
-      doc.font("Helvetica").text(donation.id?.substring(0, 18) || "Direct UPI", 410, 205);
+      doc.fillColor("#475569");
+      doc.font("Helvetica-Bold").text("Payment ID:", 330, 205);
+      doc.fillColor("#0F172A").font("Helvetica").text(donation.id?.substring(0, 18) || "Direct UPI", 410, 205);
 
       // Horizontal separator
-      doc.moveTo(40, 230).lineTo(555, 230).lineWidth(0.5).stroke("#cbd5e1");
+      doc.moveTo(40, 240).lineTo(555, 240).lineWidth(0.5).stroke("#cbd5e1");
 
       // DONOR INFORMATION
       doc.fillColor("#1e293b");
