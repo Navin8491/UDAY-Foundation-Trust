@@ -1,7 +1,18 @@
 import { useDocumentMetadata } from "@/hooks/useDocumentMetadata";
 import { PageHero } from "@/components/site/PageHero";
 import { SITE } from "@/constants/site";
-import { Shield, Eye, Database, Cookie, Link2, Lock, Baby, UserCog, Mail, RefreshCw } from "lucide-react";
+import {
+  Shield,
+  Eye,
+  Database,
+  Cookie,
+  Link2,
+  Lock,
+  Baby,
+  UserCog,
+  Mail,
+  RefreshCw,
+} from "lucide-react";
 
 const LAST_UPDATED = "July 1, 2026";
 
@@ -144,7 +155,7 @@ const SECTIONS = [
 export function PrivacyPolicy() {
   useDocumentMetadata(
     "Privacy Policy | Uday Foundation Trust",
-    "Learn how Uday Foundation Trust collects, uses, and protects your personal information. Privacy policy for donors, volunteers, and partners."
+    "Learn how Uday Foundation Trust collects, uses, and protects your personal information. Privacy policy for donors, volunteers, and partners.",
   );
 
   return (
@@ -163,8 +174,8 @@ export function PrivacyPolicy() {
           <div className="rounded-2xl bg-primary/5 border border-primary/20 p-6 mb-10">
             <p className="text-sm text-muted-foreground leading-relaxed">
               This Privacy Policy describes how <strong>{SITE.name}</strong> ("we", "our", or "us")
-              collects, uses, stores, and protects personal information when you use our website.
-              By using our website, you agree to the practices described in this policy.
+              collects, uses, stores, and protects personal information when you use our website. By
+              using our website, you agree to the practices described in this policy.
             </p>
             <p className="text-xs text-muted-foreground mt-3 font-semibold">
               Last Updated: {LAST_UPDATED}

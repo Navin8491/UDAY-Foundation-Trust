@@ -3,10 +3,7 @@ import dotenv from "dotenv";
 
 dotenv.config();
 
-const supabase = createClient(
-  process.env.SUPABASE_URL,
-  process.env.SUPABASE_SERVICE_ROLE_KEY
-);
+const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SERVICE_ROLE_KEY);
 
 async function testInsert() {
   const payload = {
@@ -16,13 +13,10 @@ async function testInsert() {
     address: "123 Test Street",
     panNumber: "ABCDE1234F",
     amount: 1000,
-    purpose: "General Donation"
+    purpose: "General Donation",
   };
 
-  const { data, error } = await supabase
-    .from("donations")
-    .insert([payload])
-    .select();
+  const { data, error } = await supabase.from("donations").insert([payload]).select();
 
   console.log("Insert result with camelCase:");
   console.log("Data:", data);

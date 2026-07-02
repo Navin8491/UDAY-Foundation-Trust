@@ -47,13 +47,12 @@ export const deleteCertificate = async (req, res, next) => {
     }
 
     if (cert.file) {
-      await deleteFile(cert.file).catch(err => console.error("Failed to delete certificate file from storage:", err));
+      await deleteFile(cert.file).catch((err) =>
+        console.error("Failed to delete certificate file from storage:", err),
+      );
     }
 
-    const { error } = await supabase
-      .from("certificates")
-      .delete()
-      .eq("id", req.params.id);
+    const { error } = await supabase.from("certificates").delete().eq("id", req.params.id);
 
     if (error) throw error;
 
@@ -109,7 +108,9 @@ export const deleteTransparencyDocument = async (req, res, next) => {
     }
 
     if (docItem.file) {
-      await deleteFile(docItem.file).catch(err => console.error("Failed to delete transparency document file from storage:", err));
+      await deleteFile(docItem.file).catch((err) =>
+        console.error("Failed to delete transparency document file from storage:", err),
+      );
     }
 
     const { error } = await supabase

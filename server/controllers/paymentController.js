@@ -24,9 +24,12 @@ const paymentInitiationSchema = z.object({
 export async function createCheckoutSession(req, res, next) {
   try {
     const validated = paymentInitiationSchema.parse(req.body);
-    const { idempotencyKey, amount, donorName, email, phone, address, panNumber, purpose } = validated;
+    const { idempotencyKey, amount, donorName, email, phone, address, panNumber, purpose } =
+      validated;
 
-    console.log(`[PaymentController] Initiating checkout for ${donorName}, Amount: ₹${amount}, Key: ${idempotencyKey}`);
+    console.log(
+      `[PaymentController] Initiating checkout for ${donorName}, Amount: ₹${amount}, Key: ${idempotencyKey}`,
+    );
 
     // 1. Check if an event already exists with this idempotency key
     const { data: existingEvent, error: findError } = await supabase
@@ -40,10 +43,21 @@ export async function createCheckoutSession(req, res, next) {
     }
 
     if (existingEvent) {
-      console.log(`[PaymentController] Duplicate checkout attempt detected for idempotency key: ${idempotencyKey}`);
-      
+      console.log(
+        `[PaymentController] Duplicate checkout attempt detected for idempotency key: ${idempotencyKey}`,
+      );
+
       // If the transaction completed successfully, return the success info
-      if (["COMPLETED", "CHARGED", "PAYMENT_VERIFIED", "DONATION_SAVED", "EMAIL_SENT", "ADMIN_NOTIFIED"].includes(existingEvent.current_state)) {
+      if (
+        [
+          "COMPLETED",
+          "CHARGED",
+          "PAYMENT_VERIFIED",
+          "DONATION_SAVED",
+          "EMAIL_SENT",
+          "ADMIN_NOTIFIED",
+        ].includes(existingEvent.current_state)
+      ) {
         return res.status(200).json({
           status: "already_completed",
           message: "This donation has already been completed successfully.",
@@ -57,7 +71,9 @@ export async function createCheckoutSession(req, res, next) {
 
         if (process.env.PAYMENT_PROVIDER?.toLowerCase() === "stripe") {
           try {
-            const session = await gateway.stripe.checkout.sessions.retrieve(existingEvent.payment_id);
+            const session = await gateway.stripe.checkout.sessions.retrieve(
+              existingEvent.payment_id,
+            );
             return res.status(200).json({
               status: "session_recovered",
               sessionId: existingEvent.payment_id,
@@ -66,7 +82,10 @@ export async function createCheckoutSession(req, res, next) {
               eventId: existingEvent.id,
             });
           } catch (e) {
-            console.warn("[PaymentController] Failed to retrieve Stripe session, creating a new one:", e.message);
+            console.warn(
+              "[PaymentController] Failed to retrieve Stripe session, creating a new one:",
+              e.message,
+            );
           }
         } else if (process.env.PAYMENT_PROVIDER?.toLowerCase() === "razorpay") {
           try {
@@ -91,14 +110,21 @@ export async function createCheckoutSession(req, res, next) {
               phone: orderResult.phone,
             });
           } catch (e) {
-            console.warn("[PaymentController] Failed to retrieve/recreate Razorpay order:", e.message);
+            console.warn(
+              "[PaymentController] Failed to retrieve/recreate Razorpay order:",
+              e.message,
+            );
           }
         }
       }
 
       // If it failed previously, we can transition it back to INITIATED and try again
       if (existingEvent.current_state === "FAILED") {
-        await transitionToState(existingEvent.id, "INITIATED", "Retrying failed transaction attempt.");
+        await transitionToState(
+          existingEvent.id,
+          "INITIATED",
+          "Retrying failed transaction attempt.",
+        );
       }
     }
 
@@ -129,7 +155,8 @@ export async function createCheckoutSession(req, res, next) {
 
       if (insertError) {
         // Fallback check in case of concurrent insert race condition
-        if (insertError.code === "23505") { // postgres unique violation
+        if (insertError.code === "23505") {
+          // postgres unique violation
           const { data: dupRecord } = await supabase
             .from("payment_events")
             .select("*")
@@ -148,7 +175,7 @@ export async function createCheckoutSession(req, res, next) {
 
     // 3. Call active payment gateway provider to create a session
     const gateway = getPaymentGateway();
-    
+
     try {
       const sessionResult = await gateway.createCheckoutSession({
         amount: eventRecord.amount,
@@ -188,15 +215,21 @@ export async function createCheckoutSession(req, res, next) {
         email: sessionResult.email || null,
         phone: sessionResult.phone || null,
       });
-
     } catch (gatewayErr) {
-      const errorMsg = gatewayErr.description || gatewayErr.error?.description || gatewayErr.message || (typeof gatewayErr === "string" ? gatewayErr : JSON.stringify(gatewayErr));
+      const errorMsg =
+        gatewayErr.description ||
+        gatewayErr.error?.description ||
+        gatewayErr.message ||
+        (typeof gatewayErr === "string" ? gatewayErr : JSON.stringify(gatewayErr));
       console.error("[PaymentController] Payment Gateway Checkout Creation failed:", gatewayErr);
-      await transitionToState(eventRecord.id, "FAILED", `Gateway checkout creation failed: ${errorMsg}`);
+      await transitionToState(
+        eventRecord.id,
+        "FAILED",
+        `Gateway checkout creation failed: ${errorMsg}`,
+      );
       res.status(502);
       throw new Error(`Failed to initialize payment with gateway: ${errorMsg}`);
     }
-
   } catch (err) {
     next(err);
   }
@@ -209,23 +242,29 @@ export async function createCheckoutSession(req, res, next) {
 export async function handleWebhook(req, res, next) {
   const signature = req.headers["stripe-signature"] || req.headers["x-razorpay-signature"] || "";
   const provider = (process.env.PAYMENT_PROVIDER || "mock").toLowerCase();
-  
+
   console.log(`[PaymentController] Webhook received for provider: ${provider}`);
 
   try {
     const gateway = getPaymentGateway();
-    
+
     // Stripe webhooks require the raw request body to verify signatures correctly
     const rawBody = req.rawBody || req.body;
-    
+
     const verification = await gateway.verifyWebhook(rawBody, signature);
 
     if (!verification.success) {
       res.status(400);
-      return next(new Error(`Webhook verification signature validation failed. Detail: ${verification.error || "unknown"}`));
+      return next(
+        new Error(
+          `Webhook verification signature validation failed. Detail: ${verification.error || "unknown"}`,
+        ),
+      );
     }
 
-    console.log(`[PaymentController] Webhook signature verified. Transaction ID: ${verification.gatewayTransactionId}, Event Type: ${verification.eventType}`);
+    console.log(
+      `[PaymentController] Webhook signature verified. Transaction ID: ${verification.gatewayTransactionId}, Event Type: ${verification.eventType}`,
+    );
 
     // If it's a success payment event, find the record and trigger the Saga state machine
     if (verification.idempotencyKey) {
@@ -238,13 +277,26 @@ export async function handleWebhook(req, res, next) {
       if (error) throw error;
 
       if (!event) {
-        console.warn(`[PaymentController] Webhook received for unknown idempotency key: ${verification.idempotencyKey}`);
+        console.warn(
+          `[PaymentController] Webhook received for unknown idempotency key: ${verification.idempotencyKey}`,
+        );
         return res.status(200).json({ received: true, warning: "unknown idempotency key" });
       }
 
       // If already processed, ignore webhook retry
-      if (["CHARGED", "PAYMENT_VERIFIED", "DONATION_SAVED", "EMAIL_SENT", "ADMIN_NOTIFIED", "COMPLETED"].includes(event.current_state)) {
-        console.log(`[PaymentController] Transaction ${event.id} already completed or processing. Webhook ignored.`);
+      if (
+        [
+          "CHARGED",
+          "PAYMENT_VERIFIED",
+          "DONATION_SAVED",
+          "EMAIL_SENT",
+          "ADMIN_NOTIFIED",
+          "COMPLETED",
+        ].includes(event.current_state)
+      ) {
+        console.log(
+          `[PaymentController] Transaction ${event.id} already completed or processing. Webhook ignored.`,
+        );
         return res.status(200).json({ received: true, status: "already_processed" });
       }
 
@@ -264,7 +316,9 @@ export async function handleWebhook(req, res, next) {
       if (updateError) throw updateError;
 
       if (!updatedEvent) {
-        console.log(`[PaymentController] Webhook: State has already transitioned. Skipping duplicate Saga execution.`);
+        console.log(
+          `[PaymentController] Webhook: State has already transitioned. Skipping duplicate Saga execution.`,
+        );
         return res.status(200).json({ received: true, status: "already_processed" });
       }
 
@@ -273,18 +327,19 @@ export async function handleWebhook(req, res, next) {
         try {
           await runSaga(updatedEvent.id);
         } catch (sagaErr) {
-          console.error(`[PaymentController] Background Saga execution failed for ${updatedEvent.id}:`, sagaErr.message);
+          console.error(
+            `[PaymentController] Background Saga execution failed for ${updatedEvent.id}:`,
+            sagaErr.message,
+          );
         }
       });
     }
 
     res.status(200).json({ received: true });
-
   } catch (err) {
     next(err);
   }
 }
-
 
 /**
  * Downloads the PDF receipt for a completed donation.
@@ -307,14 +362,17 @@ export async function downloadReceipt(req, res, next) {
 
     // Generate PDF stream
     const pdfBuffer = await generateReceiptPdf(donation);
-    
-    const receiptNo = donation.receiptNumber || `UFT-REC-${donation.id.substring(0, 8).toUpperCase()}`;
+
+    const receiptNo =
+      donation.receiptNumber || `UFT-REC-${donation.id.substring(0, 8).toUpperCase()}`;
     const safeReceiptNo = receiptNo.replace(/\//g, "_");
 
     res.setHeader("Content-Type", "application/pdf");
-    res.setHeader("Content-Disposition", `attachment; filename="Donation_Receipt_${safeReceiptNo}.pdf"`);
+    res.setHeader(
+      "Content-Disposition",
+      `attachment; filename="Donation_Receipt_${safeReceiptNo}.pdf"`,
+    );
     res.send(pdfBuffer);
-
   } catch (err) {
     next(err);
   }
@@ -326,7 +384,7 @@ export async function downloadReceipt(req, res, next) {
 export async function refundDonation(req, res, next) {
   try {
     const eventId = req.params.id;
-    
+
     const { data: event, error } = await supabase
       .from("payment_events")
       .select("*")
@@ -343,15 +401,20 @@ export async function refundDonation(req, res, next) {
     }
 
     // Update state to REFUND_INITIATED
-    const updated = await transitionToState(eventId, "REFUND_INITIATED", "Refund initiated manually by administrator.");
+    const updated = await transitionToState(
+      eventId,
+      "REFUND_INITIATED",
+      "Refund initiated manually by administrator.",
+    );
 
     // Run compensation asynchronously
     setImmediate(() => {
-      runCompensation(eventId).catch((err) => console.error("[PaymentController] Admin refund failed:", err.message));
+      runCompensation(eventId).catch((err) =>
+        console.error("[PaymentController] Admin refund failed:", err.message),
+      );
     });
 
     res.json({ message: "Refund process initiated successfully.", event: updated });
-
   } catch (err) {
     next(err);
   }
@@ -365,7 +428,9 @@ export async function getPaymentTimeline(req, res, next) {
     const eventId = req.params.id;
     const { data: event, error } = await supabase
       .from("payment_events")
-      .select("id, idempotency_key, current_state, gateway_transaction_id, last_error, retry_count, created_at, updated_at")
+      .select(
+        "id, idempotency_key, current_state, gateway_transaction_id, last_error, retry_count, created_at, updated_at",
+      )
       .eq("id", eventId)
       .single();
 
@@ -401,10 +466,10 @@ export async function getPaymentEvents(req, res, next) {
     if (donationsError) throw donationsError;
 
     // Union legacy donation records that were created before the payment_events system
-    const eventIds = new Set((events || []).map(e => e.id));
+    const eventIds = new Set((events || []).map((e) => e.id));
     const legacyEvents = (donations || [])
-      .filter(d => !eventIds.has(d.id))
-      .map(d => ({
+      .filter((d) => !eventIds.has(d.id))
+      .map((d) => ({
         id: d.id,
         idempotency_key: `legacy_${d.id}`,
         payment_id: d.receiptNumber || `legacy_${d.id}`,
@@ -418,7 +483,7 @@ export async function getPaymentEvents(req, res, next) {
         created_at: d.created_at,
         updated_at: d.updated_at || d.created_at,
         last_error: null,
-        retry_count: 0
+        retry_count: 0,
       }));
 
     const combined = [...(events || []), ...legacyEvents].sort((a, b) => {
@@ -451,7 +516,9 @@ export async function getPaymentStatus(req, res, next) {
 
     // Try to find the donation record if it was saved
     let donation = null;
-    if (["DONATION_SAVED", "EMAIL_SENT", "ADMIN_NOTIFIED", "COMPLETED"].includes(event.current_state)) {
+    if (
+      ["DONATION_SAVED", "EMAIL_SENT", "ADMIN_NOTIFIED", "COMPLETED"].includes(event.current_state)
+    ) {
       const { data } = await supabase
         .from("donations")
         .select("*")
@@ -515,7 +582,9 @@ export async function verifyRazorpayPaymentSignature(req, res, next) {
     }
 
     // If already fully completed, just return details
-    if (["COMPLETED", "DONATION_SAVED", "EMAIL_SENT", "ADMIN_NOTIFIED"].includes(event.current_state)) {
+    if (
+      ["COMPLETED", "DONATION_SAVED", "EMAIL_SENT", "ADMIN_NOTIFIED"].includes(event.current_state)
+    ) {
       return res.json({
         success: true,
         eventId: event.id,
@@ -539,7 +608,9 @@ export async function verifyRazorpayPaymentSignature(req, res, next) {
     if (updateError) throw updateError;
 
     if (!updatedEvent) {
-      console.log(`[PaymentController] verifySignature: State has already transitioned. Skipping duplicate Saga execution.`);
+      console.log(
+        `[PaymentController] verifySignature: State has already transitioned. Skipping duplicate Saga execution.`,
+      );
       return res.json({
         success: true,
         eventId: event.id,
@@ -555,9 +626,7 @@ export async function verifyRazorpayPaymentSignature(req, res, next) {
       eventId: event.id,
       donationId: event.id,
     });
-
   } catch (err) {
     next(err);
   }
 }
-

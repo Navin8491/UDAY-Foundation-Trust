@@ -1,5 +1,15 @@
 import { useRef, useEffect } from "react";
-import { Bold, Italic, Underline, Heading2, Heading3, List, ListOrdered, Link, Sparkles } from "lucide-react";
+import {
+  Bold,
+  Italic,
+  Underline,
+  Heading2,
+  Heading3,
+  List,
+  ListOrdered,
+  Link,
+  Sparkles,
+} from "lucide-react";
 
 interface RichTextEditorProps {
   value: string;
@@ -7,7 +17,11 @@ interface RichTextEditorProps {
   placeholder?: string;
 }
 
-export function RichTextEditor({ value, onChange, placeholder = "Enter description..." }: RichTextEditorProps) {
+export function RichTextEditor({
+  value,
+  onChange,
+  placeholder = "Enter description...",
+}: RichTextEditorProps) {
   const editorRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {

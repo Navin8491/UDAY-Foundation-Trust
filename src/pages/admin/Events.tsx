@@ -178,7 +178,12 @@ export function Events() {
           gu: formTitleGu,
           hi: formTitleHi || formTitleEn,
         },
-        slug: editingEvent?.slug || formTitleEn.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, ""),
+        slug:
+          editingEvent?.slug ||
+          formTitleEn
+            .toLowerCase()
+            .replace(/[^a-z0-9]+/g, "-")
+            .replace(/(^-|-$)/g, ""),
         category: formCategory,
         date: formDate,
         place: {
@@ -266,8 +271,10 @@ export function Events() {
     }
   };
 
-  const filtered = eventsList.filter((e) =>
-    e.titleEn.toLowerCase().includes(search.toLowerCase()) || e.category.toLowerCase().includes(search.toLowerCase())
+  const filtered = eventsList.filter(
+    (e) =>
+      e.titleEn.toLowerCase().includes(search.toLowerCase()) ||
+      e.category.toLowerCase().includes(search.toLowerCase()),
   );
 
   return (
@@ -276,7 +283,9 @@ export function Events() {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl md:text-3xl font-display font-bold">Events Management</h1>
-          <p className="text-sm text-slate-500 font-medium font-gujarati">કાર્યક્રમો, કેમ્પ અને સેવા અભિયાનોનું વ્યવસ્થાપન</p>
+          <p className="text-sm text-slate-500 font-medium font-gujarati">
+            કાર્યક્રમો, કેમ્પ અને સેવા અભિયાનોનું વ્યવસ્થાપન
+          </p>
         </div>
         <button
           onClick={handleOpenAddModal}
@@ -304,7 +313,10 @@ export function Events() {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {loading ? (
           Array.from({ length: 6 }).map((_, idx) => (
-            <div key={idx} className="bg-white rounded-3xl border border-slate-200/85 p-5 space-y-4 animate-pulse">
+            <div
+              key={idx}
+              className="bg-white rounded-3xl border border-slate-200/85 p-5 space-y-4 animate-pulse"
+            >
               <div className="aspect-[16/10] bg-slate-100 rounded-2xl w-full" />
               <div className="space-y-2">
                 <div className="h-4 w-1/4 bg-slate-100 rounded" />
@@ -318,90 +330,94 @@ export function Events() {
           <div className="col-span-full text-center py-12 text-slate-400 font-bold">
             No events found.
           </div>
-        ) : filtered.map((evt) => (
-          <article
-            key={evt.id}
-            className="bg-white rounded-3xl border border-slate-200/85 shadow-xs hover:shadow-md transition-all overflow-hidden flex flex-col justify-between group"
-          >
-            <div>
-              {/* Cover Image */}
-              <div className="relative aspect-[16/10] bg-slate-100 overflow-hidden">
-                <img
-                  src={evt.img}
-                  alt={evt.titleEn}
-                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                />
-                <button
-                  onClick={() => toggleFeatured(evt.id)}
-                  className={`absolute top-4 right-4 h-9 w-9 rounded-full flex items-center justify-center backdrop-blur-md transition-colors cursor-pointer ${evt.featured
-                    ? "bg-[#F7E81D] text-[#121B34] shadow animate-pulse"
-                    : "bg-black/40 text-white hover:bg-black/60"
+        ) : (
+          filtered.map((evt) => (
+            <article
+              key={evt.id}
+              className="bg-white rounded-3xl border border-slate-200/85 shadow-xs hover:shadow-md transition-all overflow-hidden flex flex-col justify-between group"
+            >
+              <div>
+                {/* Cover Image */}
+                <div className="relative aspect-[16/10] bg-slate-100 overflow-hidden">
+                  <img
+                    src={evt.img}
+                    alt={evt.titleEn}
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                  />
+                  <button
+                    onClick={() => toggleFeatured(evt.id)}
+                    className={`absolute top-4 right-4 h-9 w-9 rounded-full flex items-center justify-center backdrop-blur-md transition-colors cursor-pointer ${
+                      evt.featured
+                        ? "bg-[#F7E81D] text-[#121B34] shadow animate-pulse"
+                        : "bg-black/40 text-white hover:bg-black/60"
                     }`}
-                  title={evt.featured ? "Unmark Featured" : "Mark Featured"}
+                    title={evt.featured ? "Unmark Featured" : "Mark Featured"}
+                  >
+                    <Star className="h-4.5 w-4.5 fill-current" />
+                  </button>
+                </div>
+
+                {/* Card Body */}
+                <div className="p-6">
+                  <div className="flex gap-2 items-center mb-3">
+                    <span className="chip bg-primary/10 text-primary text-[9px] font-bold py-0.5 px-2 rounded-md">
+                      {evt.category}
+                    </span>
+                    {evt.status === "draft" && (
+                      <span className="chip bg-slate-100 text-slate-600 text-[9px] font-bold py-0.5 px-2 rounded-md">
+                        Draft
+                      </span>
+                    )}
+                    {evt.featured && (
+                      <span className="chip bg-amber-50 text-amber-600 border-amber-200 text-[9px] font-bold py-0.5 px-2 rounded-md">
+                        Featured
+                      </span>
+                    )}
+                  </div>
+
+                  <h3 className="text-base font-bold text-slate-900 group-hover:text-primary transition-colors leading-snug">
+                    {evt.titleEn}
+                  </h3>
+                  <h4 className="font-gujarati text-xs font-semibold text-slate-500 mt-1">
+                    {evt.titleGu}
+                  </h4>
+
+                  <div className="mt-4 grid grid-cols-2 gap-3 bg-slate-50 p-3 rounded-xl border border-slate-100 text-[10px] text-slate-400 font-bold uppercase tracking-wider">
+                    <div>
+                      <span>Participants</span>
+                      <div className="text-slate-700 text-xs font-bold mt-0.5 flex items-center gap-1">
+                        <Users className="h-3.5 w-3.5 text-primary" />{" "}
+                        {evt.participants.toLocaleString()}
+                      </div>
+                    </div>
+                    <div>
+                      <span>Volunteers</span>
+                      <div className="text-slate-700 text-xs font-bold mt-0.5 flex items-center gap-1">
+                        <Calendar className="h-3.5 w-3.5 text-[#7A9D1C]" /> {evt.volunteers}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Card Footer Actions */}
+              <div className="p-4 border-t border-slate-100 bg-slate-50/50 flex gap-2 justify-end">
+                <button
+                  onClick={() => handleOpenEditModal(evt)}
+                  className="h-9 px-3 rounded-xl border border-slate-200 hover:bg-slate-100 hover:text-slate-900 text-slate-500 text-xs font-bold flex items-center gap-1 cursor-pointer"
                 >
-                  <Star className="h-4.5 w-4.5 fill-current" />
+                  <Edit className="h-3.5 w-3.5" /> Edit
+                </button>
+                <button
+                  onClick={() => handleDelete(evt.id)}
+                  className="h-9 px-3 rounded-xl border border-rose-100 hover:bg-rose-50 text-rose-500 text-xs font-bold flex items-center gap-1 cursor-pointer"
+                >
+                  <Trash2 className="h-3.5 w-3.5" /> Delete
                 </button>
               </div>
-
-              {/* Card Body */}
-              <div className="p-6">
-                <div className="flex gap-2 items-center mb-3">
-                  <span className="chip bg-primary/10 text-primary text-[9px] font-bold py-0.5 px-2 rounded-md">
-                    {evt.category}
-                  </span>
-                  {evt.status === "draft" && (
-                    <span className="chip bg-slate-100 text-slate-600 text-[9px] font-bold py-0.5 px-2 rounded-md">
-                      Draft
-                    </span>
-                  )}
-                  {evt.featured && (
-                    <span className="chip bg-amber-50 text-amber-600 border-amber-200 text-[9px] font-bold py-0.5 px-2 rounded-md">
-                      Featured
-                    </span>
-                  )}
-                </div>
-
-                <h3 className="text-base font-bold text-slate-900 group-hover:text-primary transition-colors leading-snug">
-                  {evt.titleEn}
-                </h3>
-                <h4 className="font-gujarati text-xs font-semibold text-slate-500 mt-1">
-                  {evt.titleGu}
-                </h4>
-
-                <div className="mt-4 grid grid-cols-2 gap-3 bg-slate-50 p-3 rounded-xl border border-slate-100 text-[10px] text-slate-400 font-bold uppercase tracking-wider">
-                  <div>
-                    <span>Participants</span>
-                    <div className="text-slate-700 text-xs font-bold mt-0.5 flex items-center gap-1">
-                      <Users className="h-3.5 w-3.5 text-primary" /> {evt.participants.toLocaleString()}
-                    </div>
-                  </div>
-                  <div>
-                    <span>Volunteers</span>
-                    <div className="text-slate-700 text-xs font-bold mt-0.5 flex items-center gap-1">
-                      <Calendar className="h-3.5 w-3.5 text-[#7A9D1C]" /> {evt.volunteers}
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Card Footer Actions */}
-            <div className="p-4 border-t border-slate-100 bg-slate-50/50 flex gap-2 justify-end">
-              <button
-                onClick={() => handleOpenEditModal(evt)}
-                className="h-9 px-3 rounded-xl border border-slate-200 hover:bg-slate-100 hover:text-slate-900 text-slate-500 text-xs font-bold flex items-center gap-1 cursor-pointer"
-              >
-                <Edit className="h-3.5 w-3.5" /> Edit
-              </button>
-              <button
-                onClick={() => handleDelete(evt.id)}
-                className="h-9 px-3 rounded-xl border border-rose-100 hover:bg-rose-50 text-rose-500 text-xs font-bold flex items-center gap-1 cursor-pointer"
-              >
-                <Trash2 className="h-3.5 w-3.5" /> Delete
-              </button>
-            </div>
-          </article>
-        ))}
+            </article>
+          ))
+        )}
       </div>
 
       {/* Add / Edit Modal */}
@@ -410,7 +426,9 @@ export function Events() {
           <div className="bg-white rounded-3xl border border-slate-200 shadow-2xl max-w-2xl w-full overflow-hidden animate-scale-up max-h-[90vh] flex flex-col">
             {/* Header */}
             <div className="p-6 border-b border-slate-100 flex items-center justify-between">
-              <h3 className="font-bold text-lg">{editingEvent ? "Edit Event Details" : "Add Completed Event"}</h3>
+              <h3 className="font-bold text-lg">
+                {editingEvent ? "Edit Event Details" : "Add Completed Event"}
+              </h3>
               <button
                 onClick={() => setModalOpen(false)}
                 className="text-slate-400 hover:text-slate-600 p-1.5 rounded-lg hover:bg-slate-50 cursor-pointer"
@@ -423,13 +441,14 @@ export function Events() {
             <form onSubmit={handleSave} className="flex-1 flex flex-col overflow-hidden">
               {/* Scrollable Form Body */}
               <div className="flex-1 overflow-y-auto p-6 space-y-5 text-xs font-semibold">
-
                 {/* Event Title inputs */}
                 <div className="space-y-4 border-b border-slate-100 pb-4">
                   <h4 className="text-sm font-bold text-slate-800">Event Title</h4>
                   <div className="space-y-3">
                     <div className="space-y-1.5">
-                      <label className="text-slate-500 uppercase tracking-wider">English Title *</label>
+                      <label className="text-slate-500 uppercase tracking-wider">
+                        English Title *
+                      </label>
                       <input
                         type="text"
                         required
@@ -440,7 +459,9 @@ export function Events() {
                       />
                     </div>
                     <div className="space-y-1.5">
-                      <label className="text-slate-500 uppercase tracking-wider">Gujarati Title *</label>
+                      <label className="text-slate-500 uppercase tracking-wider">
+                        Gujarati Title *
+                      </label>
                       <input
                         type="text"
                         required
@@ -469,7 +490,9 @@ export function Events() {
                   <div className="space-y-3">
                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                       <div className="space-y-1.5">
-                        <label className="text-slate-500 uppercase tracking-wider">English Location *</label>
+                        <label className="text-slate-500 uppercase tracking-wider">
+                          English Location *
+                        </label>
                         <input
                           type="text"
                           required
@@ -479,7 +502,9 @@ export function Events() {
                         />
                       </div>
                       <div className="space-y-1.5">
-                        <label className="text-slate-500 uppercase tracking-wider">Gujarati Location *</label>
+                        <label className="text-slate-500 uppercase tracking-wider">
+                          Gujarati Location *
+                        </label>
                         <input
                           type="text"
                           required
@@ -489,7 +514,9 @@ export function Events() {
                         />
                       </div>
                       <div className="space-y-1.5">
-                        <label className="text-slate-500 uppercase tracking-wider">Hindi Location *</label>
+                        <label className="text-slate-500 uppercase tracking-wider">
+                          Hindi Location *
+                        </label>
                         <input
                           type="text"
                           required
@@ -533,7 +560,9 @@ export function Events() {
                   </div>
 
                   <div className="space-y-1.5">
-                    <label className="text-slate-500 uppercase tracking-wider">Participants *</label>
+                    <label className="text-slate-500 uppercase tracking-wider">
+                      Participants *
+                    </label>
                     <input
                       type="number"
                       required
@@ -558,7 +587,9 @@ export function Events() {
                 {/* Status and Banner Toggles */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 border-b border-slate-100 pb-4">
                   <div className="space-y-1.5">
-                    <label className="text-slate-500 uppercase tracking-wider">Publish Status *</label>
+                    <label className="text-slate-500 uppercase tracking-wider">
+                      Publish Status *
+                    </label>
                     <select
                       value={formStatus}
                       onChange={(e) => setFormStatus(e.target.value as any)}
@@ -577,7 +608,10 @@ export function Events() {
                       onChange={(e) => setFormFeatured(e.target.checked)}
                       className="h-5 w-5 rounded border-slate-300 text-primary focus:ring-primary/20 cursor-pointer"
                     />
-                    <label htmlFor="featured" className="text-slate-700 font-bold cursor-pointer text-xs uppercase tracking-wide">
+                    <label
+                      htmlFor="featured"
+                      className="text-slate-700 font-bold cursor-pointer text-xs uppercase tracking-wide"
+                    >
                       Mark as featured on home banner
                     </label>
                   </div>
@@ -599,10 +633,14 @@ export function Events() {
 
                 {/* Full Description (Rich Text) */}
                 <div className="space-y-4 border-b border-slate-100 pb-4">
-                  <h4 className="text-sm font-bold text-slate-800">Full Description / Summary Details</h4>
+                  <h4 className="text-sm font-bold text-slate-800">
+                    Full Description / Summary Details
+                  </h4>
                   <div className="space-y-3">
                     <div className="space-y-1.5">
-                      <label className="text-slate-500 uppercase tracking-wider">English Description *</label>
+                      <label className="text-slate-500 uppercase tracking-wider">
+                        English Description *
+                      </label>
                       <RichTextEditor
                         value={formSummaryEn}
                         onChange={setFormSummaryEn}
@@ -610,7 +648,9 @@ export function Events() {
                       />
                     </div>
                     <div className="space-y-1.5">
-                      <label className="text-slate-500 uppercase tracking-wider">Gujarati Description *</label>
+                      <label className="text-slate-500 uppercase tracking-wider">
+                        Gujarati Description *
+                      </label>
                       <RichTextEditor
                         value={formSummaryGu}
                         onChange={setFormSummaryGu}
@@ -618,7 +658,9 @@ export function Events() {
                       />
                     </div>
                     <div className="space-y-1.5">
-                      <label className="text-slate-500 uppercase tracking-wider">Hindi Description</label>
+                      <label className="text-slate-500 uppercase tracking-wider">
+                        Hindi Description
+                      </label>
                       <RichTextEditor
                         value={formSummaryHi}
                         onChange={setFormSummaryHi}
@@ -633,7 +675,9 @@ export function Events() {
                   <h4 className="text-sm font-bold text-slate-800">SEO Meta Parameters</h4>
                   <div className="space-y-3">
                     <div className="space-y-1.5">
-                      <label className="text-slate-500 uppercase tracking-wider">SEO Title Tag</label>
+                      <label className="text-slate-500 uppercase tracking-wider">
+                        SEO Title Tag
+                      </label>
                       <input
                         type="text"
                         value={formSeoTitle}
@@ -643,7 +687,9 @@ export function Events() {
                       />
                     </div>
                     <div className="space-y-1.5">
-                      <label className="text-slate-500 uppercase tracking-wider">SEO Meta Description</label>
+                      <label className="text-slate-500 uppercase tracking-wider">
+                        SEO Meta Description
+                      </label>
                       <textarea
                         rows={2}
                         value={formSeoDesc}
@@ -654,7 +700,6 @@ export function Events() {
                     </div>
                   </div>
                 </div>
-
               </div>
 
               {/* Fixed Footer Submit Buttons */}
@@ -672,7 +717,7 @@ export function Events() {
                   disabled={loading}
                   className="flex-1 btn-primary text-xs py-2.5 px-4 cursor-pointer disabled:opacity-50"
                 >
-                  {loading ? "Saving..." : (editingEvent ? "Save Changes" : "Publish Event")}
+                  {loading ? "Saving..." : editingEvent ? "Save Changes" : "Publish Event"}
                 </button>
               </div>
             </form>

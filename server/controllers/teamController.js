@@ -78,13 +78,12 @@ export const deleteTeamMember = async (req, res, next) => {
     }
 
     if (member.img) {
-      await deleteFile(member.img).catch(err => console.error("Failed to delete team member image from storage:", err));
+      await deleteFile(member.img).catch((err) =>
+        console.error("Failed to delete team member image from storage:", err),
+      );
     }
 
-    const { error: deleteError } = await supabase
-      .from("team")
-      .delete()
-      .eq("id", req.params.id);
+    const { error: deleteError } = await supabase.from("team").delete().eq("id", req.params.id);
 
     if (deleteError) throw deleteError;
 

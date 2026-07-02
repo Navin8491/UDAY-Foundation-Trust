@@ -3,10 +3,7 @@ import dotenv from "dotenv";
 
 dotenv.config();
 
-const supabase = createClient(
-  process.env.SUPABASE_URL,
-  process.env.SUPABASE_SERVICE_ROLE_KEY
-);
+const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SERVICE_ROLE_KEY);
 
 async function inspectVolunteerRecord() {
   console.log("Fetching volunteer record with ID c64d6a57-0a4a-447f-b599-e2ee1e5a9593...");
@@ -20,7 +17,7 @@ async function inspectVolunteerRecord() {
     console.error("Error:", error.message);
   } else {
     console.log("\nRecord columns:");
-    Object.keys(data).forEach(key => {
+    Object.keys(data).forEach((key) => {
       console.log(`  ${key}:`, data[key]);
     });
   }

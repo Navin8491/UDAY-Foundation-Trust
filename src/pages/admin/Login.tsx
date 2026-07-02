@@ -46,7 +46,6 @@ export function Login() {
 
   return (
     <div className="min-h-screen font-sans flex items-center justify-center bg-slate-950 text-slate-100 relative overflow-hidden">
-
       {/* Background decorations (Glows matching dashboard) */}
       <div className="absolute top-0 right-1/4 w-96 h-96 bg-[#4040A1]/10 rounded-full blur-[120px] pointer-events-none" />
       <div className="absolute bottom-10 left-10 w-96 h-96 bg-[#7A9D1C]/10 rounded-full blur-[120px] pointer-events-none" />
@@ -61,27 +60,31 @@ export function Login() {
       />
 
       <div className="w-full max-w-md p-4 relative z-10">
-
         {/* Card wrapper */}
         <div className="bg-slate-900/50 backdrop-blur-xl border border-slate-800 rounded-3xl p-8 shadow-2xl space-y-6">
-
           {/* Logo & Header */}
           <div className="text-center space-y-3">
             <div className="inline-flex h-16 w-16 bg-slate-800/80 border border-slate-700/50 rounded-full items-center justify-center shadow-lg">
               <img src={SITE.logo} alt="Uday logo" className="h-12 w-12 rounded-full" />
             </div>
             <div>
-              <h1 className="text-2xl font-bold font-display text-white tracking-tight">Uday Trust Portal</h1>
-              <p className="text-xs text-slate-400 font-semibold tracking-wider uppercase mt-1">Super Administrator Login</p>
+              <h1 className="text-2xl font-bold font-display text-white tracking-tight">
+                Uday Trust Portal
+              </h1>
+              <p className="text-xs text-slate-400 font-semibold tracking-wider uppercase mt-1">
+                Super Administrator Login
+              </p>
             </div>
           </div>
 
           {/* Form */}
           <form onSubmit={handleSubmit} className="space-y-4">
-
             {/* Email Field */}
             <div className="space-y-1.5">
-              <label htmlFor="email" className="text-xs font-semibold text-slate-400 uppercase tracking-wider">
+              <label
+                htmlFor="email"
+                className="text-xs font-semibold text-slate-400 uppercase tracking-wider"
+              >
                 Email Address
               </label>
               <div className="relative">
@@ -103,7 +106,10 @@ export function Login() {
             {/* Password Field */}
             <div className="space-y-1.5">
               <div className="flex justify-between items-center">
-                <label htmlFor="password" className="text-xs font-semibold text-slate-400 uppercase tracking-wider">
+                <label
+                  htmlFor="password"
+                  className="text-xs font-semibold text-slate-400 uppercase tracking-wider"
+                >
                   Password
                 </label>
               </div>
@@ -165,13 +171,9 @@ export function Login() {
                 </>
               )}
             </button>
-
           </form>
-
         </div>
-
       </div>
-
     </div>
   );
 }

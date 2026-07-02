@@ -3,7 +3,9 @@ import { triggerUpdate } from "../utils/realtime.js";
 
 // Helper to check if database error is due to missing table
 const isTableMissingError = (error) => {
-  return error && (error.code === "42P01" || (error.message && error.message.includes("does not exist")));
+  return (
+    error && (error.code === "42P01" || (error.message && error.message.includes("does not exist")))
+  );
 };
 
 // Fetch all notifications ordered by created_at DESC
@@ -16,7 +18,9 @@ export const getNotifications = async (req, res, next) => {
 
     if (error) {
       if (isTableMissingError(error)) {
-        console.warn("⚠️ [NotificationController] notifications table not found in database. Returning empty array.");
+        console.warn(
+          "⚠️ [NotificationController] notifications table not found in database. Returning empty array.",
+        );
         return res.json([]);
       }
       throw error;
@@ -82,10 +86,7 @@ export const markAllNotificationsRead = async (req, res, next) => {
 export const deleteNotification = async (req, res, next) => {
   try {
     const { id } = req.params;
-    const { error } = await supabase
-      .from("notifications")
-      .delete()
-      .eq("id", id);
+    const { error } = await supabase.from("notifications").delete().eq("id", id);
 
     if (error) {
       if (isTableMissingError(error)) {

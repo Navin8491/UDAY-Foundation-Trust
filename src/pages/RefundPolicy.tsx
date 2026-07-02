@@ -100,7 +100,7 @@ const SECTIONS = [
 export function RefundPolicy() {
   useDocumentMetadata(
     "Refund Policy | Uday Foundation Trust",
-    "Read Uday Foundation Trust's refund policy for donations. Understand when refunds may apply, how to request a refund, and the refund processing timeline."
+    "Read Uday Foundation Trust's refund policy for donations. Understand when refunds may apply, how to request a refund, and the refund processing timeline.",
   );
 
   return (
@@ -123,9 +123,9 @@ export function RefundPolicy() {
                 <p className="text-sm font-semibold text-amber-800 mb-1">Important Notice</p>
                 <p className="text-sm text-amber-700 leading-relaxed">
                   Donations to Uday Foundation Trust are generally voluntary and non-refundable.
-                  Refunds are only considered in exceptional circumstances such as duplicate transactions,
-                  technical errors, or unauthorised payments — and must be requested within{" "}
-                  <strong>7 days</strong> of the transaction.
+                  Refunds are only considered in exceptional circumstances such as duplicate
+                  transactions, technical errors, or unauthorised payments — and must be requested
+                  within <strong>7 days</strong> of the transaction.
                 </p>
               </div>
             </div>

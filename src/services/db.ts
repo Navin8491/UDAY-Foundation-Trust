@@ -16,7 +16,9 @@ export interface EventItem {
   volunteers: number;
   impact: { en: string; gu: string; hi: string };
   img: string;
-  images: string[] | { img: string; category: string; caption: { en: string; gu: string; hi: string } }[];
+  images:
+    | string[]
+    | { img: string; category: string; caption: { en: string; gu: string; hi: string } }[];
   highlights?: { en: string[]; gu: string[]; hi: string[] };
   status: "published" | "draft";
   featured?: boolean;
@@ -55,7 +57,14 @@ export interface TeamMember {
   email: string;
   phone?: string;
   img: string;
-  socials: { linkedin?: string; instagram?: string; fb?: string; tw?: string; in?: string; ln?: string };
+  socials: {
+    linkedin?: string;
+    instagram?: string;
+    fb?: string;
+    tw?: string;
+    in?: string;
+    ln?: string;
+  };
   displayOrder: number;
 }
 
@@ -174,10 +183,10 @@ const mapItem = (item: any) => {
 export async function uploadFile(
   file: File,
   folderPath: string,
-  onProgress?: (progress: number) => void
+  onProgress?: (progress: number) => void,
 ): Promise<string> {
   const cleanFolder = folderPath.replace(/^\/+|\/+$/g, "");
-  
+
   let endpoint = "/upload";
   if (["events", "gallery", "programs", "team"].includes(cleanFolder)) {
     endpoint = `/${cleanFolder}/upload`;
@@ -551,7 +560,10 @@ export async function deleteContactMessage(id: string): Promise<void> {
   }
 }
 
-export async function updateContactMessageStatus(id: string, status: "unread" | "read"): Promise<void> {
+export async function updateContactMessageStatus(
+  id: string,
+  status: "unread" | "read",
+): Promise<void> {
   const res = await apiRequest(`/contact/${id}/status`, {
     method: "PUT",
     body: { status },
@@ -595,7 +607,7 @@ export async function deleteVolunteer(id: string): Promise<void> {
 export async function updateVolunteerStatus(
   id: string,
   status: "pending" | "approved" | "rejected",
-  reason?: string
+  reason?: string,
 ): Promise<void> {
   const res = await apiRequest(`/volunteers/${id}/status`, {
     method: "PUT",
@@ -637,12 +649,15 @@ export async function fetchPartnershipRequests(): Promise<PartnershipRequest[]> 
   const data = await res.json();
   return data.map(mapItem);
 }
-export { fetchPartnershipRequests as fetchPartnerships, fetchVolunteerApplications as fetchVolunteers };
+export {
+  fetchPartnershipRequests as fetchPartnerships,
+  fetchVolunteerApplications as fetchVolunteers,
+};
 
 export async function updatePartnershipStatus(
   id: string,
   status: "pending" | "approved" | "rejected",
-  reason?: string
+  reason?: string,
 ): Promise<void> {
   const res = await apiRequest(`/partnerships/${id}/status`, {
     method: "PUT",
@@ -725,8 +740,6 @@ export async function fetchPaymentStatus(idempotencyKey: string): Promise<any> {
   return res.json();
 }
 
-
-
 export async function fetchSettings(): Promise<any> {
   return getCached("settings", async () => {
     const res = await apiRequest("/settings");
@@ -752,7 +765,10 @@ export async function updateSettings(settings: any): Promise<void> {
 // Real-time synchronization listeners using Supabase Channels
 // -------------------------------------------------------------
 
-export function subscribeEvents(callback: (items: EventItem[]) => void, onError?: (err: any) => void) {
+export function subscribeEvents(
+  callback: (items: EventItem[]) => void,
+  onError?: (err: any) => void,
+) {
   fetchEvents()
     .then(callback)
     .catch((err) => {
@@ -761,14 +777,10 @@ export function subscribeEvents(callback: (items: EventItem[]) => void, onError?
 
   const channel = supabase
     .channel("public-events-changes")
-    .on(
-      "postgres_changes",
-      { event: "*", schema: "public", table: "events" },
-      () => {
-        invalidateCache("events");
-        fetchEvents().then(callback).catch(onError);
-      }
-    )
+    .on("postgres_changes", { event: "*", schema: "public", table: "events" }, () => {
+      invalidateCache("events");
+      fetchEvents().then(callback).catch(onError);
+    })
     .subscribe();
 
   return () => {
@@ -776,7 +788,10 @@ export function subscribeEvents(callback: (items: EventItem[]) => void, onError?
   };
 }
 
-export function subscribePrograms(callback: (items: ProgramItem[]) => void, onError?: (err: any) => void) {
+export function subscribePrograms(
+  callback: (items: ProgramItem[]) => void,
+  onError?: (err: any) => void,
+) {
   fetchPrograms()
     .then(callback)
     .catch((err) => {
@@ -785,14 +800,10 @@ export function subscribePrograms(callback: (items: ProgramItem[]) => void, onEr
 
   const channel = supabase
     .channel("public-programs-changes")
-    .on(
-      "postgres_changes",
-      { event: "*", schema: "public", table: "programs" },
-      () => {
-        invalidateCache("programs");
-        fetchPrograms().then(callback).catch(onError);
-      }
-    )
+    .on("postgres_changes", { event: "*", schema: "public", table: "programs" }, () => {
+      invalidateCache("programs");
+      fetchPrograms().then(callback).catch(onError);
+    })
     .subscribe();
 
   return () => {
@@ -800,7 +811,10 @@ export function subscribePrograms(callback: (items: ProgramItem[]) => void, onEr
   };
 }
 
-export function subscribeGallery(callback: (items: GalleryItem[]) => void, onError?: (err: any) => void) {
+export function subscribeGallery(
+  callback: (items: GalleryItem[]) => void,
+  onError?: (err: any) => void,
+) {
   fetchGallery()
     .then(callback)
     .catch((err) => {
@@ -809,14 +823,10 @@ export function subscribeGallery(callback: (items: GalleryItem[]) => void, onErr
 
   const channel = supabase
     .channel("public-gallery-changes")
-    .on(
-      "postgres_changes",
-      { event: "*", schema: "public", table: "gallery" },
-      () => {
-        invalidateCache("gallery");
-        fetchGallery().then(callback).catch(onError);
-      }
-    )
+    .on("postgres_changes", { event: "*", schema: "public", table: "gallery" }, () => {
+      invalidateCache("gallery");
+      fetchGallery().then(callback).catch(onError);
+    })
     .subscribe();
 
   return () => {
@@ -824,7 +834,10 @@ export function subscribeGallery(callback: (items: GalleryItem[]) => void, onErr
   };
 }
 
-export function subscribeTeam(callback: (items: TeamMember[]) => void, onError?: (err: any) => void) {
+export function subscribeTeam(
+  callback: (items: TeamMember[]) => void,
+  onError?: (err: any) => void,
+) {
   fetchTeam()
     .then(callback)
     .catch((err) => {
@@ -833,14 +846,10 @@ export function subscribeTeam(callback: (items: TeamMember[]) => void, onError?:
 
   const channel = supabase
     .channel("public-team-changes")
-    .on(
-      "postgres_changes",
-      { event: "*", schema: "public", table: "team" },
-      () => {
-        invalidateCache("team");
-        fetchTeam().then(callback).catch(onError);
-      }
-    )
+    .on("postgres_changes", { event: "*", schema: "public", table: "team" }, () => {
+      invalidateCache("team");
+      fetchTeam().then(callback).catch(onError);
+    })
     .subscribe();
 
   return () => {
@@ -848,7 +857,10 @@ export function subscribeTeam(callback: (items: TeamMember[]) => void, onError?:
   };
 }
 
-export function subscribeTransparencyDocs(callback: (items: TransparencyDoc[]) => void, onError?: (err: any) => void) {
+export function subscribeTransparencyDocs(
+  callback: (items: TransparencyDoc[]) => void,
+  onError?: (err: any) => void,
+) {
   fetchTransparencyDocs()
     .then(callback)
     .catch((err) => {
@@ -857,15 +869,11 @@ export function subscribeTransparencyDocs(callback: (items: TransparencyDoc[]) =
 
   const channelCert = supabase
     .channel("public-certificates-changes")
-    .on(
-      "postgres_changes",
-      { event: "*", schema: "public", table: "certificates" },
-      () => {
-        invalidateCache("certificates");
-        invalidateCache("docs");
-        fetchTransparencyDocs().then(callback).catch(onError);
-      }
-    )
+    .on("postgres_changes", { event: "*", schema: "public", table: "certificates" }, () => {
+      invalidateCache("certificates");
+      invalidateCache("docs");
+      fetchTransparencyDocs().then(callback).catch(onError);
+    })
     .subscribe();
 
   const channelDoc = supabase
@@ -876,7 +884,7 @@ export function subscribeTransparencyDocs(callback: (items: TransparencyDoc[]) =
       () => {
         invalidateCache("docs");
         fetchTransparencyDocs().then(callback).catch(onError);
-      }
+      },
     )
     .subscribe();
 
@@ -897,18 +905,14 @@ export function subscribeSettings(callback: (settings: any) => void, onError?: (
 
   const channel = supabase
     .channel("public-settings-changes-" + Math.random().toString(36).slice(2))
-    .on(
-      "postgres_changes",
-      { event: "*", schema: "public", table: "settings" },
-      () => {
-        invalidateCache("settings");
-        fetchSettings()
-          .then((data) => {
-            if (data) callback(data);
-          })
-          .catch(onError);
-      }
-    )
+    .on("postgres_changes", { event: "*", schema: "public", table: "settings" }, () => {
+      invalidateCache("settings");
+      fetchSettings()
+        .then((data) => {
+          if (data) callback(data);
+        })
+        .catch(onError);
+    })
     .subscribe();
 
   return () => {
@@ -925,13 +929,9 @@ export function subscribeDonations(callback: (items: any[]) => void, onError?: (
 
   const channel = supabase
     .channel("public-donations-changes-" + Math.random().toString(36).slice(2))
-    .on(
-      "postgres_changes",
-      { event: "*", schema: "public", table: "donations" },
-      () => {
-        fetchDonations().then(callback).catch(onError);
-      }
-    )
+    .on("postgres_changes", { event: "*", schema: "public", table: "donations" }, () => {
+      fetchDonations().then(callback).catch(onError);
+    })
     .subscribe();
 
   return () => {
@@ -977,7 +977,10 @@ export async function deleteNotification(id: string): Promise<void> {
   if (!res.ok) throw new Error("Failed to delete notification");
 }
 
-export function subscribeNotifications(callback: (items: NotificationItem[]) => void, onError?: (err: any) => void) {
+export function subscribeNotifications(
+  callback: (items: NotificationItem[]) => void,
+  onError?: (err: any) => void,
+) {
   fetchNotifications()
     .then(callback)
     .catch((err) => {
@@ -986,13 +989,9 @@ export function subscribeNotifications(callback: (items: NotificationItem[]) => 
 
   const channel = supabase
     .channel("public-notifications-changes-" + Math.random().toString(36).slice(2))
-    .on(
-      "postgres_changes",
-      { event: "*", schema: "public", table: "notifications" },
-      () => {
-        fetchNotifications().then(callback).catch(onError);
-      }
-    )
+    .on("postgres_changes", { event: "*", schema: "public", table: "notifications" }, () => {
+      fetchNotifications().then(callback).catch(onError);
+    })
     .subscribe();
 
   return () => {
@@ -1008,7 +1007,7 @@ export async function fetchPaymentEvents(): Promise<any[]> {
 
 export async function refundPaymentEvent(id: string): Promise<any> {
   const res = await apiRequest(`/payments/refund/${id}`, {
-    method: "POST"
+    method: "POST",
   });
   if (!res.ok) {
     const err = await res.json().catch(() => ({}));
@@ -1017,7 +1016,10 @@ export async function refundPaymentEvent(id: string): Promise<any> {
   return res.json();
 }
 
-export function subscribePaymentEvents(callback: (items: any[]) => void, onError?: (err: any) => void) {
+export function subscribePaymentEvents(
+  callback: (items: any[]) => void,
+  onError?: (err: any) => void,
+) {
   fetchPaymentEvents()
     .then(callback)
     .catch((err) => {
@@ -1026,13 +1028,9 @@ export function subscribePaymentEvents(callback: (items: any[]) => void, onError
 
   const channel = supabase
     .channel("public-payment-events-changes-" + Math.random().toString(36).slice(2))
-    .on(
-      "postgres_changes",
-      { event: "*", schema: "public", table: "payment_events" },
-      () => {
-        fetchPaymentEvents().then(callback).catch(onError);
-      }
-    )
+    .on("postgres_changes", { event: "*", schema: "public", table: "payment_events" }, () => {
+      fetchPaymentEvents().then(callback).catch(onError);
+    })
     .subscribe();
 
   return () => {

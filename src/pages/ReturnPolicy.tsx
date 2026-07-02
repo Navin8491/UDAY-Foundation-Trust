@@ -62,7 +62,7 @@ const SECTIONS = [
 export function ReturnPolicy() {
   useDocumentMetadata(
     "Return Policy | Uday Foundation Trust",
-    "Uday Foundation Trust does not sell physical products. This Return Policy exists for legal compliance. Read our policy on donation-based transactions and how to resolve any concerns."
+    "Uday Foundation Trust does not sell physical products. This Return Policy exists for legal compliance. Read our policy on donation-based transactions and how to resolve any concerns.",
   );
 
   return (
@@ -85,8 +85,8 @@ export function ReturnPolicy() {
                 <p className="text-sm font-semibold text-foreground mb-1">Important Information</p>
                 <p className="text-sm text-muted-foreground leading-relaxed">
                   <strong>{SITE.name}</strong> is a registered non-profit charitable organisation.
-                  We do <strong>not</strong> sell any physical products, goods, or merchandise.
-                  This Return Policy is published solely for legal compliance and payment gateway
+                  We do <strong>not</strong> sell any physical products, goods, or merchandise. This
+                  Return Policy is published solely for legal compliance and payment gateway
                   requirements. There are <strong>no returns to process</strong>.
                 </p>
               </div>

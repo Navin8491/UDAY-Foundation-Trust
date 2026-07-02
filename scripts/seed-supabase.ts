@@ -13,7 +13,9 @@ const supabaseUrl = process.env.SUPABASE_URL;
 const supabaseServiceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
 if (!supabaseUrl || !supabaseServiceRoleKey) {
-  console.error("CRITICAL: SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY are required in environment variables.");
+  console.error(
+    "CRITICAL: SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY are required in environment variables.",
+  );
   process.exit(1);
 }
 
@@ -73,16 +75,16 @@ async function seed() {
 
     // 2. Seed Settings
     console.log("Seeding Settings...");
-    const { error: settingsError } = await supabase
-      .from("settings")
-      .upsert({
+    const { error: settingsError } = await supabase.from("settings").upsert(
+      {
         key: "site",
         name: SITE.name,
         phone: SITE.phone,
         email: SITE.email,
         address: SITE.address,
         seoTitle: "Uday Foundation Trust | NGO for Rural Welfare",
-        seoDesc: "Official portal of Uday Foundation Trust, working on education, health, and rural empowerment.",
+        seoDesc:
+          "Official portal of Uday Foundation Trust, working on education, health, and rural empowerment.",
         seoKeywords: "ngo, uday trust, rural development, tree plantation",
         socialFb: SITE.socials.facebook,
         socialTw: "",
@@ -101,8 +103,10 @@ async function seed() {
         fcr: "Not Applicable",
         twelveA: "AABTU4985NE20214",
         eightyG: "AABTU4985NF20221",
-        seeded: true
-      }, { onConflict: "key" });
+        seeded: true,
+      },
+      { onConflict: "key" },
+    );
     if (settingsError) throw settingsError;
 
     // 3. Seed Programs
@@ -190,13 +194,17 @@ async function seed() {
     // 7. Seed Certificates and Transparency documents
     console.log("Seeding Transparency Documents & Certificates...");
     await supabase.from("certificates").delete().neq("id", "00000000-0000-0000-0000-000000000000");
-    await supabase.from("transparency_documents").delete().neq("id", "00000000-0000-0000-0000-000000000000");
+    await supabase
+      .from("transparency_documents")
+      .delete()
+      .neq("id", "00000000-0000-0000-0000-000000000000");
 
     const certsToInsert: any[] = [];
     const docsToInsert: any[] = [];
 
     for (const d of DOCS) {
-      const isReport = d.label.toLowerCase().includes("report") || d.desc.toLowerCase().includes("report");
+      const isReport =
+        d.label.toLowerCase().includes("report") || d.desc.toLowerCase().includes("report");
       const record = {
         label: d.label,
         value: d.value,

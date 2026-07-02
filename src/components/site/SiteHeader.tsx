@@ -42,10 +42,11 @@ export function SiteHeader() {
 
   return (
     <header
-      className={`sticky top-0 z-50 transition-all duration-300 ${scrolled
-        ? "backdrop-blur-xl bg-[color-mix(in_oklab,var(--surface)_82%,transparent)] border-b border-border/60 shadow-sm"
-        : "bg-transparent"
-        }`}
+      className={`sticky top-0 z-50 transition-all duration-300 ${
+        scrolled
+          ? "backdrop-blur-xl bg-[color-mix(in_oklab,var(--surface)_82%,transparent)] border-b border-border/60 shadow-sm"
+          : "bg-transparent"
+      }`}
     >
       <div className="container-full flex flex-col lg:flex-row lg:items-center justify-between py-3 md:py-4 gap-2.5 lg:gap-0">
         {/* Row 1 (All Viewports): Logo & Title on Left, Hamburger Menu on Right (Mobile/Tablet only) */}
@@ -84,9 +85,10 @@ export function SiteHeader() {
               key={l.to}
               to={l.to}
               className={({ isActive }) =>
-                `px-3.5 py-2 text-sm font-medium rounded-full transition-colors whitespace-nowrap ${isActive
-                  ? "text-primary bg-primary/10"
-                  : "text-foreground/80 hover:text-primary hover:bg-primary/8"
+                `px-3.5 py-2 text-sm font-medium rounded-full transition-colors whitespace-nowrap ${
+                  isActive
+                    ? "text-primary bg-primary/10"
+                    : "text-foreground/80 hover:text-primary hover:bg-primary/8"
                 }`
               }
             >
@@ -172,9 +174,10 @@ export function SiteHeader() {
                 to={l.to}
                 onClick={() => setOpen(false)}
                 className={({ isActive }) =>
-                  `px-4 py-3 rounded-xl text-base font-medium transition-colors ${isActive
-                    ? "text-primary bg-primary/10"
-                    : "hover:bg-primary/8 text-foreground/80"
+                  `px-4 py-3 rounded-xl text-base font-medium transition-colors ${
+                    isActive
+                      ? "text-primary bg-primary/10"
+                      : "hover:bg-primary/8 text-foreground/80"
                   }`
                 }
               >

@@ -4,13 +4,31 @@ import { fileURLToPath } from "url";
 
 /**
  * Converts a number into Indian currency words format.
- * @param {number} num 
+ * @param {number} num
  * @returns {string}
  */
 function numberToWords(num) {
   const a = [
-    "", "One", "Two", "Three", "Four", "Five", "Six", "Seven", "Eight", "Nine", "Ten",
-    "Eleven", "Twelve", "Thirteen", "Fourteen", "Fifteen", "Sixteen", "Seventeen", "Eighteen", "Nineteen"
+    "",
+    "One",
+    "Two",
+    "Three",
+    "Four",
+    "Five",
+    "Six",
+    "Seven",
+    "Eight",
+    "Nine",
+    "Ten",
+    "Eleven",
+    "Twelve",
+    "Thirteen",
+    "Fourteen",
+    "Fifteen",
+    "Sixteen",
+    "Seventeen",
+    "Eighteen",
+    "Nineteen",
   ];
   const b = ["", "", "Twenty", "Thirty", "Forty", "Fifty", "Sixty", "Seventy", "Eighty", "Ninety"];
 
@@ -87,11 +105,17 @@ export function generateReceiptPdf(donation) {
 
       doc.fillColor("#1e3a8a");
       doc.fontSize(18).font("Helvetica-Bold").text("UDAY FOUNDATION TRUST", 115, 42);
-      
+
       doc.fillColor("#475569");
-      doc.fontSize(8).font("Helvetica").text("Registered NGO (Reg No: Guj/23016/Ahmedabad) | Sanand, Ahmedabad, Gujarat", 115, 60);
+      doc
+        .fontSize(8)
+        .font("Helvetica")
+        .text("Registered NGO (Reg No: Guj/23016/Ahmedabad) | Sanand, Ahmedabad, Gujarat", 115, 60);
       doc.text("Email: udayfts1024@gmail.com | Website: www.udayfoundationstrust.org", 115, 72);
-      doc.fillColor("#7A9D1C").font("Helvetica-Bold").text("Eligible for 80G Tax Exemption (Ref No: AABTU5153HF20261)", 115, 84);
+      doc
+        .fillColor("#7A9D1C")
+        .font("Helvetica-Bold")
+        .text("Eligible for 80G Tax Exemption (Ref No: AABTU5153HF20261)", 115, 84);
 
       // Horizontal line
       doc.moveTo(40, 110).lineTo(555, 110).lineWidth(1).stroke("#e2e8f0");
@@ -99,7 +123,10 @@ export function generateReceiptPdf(donation) {
       // TITLE BANNER
       doc.rect(40, 130, 515, 30).fill("#F4F7EB");
       doc.fillColor("#7A9D1C");
-      doc.fontSize(12).font("Helvetica-Bold").text("OFFICIAL DONATION RECEIPT (80G TAX EXEMPTION)", 40, 139, { align: "center" });
+      doc
+        .fontSize(12)
+        .font("Helvetica-Bold")
+        .text("OFFICIAL DONATION RECEIPT (80G TAX EXEMPTION)", 40, 139, { align: "center" });
 
       // DETAILS TABLE BOX
       doc.rect(40, 175, 515, 50).fill("#F8FAFC");
@@ -107,26 +134,47 @@ export function generateReceiptPdf(donation) {
 
       doc.fillColor("#475569");
       doc.fontSize(9);
-      
+
       // Column 1
       doc.font("Helvetica-Bold").text("Receipt Number:", 55, 185);
-      doc.fillColor("#0F172A").font("Helvetica").text(donation.receiptNumber || `UFT/REC-${donation.id?.substring(0, 8).toUpperCase()}`, 145, 185);
+      doc
+        .fillColor("#0F172A")
+        .font("Helvetica")
+        .text(
+          donation.receiptNumber || `UFT/REC-${donation.id?.substring(0, 8).toUpperCase()}`,
+          145,
+          185,
+        );
 
       doc.fillColor("#475569");
       doc.font("Helvetica-Bold").text("Donation Date:", 55, 205);
-      const dateStr = donation.createdAt 
-        ? new Date(donation.createdAt).toLocaleDateString("en-IN", { day: "numeric", month: "long", year: "numeric" })
-        : new Date().toLocaleDateString("en-IN", { day: "numeric", month: "long", year: "numeric" });
+      const dateStr = donation.createdAt
+        ? new Date(donation.createdAt).toLocaleDateString("en-IN", {
+            day: "numeric",
+            month: "long",
+            year: "numeric",
+          })
+        : new Date().toLocaleDateString("en-IN", {
+            day: "numeric",
+            month: "long",
+            year: "numeric",
+          });
       doc.fillColor("#0F172A").font("Helvetica").text(dateStr, 145, 205);
 
       // Column 2
       doc.fillColor("#475569");
       doc.font("Helvetica-Bold").text("PAN Ref:", 330, 185);
-      doc.fillColor("#0F172A").font("Helvetica").text(donation.panNumber || "N/A", 410, 185);
+      doc
+        .fillColor("#0F172A")
+        .font("Helvetica")
+        .text(donation.panNumber || "N/A", 410, 185);
 
       doc.fillColor("#475569");
       doc.font("Helvetica-Bold").text("Payment ID:", 330, 205);
-      doc.fillColor("#0F172A").font("Helvetica").text(donation.id?.substring(0, 18) || "Direct UPI", 410, 205);
+      doc
+        .fillColor("#0F172A")
+        .font("Helvetica")
+        .text(donation.id?.substring(0, 18) || "Direct UPI", 410, 205);
 
       // Horizontal separator
       doc.moveTo(40, 240).lineTo(555, 240).lineWidth(0.5).stroke("#cbd5e1");
@@ -146,7 +194,9 @@ export function generateReceiptPdf(donation) {
       doc.font("Helvetica").text(donation.phone || "N/A", 150, 315);
 
       doc.font("Helvetica-Bold").text("Address:", 50, 335);
-      doc.font("Helvetica").text(donation.address || "N/A", 150, 335, { width: 380, align: "left" });
+      doc
+        .font("Helvetica")
+        .text(donation.address || "N/A", 150, 335, { width: 380, align: "left" });
 
       // Horizontal separator
       doc.moveTo(40, 375).lineTo(555, 375).lineWidth(0.5).stroke("#cbd5e1");
@@ -157,8 +207,12 @@ export function generateReceiptPdf(donation) {
 
       doc.fontSize(10);
       doc.font("Helvetica-Bold").text("Donated Amount:", 50, 420);
-      doc.font("Helvetica-Bold").fillColor("#7A9D1C").fontSize(12).text(`INR ${Number(donation.amount).toLocaleString("en-IN")}.00`, 150, 418);
-      
+      doc
+        .font("Helvetica-Bold")
+        .fillColor("#7A9D1C")
+        .fontSize(12)
+        .text(`INR ${Number(donation.amount).toLocaleString("en-IN")}.00`, 150, 418);
+
       doc.fillColor("#1e293b").fontSize(10);
       doc.font("Helvetica-Bold").text("Amount in Words:", 50, 445);
       doc.font("Helvetica-Oblique").text(numberToWords(Number(donation.amount)), 150, 445);
@@ -173,8 +227,8 @@ export function generateReceiptPdf(donation) {
       doc.fillColor("#475569");
       doc.fontSize(8);
       doc.font("Helvetica-Bold").text("STATUTORY DECLARATION:", 50, 520);
-      
-      const statutoryText = 
+
+      const statutoryText =
         "1. Donations made to Uday Foundation Trust are exempt under Section 80G of the Income Tax Act, 1961.\n" +
         "2. This is a computer-generated document and does not require a physical signature. The trust maintains verified digital payment records matching the transaction identifier listed above.\n" +
         "3. Funds received will be strictly utilized for charity and community development works in alignment with the registered objectives of the trust.";
@@ -182,7 +236,7 @@ export function generateReceiptPdf(donation) {
 
       // SIGNATURE / CERTIFICATION BLOCK
       doc.moveTo(40, 620).lineTo(555, 620).lineWidth(0.5).stroke("#e2e8f0");
-      
+
       doc.fillColor("#334155");
       doc.fontSize(9);
       doc.font("Helvetica-Bold").text("For Uday Foundation Trust", 380, 640, { align: "center" });

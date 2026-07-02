@@ -1,14 +1,20 @@
 import { useState, useEffect, useRef } from "react";
 import { Trash2, Eye, X, Upload, ArrowLeft, ArrowRight, RefreshCw } from "lucide-react";
 import { SCHOOL_BAG_SIMPLE_GALLERY } from "@/constants/schoolEvents";
-import { fetchGallery, addGalleryItem, updateGalleryItem, deleteGalleryItem, uploadFile } from "@/services/db";
+import {
+  fetchGallery,
+  addGalleryItem,
+  updateGalleryItem,
+  deleteGalleryItem,
+  uploadFile,
+} from "@/services/db";
 import { toast } from "sonner";
 
 export function Gallery() {
   const [photos, setPhotos] = useState<any[]>([]);
   const [activeFilter, setActiveFilter] = useState("All");
   const [lightbox, setLightbox] = useState<string | null>(null);
-  
+
   const [uploadCategory, setUploadCategory] = useState("Education");
   const [uploading, setUploading] = useState(false);
   const [progress, setProgress] = useState(0);
@@ -62,8 +68,9 @@ export function Gallery() {
     const toastId = toast.loading("Uploading photos to gallery...");
 
     try {
-      let currentMaxOrder = photos.length > 0 ? Math.max(...photos.map(p => p.displayOrder || 0)) : 0;
-      
+      let currentMaxOrder =
+        photos.length > 0 ? Math.max(...photos.map((p) => p.displayOrder || 0)) : 0;
+
       for (let i = 0; i < files.length; i++) {
         const url = await uploadFile(files[i], "gallery", (p) => {
           setProgress(p);
@@ -141,7 +148,11 @@ export function Gallery() {
   };
 
   const handleDelete = async (id: string) => {
-    if (confirm("Are you sure you want to delete this photo from the gallery? This action is permanent and deletes it from storage.")) {
+    if (
+      confirm(
+        "Are you sure you want to delete this photo from the gallery? This action is permanent and deletes it from storage.",
+      )
+    ) {
       const toastId = toast.loading("Deleting photo...");
       try {
         await deleteGalleryItem(id);
@@ -154,7 +165,16 @@ export function Gallery() {
     }
   };
 
-  const categories = ["All", "Education", "Healthcare", "Environment", "Sports", "Relief", "Events", "Volunteers"];
+  const categories = [
+    "All",
+    "Education",
+    "Healthcare",
+    "Environment",
+    "Sports",
+    "Relief",
+    "Events",
+    "Volunteers",
+  ];
   const filtered = photos.filter((p) => activeFilter === "All" || p.cat === activeFilter);
 
   return (
@@ -163,7 +183,9 @@ export function Gallery() {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl md:text-3xl font-display font-bold">Gallery Management</h1>
-          <p className="text-sm text-slate-500 font-medium font-gujarati">વેબસાઇટની ગેલરી ફોટોસ અને આલ્બમ્સનું વ્યવસ્થાપન</p>
+          <p className="text-sm text-slate-500 font-medium font-gujarati">
+            વેબસાઇટની ગેલરી ફોટોસ અને આલ્બમ્સનું વ્યવસ્થાપન
+          </p>
         </div>
         <div className="flex items-center gap-2">
           <select
@@ -171,9 +193,13 @@ export function Gallery() {
             onChange={(e) => setUploadCategory(e.target.value)}
             className="h-10 px-3 rounded-xl border border-slate-200 bg-white text-xs font-bold cursor-pointer"
           >
-            {categories.filter(c => c !== "All").map(c => (
-              <option key={c} value={c}>{c}</option>
-            ))}
+            {categories
+              .filter((c) => c !== "All")
+              .map((c) => (
+                <option key={c} value={c}>
+                  {c}
+                </option>
+              ))}
           </select>
           <button
             onClick={() => fileInputRef.current?.click()}
@@ -209,9 +235,13 @@ export function Gallery() {
             <Upload className="h-6 w-6" />
           </div>
           <p className="text-sm font-semibold text-slate-700">
-            Drag & drop multiple photos here, or <span className="text-primary font-bold">Browse</span>
+            Drag & drop multiple photos here, or{" "}
+            <span className="text-primary font-bold">Browse</span>
           </p>
-          <p className="text-xs text-slate-400">Photos will be assigned to category: <span className="font-bold text-slate-600 uppercase">{uploadCategory}</span></p>
+          <p className="text-xs text-slate-400">
+            Photos will be assigned to category:{" "}
+            <span className="font-bold text-slate-600 uppercase">{uploadCategory}</span>
+          </p>
         </div>
 
         {uploading && (
@@ -248,85 +278,96 @@ export function Gallery() {
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
         {loading ? (
           Array.from({ length: 10 }).map((_, idx) => (
-            <div key={idx} className="bg-slate-100 animate-pulse rounded-2xl aspect-square w-full" />
+            <div
+              key={idx}
+              className="bg-slate-100 animate-pulse rounded-2xl aspect-square w-full"
+            />
           ))
         ) : filtered.length === 0 ? (
           <div className="col-span-full text-center py-12 text-slate-400 font-bold">
             No gallery items found.
           </div>
-        ) : filtered.map((item, index) => (
-          <div
-            key={item.id || item._id}
-            className="group bg-white border border-slate-200/80 rounded-2xl overflow-hidden shadow-xs hover:shadow-md transition-all relative aspect-square"
-          >
-            <img src={item.img} alt="" className="h-full w-full object-cover group-hover:scale-105 transition-transform duration-500" />
-            
-            {/* Actions overlay */}
-            <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col justify-between p-3 text-white">
-              <div className="flex justify-end gap-1.5">
-                <button
-                  onClick={() => setLightbox(item.img)}
-                  className="h-8 w-8 rounded-lg bg-white/10 hover:bg-white/20 text-white flex items-center justify-center cursor-pointer transition-colors"
-                  title="Preview"
-                >
-                  <Eye className="h-4 w-4" />
-                </button>
-                <button
-                  onClick={() => replaceInputRefs.current[item.id || item._id]?.click()}
-                  className="h-8 w-8 rounded-lg bg-white/10 hover:bg-white/20 text-white flex items-center justify-center cursor-pointer transition-colors"
-                  title="Replace"
-                >
-                  <RefreshCw className="h-4 w-4" />
-                </button>
-                <button
-                  onClick={() => handleDelete(item.id || item._id)}
-                  className="h-8 w-8 rounded-lg bg-rose-500/90 hover:bg-rose-600 text-white flex items-center justify-center cursor-pointer transition-colors"
-                  title="Delete"
-                >
-                  <Trash2 className="h-4 w-4" />
-                </button>
-              </div>
-
-              <input
-                type="file"
-                ref={(el) => { replaceInputRefs.current[item.id || item._id] = el; }}
-                className="hidden"
-                accept="image/*"
-                onChange={(e) => {
-                  if (e.target.files && e.target.files[0]) {
-                    handleReplace(item, e.target.files[0]);
-                  }
-                }}
+        ) : (
+          filtered.map((item, index) => (
+            <div
+              key={item.id || item._id}
+              className="group bg-white border border-slate-200/80 rounded-2xl overflow-hidden shadow-xs hover:shadow-md transition-all relative aspect-square"
+            >
+              <img
+                src={item.img}
+                alt=""
+                className="h-full w-full object-cover group-hover:scale-105 transition-transform duration-500"
               />
 
-              <div className="flex items-center justify-between">
-                <span className="bg-white/95 text-slate-800 px-2 py-0.5 rounded text-[8px] font-bold uppercase tracking-wider">
-                  {item.cat}
-                </span>
+              {/* Actions overlay */}
+              <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col justify-between p-3 text-white">
+                <div className="flex justify-end gap-1.5">
+                  <button
+                    onClick={() => setLightbox(item.img)}
+                    className="h-8 w-8 rounded-lg bg-white/10 hover:bg-white/20 text-white flex items-center justify-center cursor-pointer transition-colors"
+                    title="Preview"
+                  >
+                    <Eye className="h-4 w-4" />
+                  </button>
+                  <button
+                    onClick={() => replaceInputRefs.current[item.id || item._id]?.click()}
+                    className="h-8 w-8 rounded-lg bg-white/10 hover:bg-white/20 text-white flex items-center justify-center cursor-pointer transition-colors"
+                    title="Replace"
+                  >
+                    <RefreshCw className="h-4 w-4" />
+                  </button>
+                  <button
+                    onClick={() => handleDelete(item.id || item._id)}
+                    className="h-8 w-8 rounded-lg bg-rose-500/90 hover:bg-rose-600 text-white flex items-center justify-center cursor-pointer transition-colors"
+                    title="Delete"
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </button>
+                </div>
 
-                {/* Move Left / Right Buttons */}
-                <div className="flex gap-1">
-                  <button
-                    disabled={index === 0}
-                    onClick={() => handleMove(index, "left")}
-                    className="h-6 w-6 rounded bg-white/20 hover:bg-white/35 disabled:opacity-30 disabled:pointer-events-none flex items-center justify-center cursor-pointer"
-                    title="Move Left"
-                  >
-                    <ArrowLeft className="h-3.5 w-3.5" />
-                  </button>
-                  <button
-                    disabled={index === filtered.length - 1}
-                    onClick={() => handleMove(index, "right")}
-                    className="h-6 w-6 rounded bg-white/20 hover:bg-white/35 disabled:opacity-30 disabled:pointer-events-none flex items-center justify-center cursor-pointer"
-                    title="Move Right"
-                  >
-                    <ArrowRight className="h-3.5 w-3.5" />
-                  </button>
+                <input
+                  type="file"
+                  ref={(el) => {
+                    replaceInputRefs.current[item.id || item._id] = el;
+                  }}
+                  className="hidden"
+                  accept="image/*"
+                  onChange={(e) => {
+                    if (e.target.files && e.target.files[0]) {
+                      handleReplace(item, e.target.files[0]);
+                    }
+                  }}
+                />
+
+                <div className="flex items-center justify-between">
+                  <span className="bg-white/95 text-slate-800 px-2 py-0.5 rounded text-[8px] font-bold uppercase tracking-wider">
+                    {item.cat}
+                  </span>
+
+                  {/* Move Left / Right Buttons */}
+                  <div className="flex gap-1">
+                    <button
+                      disabled={index === 0}
+                      onClick={() => handleMove(index, "left")}
+                      className="h-6 w-6 rounded bg-white/20 hover:bg-white/35 disabled:opacity-30 disabled:pointer-events-none flex items-center justify-center cursor-pointer"
+                      title="Move Left"
+                    >
+                      <ArrowLeft className="h-3.5 w-3.5" />
+                    </button>
+                    <button
+                      disabled={index === filtered.length - 1}
+                      onClick={() => handleMove(index, "right")}
+                      className="h-6 w-6 rounded bg-white/20 hover:bg-white/35 disabled:opacity-30 disabled:pointer-events-none flex items-center justify-center cursor-pointer"
+                      title="Move Right"
+                    >
+                      <ArrowRight className="h-3.5 w-3.5" />
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
-        ))}
+          ))
+        )}
       </div>
 
       {/* Lightbox Modal */}
@@ -338,7 +379,11 @@ export function Gallery() {
           >
             <X className="h-6 w-6" />
           </button>
-          <img src={lightbox} alt="" className="max-h-[90vh] max-w-full object-contain rounded-lg shadow-2xl animate-scale-up" />
+          <img
+            src={lightbox}
+            alt=""
+            className="max-h-[90vh] max-w-full object-contain rounded-lg shadow-2xl animate-scale-up"
+          />
         </div>
       )}
     </div>

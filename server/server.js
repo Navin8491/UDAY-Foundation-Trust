@@ -6,7 +6,6 @@ import { initializeBroker } from "./utils/eventQueue.js";
 import { startCrashRecovery } from "./services/crashRecovery.js";
 import { runSaga } from "./services/sagaEngine.js";
 
-
 // Validate critical environment variables
 if (!process.env.JWT_SECRET) {
   console.error("CRITICAL: JWT_SECRET environment variable is missing in server/.env.");
@@ -28,7 +27,7 @@ const startServer = async () => {
         } catch (err) {
           console.error(`[Event Consumer] Saga run failed for event ${event.id}:`, err.message);
         }
-      }
+      },
     });
 
     // Start transaction crash recovery background loops
@@ -36,7 +35,9 @@ const startServer = async () => {
 
     const PORT = process.env.PORT || 5000;
     app.listen(PORT, () => {
-      console.log(`Server running in ${process.env.NODE_ENV || "development"} mode on port ${PORT}`);
+      console.log(
+        `Server running in ${process.env.NODE_ENV || "development"} mode on port ${PORT}`,
+      );
     });
   } catch (error) {
     console.error(`Failed to start server: ${error.message}`);

@@ -158,17 +158,41 @@ export function Programs() {
     setFormDescHi(prog.desc?.hi || "");
 
     // Objectives list map to lines
-    const objectivesEn = (prog.objectivesEn || prog.objectives?.map((o: any) => o.en || o) || []).join("\n");
-    const objectivesGu = (prog.objectivesGu || prog.objectives?.map((o: any) => o.gu || o) || []).join("\n");
-    const objectivesHi = (prog.objectivesHi || prog.objectives?.map((o: any) => o.hi || o) || []).join("\n");
+    const objectivesEn = (
+      prog.objectivesEn ||
+      prog.objectives?.map((o: any) => o.en || o) ||
+      []
+    ).join("\n");
+    const objectivesGu = (
+      prog.objectivesGu ||
+      prog.objectives?.map((o: any) => o.gu || o) ||
+      []
+    ).join("\n");
+    const objectivesHi = (
+      prog.objectivesHi ||
+      prog.objectives?.map((o: any) => o.hi || o) ||
+      []
+    ).join("\n");
     setFormObjectivesEn(objectivesEn);
     setFormObjectivesGu(objectivesGu);
     setFormObjectivesHi(objectivesHi);
 
     // Activities list map to lines
-    const activitiesEn = (prog.activitiesEn || prog.activities?.map((a: any) => a.en || a) || []).join("\n");
-    const activitiesGu = (prog.activitiesGu || prog.activities?.map((a: any) => a.gu || a) || []).join("\n");
-    const activitiesHi = (prog.activitiesHi || prog.activities?.map((a: any) => a.hi || a) || []).join("\n");
+    const activitiesEn = (
+      prog.activitiesEn ||
+      prog.activities?.map((a: any) => a.en || a) ||
+      []
+    ).join("\n");
+    const activitiesGu = (
+      prog.activitiesGu ||
+      prog.activities?.map((a: any) => a.gu || a) ||
+      []
+    ).join("\n");
+    const activitiesHi = (
+      prog.activitiesHi ||
+      prog.activities?.map((a: any) => a.hi || a) ||
+      []
+    ).join("\n");
     setFormActivitiesEn(activitiesEn);
     setFormActivitiesGu(activitiesGu);
     setFormActivitiesHi(activitiesHi);
@@ -220,7 +244,10 @@ export function Programs() {
     try {
       // Map multi-line textareas to multilingual array structures
       const parseList = (text: string, fallback: string) => {
-        const lines = text.split("\n").map(s => s.trim()).filter(Boolean);
+        const lines = text
+          .split("\n")
+          .map((s) => s.trim())
+          .filter(Boolean);
         return lines.length > 0 ? lines : [fallback];
       };
 
@@ -244,7 +271,8 @@ export function Programs() {
 
       const programData = {
         // keyId: required NOT NULL in Supabase — slug derived from English title
-        keyId: editingProg?.keyId ||
+        keyId:
+          editingProg?.keyId ||
           formTitleEn
             .toLowerCase()
             .trim()
@@ -311,7 +339,11 @@ export function Programs() {
   };
 
   const handleDelete = async (id: string) => {
-    if (confirm("Are you sure you want to delete this program and all associated images? This action cannot be undone.")) {
+    if (
+      confirm(
+        "Are you sure you want to delete this program and all associated images? This action cannot be undone.",
+      )
+    ) {
       const toastId = toast.loading("Deleting program...");
       try {
         await deleteProgram(id);
@@ -330,7 +362,9 @@ export function Programs() {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl md:text-3xl font-display font-bold">Programs Management</h1>
-          <p className="text-sm text-slate-500 font-medium font-gujarati">ટ્રસ્ટ હેઠળ ચાલતી સામાજિક કલ્યાણ પ્રવૃત્તિઓનું વ્યવસ્થાપન</p>
+          <p className="text-sm text-slate-500 font-medium font-gujarati">
+            ટ્રસ્ટ હેઠળ ચાલતી સામાજિક કલ્યાણ પ્રવૃત્તિઓનું વ્યવસ્થાપન
+          </p>
         </div>
         <button
           onClick={handleOpenAddModal}
@@ -344,7 +378,10 @@ export function Programs() {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
         {fetching ? (
           Array.from({ length: 4 }).map((_, idx) => (
-            <div key={idx} className="bg-white rounded-3xl border border-slate-200/80 p-5 space-y-4 animate-pulse">
+            <div
+              key={idx}
+              className="bg-white rounded-3xl border border-slate-200/80 p-5 space-y-4 animate-pulse"
+            >
               <div className="aspect-[16/10] bg-slate-100 rounded-2xl w-full" />
               <div className="space-y-2">
                 <div className="h-4 w-1/4 bg-slate-100 rounded" />
@@ -357,63 +394,69 @@ export function Programs() {
           <div className="col-span-full text-center py-12 text-slate-400 font-bold">
             No programs found.
           </div>
-        ) : programsList.map((p) => (
-          <div
-            key={p.id || p._id}
-            className="bg-white rounded-3xl border border-slate-200/80 shadow-xs hover:shadow-md transition-all overflow-hidden flex flex-col justify-between group"
-          >
-            <div>
-              {/* Cover Image */}
-              <div className="relative aspect-[16/10] bg-slate-100 overflow-hidden">
-                <img src={p.image} alt={p.title?.en} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
-              </div>
-
-              {/* Body details */}
-              <div className="p-5 space-y-3">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <span className="text-[10px] uppercase tracking-wider font-bold bg-slate-100 text-slate-600 px-2 py-0.5 rounded">
-                      {p.category || "General"}
-                    </span>
-                    {p.status === "draft" && (
-                      <span className="text-[10px] uppercase tracking-wider font-bold bg-rose-50 text-rose-500 px-2 py-0.5 rounded">
-                        Draft
-                      </span>
-                    )}
-                  </div>
-                  <span className="text-[10px] font-bold text-slate-400">Order: {p.displayOrder}</span>
+        ) : (
+          programsList.map((p) => (
+            <div
+              key={p.id || p._id}
+              className="bg-white rounded-3xl border border-slate-200/80 shadow-xs hover:shadow-md transition-all overflow-hidden flex flex-col justify-between group"
+            >
+              <div>
+                {/* Cover Image */}
+                <div className="relative aspect-[16/10] bg-slate-100 overflow-hidden">
+                  <img
+                    src={p.image}
+                    alt={p.title?.en}
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                  />
                 </div>
 
-                <h3 className="text-sm font-bold text-slate-900 leading-snug">
-                  {p.title?.en}
-                </h3>
-                <h4 className="font-gujarati text-xs font-semibold text-slate-500">
-                  {p.title?.gu}
-                </h4>
-                <div 
-                  className="text-xs text-slate-500 leading-relaxed font-medium line-clamp-3 prose prose-slate"
-                  dangerouslySetInnerHTML={{ __html: p.desc?.en || "" }}
-                />
+                {/* Body details */}
+                <div className="p-5 space-y-3">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <span className="text-[10px] uppercase tracking-wider font-bold bg-slate-100 text-slate-600 px-2 py-0.5 rounded">
+                        {p.category || "General"}
+                      </span>
+                      {p.status === "draft" && (
+                        <span className="text-[10px] uppercase tracking-wider font-bold bg-rose-50 text-rose-500 px-2 py-0.5 rounded">
+                          Draft
+                        </span>
+                      )}
+                    </div>
+                    <span className="text-[10px] font-bold text-slate-400">
+                      Order: {p.displayOrder}
+                    </span>
+                  </div>
+
+                  <h3 className="text-sm font-bold text-slate-900 leading-snug">{p.title?.en}</h3>
+                  <h4 className="font-gujarati text-xs font-semibold text-slate-500">
+                    {p.title?.gu}
+                  </h4>
+                  <div
+                    className="text-xs text-slate-500 leading-relaxed font-medium line-clamp-3 prose prose-slate"
+                    dangerouslySetInnerHTML={{ __html: p.desc?.en || "" }}
+                  />
+                </div>
+              </div>
+
+              {/* Footer buttons */}
+              <div className="p-4 border-t border-slate-100 bg-slate-50/50 flex gap-2">
+                <button
+                  onClick={() => handleOpenEditModal(p)}
+                  className="flex-1 py-2 bg-white hover:bg-slate-100 border border-slate-200 rounded-xl text-xs font-bold text-slate-600 flex items-center justify-center gap-1.5 cursor-pointer shadow-2xs"
+                >
+                  <Edit className="h-3.5 w-3.5" /> Edit
+                </button>
+                <button
+                  onClick={() => handleDelete(p.id || p._id)}
+                  className="py-2 px-3 hover:bg-rose-50 border border-rose-100 rounded-xl text-xs font-bold text-rose-500 flex items-center justify-center cursor-pointer shadow-2xs"
+                >
+                  <Trash2 className="h-3.5 w-3.5" />
+                </button>
               </div>
             </div>
-
-            {/* Footer buttons */}
-            <div className="p-4 border-t border-slate-100 bg-slate-50/50 flex gap-2">
-              <button
-                onClick={() => handleOpenEditModal(p)}
-                className="flex-1 py-2 bg-white hover:bg-slate-100 border border-slate-200 rounded-xl text-xs font-bold text-slate-600 flex items-center justify-center gap-1.5 cursor-pointer shadow-2xs"
-              >
-                <Edit className="h-3.5 w-3.5" /> Edit
-              </button>
-              <button
-                onClick={() => handleDelete(p.id || p._id)}
-                className="py-2 px-3 hover:bg-rose-50 border border-rose-100 rounded-xl text-xs font-bold text-rose-500 flex items-center justify-center cursor-pointer shadow-2xs"
-              >
-                <Trash2 className="h-3.5 w-3.5" />
-              </button>
-            </div>
-          </div>
-        ))}
+          ))
+        )}
       </div>
 
       {/* Add / Edit Modal */}
@@ -422,7 +465,9 @@ export function Programs() {
           <div className="bg-white rounded-3xl border border-slate-200 shadow-2xl max-w-2xl w-full overflow-hidden animate-scale-up max-h-[90vh] flex flex-col">
             {/* Header */}
             <div className="p-6 border-b border-slate-100 flex items-center justify-between">
-              <h3 className="font-bold text-lg">{editingProg ? "Edit Program Details" : "Add New Program"}</h3>
+              <h3 className="font-bold text-lg">
+                {editingProg ? "Edit Program Details" : "Add New Program"}
+              </h3>
               <button
                 onClick={() => setModalOpen(false)}
                 className="text-slate-400 hover:text-slate-600 p-1.5 rounded-lg hover:bg-slate-50 cursor-pointer"
@@ -435,386 +480,440 @@ export function Programs() {
             <form onSubmit={handleSave} className="flex-1 flex flex-col overflow-hidden">
               {/* Scrollable Form Body */}
               <div className="flex-1 overflow-y-auto p-6 space-y-5 text-xs font-semibold">
-              
-              {/* Program Titles */}
-              <div className="space-y-4 border-b border-slate-100 pb-4">
-                <h4 className="text-sm font-bold text-slate-800">Program Title</h4>
-                <div className="space-y-3">
-                  <div className="space-y-1.5">
-                    <label className="text-slate-500 uppercase tracking-wider">English Title *</label>
-                    <input
-                      type="text"
-                      required
-                      value={formTitleEn}
-                      onChange={(e) => setFormTitleEn(e.target.value)}
-                      className="w-full h-11 px-4 rounded-xl border border-slate-200 bg-slate-50 focus:outline-none focus:border-primary text-sm font-medium"
-                      placeholder="e.g. Vidya Sahay"
-                    />
-                  </div>
-                  <div className="space-y-1.5">
-                    <label className="text-slate-500 uppercase tracking-wider">Gujarati Title *</label>
-                    <input
-                      type="text"
-                      required
-                      value={formTitleGu}
-                      onChange={(e) => setFormTitleGu(e.target.value)}
-                      className="w-full h-11 px-4 rounded-xl border border-slate-200 bg-slate-50 focus:outline-none focus:border-primary text-sm font-medium font-gujarati"
-                      placeholder="વિદ્યા સહાય"
-                    />
-                  </div>
-                  <div className="space-y-1.5">
-                    <label className="text-slate-500 uppercase tracking-wider">Hindi Title</label>
-                    <input
-                      type="text"
-                      value={formTitleHi}
-                      onChange={(e) => setFormTitleHi(e.target.value)}
-                      className="w-full h-11 px-4 rounded-xl border border-slate-200 bg-slate-50 focus:outline-none focus:border-primary text-sm font-medium"
-                      placeholder="विद्या सहाय"
-                    />
+                {/* Program Titles */}
+                <div className="space-y-4 border-b border-slate-100 pb-4">
+                  <h4 className="text-sm font-bold text-slate-800">Program Title</h4>
+                  <div className="space-y-3">
+                    <div className="space-y-1.5">
+                      <label className="text-slate-500 uppercase tracking-wider">
+                        English Title *
+                      </label>
+                      <input
+                        type="text"
+                        required
+                        value={formTitleEn}
+                        onChange={(e) => setFormTitleEn(e.target.value)}
+                        className="w-full h-11 px-4 rounded-xl border border-slate-200 bg-slate-50 focus:outline-none focus:border-primary text-sm font-medium"
+                        placeholder="e.g. Vidya Sahay"
+                      />
+                    </div>
+                    <div className="space-y-1.5">
+                      <label className="text-slate-500 uppercase tracking-wider">
+                        Gujarati Title *
+                      </label>
+                      <input
+                        type="text"
+                        required
+                        value={formTitleGu}
+                        onChange={(e) => setFormTitleGu(e.target.value)}
+                        className="w-full h-11 px-4 rounded-xl border border-slate-200 bg-slate-50 focus:outline-none focus:border-primary text-sm font-medium font-gujarati"
+                        placeholder="વિદ્યા સહાય"
+                      />
+                    </div>
+                    <div className="space-y-1.5">
+                      <label className="text-slate-500 uppercase tracking-wider">Hindi Title</label>
+                      <input
+                        type="text"
+                        value={formTitleHi}
+                        onChange={(e) => setFormTitleHi(e.target.value)}
+                        className="w-full h-11 px-4 rounded-xl border border-slate-200 bg-slate-50 focus:outline-none focus:border-primary text-sm font-medium"
+                        placeholder="विद्या सहाय"
+                      />
+                    </div>
                   </div>
                 </div>
-              </div>
 
-              {/* Design configuration */}
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 border-b border-slate-100 pb-4">
-                <div className="space-y-1.5">
-                  <label className="text-slate-500 uppercase tracking-wider">Lucide Icon *</label>
-                  <select
-                    value={formIcon}
-                    onChange={(e) => setFormIcon(e.target.value)}
-                    className="w-full h-11 px-3 rounded-xl border border-slate-200 bg-slate-50 focus:outline-none focus:border-primary text-sm font-medium cursor-pointer"
-                  >
-                    {ICONS_LIST.map((ic) => (
-                      <option key={ic} value={ic}>{ic}</option>
-                    ))}
-                  </select>
-                </div>
-
-                <div className="space-y-1.5">
-                  <label className="text-slate-500 uppercase tracking-wider">Brand Color *</label>
-                  <div className="flex gap-2 items-center">
+                {/* Design configuration */}
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 border-b border-slate-100 pb-4">
+                  <div className="space-y-1.5">
+                    <label className="text-slate-500 uppercase tracking-wider">Lucide Icon *</label>
                     <select
-                      value={formColor}
-                      onChange={(e) => setFormColor(e.target.value)}
+                      value={formIcon}
+                      onChange={(e) => setFormIcon(e.target.value)}
                       className="w-full h-11 px-3 rounded-xl border border-slate-200 bg-slate-50 focus:outline-none focus:border-primary text-sm font-medium cursor-pointer"
                     >
-                      {COLORS_PRESETS.map((col) => (
-                        <option key={col.value} value={col.value}>{col.name}</option>
+                      {ICONS_LIST.map((ic) => (
+                        <option key={ic} value={ic}>
+                          {ic}
+                        </option>
                       ))}
                     </select>
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <label className="text-slate-500 uppercase tracking-wider">Brand Color *</label>
+                    <div className="flex gap-2 items-center">
+                      <select
+                        value={formColor}
+                        onChange={(e) => setFormColor(e.target.value)}
+                        className="w-full h-11 px-3 rounded-xl border border-slate-200 bg-slate-50 focus:outline-none focus:border-primary text-sm font-medium cursor-pointer"
+                      >
+                        {COLORS_PRESETS.map((col) => (
+                          <option key={col.value} value={col.value}>
+                            {col.name}
+                          </option>
+                        ))}
+                      </select>
+                      <input
+                        type="color"
+                        value={formColor}
+                        onChange={(e) => setFormColor(e.target.value)}
+                        className="h-10 w-10 border-0 rounded-lg cursor-pointer flex-shrink-0"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <label className="text-slate-500 uppercase tracking-wider">
+                      Display Order *
+                    </label>
                     <input
-                      type="color"
-                      value={formColor}
-                      onChange={(e) => setFormColor(e.target.value)}
-                      className="h-10 w-10 border-0 rounded-lg cursor-pointer flex-shrink-0"
+                      type="number"
+                      required
+                      value={formDisplayOrder}
+                      onChange={(e) => setFormDisplayOrder(Number(e.target.value))}
+                      className="w-full h-11 px-3 rounded-xl border border-slate-200 bg-slate-50 focus:outline-none focus:border-primary text-sm font-medium"
                     />
                   </div>
                 </div>
 
-                <div className="space-y-1.5">
-                  <label className="text-slate-500 uppercase tracking-wider">Display Order *</label>
-                  <input
-                    type="number"
-                    required
-                    value={formDisplayOrder}
-                    onChange={(e) => setFormDisplayOrder(Number(e.target.value))}
-                    className="w-full h-11 px-3 rounded-xl border border-slate-200 bg-slate-50 focus:outline-none focus:border-primary text-sm font-medium"
-                  />
-                </div>
-              </div>
-
-              {/* Status and Category config */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 border-b border-slate-100 pb-4">
-                <div className="space-y-1.5">
-                  <label className="text-slate-500 uppercase tracking-wider">Category / Label *</label>
-                  <input
-                    type="text"
-                    required
-                    value={formCategory}
-                    onChange={(e) => setFormCategory(e.target.value)}
-                    className="w-full h-11 px-4 rounded-xl border border-slate-200 bg-slate-50 focus:outline-none focus:border-primary text-sm font-medium"
-                  />
-                </div>
-
-                <div className="space-y-1.5">
-                  <label className="text-slate-500 uppercase tracking-wider">Publish Status *</label>
-                  <select
-                    value={formStatus}
-                    onChange={(e) => setFormStatus(e.target.value as any)}
-                    className="w-full h-11 px-3 rounded-xl border border-slate-200 bg-slate-50 focus:outline-none focus:border-primary text-sm font-medium cursor-pointer"
-                  >
-                    <option value="published">Published</option>
-                    <option value="draft">Draft</option>
-                  </select>
-                </div>
-              </div>
-
-              {/* Cover Image */}
-              <div className="space-y-2 border-b border-slate-100 pb-4">
-                <h4 className="text-sm font-bold text-slate-800">Cover Image *</h4>
-                <ImageManager
-                  images={coverImages}
-                  coverImage={coverImages[0] || ""}
-                  onChange={(images) => setCoverImages(images)}
-                  folder="programs"
-                  singleOnly={true}
-                />
-              </div>
-
-              {/* Gallery Images */}
-              <div className="space-y-2 border-b border-slate-100 pb-4">
-                <h4 className="text-sm font-bold text-slate-800">Additional Gallery Images</h4>
-                <ImageManager
-                  images={galleryImages}
-                  coverImage={galleryImages[0] || ""}
-                  onChange={(images) => setGalleryImages(images)}
-                  folder="programs"
-                />
-              </div>
-
-              {/* Description (Rich Text) */}
-              <div className="space-y-4 border-b border-slate-100 pb-4">
-                <h4 className="text-sm font-bold text-slate-800">Program Description</h4>
-                <div className="space-y-3">
+                {/* Status and Category config */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 border-b border-slate-100 pb-4">
                   <div className="space-y-1.5">
-                    <label className="text-slate-500 uppercase tracking-wider">English Description *</label>
-                    <RichTextEditor
-                      value={formDescEn}
-                      onChange={setFormDescEn}
-                      placeholder="Write description summary..."
-                    />
-                  </div>
-                  <div className="space-y-1.5">
-                    <label className="text-slate-500 uppercase tracking-wider">Gujarati Description *</label>
-                    <RichTextEditor
-                      value={formDescGu}
-                      onChange={setFormDescGu}
-                      placeholder="ગુજરાતીમાં વિગત લખો..."
-                    />
-                  </div>
-                  <div className="space-y-1.5">
-                    <label className="text-slate-500 uppercase tracking-wider">Hindi Description</label>
-                    <RichTextEditor
-                      value={formDescHi}
-                      onChange={setFormDescHi}
-                      placeholder="हिंदी में विवरण लिखें..."
-                    />
-                  </div>
-                </div>
-              </div>
-
-              {/* Objectives lists (Line-by-line inputs) */}
-              <div className="space-y-4 border-b border-slate-100 pb-4">
-                <h4 className="text-sm font-bold text-slate-800">Program Objectives (one per line)</h4>
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                  <div className="space-y-1.5">
-                    <label className="text-slate-500 uppercase tracking-wider font-bold">English</label>
-                    <textarea
-                      rows={4}
-                      value={formObjectivesEn}
-                      onChange={(e) => setFormObjectivesEn(e.target.value)}
-                      className="w-full p-3 rounded-xl border border-slate-200 bg-slate-50 focus:outline-none focus:border-primary text-xs font-medium"
-                      placeholder="E.g.&#10;Notebook distribution&#10;Primary coaching"
-                    />
-                  </div>
-                  <div className="space-y-1.5">
-                    <label className="text-slate-500 uppercase tracking-wider font-bold">Gujarati</label>
-                    <textarea
-                      rows={4}
-                      value={formObjectivesGu}
-                      onChange={(e) => setFormObjectivesGu(e.target.value)}
-                      className="w-full p-3 rounded-xl border border-slate-200 bg-slate-50 focus:outline-none focus:border-primary text-xs font-medium font-gujarati"
-                      placeholder="દા.ત.&#10;નોટબુક વિતરણ&#10;શાળા શિક્ષણ સહાય"
-                    />
-                  </div>
-                  <div className="space-y-1.5">
-                    <label className="text-slate-500 uppercase tracking-wider font-bold">Hindi</label>
-                    <textarea
-                      rows={4}
-                      value={formObjectivesHi}
-                      onChange={(e) => setFormObjectivesHi(e.target.value)}
-                      className="w-full p-3 rounded-xl border border-slate-200 bg-slate-50 focus:outline-none focus:border-primary text-xs font-medium"
-                      placeholder="उदा.&#10;नोटबुक वितरण&#10;स्कूल शिक्षा सहायता"
-                    />
-                  </div>
-                </div>
-              </div>
-
-              {/* Activities list (Line-by-line inputs) */}
-              <div className="space-y-4 border-b border-slate-100 pb-4">
-                <h4 className="text-sm font-bold text-slate-800">Key Activities (one per line)</h4>
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                  <div className="space-y-1.5">
-                    <label className="text-slate-500 uppercase tracking-wider font-bold">English</label>
-                    <textarea
-                      rows={4}
-                      value={formActivitiesEn}
-                      onChange={(e) => setFormActivitiesEn(e.target.value)}
-                      className="w-full p-3 rounded-xl border border-slate-200 bg-slate-50 focus:outline-none focus:border-primary text-xs font-medium"
-                      placeholder="E.g.&#10;Annual bag distributions&#10;Sanand field camps"
-                    />
-                  </div>
-                  <div className="space-y-1.5">
-                    <label className="text-slate-500 uppercase tracking-wider font-bold">Gujarati</label>
-                    <textarea
-                      rows={4}
-                      value={formActivitiesGu}
-                      onChange={(e) => setFormActivitiesGu(e.target.value)}
-                      className="w-full p-3 rounded-xl border border-slate-200 bg-slate-50 focus:outline-none focus:border-primary text-xs font-medium font-gujarati"
-                      placeholder="દા.ત.&#10;વર્ષિક બેગ વિતરણ કાર્યક્રમ&#10;સાણંદ સેવા કેમ્પ"
-                    />
-                  </div>
-                  <div className="space-y-1.5">
-                    <label className="text-slate-500 uppercase tracking-wider font-bold">Hindi</label>
-                    <textarea
-                      rows={4}
-                      value={formActivitiesHi}
-                      onChange={(e) => setFormActivitiesHi(e.target.value)}
-                      className="w-full p-3 rounded-xl border border-slate-200 bg-slate-50 focus:outline-none focus:border-primary text-xs font-medium"
-                      placeholder="उदा.&#10;वार्षिक बैग वितरण कार्यक्रम&#10;सानंद सेवा शिविर"
-                    />
-                  </div>
-                </div>
-              </div>
-
-              {/* Impact stats value */}
-              <div className="space-y-4 border-b border-slate-100 pb-4">
-                <h4 className="text-sm font-bold text-slate-800">Impact Metric Text</h4>
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                  <div className="space-y-1.5">
-                    <label className="text-slate-500 uppercase tracking-wider">English *</label>
+                    <label className="text-slate-500 uppercase tracking-wider">
+                      Category / Label *
+                    </label>
                     <input
                       type="text"
                       required
-                      value={formImpactEn}
-                      onChange={(e) => setFormImpactEn(e.target.value)}
-                      className="w-full h-11 px-3 rounded-xl border border-slate-200 bg-slate-50 focus:outline-none focus:border-primary text-sm font-medium"
-                      placeholder="e.g. 4,500+ Students served"
+                      value={formCategory}
+                      onChange={(e) => setFormCategory(e.target.value)}
+                      className="w-full h-11 px-4 rounded-xl border border-slate-200 bg-slate-50 focus:outline-none focus:border-primary text-sm font-medium"
                     />
                   </div>
-                  <div className="space-y-1.5">
-                    <label className="text-slate-500 uppercase tracking-wider">Gujarati *</label>
-                    <input
-                      type="text"
-                      required
-                      value={formImpactGu}
-                      onChange={(e) => setFormImpactGu(e.target.value)}
-                      className="w-full h-11 px-3 rounded-xl border border-slate-200 bg-slate-50 focus:outline-none focus:border-primary text-sm font-medium font-gujarati"
-                      placeholder="૪,૫૦૦+ વિદ્યાર્થીઓ"
-                    />
-                  </div>
-                  <div className="space-y-1.5">
-                    <label className="text-slate-500 uppercase tracking-wider">Hindi</label>
-                    <input
-                      type="text"
-                      value={formImpactHi}
-                      onChange={(e) => setFormImpactHi(e.target.value)}
-                      className="w-full h-11 px-3 rounded-xl border border-slate-200 bg-slate-50 focus:outline-none focus:border-primary text-sm font-medium"
-                      placeholder="४,५००+ छात्र"
-                    />
-                  </div>
-                </div>
-              </div>
 
-              {/* Success Story details */}
-              <div className="space-y-4">
-                <h4 className="text-sm font-bold text-slate-800">Success Story / Feedback Details</h4>
-                
-                {/* Title */}
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                   <div className="space-y-1.5">
-                    <label className="text-slate-500 uppercase tracking-wider">English Story Title</label>
-                    <input
-                      type="text"
-                      value={formSuccessTitleEn}
-                      onChange={(e) => setFormSuccessTitleEn(e.target.value)}
-                      className="w-full h-11 px-3 rounded-xl border border-slate-200 bg-slate-50 focus:outline-none focus:border-primary text-sm font-medium"
-                    />
-                  </div>
-                  <div className="space-y-1.5">
-                    <label className="text-slate-500 uppercase tracking-wider">Gujarati Story Title</label>
-                    <input
-                      type="text"
-                      value={formSuccessTitleGu}
-                      onChange={(e) => setFormSuccessTitleGu(e.target.value)}
-                      className="w-full h-11 px-3 rounded-xl border border-slate-200 bg-slate-50 focus:outline-none focus:border-primary text-sm font-medium font-gujarati"
-                    />
-                  </div>
-                  <div className="space-y-1.5">
-                    <label className="text-slate-500 uppercase tracking-wider">Hindi Story Title</label>
-                    <input
-                      type="text"
-                      value={formSuccessTitleHi}
-                      onChange={(e) => setFormSuccessTitleHi(e.target.value)}
-                      className="w-full h-11 px-3 rounded-xl border border-slate-200 bg-slate-50 focus:outline-none focus:border-primary text-sm font-medium"
-                    />
+                    <label className="text-slate-500 uppercase tracking-wider">
+                      Publish Status *
+                    </label>
+                    <select
+                      value={formStatus}
+                      onChange={(e) => setFormStatus(e.target.value as any)}
+                      className="w-full h-11 px-3 rounded-xl border border-slate-200 bg-slate-50 focus:outline-none focus:border-primary text-sm font-medium cursor-pointer"
+                    >
+                      <option value="published">Published</option>
+                      <option value="draft">Draft</option>
+                    </select>
                   </div>
                 </div>
 
-                {/* Story Body */}
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                  <div className="space-y-1.5">
-                    <label className="text-slate-500 uppercase tracking-wider">English Story Story</label>
-                    <textarea
-                      rows={3}
-                      value={formSuccessStoryEn}
-                      onChange={(e) => setFormSuccessStoryEn(e.target.value)}
-                      className="w-full p-3 rounded-xl border border-slate-200 bg-slate-50 focus:outline-none focus:border-primary text-xs font-medium"
-                    />
-                  </div>
-                  <div className="space-y-1.5">
-                    <label className="text-slate-500 uppercase tracking-wider">Gujarati Story Story</label>
-                    <textarea
-                      rows={3}
-                      value={formSuccessStoryGu}
-                      onChange={(e) => setFormSuccessStoryGu(e.target.value)}
-                      className="w-full p-3 rounded-xl border border-slate-200 bg-slate-50 focus:outline-none focus:border-primary text-xs font-medium font-gujarati"
-                    />
-                  </div>
-                  <div className="space-y-1.5">
-                    <label className="text-slate-500 uppercase tracking-wider">Hindi Story Story</label>
-                    <textarea
-                      rows={3}
-                      value={formSuccessStoryHi}
-                      onChange={(e) => setFormSuccessStoryHi(e.target.value)}
-                      className="w-full p-3 rounded-xl border border-slate-200 bg-slate-50 focus:outline-none focus:border-primary text-xs font-medium"
-                    />
+                {/* Cover Image */}
+                <div className="space-y-2 border-b border-slate-100 pb-4">
+                  <h4 className="text-sm font-bold text-slate-800">Cover Image *</h4>
+                  <ImageManager
+                    images={coverImages}
+                    coverImage={coverImages[0] || ""}
+                    onChange={(images) => setCoverImages(images)}
+                    folder="programs"
+                    singleOnly={true}
+                  />
+                </div>
+
+                {/* Gallery Images */}
+                <div className="space-y-2 border-b border-slate-100 pb-4">
+                  <h4 className="text-sm font-bold text-slate-800">Additional Gallery Images</h4>
+                  <ImageManager
+                    images={galleryImages}
+                    coverImage={galleryImages[0] || ""}
+                    onChange={(images) => setGalleryImages(images)}
+                    folder="programs"
+                  />
+                </div>
+
+                {/* Description (Rich Text) */}
+                <div className="space-y-4 border-b border-slate-100 pb-4">
+                  <h4 className="text-sm font-bold text-slate-800">Program Description</h4>
+                  <div className="space-y-3">
+                    <div className="space-y-1.5">
+                      <label className="text-slate-500 uppercase tracking-wider">
+                        English Description *
+                      </label>
+                      <RichTextEditor
+                        value={formDescEn}
+                        onChange={setFormDescEn}
+                        placeholder="Write description summary..."
+                      />
+                    </div>
+                    <div className="space-y-1.5">
+                      <label className="text-slate-500 uppercase tracking-wider">
+                        Gujarati Description *
+                      </label>
+                      <RichTextEditor
+                        value={formDescGu}
+                        onChange={setFormDescGu}
+                        placeholder="ગુજરાતીમાં વિગત લખો..."
+                      />
+                    </div>
+                    <div className="space-y-1.5">
+                      <label className="text-slate-500 uppercase tracking-wider">
+                        Hindi Description
+                      </label>
+                      <RichTextEditor
+                        value={formDescHi}
+                        onChange={setFormDescHi}
+                        placeholder="हिंदी में विवरण लिखें..."
+                      />
+                    </div>
                   </div>
                 </div>
 
-                {/* Quote author */}
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                  <div className="space-y-1.5">
-                    <label className="text-slate-500 uppercase tracking-wider">English Story Quote / Author</label>
-                    <input
-                      type="text"
-                      value={formSuccessQuoteEn}
-                      onChange={(e) => setFormSuccessQuoteEn(e.target.value)}
-                      className="w-full h-11 px-3 rounded-xl border border-slate-200 bg-slate-50 focus:outline-none focus:border-primary text-sm font-medium"
-                      placeholder="e.g. Ramesh, Gov. School Teacher"
-                    />
-                  </div>
-                  <div className="space-y-1.5">
-                    <label className="text-slate-500 uppercase tracking-wider">Gujarati Story Quote / Author</label>
-                    <input
-                      type="text"
-                      value={formSuccessQuoteGu}
-                      onChange={(e) => setFormSuccessQuoteGu(e.target.value)}
-                      className="w-full h-11 px-3 rounded-xl border border-slate-200 bg-slate-50 focus:outline-none focus:border-primary text-sm font-medium font-gujarati"
-                    />
-                  </div>
-                  <div className="space-y-1.5">
-                    <label className="text-slate-500 uppercase tracking-wider">Hindi Story Quote / Author</label>
-                    <input
-                      type="text"
-                      value={formSuccessQuoteHi}
-                      onChange={(e) => setFormSuccessQuoteHi(e.target.value)}
-                      className="w-full h-11 px-3 rounded-xl border border-slate-200 bg-slate-50 focus:outline-none focus:border-primary text-sm font-medium"
-                    />
+                {/* Objectives lists (Line-by-line inputs) */}
+                <div className="space-y-4 border-b border-slate-100 pb-4">
+                  <h4 className="text-sm font-bold text-slate-800">
+                    Program Objectives (one per line)
+                  </h4>
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                    <div className="space-y-1.5">
+                      <label className="text-slate-500 uppercase tracking-wider font-bold">
+                        English
+                      </label>
+                      <textarea
+                        rows={4}
+                        value={formObjectivesEn}
+                        onChange={(e) => setFormObjectivesEn(e.target.value)}
+                        className="w-full p-3 rounded-xl border border-slate-200 bg-slate-50 focus:outline-none focus:border-primary text-xs font-medium"
+                        placeholder="E.g.&#10;Notebook distribution&#10;Primary coaching"
+                      />
+                    </div>
+                    <div className="space-y-1.5">
+                      <label className="text-slate-500 uppercase tracking-wider font-bold">
+                        Gujarati
+                      </label>
+                      <textarea
+                        rows={4}
+                        value={formObjectivesGu}
+                        onChange={(e) => setFormObjectivesGu(e.target.value)}
+                        className="w-full p-3 rounded-xl border border-slate-200 bg-slate-50 focus:outline-none focus:border-primary text-xs font-medium font-gujarati"
+                        placeholder="દા.ત.&#10;નોટબુક વિતરણ&#10;શાળા શિક્ષણ સહાય"
+                      />
+                    </div>
+                    <div className="space-y-1.5">
+                      <label className="text-slate-500 uppercase tracking-wider font-bold">
+                        Hindi
+                      </label>
+                      <textarea
+                        rows={4}
+                        value={formObjectivesHi}
+                        onChange={(e) => setFormObjectivesHi(e.target.value)}
+                        className="w-full p-3 rounded-xl border border-slate-200 bg-slate-50 focus:outline-none focus:border-primary text-xs font-medium"
+                        placeholder="उदा.&#10;नोटबुक वितरण&#10;स्कूल शिक्षा सहायता"
+                      />
+                    </div>
                   </div>
                 </div>
-              </div>
 
+                {/* Activities list (Line-by-line inputs) */}
+                <div className="space-y-4 border-b border-slate-100 pb-4">
+                  <h4 className="text-sm font-bold text-slate-800">
+                    Key Activities (one per line)
+                  </h4>
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                    <div className="space-y-1.5">
+                      <label className="text-slate-500 uppercase tracking-wider font-bold">
+                        English
+                      </label>
+                      <textarea
+                        rows={4}
+                        value={formActivitiesEn}
+                        onChange={(e) => setFormActivitiesEn(e.target.value)}
+                        className="w-full p-3 rounded-xl border border-slate-200 bg-slate-50 focus:outline-none focus:border-primary text-xs font-medium"
+                        placeholder="E.g.&#10;Annual bag distributions&#10;Sanand field camps"
+                      />
+                    </div>
+                    <div className="space-y-1.5">
+                      <label className="text-slate-500 uppercase tracking-wider font-bold">
+                        Gujarati
+                      </label>
+                      <textarea
+                        rows={4}
+                        value={formActivitiesGu}
+                        onChange={(e) => setFormActivitiesGu(e.target.value)}
+                        className="w-full p-3 rounded-xl border border-slate-200 bg-slate-50 focus:outline-none focus:border-primary text-xs font-medium font-gujarati"
+                        placeholder="દા.ત.&#10;વર્ષિક બેગ વિતરણ કાર્યક્રમ&#10;સાણંદ સેવા કેમ્પ"
+                      />
+                    </div>
+                    <div className="space-y-1.5">
+                      <label className="text-slate-500 uppercase tracking-wider font-bold">
+                        Hindi
+                      </label>
+                      <textarea
+                        rows={4}
+                        value={formActivitiesHi}
+                        onChange={(e) => setFormActivitiesHi(e.target.value)}
+                        className="w-full p-3 rounded-xl border border-slate-200 bg-slate-50 focus:outline-none focus:border-primary text-xs font-medium"
+                        placeholder="उदा.&#10;वार्षिक बैग वितरण कार्यक्रम&#10;सानंद सेवा शिविर"
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Impact stats value */}
+                <div className="space-y-4 border-b border-slate-100 pb-4">
+                  <h4 className="text-sm font-bold text-slate-800">Impact Metric Text</h4>
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                    <div className="space-y-1.5">
+                      <label className="text-slate-500 uppercase tracking-wider">English *</label>
+                      <input
+                        type="text"
+                        required
+                        value={formImpactEn}
+                        onChange={(e) => setFormImpactEn(e.target.value)}
+                        className="w-full h-11 px-3 rounded-xl border border-slate-200 bg-slate-50 focus:outline-none focus:border-primary text-sm font-medium"
+                        placeholder="e.g. 4,500+ Students served"
+                      />
+                    </div>
+                    <div className="space-y-1.5">
+                      <label className="text-slate-500 uppercase tracking-wider">Gujarati *</label>
+                      <input
+                        type="text"
+                        required
+                        value={formImpactGu}
+                        onChange={(e) => setFormImpactGu(e.target.value)}
+                        className="w-full h-11 px-3 rounded-xl border border-slate-200 bg-slate-50 focus:outline-none focus:border-primary text-sm font-medium font-gujarati"
+                        placeholder="૪,૫૦૦+ વિદ્યાર્થીઓ"
+                      />
+                    </div>
+                    <div className="space-y-1.5">
+                      <label className="text-slate-500 uppercase tracking-wider">Hindi</label>
+                      <input
+                        type="text"
+                        value={formImpactHi}
+                        onChange={(e) => setFormImpactHi(e.target.value)}
+                        className="w-full h-11 px-3 rounded-xl border border-slate-200 bg-slate-50 focus:outline-none focus:border-primary text-sm font-medium"
+                        placeholder="४,५००+ छात्र"
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Success Story details */}
+                <div className="space-y-4">
+                  <h4 className="text-sm font-bold text-slate-800">
+                    Success Story / Feedback Details
+                  </h4>
+
+                  {/* Title */}
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                    <div className="space-y-1.5">
+                      <label className="text-slate-500 uppercase tracking-wider">
+                        English Story Title
+                      </label>
+                      <input
+                        type="text"
+                        value={formSuccessTitleEn}
+                        onChange={(e) => setFormSuccessTitleEn(e.target.value)}
+                        className="w-full h-11 px-3 rounded-xl border border-slate-200 bg-slate-50 focus:outline-none focus:border-primary text-sm font-medium"
+                      />
+                    </div>
+                    <div className="space-y-1.5">
+                      <label className="text-slate-500 uppercase tracking-wider">
+                        Gujarati Story Title
+                      </label>
+                      <input
+                        type="text"
+                        value={formSuccessTitleGu}
+                        onChange={(e) => setFormSuccessTitleGu(e.target.value)}
+                        className="w-full h-11 px-3 rounded-xl border border-slate-200 bg-slate-50 focus:outline-none focus:border-primary text-sm font-medium font-gujarati"
+                      />
+                    </div>
+                    <div className="space-y-1.5">
+                      <label className="text-slate-500 uppercase tracking-wider">
+                        Hindi Story Title
+                      </label>
+                      <input
+                        type="text"
+                        value={formSuccessTitleHi}
+                        onChange={(e) => setFormSuccessTitleHi(e.target.value)}
+                        className="w-full h-11 px-3 rounded-xl border border-slate-200 bg-slate-50 focus:outline-none focus:border-primary text-sm font-medium"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Story Body */}
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                    <div className="space-y-1.5">
+                      <label className="text-slate-500 uppercase tracking-wider">
+                        English Story Story
+                      </label>
+                      <textarea
+                        rows={3}
+                        value={formSuccessStoryEn}
+                        onChange={(e) => setFormSuccessStoryEn(e.target.value)}
+                        className="w-full p-3 rounded-xl border border-slate-200 bg-slate-50 focus:outline-none focus:border-primary text-xs font-medium"
+                      />
+                    </div>
+                    <div className="space-y-1.5">
+                      <label className="text-slate-500 uppercase tracking-wider">
+                        Gujarati Story Story
+                      </label>
+                      <textarea
+                        rows={3}
+                        value={formSuccessStoryGu}
+                        onChange={(e) => setFormSuccessStoryGu(e.target.value)}
+                        className="w-full p-3 rounded-xl border border-slate-200 bg-slate-50 focus:outline-none focus:border-primary text-xs font-medium font-gujarati"
+                      />
+                    </div>
+                    <div className="space-y-1.5">
+                      <label className="text-slate-500 uppercase tracking-wider">
+                        Hindi Story Story
+                      </label>
+                      <textarea
+                        rows={3}
+                        value={formSuccessStoryHi}
+                        onChange={(e) => setFormSuccessStoryHi(e.target.value)}
+                        className="w-full p-3 rounded-xl border border-slate-200 bg-slate-50 focus:outline-none focus:border-primary text-xs font-medium"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Quote author */}
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                    <div className="space-y-1.5">
+                      <label className="text-slate-500 uppercase tracking-wider">
+                        English Story Quote / Author
+                      </label>
+                      <input
+                        type="text"
+                        value={formSuccessQuoteEn}
+                        onChange={(e) => setFormSuccessQuoteEn(e.target.value)}
+                        className="w-full h-11 px-3 rounded-xl border border-slate-200 bg-slate-50 focus:outline-none focus:border-primary text-sm font-medium"
+                        placeholder="e.g. Ramesh, Gov. School Teacher"
+                      />
+                    </div>
+                    <div className="space-y-1.5">
+                      <label className="text-slate-500 uppercase tracking-wider">
+                        Gujarati Story Quote / Author
+                      </label>
+                      <input
+                        type="text"
+                        value={formSuccessQuoteGu}
+                        onChange={(e) => setFormSuccessQuoteGu(e.target.value)}
+                        className="w-full h-11 px-3 rounded-xl border border-slate-200 bg-slate-50 focus:outline-none focus:border-primary text-sm font-medium font-gujarati"
+                      />
+                    </div>
+                    <div className="space-y-1.5">
+                      <label className="text-slate-500 uppercase tracking-wider">
+                        Hindi Story Quote / Author
+                      </label>
+                      <input
+                        type="text"
+                        value={formSuccessQuoteHi}
+                        onChange={(e) => setFormSuccessQuoteHi(e.target.value)}
+                        className="w-full h-11 px-3 rounded-xl border border-slate-200 bg-slate-50 focus:outline-none focus:border-primary text-sm font-medium"
+                      />
+                    </div>
+                  </div>
+                </div>
               </div>
 
               {/* Fixed Footer Submit Buttons */}
@@ -832,7 +931,7 @@ export function Programs() {
                   disabled={loading}
                   className="flex-1 btn-primary text-xs py-2.5 px-4 cursor-pointer disabled:opacity-50"
                 >
-                  {loading ? "Saving..." : (editingProg ? "Save Changes" : "Publish Program")}
+                  {loading ? "Saving..." : editingProg ? "Save Changes" : "Publish Program"}
                 </button>
               </div>
             </form>

@@ -13,7 +13,9 @@ if (RESEND_API_KEY) {
   resend = new Resend(RESEND_API_KEY);
   console.log("✅ Resend client initialized successfully.");
 } else {
-  console.log("⚠️  RESEND_API_KEY not set. Email service will run in DRY-RUN / MOCK mode (logging to console).");
+  console.log(
+    "⚠️  RESEND_API_KEY not set. Email service will run in DRY-RUN / MOCK mode (logging to console).",
+  );
 }
 
 // ── HTML Email Wrapper ────────────────────────────────────────────────────────
@@ -173,7 +175,7 @@ export async function sendMail(to, subject, htmlContent, attachments = []) {
         to,
         subject,
         html: htmlContent,
-        attachments: attachments.map(att => ({
+        attachments: attachments.map((att) => ({
           filename: att.filename,
           content: att.content,
         })),
@@ -190,9 +192,14 @@ export async function sendMail(to, subject, htmlContent, attachments = []) {
     console.log(`\n--- [MOCK EMAIL DRY-RUN] ---`);
     console.log(`To:      ${to}`);
     console.log(`Subject: ${subject}`);
-    console.log(`Content:\n${htmlContent.replace(/<[^>]*>/g, " ").trim().substring(0, 300)}...`);
+    console.log(
+      `Content:\n${htmlContent
+        .replace(/<[^>]*>/g, " ")
+        .trim()
+        .substring(0, 300)}...`,
+    );
     if (attachments && attachments.length > 0) {
-      console.log(`Attachments: ${attachments.map(a => a.filename).join(", ")}`);
+      console.log(`Attachments: ${attachments.map((a) => a.filename).join(", ")}`);
     }
     console.log(`-----------------------------\n`);
   }
@@ -211,7 +218,11 @@ export async function sendVolunteerReceived(email, name) {
     <p>No further actions are required from your end at this moment.</p>
     <p>Regards,<br>Uday Foundation Trust Team</p>
   `;
-  const html = getHtmlTemplate("Volunteer Application Received", "Application received confirmation", body);
+  const html = getHtmlTemplate(
+    "Volunteer Application Received",
+    "Application received confirmation",
+    body,
+  );
   await sendMail(email, "Volunteer Application Received", html);
 }
 
@@ -225,7 +236,11 @@ export async function sendPartnershipReceived(email, contactName, orgName) {
     <p>Your partnership proposal has been received successfully. Our coordinator is reviewing your organization type and proposal and will get back to you with custom structures and timelines.</p>
     <p>Regards,<br>Uday Foundation Trust Team</p>
   `;
-  const html = getHtmlTemplate("Partnership Inquiry Received", "Inquiry received confirmation", body);
+  const html = getHtmlTemplate(
+    "Partnership Inquiry Received",
+    "Inquiry received confirmation",
+    body,
+  );
   await sendMail(email, "Partnership Inquiry Received", html);
 }
 
@@ -241,7 +256,11 @@ export async function sendVolunteerApproved(email, name) {
     <p>Welcome aboard!</p>
     <p>Regards,<br>Uday Foundation Trust Team</p>
   `;
-  const html = getHtmlTemplate("Volunteer Application Approved", "Congratulations! Your application is approved", body);
+  const html = getHtmlTemplate(
+    "Volunteer Application Approved",
+    "Congratulations! Your application is approved",
+    body,
+  );
   await sendMail(email, "Volunteer Application Approved", html);
 }
 
@@ -256,13 +275,19 @@ export async function sendPartnershipApproved(email, contactName, orgName) {
     <p>We look forward to a highly impactful association.</p>
     <p>Regards,<br>Uday Foundation Trust Team</p>
   `;
-  const html = getHtmlTemplate("Partnership Request Approved", "Your partnership request has been approved", body);
+  const html = getHtmlTemplate(
+    "Partnership Request Approved",
+    "Your partnership request has been approved",
+    body,
+  );
   await sendMail(email, "Partnership Request Approved", html);
 }
 
 // 5. Volunteer Rejected
 export async function sendVolunteerRejected(email, name, reason) {
-  const cleanReason = reason || "Thank you for applying. After reviewing your application, we are unable to move forward at this time. We encourage you to apply again in future drives.";
+  const cleanReason =
+    reason ||
+    "Thank you for applying. After reviewing your application, we are unable to move forward at this time. We encourage you to apply again in future drives.";
   const body = `
     <h1 class="h1">Volunteer Application Status</h1>
     <div class="badge badge-rejected">Not Accepted</div>
@@ -282,7 +307,9 @@ export async function sendVolunteerRejected(email, name, reason) {
 
 // 6. Partnership Rejected
 export async function sendPartnershipRejected(email, contactName, orgName, reason) {
-  const cleanReason = reason || "We regret to inform you that we cannot accommodate your partnership request at this time due to structural capacity constraints.";
+  const cleanReason =
+    reason ||
+    "We regret to inform you that we cannot accommodate your partnership request at this time due to structural capacity constraints.";
   const body = `
     <h1 class="h1">Partnership Inquiry Status</h1>
     <div class="badge badge-rejected">Declined</div>
@@ -296,7 +323,11 @@ export async function sendPartnershipRejected(email, contactName, orgName, reaso
     <p>We value your interest and hope we can find opportunities to collaborate in the future.</p>
     <p>Regards,<br>Uday Foundation Trust Team</p>
   `;
-  const html = getHtmlTemplate("Partnership Inquiry Status", "Partnership Inquiry Status Update", body);
+  const html = getHtmlTemplate(
+    "Partnership Inquiry Status",
+    "Partnership Inquiry Status Update",
+    body,
+  );
   await sendMail(email, "Partnership Inquiry Status", html);
 }
 
@@ -304,12 +335,14 @@ export async function sendPartnershipRejected(email, contactName, orgName, reaso
 export async function sendAdminAlert(type, applicantName, details = {}) {
   const isVol = type === "volunteer";
   const fieldsHtml = Object.entries(details)
-    .map(([k, v]) => `
+    .map(
+      ([k, v]) => `
       <div class="field-row">
         <span class="field-label">${k}:</span>
         <span class="field-value">${v}</span>
       </div>
-    `)
+    `,
+    )
     .join("");
 
   const body = `
@@ -321,8 +354,16 @@ export async function sendAdminAlert(type, applicantName, details = {}) {
     </div>
     <p>Please log in to the admin panel to view full documents, photos, resumes, and approve/reject the applicant.</p>
   `;
-  const html = getHtmlTemplate(`New ${isVol ? "Volunteer" : "Partnership"} Application`, "New Application Alert", body);
-  await sendMail(ADMIN_NOTIFICATION_EMAIL, `Alert: New ${isVol ? "Volunteer" : "Partnership"} Submission`, html);
+  const html = getHtmlTemplate(
+    `New ${isVol ? "Volunteer" : "Partnership"} Application`,
+    "New Application Alert",
+    body,
+  );
+  await sendMail(
+    ADMIN_NOTIFICATION_EMAIL,
+    `Alert: New ${isVol ? "Volunteer" : "Partnership"} Submission`,
+    html,
+  );
 }
 
 // 8. Donation Confirmation (User Acknowledgement)
@@ -333,7 +374,7 @@ export async function sendDonationReceived(email, donorName, amount, txId) {
     month: "long",
     year: "numeric",
   });
-  
+
   const body = `
     <h1 class="h1">Thank You for Your Donation!</h1>
     <div class="badge badge-approved">Completed</div>
@@ -361,6 +402,10 @@ export async function sendDonationReceived(email, donorName, amount, txId) {
     <p>Thank you again for making a difference.</p>
     <p>Regards,<br>Uday Foundation Trust Team</p>
   `;
-  const html = getHtmlTemplate("Thank You For Your Donation", "Donation receipt confirmation", body);
+  const html = getHtmlTemplate(
+    "Thank You For Your Donation",
+    "Donation receipt confirmation",
+    body,
+  );
   await sendMail(email, "Thank You For Your Donation", html);
 }

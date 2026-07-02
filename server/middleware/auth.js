@@ -8,7 +8,9 @@ export const protectAdmin = (req, res, next) => {
   }
 
   if (!token) {
-    return res.status(401).json({ message: "Not authorized to access this route. No token provided." });
+    return res
+      .status(401)
+      .json({ message: "Not authorized to access this route. No token provided." });
   }
 
   try {

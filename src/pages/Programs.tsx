@@ -108,8 +108,6 @@ const TRANSLATIONS_LOCAL = {
   },
 };
 
-
-
 const INITIAL_PROGRAMS = PROGRAMS_DETAIL_DATA.map((prog) => ({
   ...prog,
   Icon: ICON_MAP[prog.iconName || ""] || GraduationCap,
@@ -209,7 +207,7 @@ export function Programs() {
                     {title}
                   </h3>
 
-                  <div 
+                  <div
                     className="text-slate-600 text-sm leading-relaxed mb-5 flex-grow line-clamp-3 prose prose-slate max-w-none"
                     dangerouslySetInnerHTML={{ __html: desc }}
                   />
@@ -310,7 +308,7 @@ export function Programs() {
                   {title}
                 </h2>
 
-                <div 
+                <div
                   className="text-slate-600 text-base md:text-lg leading-relaxed mb-6 font-gujarati prose prose-slate max-w-none"
                   dangerouslySetInnerHTML={{ __html: desc }}
                 />

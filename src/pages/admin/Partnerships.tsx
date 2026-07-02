@@ -1,10 +1,28 @@
 import { useState, useEffect } from "react";
-import { 
-  Search, Check, X, FileText, Phone, Mail, MapPin, 
-  User, Clock, Trash2, Printer, Download, MessageSquare, 
-  Building2, Globe, Plus 
+import {
+  Search,
+  Check,
+  X,
+  FileText,
+  Phone,
+  Mail,
+  MapPin,
+  User,
+  Clock,
+  Trash2,
+  Printer,
+  Download,
+  MessageSquare,
+  Building2,
+  Globe,
+  Plus,
 } from "lucide-react";
-import { fetchPartnerships, updatePartnershipStatus, addPartnershipNote, deletePartnership } from "@/services/db";
+import {
+  fetchPartnerships,
+  updatePartnershipStatus,
+  addPartnershipNote,
+  deletePartnership,
+} from "@/services/db";
 import { toast } from "sonner";
 
 export function Partnerships() {
@@ -30,7 +48,7 @@ export function Partnerships() {
       if (items) {
         setCollabs(items);
         if (selectedCollab) {
-          const updated = items.find(c => c.id === selectedCollab.id);
+          const updated = items.find((c) => c.id === selectedCollab.id);
           if (updated) setSelectedCollab(updated);
         }
       } else {
@@ -97,7 +115,12 @@ export function Partnerships() {
   };
 
   const handleDelete = async (id: string) => {
-    if (!confirm("CRITICAL WARNING: Are you sure you want to permanently delete this partnership record? This cannot be undone.")) return;
+    if (
+      !confirm(
+        "CRITICAL WARNING: Are you sure you want to permanently delete this partnership record? This cannot be undone.",
+      )
+    )
+      return;
     try {
       await deletePartnership(id);
       toast.success("Partnership record deleted.");
@@ -132,71 +155,73 @@ export function Partnerships() {
   // Stats computation
   const stats = {
     total: collabs.length,
-    pending: collabs.filter(c => c.status === "pending" || !c.status).length,
-    approved: collabs.filter(c => c.status === "approved").length,
-    rejected: collabs.filter(c => c.status === "rejected").length
+    pending: collabs.filter((c) => c.status === "pending" || !c.status).length,
+    approved: collabs.filter((c) => c.status === "approved").length,
+    rejected: collabs.filter((c) => c.status === "rejected").length,
   };
 
   // Filters logic
   const filtered = collabs.filter((c) => {
     const searchLower = search.toLowerCase();
-    
-    const matchesSearch = 
+
+    const matchesSearch =
       (c.orgName || "").toLowerCase().includes(searchLower) ||
       (c.contactName || "").toLowerCase().includes(searchLower) ||
       (c.email || "").toLowerCase().includes(searchLower) ||
       (c.phone || "").toLowerCase().includes(searchLower);
 
-    const matchesStatus = 
-      statusFilter === "all" || 
-      (c.status || "pending") === statusFilter;
+    const matchesStatus = statusFilter === "all" || (c.status || "pending") === statusFilter;
 
-    const matchesType = 
-      typeFilter === "all" || 
-      (c.type || "").toLowerCase() === typeFilter.toLowerCase();
+    const matchesType =
+      typeFilter === "all" || (c.type || "").toLowerCase() === typeFilter.toLowerCase();
 
-    const matchesDate = 
-      !dateFilter || 
-      (c.created_at && c.created_at.split("T")[0] === dateFilter);
+    const matchesDate = !dateFilter || (c.created_at && c.created_at.split("T")[0] === dateFilter);
 
     return matchesSearch && matchesStatus && matchesType && matchesDate;
   });
 
   return (
     <div className="space-y-6">
-      
       {/* Header */}
       <div>
         <h1 className="text-2xl md:text-3xl font-display font-bold">Partnership Management</h1>
-        <p className="text-sm text-slate-500 font-medium font-gujarati">કોર્પોરેટ CSR ફંડ અને શૈક્ષણિક સંસ્થાઓનું જોડાણ</p>
+        <p className="text-sm text-slate-500 font-medium font-gujarati">
+          કોર્પોરેટ CSR ફંડ અને શૈક્ષણિક સંસ્થાઓનું જોડાણ
+        </p>
       </div>
 
       {/* Stats Widgets */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4 font-gujarati">
         <div className="bg-white p-4 md:p-5 border border-slate-200/80 rounded-2xl shadow-xs">
-          <div className="text-[10px] text-slate-400 font-bold uppercase tracking-wider font-sans">Total Inquiries</div>
+          <div className="text-[10px] text-slate-400 font-bold uppercase tracking-wider font-sans">
+            Total Inquiries
+          </div>
           <div className="text-2xl font-bold mt-1.5 text-slate-900">{stats.total}</div>
         </div>
         <div className="bg-amber-50/50 p-4 md:p-5 border border-amber-200/60 rounded-2xl shadow-xs">
-          <div className="text-[10px] text-amber-600 font-bold uppercase tracking-wider font-sans">Pending Review</div>
+          <div className="text-[10px] text-amber-600 font-bold uppercase tracking-wider font-sans">
+            Pending Review
+          </div>
           <div className="text-2xl font-bold mt-1.5 text-amber-700">{stats.pending}</div>
         </div>
         <div className="bg-emerald-50/50 p-4 md:p-5 border border-emerald-200/60 rounded-2xl shadow-xs">
-          <div className="text-[10px] text-emerald-600 font-bold uppercase tracking-wider font-sans">Approved Partnerships</div>
+          <div className="text-[10px] text-emerald-600 font-bold uppercase tracking-wider font-sans">
+            Approved Partnerships
+          </div>
           <div className="text-2xl font-bold mt-1.5 text-emerald-700">{stats.approved}</div>
         </div>
         <div className="bg-rose-50/50 p-4 md:p-5 border border-rose-200/60 rounded-2xl shadow-xs">
-          <div className="text-[10px] text-rose-600 font-bold uppercase tracking-wider font-sans">Declined Requests</div>
+          <div className="text-[10px] text-rose-600 font-bold uppercase tracking-wider font-sans">
+            Declined Requests
+          </div>
           <div className="text-2xl font-bold mt-1.5 text-rose-700">{stats.rejected}</div>
         </div>
       </div>
 
       {/* Main Split Layout */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start print:block">
-        
         {/* Table List (Left side, takes 2 cols) */}
         <div className="lg:col-span-2 space-y-4 print:hidden">
-          
           {/* Search & Filters */}
           <div className="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-xs space-y-3">
             <div className="flex items-center gap-2 bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 w-full">
@@ -209,10 +234,12 @@ export function Partnerships() {
                 className="w-full text-xs font-semibold focus:outline-hidden bg-transparent"
               />
             </div>
-            
+
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
               <div>
-                <label className="block text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1">Status Filter</label>
+                <label className="block text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1">
+                  Status Filter
+                </label>
                 <select
                   value={statusFilter}
                   onChange={(e) => setStatusFilter(e.target.value)}
@@ -226,7 +253,9 @@ export function Partnerships() {
               </div>
 
               <div>
-                <label className="block text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1">Org Type</label>
+                <label className="block text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1">
+                  Org Type
+                </label>
                 <select
                   value={typeFilter}
                   onChange={(e) => setTypeFilter(e.target.value)}
@@ -245,7 +274,9 @@ export function Partnerships() {
               </div>
 
               <div>
-                <label className="block text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1">Date Inquired</label>
+                <label className="block text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1">
+                  Date Inquired
+                </label>
                 <input
                   type="date"
                   value={dateFilter}
@@ -283,11 +314,21 @@ export function Partnerships() {
                             </div>
                           </div>
                         </td>
-                        <td className="py-5 px-5"><div className="h-4 w-20 bg-slate-100 rounded" /></td>
-                        <td className="py-5 px-5"><div className="h-4 w-16 bg-slate-100 rounded" /></td>
-                        <td className="py-5 px-5"><div className="h-4 w-16 bg-slate-100 rounded" /></td>
-                        <td className="py-5 px-5"><div className="h-5 w-16 bg-slate-100 rounded-full" /></td>
-                        <td className="py-5 px-5 text-right"><div className="h-8 w-8 bg-slate-100 rounded-lg ml-auto" /></td>
+                        <td className="py-5 px-5">
+                          <div className="h-4 w-20 bg-slate-100 rounded" />
+                        </td>
+                        <td className="py-5 px-5">
+                          <div className="h-4 w-16 bg-slate-100 rounded" />
+                        </td>
+                        <td className="py-5 px-5">
+                          <div className="h-4 w-16 bg-slate-100 rounded" />
+                        </td>
+                        <td className="py-5 px-5">
+                          <div className="h-5 w-16 bg-slate-100 rounded-full" />
+                        </td>
+                        <td className="py-5 px-5 text-right">
+                          <div className="h-8 w-8 bg-slate-100 rounded-lg ml-auto" />
+                        </td>
                       </tr>
                     ))
                   ) : filtered.length === 0 ? (
@@ -298,8 +339,8 @@ export function Partnerships() {
                     </tr>
                   ) : (
                     filtered.map((c) => (
-                      <tr 
-                        key={c.id} 
+                      <tr
+                        key={c.id}
                         onClick={() => setSelectedCollab(c)}
                         className={`hover:bg-slate-50/50 transition-colors cursor-pointer ${
                           selectedCollab?.id === c.id ? "bg-primary/5" : ""
@@ -320,13 +361,15 @@ export function Partnerships() {
                           {c.created_at ? c.created_at.split("T")[0] : "N/A"}
                         </td>
                         <td className="py-4 px-5">
-                          <span className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wider ${
-                            (c.status || "pending") === "approved"
-                              ? "bg-emerald-50 text-emerald-600 border border-emerald-100"
-                              : (c.status || "pending") === "pending"
-                              ? "bg-amber-50 text-amber-600 border border-amber-100"
-                              : "bg-rose-50 text-rose-600 border border-rose-100"
-                          }`}>
+                          <span
+                            className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wider ${
+                              (c.status || "pending") === "approved"
+                                ? "bg-emerald-50 text-emerald-600 border border-emerald-100"
+                                : (c.status || "pending") === "pending"
+                                  ? "bg-amber-50 text-amber-600 border border-amber-100"
+                                  : "bg-rose-50 text-rose-600 border border-rose-100"
+                            }`}
+                          >
                             {c.status || "pending"}
                           </span>
                         </td>
@@ -371,17 +414,23 @@ export function Partnerships() {
                     <Building2 className="h-5 w-5 text-primary" />
                   </div>
                   <div>
-                    <h3 className="font-bold text-sm text-slate-800 leading-snug">{selectedCollab.orgName}</h3>
-                    <span className="text-[9px] text-slate-400 font-mono block mt-0.5">ID: {selectedCollab.id}</span>
+                    <h3 className="font-bold text-sm text-slate-800 leading-snug">
+                      {selectedCollab.orgName}
+                    </h3>
+                    <span className="text-[9px] text-slate-400 font-mono block mt-0.5">
+                      ID: {selectedCollab.id}
+                    </span>
                   </div>
                 </div>
-                <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wider ${
-                  (selectedCollab.status || "pending") === "approved"
-                    ? "bg-emerald-50 text-emerald-600 border border-emerald-100"
-                    : (selectedCollab.status || "pending") === "pending"
-                    ? "bg-amber-50 text-amber-600 border border-amber-100"
-                    : "bg-rose-50 text-rose-600 border border-rose-100"
-                }`}>
+                <span
+                  className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wider ${
+                    (selectedCollab.status || "pending") === "approved"
+                      ? "bg-emerald-50 text-emerald-600 border border-emerald-100"
+                      : (selectedCollab.status || "pending") === "pending"
+                        ? "bg-amber-50 text-amber-600 border border-amber-100"
+                        : "bg-rose-50 text-rose-600 border border-rose-100"
+                  }`}
+                >
                   {selectedCollab.status || "pending"}
                 </span>
               </div>
@@ -404,10 +453,11 @@ export function Partnerships() {
 
               {/* Data Rows */}
               <div className="space-y-4 text-xs font-semibold">
-                
                 {/* Organization details */}
                 <div>
-                  <h4 className="text-[10px] text-primary uppercase tracking-widest font-bold mb-2">Organization info</h4>
+                  <h4 className="text-[10px] text-primary uppercase tracking-widest font-bold mb-2">
+                    Organization info
+                  </h4>
                   <div className="bg-slate-50/75 border border-slate-100 rounded-xl p-3 space-y-2">
                     <div className="grid grid-cols-2 gap-2">
                       <div>
@@ -417,9 +467,9 @@ export function Partnerships() {
                       <div>
                         <span className="text-[9px] text-slate-400 block uppercase">Website</span>
                         {getExtendedData(selectedCollab).website ? (
-                          <a 
-                            href={getExtendedData(selectedCollab).website} 
-                            target="_blank" 
+                          <a
+                            href={getExtendedData(selectedCollab).website}
+                            target="_blank"
                             rel="noreferrer"
                             className="text-primary hover:underline flex items-center gap-1"
                           >
@@ -435,7 +485,9 @@ export function Partnerships() {
 
                 {/* Contact person */}
                 <div>
-                  <h4 className="text-[10px] text-primary uppercase tracking-widest font-bold mb-2">Contact Representative</h4>
+                  <h4 className="text-[10px] text-primary uppercase tracking-widest font-bold mb-2">
+                    Contact Representative
+                  </h4>
                   <div className="bg-slate-50/75 border border-slate-100 rounded-xl p-3 space-y-2.5">
                     <div className="flex items-center gap-2 text-slate-700">
                       <User className="h-4 w-4 text-slate-400 shrink-0" />
@@ -451,14 +503,18 @@ export function Partnerships() {
                     </div>
                     <div className="flex items-start gap-2 text-slate-700">
                       <MapPin className="h-4 w-4 text-slate-400 shrink-0 mt-0.5" />
-                      <span>{getExtendedData(selectedCollab).address || selectedCollab.address || "N/A"}</span>
+                      <span>
+                        {getExtendedData(selectedCollab).address || selectedCollab.address || "N/A"}
+                      </span>
                     </div>
                   </div>
                 </div>
 
                 {/* Proposal statement */}
                 <div>
-                  <h4 className="text-[10px] text-primary uppercase tracking-widest font-bold mb-2">Proposal Statement</h4>
+                  <h4 className="text-[10px] text-primary uppercase tracking-widest font-bold mb-2">
+                    Proposal Statement
+                  </h4>
                   <div className="bg-slate-50/75 border border-slate-100 rounded-xl p-3">
                     <p className="text-slate-700 leading-relaxed font-light italic bg-white p-2 border border-slate-100 rounded-lg">
                       "{getExtendedData(selectedCollab).proposal || "No description provided."}"
@@ -469,16 +525,18 @@ export function Partnerships() {
                 {/* Attachment */}
                 {selectedCollab.documentUrl && (
                   <div className="space-y-2">
-                    <h4 className="text-[10px] text-primary uppercase tracking-widest font-bold">Uploaded Proposal Documents</h4>
+                    <h4 className="text-[10px] text-primary uppercase tracking-widest font-bold">
+                      Uploaded Proposal Documents
+                    </h4>
                     <div className="bg-slate-50 border border-slate-200/80 rounded-xl p-2.5 flex items-center justify-between text-[11px] font-bold">
                       <div className="flex items-center gap-2 text-slate-700 min-w-0">
                         <FileText className="h-4 w-4 text-[#4040A1]" />
                         <span className="truncate">Proposal PDF / File</span>
                       </div>
-                      <a 
-                        href={selectedCollab.documentUrl} 
-                        target="_blank" 
-                        rel="noreferrer" 
+                      <a
+                        href={selectedCollab.documentUrl}
+                        target="_blank"
+                        rel="noreferrer"
                         className="text-primary hover:underline cursor-pointer flex-none ml-2"
                       >
                         View File
@@ -492,13 +550,17 @@ export function Partnerships() {
                   <h4 className="text-[10px] text-primary uppercase tracking-widest font-bold flex items-center gap-1">
                     <MessageSquare className="h-3.5 w-3.5" /> Internal Notes
                   </h4>
-                  
+
                   <div className="space-y-2 max-h-[150px] overflow-y-auto pr-1">
-                    {(!getExtendedData(selectedCollab).notes || getExtendedData(selectedCollab).notes.length === 0) ? (
+                    {!getExtendedData(selectedCollab).notes ||
+                    getExtendedData(selectedCollab).notes.length === 0 ? (
                       <div className="text-[10px] text-slate-400 italic">No notes added.</div>
                     ) : (
                       getExtendedData(selectedCollab).notes.map((n: any, i: number) => (
-                        <div key={i} className="bg-slate-50 border border-slate-100 p-2 rounded-lg text-[10px] space-y-1">
+                        <div
+                          key={i}
+                          className="bg-slate-50 border border-slate-100 p-2 rounded-lg text-[10px] space-y-1"
+                        >
                           <div className="flex justify-between text-[8px] text-slate-400 font-bold">
                             <span>{n.admin}</span>
                             <span>{n.date ? n.date.split("T")[0] : ""}</span>
@@ -538,15 +600,18 @@ export function Partnerships() {
                         <div className="absolute -left-[12px] top-1.5 h-2 w-2 rounded-full bg-primary" />
                         <div className="font-bold text-slate-800 flex justify-between">
                           <span>{t.action}</span>
-                          <span className="text-[8px] text-slate-400 font-normal">{t.date ? t.date.split("T")[0] : ""}</span>
+                          <span className="text-[8px] text-slate-400 font-normal">
+                            {t.date ? t.date.split("T")[0] : ""}
+                          </span>
                         </div>
                         <p className="text-slate-500 font-normal mt-0.5">{t.notes}</p>
-                        {t.admin && <span className="text-[8px] text-slate-400 italic">By: {t.admin}</span>}
+                        {t.admin && (
+                          <span className="text-[8px] text-slate-400 italic">By: {t.admin}</span>
+                        )}
                       </div>
                     ))}
                   </div>
                 </div>
-
               </div>
 
               {/* Status Action Buttons */}
@@ -585,11 +650,11 @@ export function Partnerships() {
             </>
           ) : (
             <div className="text-center py-12 text-slate-400 font-bold text-xs">
-              Select a partnership inquiry row to inspect organization profile, brochure attachments, and notes.
+              Select a partnership inquiry row to inspect organization profile, brochure
+              attachments, and notes.
             </div>
           )}
         </div>
-
       </div>
 
       {/* Reject Modal Dialog (Reason Prompt) */}
@@ -598,7 +663,8 @@ export function Partnerships() {
           <div className="bg-white rounded-2xl max-w-sm w-full p-6 space-y-4 border border-slate-200 shadow-xl">
             <h3 className="text-sm font-bold text-slate-900">Specify Decline Reason</h3>
             <p className="text-xs text-slate-500 font-light">
-              Enter the reason why this partnership inquiry is declined. This text will be automatically included in the client's status update email.
+              Enter the reason why this partnership inquiry is declined. This text will be
+              automatically included in the client's status update email.
             </p>
             <textarea
               rows={3}
@@ -627,7 +693,6 @@ export function Partnerships() {
           </div>
         </div>
       )}
-
     </div>
   );
 }

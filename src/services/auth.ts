@@ -14,7 +14,7 @@ export function onAuthStateChanged(callback: (user: any | null) => void) {
   listeners.add(callback);
   // Trigger immediately with current state
   callback(authState);
-  
+
   // Return unsubscribe function
   return () => {
     listeners.delete(callback);
@@ -31,7 +31,11 @@ export function getAuthHeader(): Record<string, string> {
   return activeToken ? { Authorization: `Bearer ${activeToken}` } : {};
 }
 
-export async function signInAdmin(emailAddress: string, pass: string, remember: boolean): Promise<any> {
+export async function signInAdmin(
+  emailAddress: string,
+  pass: string,
+  remember: boolean,
+): Promise<any> {
   const cleanEmail = emailAddress.trim();
 
   const res = await apiRequest("/auth/login", {
@@ -45,7 +49,7 @@ export async function signInAdmin(emailAddress: string, pass: string, remember: 
   }
 
   const data = await res.json();
-  
+
   // Store session tokens
   const storage = remember ? localStorage : sessionStorage;
   storage.setItem("admin_token", data.token);

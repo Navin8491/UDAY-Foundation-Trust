@@ -38,7 +38,7 @@ export const createProgram = async (req, res, next) => {
       "program",
       "New Program Created",
       `Program "${program.title?.en || req.body.title?.en || "Untitled Program"}" has been created.`,
-      program.id
+      program.id,
     );
 
     triggerUpdate("programs");
@@ -90,21 +90,20 @@ export const deleteProgram = async (req, res, next) => {
     const allUrls = [];
     if (program.image) allUrls.push(program.image);
     if (program.thumbnails && Array.isArray(program.thumbnails)) {
-      program.thumbnails.forEach(url => {
+      program.thumbnails.forEach((url) => {
         if (url) allUrls.push(url);
       });
     }
 
     if (allUrls.length > 0) {
-      allUrls.forEach(url => {
-        deleteFile(url).catch(err => console.error("Failed to delete program image from storage:", err));
+      allUrls.forEach((url) => {
+        deleteFile(url).catch((err) =>
+          console.error("Failed to delete program image from storage:", err),
+        );
       });
     }
 
-    const { error: deleteError } = await supabase
-      .from("programs")
-      .delete()
-      .eq("id", req.params.id);
+    const { error: deleteError } = await supabase.from("programs").delete().eq("id", req.params.id);
 
     if (deleteError) throw deleteError;
 

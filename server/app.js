@@ -20,7 +20,9 @@ app.use((req, res, next) => {
 });
 
 const parsedOrigins = process.env.FRONTEND_URL
-  ? process.env.FRONTEND_URL.split(",").map(origin => origin.trim()).filter(Boolean)
+  ? process.env.FRONTEND_URL.split(",")
+      .map((origin) => origin.trim())
+      .filter(Boolean)
   : [];
 
 const defaultOrigins = [
@@ -29,26 +31,28 @@ const defaultOrigins = [
   "https://udayfoundationstrust.org",
   "https://www.udayfoundationtrust.org",
   "https://udayfoundationtrust.org",
-  "https://uday-foundation-trust.vercel.app"
+  "https://uday-foundation-trust.vercel.app",
 ];
 
 // Combine and deduplicate
 const allowedOrigins = Array.from(new Set([...parsedOrigins, ...defaultOrigins]));
 
 // Security Middleware (Helmet & CSP)
-app.use(helmet({
-  crossOriginResourcePolicy: false, // Allow loading media from other domains
-  contentSecurityPolicy: {
-    directives: {
-      defaultSrc: ["'self'"],
-      scriptSrc: ["'self'", "'unsafe-inline'", "'unsafe-eval'"],
-      styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
-      fontSrc: ["'self'", "https://fonts.gstatic.com"],
-      imgSrc: ["'self'", "data:", "https://*.supabase.co"], // Allow loading images from Supabase Storage
-      connectSrc: ["'self'", "http://localhost:*", "http://127.0.0.1:*", ...allowedOrigins],
-    }
-  }
-}));
+app.use(
+  helmet({
+    crossOriginResourcePolicy: false, // Allow loading media from other domains
+    contentSecurityPolicy: {
+      directives: {
+        defaultSrc: ["'self'"],
+        scriptSrc: ["'self'", "'unsafe-inline'", "'unsafe-eval'"],
+        styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
+        fontSrc: ["'self'", "https://fonts.gstatic.com"],
+        imgSrc: ["'self'", "data:", "https://*.supabase.co"], // Allow loading images from Supabase Storage
+        connectSrc: ["'self'", "http://localhost:*", "http://127.0.0.1:*", ...allowedOrigins],
+      },
+    },
+  }),
+);
 
 // Allow Private Network Access (for accessing localhost:5000 from https://uday-foundation-trust.vercel.app)
 app.use((req, res, next) => {
@@ -59,53 +63,57 @@ app.use((req, res, next) => {
 });
 
 // CORS Configuration (Least-privilege with localhost and Vercel DX support)
-app.use(cors({
-  origin: (origin, callback) => {
-    if (!origin) {
-      return callback(null, true);
-    }
-    const isLocalhost = /^http:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(origin);
-    const isVercel = /^https:\/\/.*\.vercel\.app$/.test(origin);
-    const isUdayTrust = /^https:\/\/(.*\.)?udayfoundation(s)?trust\.org$/.test(origin);
-
-    // Development only support for localhost/127.0.0.1
-    if (isLocalhost) {
-      if (process.env.NODE_ENV === "production") {
-        return callback(null, false);
+app.use(
+  cors({
+    origin: (origin, callback) => {
+      if (!origin) {
+        return callback(null, true);
       }
-      return callback(null, true);
-    }
+      const isLocalhost = /^http:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(origin);
+      const isVercel = /^https:\/\/.*\.vercel\.app$/.test(origin);
+      const isUdayTrust = /^https:\/\/(.*\.)?udayfoundation(s)?trust\.org$/.test(origin);
 
-    if (isVercel || isUdayTrust || allowedOrigins.includes(origin)) {
-      callback(null, true);
-    } else {
-      // Return false instead of an Error to reject the origin gracefully (no CORS headers)
-      // without throwing a 500 Internal Server Error in the server logs.
-      callback(null, false);
-    }
-  },
-  credentials: true,
-  optionsSuccessStatus: 200,
-}));
+      // Development only support for localhost/127.0.0.1
+      if (isLocalhost) {
+        if (process.env.NODE_ENV === "production") {
+          return callback(null, false);
+        }
+        return callback(null, true);
+      }
+
+      if (isVercel || isUdayTrust || allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        // Return false instead of an Error to reject the origin gracefully (no CORS headers)
+        // without throwing a 500 Internal Server Error in the server logs.
+        callback(null, false);
+      }
+    },
+    credentials: true,
+    optionsSuccessStatus: 200,
+  }),
+);
 
 // Global sanitizers for NoSQL injection and XSS
 app.use(sanitizeNoSQL);
 app.use(sanitizeXSS);
 
 // Request body parsers
-app.use(express.json({
-  limit: "10mb",
-  verify: (req, res, buf) => {
-    req.rawBody = buf;
-  }
-}));
+app.use(
+  express.json({
+    limit: "10mb",
+    verify: (req, res, buf) => {
+      req.rawBody = buf;
+    },
+  }),
+);
 app.use(express.urlencoded({ extended: true, limit: "10mb" }));
 
 // Root welcome & health check route
 app.get("/", (req, res) => {
   res.json({
     status: "healthy",
-    message: "UDAY Foundation Trust Backend API is running successfully!"
+    message: "UDAY Foundation Trust Backend API is running successfully!",
   });
 });
 

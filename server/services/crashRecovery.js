@@ -23,14 +23,14 @@ async function recoverTransaction(event) {
       // Check with payment gateway if payment was completed
       if (event.payment_id) {
         const gateway = getPaymentGateway();
-        
+
         try {
           let isPaid = false;
           let transactionId = null;
 
           // Gateway-specific status checks
           const provider = (process.env.PAYMENT_PROVIDER || "mock").toLowerCase();
-          
+
           if (provider === "stripe") {
             const session = await gateway.stripe.checkout.sessions.retrieve(event.payment_id);
             if (session.payment_status === "paid") {
@@ -44,7 +44,7 @@ async function recoverTransaction(event) {
               // Fetch payments associated with the order to get captured transaction ID
               const payments = await gateway.razorpay.orders.fetchPayments(event.payment_id);
               if (payments.items && payments.items.length > 0) {
-                const captured = payments.items.find(p => p.status === "captured");
+                const captured = payments.items.find((p) => p.status === "captured");
                 if (captured) {
                   transactionId = captured.id;
                 }
@@ -58,25 +58,35 @@ async function recoverTransaction(event) {
           }
 
           if (isPaid) {
-            console.log(`[CrashRecovery] Detected payment was actually completed for ${eventId}. Resuming Saga...`);
-            
-            await supabase.from("payment_events").update({
-              gateway_transaction_id: transactionId || event.payment_id,
-              current_state: "CHARGED",
-              updated_at: new Date().toISOString()
-            }).eq("id", eventId);
+            console.log(
+              `[CrashRecovery] Detected payment was actually completed for ${eventId}. Resuming Saga...`,
+            );
+
+            await supabase
+              .from("payment_events")
+              .update({
+                gateway_transaction_id: transactionId || event.payment_id,
+                current_state: "CHARGED",
+                updated_at: new Date().toISOString(),
+              })
+              .eq("id", eventId);
 
             await runSaga(eventId);
             return;
           }
         } catch (gatewayErr) {
-          console.error(`[CrashRecovery] Failed to query gateway status for ${eventId}:`, gatewayErr.message);
+          console.error(
+            `[CrashRecovery] Failed to query gateway status for ${eventId}:`,
+            gatewayErr.message,
+          );
         }
       }
 
       // If unpaid and older than 30 minutes, fail the event
       if (diffMins >= 30) {
-        console.log(`[CrashRecovery] Session ${eventId} expired (older than 30 mins). Marking FAILED.`);
+        console.log(
+          `[CrashRecovery] Session ${eventId} expired (older than 30 mins). Marking FAILED.`,
+        );
         await transitionToState(eventId, "FAILED", "Payment session expired or unpaid.");
       }
       return;
@@ -89,19 +99,23 @@ async function recoverTransaction(event) {
     }
 
     // 3. Paid but downstream steps got interrupted (Crash recovery)
-    if (["CHARGED", "PAYMENT_VERIFIED", "DONATION_SAVED", "EMAIL_SENT", "ADMIN_NOTIFIED"].includes(state)) {
+    if (
+      ["CHARGED", "PAYMENT_VERIFIED", "DONATION_SAVED", "EMAIL_SENT", "ADMIN_NOTIFIED"].includes(
+        state,
+      )
+    ) {
       console.log(`[CrashRecovery] Resuming forward transaction flow for event: ${eventId}`);
       await runSaga(eventId);
       return;
     }
-
   } catch (err) {
     console.error(`[CrashRecovery] Error recovering transaction ${eventId}:`, err.message);
-    
+
     // Update event retry count
     await supabase.rpc("increment_retry_count", { event_id: eventId }).catch(() => {
       // Fallback update in case RPC not available
-      supabase.from("payment_events")
+      supabase
+        .from("payment_events")
         .update({ retry_count: (event.retry_count || 0) + 1 })
         .eq("id", eventId)
         .catch(() => {});
@@ -134,12 +148,13 @@ export async function runRecoveryScanner() {
       return;
     }
 
-    console.log(`[CrashRecovery] Found ${stuckEvents.length} stuck transactions. Initiating recovery...`);
-    
+    console.log(
+      `[CrashRecovery] Found ${stuckEvents.length} stuck transactions. Initiating recovery...`,
+    );
+
     for (const event of stuckEvents) {
       await recoverTransaction(event);
     }
-
   } catch (err) {
     console.error("[CrashRecovery] Scan error:", err.message);
   }
@@ -153,7 +168,7 @@ export function startCrashRecovery() {
   if (scanInterval) return;
 
   console.log("⏱️ Starting Crash Recovery background loop...");
-  
+
   // Run once immediately after startup (with 10-second delay to allow app boot/DB pool setup)
   setTimeout(() => {
     runRecoveryScanner();

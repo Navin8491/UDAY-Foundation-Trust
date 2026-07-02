@@ -6,11 +6,14 @@ export interface CustomRequestInit extends Omit<RequestInit, "body"> {
   body?: any;
 }
 
-export async function apiRequest(endpoint: string, options: CustomRequestInit = {}): Promise<Response> {
+export async function apiRequest(
+  endpoint: string,
+  options: CustomRequestInit = {},
+): Promise<Response> {
   const url = endpoint.startsWith("http") ? endpoint : `${API_URL}${endpoint}`;
 
   const headers = new Headers(options.headers || {});
-  
+
   // Auto-inject Auth Token
   const authHeaders = getAuthHeader();
   if (authHeaders.Authorization) {

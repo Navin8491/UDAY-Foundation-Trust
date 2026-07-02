@@ -2,8 +2,16 @@ import { useDocumentMetadata } from "@/hooks/useDocumentMetadata";
 import { PageHero } from "@/components/site/PageHero";
 import { SITE } from "@/constants/site";
 import {
-  FileCheck, Globe, Heart, Users, Handshake, BookOpen,
-  AlertTriangle, Scale, Phone, CheckCircle,
+  FileCheck,
+  Globe,
+  Heart,
+  Users,
+  Handshake,
+  BookOpen,
+  AlertTriangle,
+  Scale,
+  Phone,
+  CheckCircle,
 } from "lucide-react";
 
 const LAST_UPDATED = "July 1, 2026";
@@ -142,7 +150,7 @@ const SECTIONS = [
 export function TermsAndConditions() {
   useDocumentMetadata(
     "Terms & Conditions | Uday Foundation Trust",
-    "Read the Terms and Conditions governing the use of Uday Foundation Trust's website, donation services, volunteer applications, and partnership enquiries."
+    "Read the Terms and Conditions governing the use of Uday Foundation Trust's website, donation services, volunteer applications, and partnership enquiries.",
   );
 
   return (
@@ -197,8 +205,8 @@ export function TermsAndConditions() {
           {/* Footer note */}
           <div className="mt-10 rounded-2xl bg-surface-warm border border-border p-5 text-center">
             <p className="text-sm text-muted-foreground">
-              These Terms and Conditions were last updated on {LAST_UPDATED} and are effective immediately.
-              Continued use of our website constitutes acceptance of these terms.
+              These Terms and Conditions were last updated on {LAST_UPDATED} and are effective
+              immediately. Continued use of our website constitutes acceptance of these terms.
             </p>
           </div>
         </div>

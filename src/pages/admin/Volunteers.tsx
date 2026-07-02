@@ -1,10 +1,27 @@
 import { useState, useEffect } from "react";
-import { 
-  Search, Check, X, FileText, Phone, Mail, MapPin, 
-  User, Clock, Trash2, Printer, 
-  Download, MessageSquare, Briefcase, Plus 
+import {
+  Search,
+  Check,
+  X,
+  FileText,
+  Phone,
+  Mail,
+  MapPin,
+  User,
+  Clock,
+  Trash2,
+  Printer,
+  Download,
+  MessageSquare,
+  Briefcase,
+  Plus,
 } from "lucide-react";
-import { fetchVolunteers, updateVolunteerStatus, addVolunteerNote, deleteVolunteer } from "@/services/db";
+import {
+  fetchVolunteers,
+  updateVolunteerStatus,
+  addVolunteerNote,
+  deleteVolunteer,
+} from "@/services/db";
 import { toast } from "sonner";
 
 export function Volunteers() {
@@ -15,7 +32,7 @@ export function Volunteers() {
   const [dateFilter, setDateFilter] = useState("");
   const [selectedVol, setSelectedVol] = useState<any | null>(null);
   const [loading, setLoading] = useState(true);
-  
+
   // Modals for actions
   const [showRejectModal, setShowRejectModal] = useState(false);
   const [rejectReason, setRejectReason] = useState("");
@@ -31,7 +48,7 @@ export function Volunteers() {
         setVolunteers(items);
         // Keep selection updated if currently viewing one
         if (selectedVol) {
-          const updated = items.find(v => v.id === selectedVol.id);
+          const updated = items.find((v) => v.id === selectedVol.id);
           if (updated) setSelectedVol(updated);
         }
       } else {
@@ -71,7 +88,7 @@ export function Volunteers() {
       resumeUrl: vol.resumeUrl || "",
       whyJoin: vol.whyJoin || vol.message || "",
       notes: [],
-      timeline: []
+      timeline: [],
     };
 
     if (!vol.message) return fromColumns;
@@ -83,7 +100,7 @@ export function Volunteers() {
           ...parsed,
           whyJoin: parsed.whyJoin || parsed.message || vol.message || "",
           notes: parsed.notes || [],
-          timeline: parsed.timeline || []
+          timeline: parsed.timeline || [],
         };
       }
     } catch (e) {}
@@ -126,7 +143,12 @@ export function Volunteers() {
   };
 
   const handleDelete = async (id: string) => {
-    if (!confirm("CRITICAL WARNING: Are you sure you want to permanently delete this volunteer record? This action cannot be undone.")) return;
+    if (
+      !confirm(
+        "CRITICAL WARNING: Are you sure you want to permanently delete this volunteer record? This action cannot be undone.",
+      )
+    )
+      return;
     try {
       await deleteVolunteer(id);
       toast.success("Record deleted successfully.");
@@ -162,86 +184,89 @@ export function Volunteers() {
   // Stats
   const stats = {
     total: volunteers.length,
-    pending: volunteers.filter(v => v.status === "pending" || !v.status).length,
-    approved: volunteers.filter(v => v.status === "approved").length,
-    rejected: volunteers.filter(v => v.status === "rejected").length
+    pending: volunteers.filter((v) => v.status === "pending" || !v.status).length,
+    approved: volunteers.filter((v) => v.status === "approved").length,
+    rejected: volunteers.filter((v) => v.status === "rejected").length,
   };
 
   // Unique list of cities for filter
   const cities = Array.from(
     new Set(
-      volunteers.map(v => {
-        const ext = getExtendedData(v);
-        return ext.city || "";
-      }).filter(c => c !== "")
-    )
+      volunteers
+        .map((v) => {
+          const ext = getExtendedData(v);
+          return ext.city || "";
+        })
+        .filter((c) => c !== ""),
+    ),
   );
 
   // Filters logic
   const filtered = volunteers.filter((v) => {
     const ext = getExtendedData(v);
     const searchLower = search.toLowerCase();
-    
+
     // Name, Email, Phone search
-    const matchesSearch = 
+    const matchesSearch =
       (v.name || "").toLowerCase().includes(searchLower) ||
       (v.email || "").toLowerCase().includes(searchLower) ||
       (v.phone || "").toLowerCase().includes(searchLower) ||
       (v.role || "").toLowerCase().includes(searchLower);
 
     // Status filter
-    const matchesStatus = 
-      statusFilter === "all" || 
-      (v.status || "pending") === statusFilter;
+    const matchesStatus = statusFilter === "all" || (v.status || "pending") === statusFilter;
 
     // City filter
-    const matchesCity = 
-      cityFilter === "all" || 
-      ext.city === cityFilter;
+    const matchesCity = cityFilter === "all" || ext.city === cityFilter;
 
     // Date filter
-    const matchesDate = 
-      !dateFilter || 
-      (v.createdAt && v.createdAt.split("T")[0] === dateFilter);
+    const matchesDate = !dateFilter || (v.createdAt && v.createdAt.split("T")[0] === dateFilter);
 
     return matchesSearch && matchesStatus && matchesCity && matchesDate;
   });
 
   return (
     <div className="space-y-6">
-      
       {/* Header */}
       <div>
         <h1 className="text-2xl md:text-3xl font-display font-bold">Volunteer Management</h1>
-        <p className="text-sm text-slate-500 font-medium font-gujarati">સ્વયંસેવકોની અરજી અને સેવાની વિગતોનું મોનિટરિંગ</p>
+        <p className="text-sm text-slate-500 font-medium font-gujarati">
+          સ્વયંસેવકોની અરજી અને સેવાની વિગતોનું મોનિટરિંગ
+        </p>
       </div>
 
       {/* Stats Widgets */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4 font-gujarati">
         <div className="bg-white p-4 md:p-5 border border-slate-200/80 rounded-2xl shadow-xs">
-          <div className="text-[10px] text-slate-400 font-bold uppercase tracking-wider font-sans">Total Applications</div>
+          <div className="text-[10px] text-slate-400 font-bold uppercase tracking-wider font-sans">
+            Total Applications
+          </div>
           <div className="text-2xl font-bold mt-1.5 text-slate-900">{stats.total}</div>
         </div>
         <div className="bg-amber-50/50 p-4 md:p-5 border border-amber-200/60 rounded-2xl shadow-xs">
-          <div className="text-[10px] text-amber-600 font-bold uppercase tracking-wider font-sans">Pending Approval</div>
+          <div className="text-[10px] text-amber-600 font-bold uppercase tracking-wider font-sans">
+            Pending Approval
+          </div>
           <div className="text-2xl font-bold mt-1.5 text-amber-700">{stats.pending}</div>
         </div>
         <div className="bg-emerald-50/50 p-4 md:p-5 border border-emerald-200/60 rounded-2xl shadow-xs">
-          <div className="text-[10px] text-emerald-600 font-bold uppercase tracking-wider font-sans">Approved Volunteers</div>
+          <div className="text-[10px] text-emerald-600 font-bold uppercase tracking-wider font-sans">
+            Approved Volunteers
+          </div>
           <div className="text-2xl font-bold mt-1.5 text-emerald-700">{stats.approved}</div>
         </div>
         <div className="bg-rose-50/50 p-4 md:p-5 border border-rose-200/60 rounded-2xl shadow-xs">
-          <div className="text-[10px] text-rose-600 font-bold uppercase tracking-wider font-sans">Rejected Applications</div>
+          <div className="text-[10px] text-rose-600 font-bold uppercase tracking-wider font-sans">
+            Rejected Applications
+          </div>
           <div className="text-2xl font-bold mt-1.5 text-rose-700">{stats.rejected}</div>
         </div>
       </div>
 
       {/* Print/PDF Page layout wrapper */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start print:block">
-        
         {/* Table List (Left side, takes 2 cols) */}
         <div className="lg:col-span-2 space-y-4 print:hidden">
-          
           {/* Search & Filters */}
           <div className="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-xs space-y-3">
             <div className="flex items-center gap-2 bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 w-full">
@@ -254,10 +279,12 @@ export function Volunteers() {
                 className="w-full text-xs font-semibold focus:outline-hidden bg-transparent"
               />
             </div>
-            
+
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
               <div>
-                <label className="block text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1">Status Filter</label>
+                <label className="block text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1">
+                  Status Filter
+                </label>
                 <select
                   value={statusFilter}
                   onChange={(e) => setStatusFilter(e.target.value)}
@@ -271,19 +298,27 @@ export function Volunteers() {
               </div>
 
               <div>
-                <label className="block text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1">Location Filter</label>
+                <label className="block text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1">
+                  Location Filter
+                </label>
                 <select
                   value={cityFilter}
                   onChange={(e) => setCityFilter(e.target.value)}
                   className="w-full text-[11px] font-bold bg-slate-50 border border-slate-200 rounded-lg p-2 text-slate-600 focus:outline-none"
                 >
                   <option value="all">All Cities</option>
-                  {cities.map(c => <option key={c} value={c}>{c}</option>)}
+                  {cities.map((c) => (
+                    <option key={c} value={c}>
+                      {c}
+                    </option>
+                  ))}
                 </select>
               </div>
 
               <div>
-                <label className="block text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1">Date Applied</label>
+                <label className="block text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1">
+                  Date Applied
+                </label>
                 <input
                   type="date"
                   value={dateFilter}
@@ -321,11 +356,21 @@ export function Volunteers() {
                             </div>
                           </div>
                         </td>
-                        <td className="py-5 px-5"><div className="h-4 w-16 bg-slate-100 rounded" /></td>
-                        <td className="py-5 px-5"><div className="h-4 w-20 bg-slate-100 rounded" /></td>
-                        <td className="py-5 px-5"><div className="h-4 w-16 bg-slate-100 rounded" /></td>
-                        <td className="py-5 px-5"><div className="h-5 w-16 bg-slate-100 rounded-full" /></td>
-                        <td className="py-5 px-5 text-right"><div className="h-8 w-8 bg-slate-100 rounded-lg ml-auto" /></td>
+                        <td className="py-5 px-5">
+                          <div className="h-4 w-16 bg-slate-100 rounded" />
+                        </td>
+                        <td className="py-5 px-5">
+                          <div className="h-4 w-20 bg-slate-100 rounded" />
+                        </td>
+                        <td className="py-5 px-5">
+                          <div className="h-4 w-16 bg-slate-100 rounded" />
+                        </td>
+                        <td className="py-5 px-5">
+                          <div className="h-5 w-16 bg-slate-100 rounded-full" />
+                        </td>
+                        <td className="py-5 px-5 text-right">
+                          <div className="h-8 w-8 bg-slate-100 rounded-lg ml-auto" />
+                        </td>
                       </tr>
                     ))
                   ) : filtered.length === 0 ? (
@@ -338,8 +383,8 @@ export function Volunteers() {
                     filtered.map((v) => {
                       const ext = getExtendedData(v);
                       return (
-                        <tr 
-                          key={v.id} 
+                        <tr
+                          key={v.id}
                           onClick={() => setSelectedVol(v)}
                           className={`hover:bg-slate-50/50 transition-colors cursor-pointer ${
                             selectedVol?.id === v.id ? "bg-primary/5" : ""
@@ -349,7 +394,11 @@ export function Volunteers() {
                             <div className="flex items-center gap-3">
                               <div className="h-8 w-8 rounded-full bg-slate-200 border border-slate-300 flex items-center justify-center overflow-hidden flex-none">
                                 {v.photoUrl ? (
-                                  <img src={v.photoUrl} alt="" className="h-full w-full object-cover" />
+                                  <img
+                                    src={v.photoUrl}
+                                    alt=""
+                                    className="h-full w-full object-cover"
+                                  />
                                 ) : (
                                   <User className="h-4 w-4 text-slate-400" />
                                 )}
@@ -361,18 +410,22 @@ export function Volunteers() {
                             </div>
                           </td>
                           <td className="py-4 px-5">{ext.city || v.address || "Gujarat"}</td>
-                          <td className="py-4 px-5 truncate max-w-[150px]">{v.role || "General"}</td>
+                          <td className="py-4 px-5 truncate max-w-[150px]">
+                            {v.role || "General"}
+                          </td>
                           <td className="py-4 px-5">
                             {v.created_at ? v.created_at.split("T")[0] : "N/A"}
                           </td>
                           <td className="py-4 px-5">
-                            <span className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wider ${
-                              (v.status || "pending") === "approved"
-                                ? "bg-emerald-50 text-emerald-600 border border-emerald-100"
-                                : (v.status || "pending") === "pending"
-                                ? "bg-amber-50 text-amber-600 border border-amber-100"
-                                : "bg-rose-50 text-rose-600 border border-rose-100"
-                            }`}>
+                            <span
+                              className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wider ${
+                                (v.status || "pending") === "approved"
+                                  ? "bg-emerald-50 text-emerald-600 border border-emerald-100"
+                                  : (v.status || "pending") === "pending"
+                                    ? "bg-amber-50 text-amber-600 border border-amber-100"
+                                    : "bg-rose-50 text-rose-600 border border-rose-100"
+                              }`}
+                            >
                               {v.status || "pending"}
                             </span>
                           </td>
@@ -416,24 +469,34 @@ export function Volunteers() {
                 <div className="flex items-center gap-3">
                   <div className="h-14 w-14 rounded-full bg-slate-100 border border-slate-200 flex items-center justify-center overflow-hidden flex-none">
                     {selectedVol.photoUrl ? (
-                      <img src={selectedVol.photoUrl} alt="" className="h-full w-full object-cover" />
+                      <img
+                        src={selectedVol.photoUrl}
+                        alt=""
+                        className="h-full w-full object-cover"
+                      />
                     ) : (
                       <User className="h-7 w-7 text-slate-400" />
                     )}
                   </div>
                   <div>
-                    <h3 className="font-bold text-base text-slate-900 leading-tight">{selectedVol.name}</h3>
-                    <span className="text-[10px] text-slate-400 font-mono font-bold mt-1 block">ID: {selectedVol.id}</span>
+                    <h3 className="font-bold text-base text-slate-900 leading-tight">
+                      {selectedVol.name}
+                    </h3>
+                    <span className="text-[10px] text-slate-400 font-mono font-bold mt-1 block">
+                      ID: {selectedVol.id}
+                    </span>
                   </div>
                 </div>
-                
-                <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wider ${
-                  (selectedVol.status || "pending") === "approved"
-                    ? "bg-emerald-50 text-emerald-600 border border-emerald-100"
-                    : (selectedVol.status || "pending") === "pending"
-                    ? "bg-amber-50 text-amber-600 border border-amber-100"
-                    : "bg-rose-50 text-rose-600 border border-rose-100"
-                }`}>
+
+                <span
+                  className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wider ${
+                    (selectedVol.status || "pending") === "approved"
+                      ? "bg-emerald-50 text-emerald-600 border border-emerald-100"
+                      : (selectedVol.status || "pending") === "pending"
+                        ? "bg-amber-50 text-amber-600 border border-amber-100"
+                        : "bg-rose-50 text-rose-600 border border-rose-100"
+                  }`}
+                >
                   {selectedVol.status || "pending"}
                 </span>
               </div>
@@ -456,45 +519,64 @@ export function Volunteers() {
 
               {/* Expanded Application Data Display */}
               <div className="space-y-4 text-xs font-semibold">
-                
                 {/* Section: Personal Info */}
                 <div>
-                  <h4 className="text-[10px] text-primary uppercase tracking-widest font-bold mb-2">Personal Information</h4>
+                  <h4 className="text-[10px] text-primary uppercase tracking-widest font-bold mb-2">
+                    Personal Information
+                  </h4>
                   <div className="bg-slate-50/75 border border-slate-100 rounded-xl p-3 space-y-2">
                     <div className="grid grid-cols-2 gap-2 border-b border-slate-100 pb-1.5">
                       <div>
                         <span className="text-[9px] text-slate-400 block uppercase">DOB</span>
-                        <span className="text-slate-800">{getExtendedData(selectedVol).dob || "N/A"}</span>
+                        <span className="text-slate-800">
+                          {getExtendedData(selectedVol).dob || "N/A"}
+                        </span>
                       </div>
                       <div>
                         <span className="text-[9px] text-slate-400 block uppercase">Gender</span>
-                        <span className="text-slate-800">{getExtendedData(selectedVol).gender || "N/A"}</span>
+                        <span className="text-slate-800">
+                          {getExtendedData(selectedVol).gender || "N/A"}
+                        </span>
                       </div>
                     </div>
                     <div className="grid grid-cols-2 gap-2 border-b border-slate-100 pb-1.5">
                       <div>
-                        <span className="text-[9px] text-slate-400 block uppercase">Occupation</span>
-                        <span className="text-slate-800">{getExtendedData(selectedVol).occupation || "N/A"}</span>
+                        <span className="text-[9px] text-slate-400 block uppercase">
+                          Occupation
+                        </span>
+                        <span className="text-slate-800">
+                          {getExtendedData(selectedVol).occupation || "N/A"}
+                        </span>
                       </div>
                       <div>
-                        <span className="text-[9px] text-slate-400 block uppercase">Qualification</span>
-                        <span className="text-slate-800">{selectedVol.education || "Graduate"}</span>
+                        <span className="text-[9px] text-slate-400 block uppercase">
+                          Qualification
+                        </span>
+                        <span className="text-slate-800">
+                          {selectedVol.education || "Graduate"}
+                        </span>
                       </div>
                     </div>
                     <div>
                       <span className="text-[9px] text-slate-400 block uppercase">Skills</span>
-                      <span className="text-slate-800">{getExtendedData(selectedVol).skills || "N/A"}</span>
+                      <span className="text-slate-800">
+                        {getExtendedData(selectedVol).skills || "N/A"}
+                      </span>
                     </div>
                     <div>
                       <span className="text-[9px] text-slate-400 block uppercase">Languages</span>
-                      <span className="text-slate-800">{getExtendedData(selectedVol).languages || "N/A"}</span>
+                      <span className="text-slate-800">
+                        {getExtendedData(selectedVol).languages || "N/A"}
+                      </span>
                     </div>
                   </div>
                 </div>
 
                 {/* Section: Contact & Location */}
                 <div>
-                  <h4 className="text-[10px] text-primary uppercase tracking-widest font-bold mb-2">Contact Details</h4>
+                  <h4 className="text-[10px] text-primary uppercase tracking-widest font-bold mb-2">
+                    Contact Details
+                  </h4>
                   <div className="bg-slate-50/75 border border-slate-100 rounded-xl p-3 space-y-2.5">
                     <div className="flex items-center gap-2 text-slate-700">
                       <Mail className="h-4 w-4 text-slate-400 shrink-0" />
@@ -509,7 +591,8 @@ export function Volunteers() {
                       <div>
                         <div>{selectedVol.address}</div>
                         <div className="text-[10px] text-slate-400 mt-0.5">
-                          {getExtendedData(selectedVol).city}, {getExtendedData(selectedVol).state} - {getExtendedData(selectedVol).pincode}
+                          {getExtendedData(selectedVol).city}, {getExtendedData(selectedVol).state}{" "}
+                          - {getExtendedData(selectedVol).pincode}
                         </div>
                       </div>
                     </div>
@@ -518,26 +601,40 @@ export function Volunteers() {
 
                 {/* Section: Preference & Motivation */}
                 <div>
-                  <h4 className="text-[10px] text-primary uppercase tracking-widest font-bold mb-2">Preference & Service Interest</h4>
+                  <h4 className="text-[10px] text-primary uppercase tracking-widest font-bold mb-2">
+                    Preference & Service Interest
+                  </h4>
                   <div className="bg-slate-50/75 border border-slate-100 rounded-xl p-3 space-y-2">
                     <div>
-                      <span className="text-[9px] text-slate-400 block uppercase">Selected Role Interest</span>
+                      <span className="text-[9px] text-slate-400 block uppercase">
+                        Selected Role Interest
+                      </span>
                       <span className="text-slate-900 flex items-center gap-1.5 mt-0.5 font-bold">
                         <Briefcase className="h-4 w-4 text-primary" /> {selectedVol.role}
                       </span>
                     </div>
                     <div className="grid grid-cols-2 gap-2 pt-1.5 border-t border-slate-100/60">
                       <div>
-                        <span className="text-[9px] text-slate-400 block uppercase">Availability</span>
-                        <span className="text-slate-800">{getExtendedData(selectedVol).availability || "Flexible"}</span>
+                        <span className="text-[9px] text-slate-400 block uppercase">
+                          Availability
+                        </span>
+                        <span className="text-slate-800">
+                          {getExtendedData(selectedVol).availability || "Flexible"}
+                        </span>
                       </div>
                       <div>
-                        <span className="text-[9px] text-slate-400 block uppercase">Past Experience</span>
-                        <span className="text-slate-800">{getExtendedData(selectedVol).experience || "None"}</span>
+                        <span className="text-[9px] text-slate-400 block uppercase">
+                          Past Experience
+                        </span>
+                        <span className="text-slate-800">
+                          {getExtendedData(selectedVol).experience || "None"}
+                        </span>
                       </div>
                     </div>
                     <div className="pt-1.5 border-t border-slate-100/60">
-                      <span className="text-[9px] text-slate-400 block uppercase">Why do you want to join?</span>
+                      <span className="text-[9px] text-slate-400 block uppercase">
+                        Why do you want to join?
+                      </span>
                       <p className="text-slate-700 mt-1 font-light italic leading-relaxed bg-white p-2 border border-slate-100 rounded-lg">
                         "{getExtendedData(selectedVol).whyJoin || "No statement added."}"
                       </p>
@@ -547,23 +644,34 @@ export function Volunteers() {
 
                 {/* Section: Emergency Contact */}
                 <div className="bg-rose-50/20 border border-rose-100/60 rounded-xl p-3">
-                  <span className="text-[9px] text-rose-600 block uppercase tracking-wider font-bold">Emergency Contact Detail</span>
+                  <span className="text-[9px] text-rose-600 block uppercase tracking-wider font-bold">
+                    Emergency Contact Detail
+                  </span>
                   <div className="mt-1 text-slate-800 flex justify-between text-[11px] font-bold">
                     <span>{getExtendedData(selectedVol).emergencyName || "N/A"}</span>
-                    <span className="text-slate-500 font-normal">{getExtendedData(selectedVol).emergencyPhone || "N/A"}</span>
+                    <span className="text-slate-500 font-normal">
+                      {getExtendedData(selectedVol).emergencyPhone || "N/A"}
+                    </span>
                   </div>
                 </div>
 
                 {/* Section: Documents downloads */}
                 <div className="space-y-2">
-                  <h4 className="text-[10px] text-primary uppercase tracking-widest font-bold">Uploaded Attachments</h4>
+                  <h4 className="text-[10px] text-primary uppercase tracking-widest font-bold">
+                    Uploaded Attachments
+                  </h4>
                   {selectedVol.idProofUrl && (
                     <div className="bg-slate-50 border border-slate-200/80 rounded-xl p-2.5 flex items-center justify-between text-[11px] font-bold">
                       <div className="flex items-center gap-2 text-slate-700 min-w-0">
                         <FileText className="h-4 w-4 text-[#4040A1]" />
                         <span className="truncate">Identity Document</span>
                       </div>
-                      <a href={selectedVol.idProofUrl} target="_blank" rel="noreferrer" className="text-primary hover:underline cursor-pointer">
+                      <a
+                        href={selectedVol.idProofUrl}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="text-primary hover:underline cursor-pointer"
+                      >
                         View ID
                       </a>
                     </div>
@@ -574,7 +682,12 @@ export function Volunteers() {
                         <FileText className="h-4 w-4 text-primary" />
                         <span className="truncate">Resume CV</span>
                       </div>
-                      <a href={getExtendedData(selectedVol).resumeUrl} target="_blank" rel="noreferrer" className="text-primary hover:underline cursor-pointer">
+                      <a
+                        href={getExtendedData(selectedVol).resumeUrl}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="text-primary hover:underline cursor-pointer"
+                      >
                         Download CV
                       </a>
                     </div>
@@ -586,14 +699,20 @@ export function Volunteers() {
                   <h4 className="text-[10px] text-primary uppercase tracking-widest font-bold flex items-center gap-1">
                     <MessageSquare className="h-3.5 w-3.5" /> Internal Notes
                   </h4>
-                  
+
                   {/* Note List */}
                   <div className="space-y-2 max-h-[150px] overflow-y-auto pr-1">
-                    {(!getExtendedData(selectedVol).notes || getExtendedData(selectedVol).notes.length === 0) ? (
-                      <div className="text-[10px] text-slate-400 italic">No internal logs added yet.</div>
+                    {!getExtendedData(selectedVol).notes ||
+                    getExtendedData(selectedVol).notes.length === 0 ? (
+                      <div className="text-[10px] text-slate-400 italic">
+                        No internal logs added yet.
+                      </div>
                     ) : (
                       getExtendedData(selectedVol).notes.map((n: any, i: number) => (
-                        <div key={i} className="bg-slate-50 border border-slate-100 p-2 rounded-lg text-[10px] space-y-1">
+                        <div
+                          key={i}
+                          className="bg-slate-50 border border-slate-100 p-2 rounded-lg text-[10px] space-y-1"
+                        >
                           <div className="flex justify-between text-[8px] text-slate-400 font-bold">
                             <span>{n.admin}</span>
                             <span>{n.date ? n.date.split("T")[0] : ""}</span>
@@ -634,15 +753,18 @@ export function Volunteers() {
                         <div className="absolute -left-[12px] top-1.5 h-2 w-2 rounded-full bg-primary" />
                         <div className="font-bold text-slate-800 flex justify-between">
                           <span>{t.action}</span>
-                          <span className="text-[8px] text-slate-400 font-normal">{t.date ? t.date.split("T")[0] : ""}</span>
+                          <span className="text-[8px] text-slate-400 font-normal">
+                            {t.date ? t.date.split("T")[0] : ""}
+                          </span>
                         </div>
                         <p className="text-slate-500 font-normal mt-0.5">{t.notes}</p>
-                        {t.admin && <span className="text-[8px] text-slate-400 italic">By: {t.admin}</span>}
+                        {t.admin && (
+                          <span className="text-[8px] text-slate-400 italic">By: {t.admin}</span>
+                        )}
                       </div>
                     ))}
                   </div>
                 </div>
-
               </div>
 
               {/* Status Action Buttons */}
@@ -681,11 +803,11 @@ export function Volunteers() {
             </>
           ) : (
             <div className="text-center py-12 text-slate-400 font-bold text-xs">
-              Select a volunteer application row to inspect document records, contact details, and certifications.
+              Select a volunteer application row to inspect document records, contact details, and
+              certifications.
             </div>
           )}
         </div>
-
       </div>
 
       {/* Reject Modal Dialog (Reason Prompt) */}
@@ -694,7 +816,8 @@ export function Volunteers() {
           <div className="bg-white rounded-2xl max-w-sm w-full p-6 space-y-4 border border-slate-200 shadow-xl">
             <h3 className="text-sm font-bold text-slate-900">Specify Rejection Reason</h3>
             <p className="text-xs text-slate-500 font-light">
-              Enter the reason why this application is not accepted. This text will be automatically included in the applicant's status update email.
+              Enter the reason why this application is not accepted. This text will be automatically
+              included in the applicant's status update email.
             </p>
             <textarea
               rows={3}
@@ -723,7 +846,6 @@ export function Volunteers() {
           </div>
         </div>
       )}
-
     </div>
   );
 }

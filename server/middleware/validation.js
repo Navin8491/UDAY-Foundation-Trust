@@ -27,7 +27,14 @@ export const sanitizeNoSQL = (req, res, next) => {
 
 // XSS Sanitizer - Escapes HTML characters in request bodies
 // Skips fields that are explicitly meant for rich HTML text (e.g. desc, summary, objectives, activities, successStory, successQuote)
-const ALLOWED_HTML_FIELDS = ["desc", "summary", "objectives", "activities", "successStory", "successQuote"];
+const ALLOWED_HTML_FIELDS = [
+  "desc",
+  "summary",
+  "objectives",
+  "activities",
+  "successStory",
+  "successQuote",
+];
 
 export const sanitizeXSS = (req, res, next) => {
   const escapeHTML = (str) => {
@@ -67,7 +74,9 @@ export const validateBody = (schema) => {
   return (req, res, next) => {
     const result = schema.safeParse(req.body);
     if (!result.success) {
-      const errorMessages = result.error.errors.map(err => `${err.path.join(".")}: ${err.message}`).join(", ");
+      const errorMessages = result.error.errors
+        .map((err) => `${err.path.join(".")}: ${err.message}`)
+        .join(", ");
       res.status(400);
       return next(new Error(errorMessages));
     }
@@ -93,7 +102,7 @@ export const volunteerSchema = z.object({
   idProofUrl: z.string().min(1, "ID proof document is required"),
   role: z.string().min(2, "Role must be at least 2 characters"),
   message: z.string().optional().or(z.literal("")),
-  
+
   // Extended fields
   dob: z.string().min(1, "Date of birth is required"),
   gender: z.string().min(1, "Gender is required"),

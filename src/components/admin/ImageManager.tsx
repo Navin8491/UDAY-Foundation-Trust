@@ -11,7 +11,13 @@ interface ImageManagerProps {
   singleOnly?: boolean;
 }
 
-export function ImageManager({ images = [], coverImage = "", onChange, folder, singleOnly = false }: ImageManagerProps) {
+export function ImageManager({
+  images = [],
+  coverImage = "",
+  onChange,
+  folder,
+  singleOnly = false,
+}: ImageManagerProps) {
   const [uploading, setUploading] = useState(false);
   const [progress, setProgress] = useState(0);
   const [zoomImage, setZoomImage] = useState<string | null>(null);
@@ -20,11 +26,11 @@ export function ImageManager({ images = [], coverImage = "", onChange, folder, s
 
   const handleFiles = async (files: FileList | null) => {
     if (!files || files.length === 0) return;
-    
+
     setUploading(true);
     setProgress(0);
     const toastId = toast.loading("Uploading images...");
-    
+
     try {
       const uploadedUrls: string[] = [];
       for (let i = 0; i < files.length; i++) {
@@ -34,16 +40,17 @@ export function ImageManager({ images = [], coverImage = "", onChange, folder, s
         });
         uploadedUrls.push(url);
       }
-      
+
       let newImages = [...images];
       if (singleOnly) {
         newImages = [uploadedUrls[0]];
       } else {
         newImages = [...newImages, ...uploadedUrls];
       }
-      
-      const newCover = coverImage && newImages.includes(coverImage) ? coverImage : (newImages[0] || "");
-      
+
+      const newCover =
+        coverImage && newImages.includes(coverImage) ? coverImage : newImages[0] || "";
+
       onChange(newImages, newCover);
       toast.success("Images uploaded successfully!", { id: toastId });
     } catch (error: any) {
@@ -85,7 +92,7 @@ export function ImageManager({ images = [], coverImage = "", onChange, folder, s
       const newImages = [...images];
       const oldUrl = newImages[index];
       newImages[index] = url;
-      
+
       let newCover = coverImage;
       if (coverImage === oldUrl) {
         newCover = url;
@@ -103,15 +110,15 @@ export function ImageManager({ images = [], coverImage = "", onChange, folder, s
   const handleMove = (index: number, direction: "left" | "right") => {
     if (direction === "left" && index === 0) return;
     if (direction === "right" && index === images.length - 1) return;
-    
+
     const newImages = [...images];
     const targetIndex = direction === "left" ? index - 1 : index + 1;
-    
+
     // Swap
     const temp = newImages[index];
     newImages[index] = newImages[targetIndex];
     newImages[targetIndex] = temp;
-    
+
     onChange(newImages, coverImage);
   };
 
@@ -177,7 +184,7 @@ export function ImageManager({ images = [], coverImage = "", onChange, folder, s
                   }`}
                 >
                   <img src={url} alt="" className="h-full w-full object-cover" />
-                  
+
                   {/* Badges */}
                   {isCover && (
                     <span className="absolute top-2 left-2 bg-primary text-white text-[9px] font-bold px-2 py-0.5 rounded-full flex items-center gap-1 shadow-sm">
@@ -216,7 +223,9 @@ export function ImageManager({ images = [], coverImage = "", onChange, folder, s
 
                     <input
                       type="file"
-                      ref={(el) => { replaceInputRefs.current[index] = el; }}
+                      ref={(el) => {
+                        replaceInputRefs.current[index] = el;
+                      }}
                       className="hidden"
                       accept="image/*"
                       onChange={(e) => {
@@ -237,7 +246,7 @@ export function ImageManager({ images = [], coverImage = "", onChange, folder, s
                           Make Cover
                         </button>
                       )}
-                      
+
                       {!singleOnly && (
                         <div className="flex gap-1 ml-auto">
                           <button
@@ -276,7 +285,11 @@ export function ImageManager({ images = [], coverImage = "", onChange, folder, s
           >
             <X className="h-6 w-6" />
           </button>
-          <img src={zoomImage} alt="" className="max-h-full max-w-full object-contain rounded-lg shadow-2xl" />
+          <img
+            src={zoomImage}
+            alt=""
+            className="max-h-full max-w-full object-contain rounded-lg shadow-2xl"
+          />
         </div>
       )}
     </div>

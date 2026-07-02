@@ -3,10 +3,7 @@ import dotenv from "dotenv";
 
 dotenv.config();
 
-const supabase = createClient(
-  process.env.SUPABASE_URL,
-  process.env.SUPABASE_SERVICE_ROLE_KEY
-);
+const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SERVICE_ROLE_KEY);
 
 async function inspectDonations() {
   console.log("Fetching latest 3 donation records...");
@@ -22,7 +19,7 @@ async function inspectDonations() {
     console.log(`Found ${data.length} donations.`);
     data.forEach((don, idx) => {
       console.log(`\nDonation #${idx + 1}:`);
-      Object.keys(don).forEach(key => {
+      Object.keys(don).forEach((key) => {
         console.log(`  ${key}:`, don[key]);
       });
     });

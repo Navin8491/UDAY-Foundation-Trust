@@ -89,7 +89,7 @@ class StripeGateway extends PaymentGateway {
       },
       {
         idempotencyKey: params.idempotencyKey, // Native Stripe Idempotency Key!
-      }
+      },
     );
 
     return {
@@ -158,7 +158,7 @@ class RazorpayGateway extends PaymentGateway {
     this.keyId = process.env.RAZORPAY_KEY_ID || "mock_key";
     this.keySecret = process.env.RAZORPAY_KEY_SECRET || "mock_secret";
     this.webhookSecret = process.env.RAZORPAY_WEBHOOK_SECRET || "";
-    
+
     this.razorpay = new Razorpay({
       key_id: this.keyId,
       key_secret: this.keySecret,
@@ -217,7 +217,10 @@ class RazorpayGateway extends PaymentGateway {
           amount: payment.amount / 100,
           currency: payment.currency.toUpperCase(),
           eventType: event,
-          idempotencyKey: payment.notes?.idempotencyKey || body.payload.order?.entity?.notes?.idempotencyKey || body.payload.order?.entity?.receipt,
+          idempotencyKey:
+            payment.notes?.idempotencyKey ||
+            body.payload.order?.entity?.notes?.idempotencyKey ||
+            body.payload.order?.entity?.receipt,
         };
       }
 
@@ -251,7 +254,11 @@ class RazorpayGateway extends PaymentGateway {
         refundId: refund.id,
       };
     } catch (err) {
-      const errMsg = err.description || err.error?.description || err.message || (typeof err === "string" ? err : JSON.stringify(err));
+      const errMsg =
+        err.description ||
+        err.error?.description ||
+        err.message ||
+        (typeof err === "string" ? err : JSON.stringify(err));
       console.error("[RazorpayGateway] Refund failed:", errMsg);
       throw new Error(errMsg);
     }
@@ -267,6 +274,8 @@ export function getPaymentGateway() {
     case "razorpay":
       return new RazorpayGateway();
     default:
-      throw new Error(`Unsupported live payment provider: "${provider}". Only "stripe" or "razorpay" are allowed in production.`);
+      throw new Error(
+        `Unsupported live payment provider: "${provider}". Only "stripe" or "razorpay" are allowed in production.`,
+      );
   }
 }

@@ -18,11 +18,9 @@ const ASSETS_DIR = path.resolve(__dirname, "../../src/assets");
 const SUPABASE_PROJECT_URL = process.env.SUPABASE_URL;
 const PUBLIC_BASE = `${SUPABASE_PROJECT_URL}/storage/v1/object/public/uday-assets`;
 
-const supabase = createClient(
-  SUPABASE_PROJECT_URL,
-  process.env.SUPABASE_SERVICE_ROLE_KEY,
-  { auth: { persistSession: false } }
-);
+const supabase = createClient(SUPABASE_PROJECT_URL, process.env.SUPABASE_SERVICE_ROLE_KEY, {
+  auth: { persistSession: false },
+});
 
 /** HEAD request to check if URL is accessible and returns an image */
 function checkUrl(url) {
@@ -39,7 +37,10 @@ function checkUrl(url) {
         type: res.headers["content-type"] || "",
       });
     });
-    req.on("timeout", () => { req.destroy(); resolve({ ok: false, status: 0, type: null }); });
+    req.on("timeout", () => {
+      req.destroy();
+      resolve({ ok: false, status: 0, type: null });
+    });
     req.on("error", () => resolve({ ok: false, status: 0, type: null }));
     req.end();
   });
@@ -67,7 +68,10 @@ async function main() {
     .select("*")
     .order("created_at", { ascending: false });
 
-  if (error) { console.error("Failed to fetch gallery:", error.message); process.exit(1); }
+  if (error) {
+    console.error("Failed to fetch gallery:", error.message);
+    process.exit(1);
+  }
 
   console.log(`Checking ${items.length} gallery items...\n`);
 
@@ -80,7 +84,7 @@ async function main() {
   const BATCH = 10;
   for (let i = 0; i < items.length; i += BATCH) {
     const batch = items.slice(i, i + BATCH);
-    const results = await Promise.all(batch.map(item => checkUrl(item.img)));
+    const results = await Promise.all(batch.map((item) => checkUrl(item.img)));
 
     for (let j = 0; j < batch.length; j++) {
       const item = batch[j];
@@ -142,7 +146,7 @@ async function main() {
   console.log(`📦 Total items:          ${items.length}`);
 }
 
-main().catch(err => {
+main().catch((err) => {
   console.error("❌ Script failed:", err.message);
   process.exit(1);
 });

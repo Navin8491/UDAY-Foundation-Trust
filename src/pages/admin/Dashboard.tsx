@@ -6,7 +6,7 @@ import {
   fetchPartnerships,
   subscribeDonations,
   subscribeNotifications,
-  NotificationItem
+  NotificationItem,
 } from "@/services/db";
 import {
   Heart,
@@ -16,7 +16,7 @@ import {
   Building2,
   ArrowUpRight,
   Bell,
-  Activity
+  Activity,
 } from "lucide-react";
 
 // Projected/estimated trend data for chart illustration — not live database figures
@@ -116,37 +116,47 @@ export function Dashboard() {
     loadStats();
 
     // Subscribe to donations changes in real-time
-    const unsubscribeDonations = subscribeDonations((donations) => {
-      setDonorsCount(donations.length);
-      const sum = donations.reduce((acc, curr) => acc + (Number(curr.amount) || 0), 0);
-      setTotalDonationsAmount(166500 + sum);
+    const unsubscribeDonations = subscribeDonations(
+      (donations) => {
+        setDonorsCount(donations.length);
+        const sum = donations.reduce((acc, curr) => acc + (Number(curr.amount) || 0), 0);
+        setTotalDonationsAmount(166500 + sum);
 
-      const todayStr = new Date().toISOString().split("T")[0];
-      const currentMonthStr = new Date().toISOString().substring(0, 7);
+        const todayStr = new Date().toISOString().split("T")[0];
+        const currentMonthStr = new Date().toISOString().substring(0, 7);
 
-      const todaySum = donations.filter((d) => {
-        const dDate = d.createdAt || d.created_at;
-        return dDate && dDate.split("T")[0] === todayStr;
-      }).reduce((acc, curr) => acc + (Number(curr.amount) || 0), 0);
+        const todaySum = donations
+          .filter((d) => {
+            const dDate = d.createdAt || d.created_at;
+            return dDate && dDate.split("T")[0] === todayStr;
+          })
+          .reduce((acc, curr) => acc + (Number(curr.amount) || 0), 0);
 
-      const monthSum = donations.filter((d) => {
-        const dDate = d.createdAt || d.created_at;
-        return dDate && dDate.substring(0, 7) === currentMonthStr;
-      }).reduce((acc, curr) => acc + (Number(curr.amount) || 0), 0);
+        const monthSum = donations
+          .filter((d) => {
+            const dDate = d.createdAt || d.created_at;
+            return dDate && dDate.substring(0, 7) === currentMonthStr;
+          })
+          .reduce((acc, curr) => acc + (Number(curr.amount) || 0), 0);
 
-      setDonationsToday(todaySum);
-      setDonationsThisMonth(monthSum);
-    }, (err) => {
-      console.error("Realtime donations subscription failed:", err);
-    });
+        setDonationsToday(todaySum);
+        setDonationsThisMonth(monthSum);
+      },
+      (err) => {
+        console.error("Realtime donations subscription failed:", err);
+      },
+    );
 
     // Subscribe to notifications changes in real-time
-    const unsubscribeNotifications = subscribeNotifications((items) => {
-      setUnreadNotificationsCount(items.filter((n) => !n.read_status).length);
-      setRecentActivities(items.slice(0, 5));
-    }, (err) => {
-      console.error("Realtime notifications subscription failed in Dashboard:", err);
-    });
+    const unsubscribeNotifications = subscribeNotifications(
+      (items) => {
+        setUnreadNotificationsCount(items.filter((n) => !n.read_status).length);
+        setRecentActivities(items.slice(0, 5));
+      },
+      (err) => {
+        console.error("Realtime notifications subscription failed in Dashboard:", err);
+      },
+    );
 
     return () => {
       unsubscribeDonations();
@@ -155,11 +165,41 @@ export function Dashboard() {
   }, []);
 
   const cards = [
-    { title: "Total Donations", value: `₹${totalDonationsAmount.toLocaleString()}`, change: `Today: ₹${donationsToday.toLocaleString()} | Month: ₹${donationsThisMonth.toLocaleString()}`, icon: DollarSign, color: "text-[#7A9D1C] bg-[#7A9D1C]/10" },
-    { title: "Total Donors", value: donorsCount.toLocaleString(), change: "Verified supporters", icon: Heart, color: "text-rose-500 bg-rose-50/80" },
-    { title: "Volunteers App", value: volunteersCount.toLocaleString(), change: `P: ${volPending} | A: ${volApproved} | R: ${volRejected}`, icon: Users, color: "text-[#4040A1] bg-[#4040A1]/10" },
-    { title: "Partnerships", value: partnersCount.toLocaleString(), change: `P: ${partPending} | A: ${partApproved} | R: ${partRejected}`, icon: Building2, color: "text-amber-500 bg-amber-50" },
-    { title: "Unread Alerts", value: unreadNotificationsCount.toLocaleString(), change: "Actionable alerts", icon: Bell, color: "text-rose-600 bg-rose-50 animate-pulse" },
+    {
+      title: "Total Donations",
+      value: `₹${totalDonationsAmount.toLocaleString()}`,
+      change: `Today: ₹${donationsToday.toLocaleString()} | Month: ₹${donationsThisMonth.toLocaleString()}`,
+      icon: DollarSign,
+      color: "text-[#7A9D1C] bg-[#7A9D1C]/10",
+    },
+    {
+      title: "Total Donors",
+      value: donorsCount.toLocaleString(),
+      change: "Verified supporters",
+      icon: Heart,
+      color: "text-rose-500 bg-rose-50/80",
+    },
+    {
+      title: "Volunteers App",
+      value: volunteersCount.toLocaleString(),
+      change: `P: ${volPending} | A: ${volApproved} | R: ${volRejected}`,
+      icon: Users,
+      color: "text-[#4040A1] bg-[#4040A1]/10",
+    },
+    {
+      title: "Partnerships",
+      value: partnersCount.toLocaleString(),
+      change: `P: ${partPending} | A: ${partApproved} | R: ${partRejected}`,
+      icon: Building2,
+      color: "text-amber-500 bg-amber-50",
+    },
+    {
+      title: "Unread Alerts",
+      value: unreadNotificationsCount.toLocaleString(),
+      change: "Actionable alerts",
+      icon: Bell,
+      color: "text-rose-600 bg-rose-50 animate-pulse",
+    },
   ];
 
   if (loading) {
@@ -167,7 +207,7 @@ export function Dashboard() {
       <div className="space-y-6 animate-pulse">
         {/* Header */}
         <div className="h-10 bg-slate-100 rounded w-1/3" />
-        
+
         {/* Stats Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
           {Array.from({ length: 5 }).map((_, idx) => (
@@ -186,18 +226,22 @@ export function Dashboard() {
 
   return (
     <div className="space-y-6">
-      
       {/* 1. Header Row */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl md:text-3xl font-display font-bold">Dashboard</h1>
-          <p className="text-sm text-slate-500 font-medium">Uday Foundation Trust operational performance overview</p>
+          <p className="text-sm text-slate-500 font-medium">
+            Uday Foundation Trust operational performance overview
+          </p>
         </div>
         <div className="flex items-center gap-2">
           <Link to="/admin/events" className="btn-primary text-xs py-2.5 px-4 cursor-pointer">
             <Plus className="h-4 w-4" /> Create Event
           </Link>
-          <Link to="/admin/gallery" className="btn-ghost text-xs py-2.5 px-4 cursor-pointer bg-white">
+          <Link
+            to="/admin/gallery"
+            className="btn-ghost text-xs py-2.5 px-4 cursor-pointer bg-white"
+          >
             Upload Images
           </Link>
         </div>
@@ -206,12 +250,19 @@ export function Dashboard() {
       {/* 2. KPI Cards Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
         {cards.map((c) => (
-          <div key={c.title} className="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs flex items-start gap-4">
-            <div className={`h-11 w-11 rounded-xl flex items-center justify-center flex-none ${c.color}`}>
+          <div
+            key={c.title}
+            className="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs flex items-start gap-4"
+          >
+            <div
+              className={`h-11 w-11 rounded-xl flex items-center justify-center flex-none ${c.color}`}
+            >
               <c.icon className="h-5 w-5" />
             </div>
             <div>
-              <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider">{c.title}</span>
+              <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider">
+                {c.title}
+              </span>
               <h2 className="text-2xl font-bold text-slate-900 mt-1">{c.value}</h2>
               <span className="text-[10px] font-bold text-slate-400 block mt-1">{c.change}</span>
             </div>
@@ -221,23 +272,24 @@ export function Dashboard() {
 
       {/* 3. Main Chart & Pie breakdown Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        
         {/* Interactive Main Graph */}
         <div className="lg:col-span-2 bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs flex flex-col justify-between">
           <div className="flex items-center justify-between pb-4 border-b border-slate-100">
             <div>
               <h3 className="font-bold text-base">Analytical Overview</h3>
               <p className="text-xs text-slate-400">Monthly donation and volunteer trends</p>
-              <span className="inline-block mt-1 text-[10px] font-bold text-amber-500 bg-amber-50 border border-amber-200 rounded-full px-2 py-0.5">Projected Trends</span>
+              <span className="inline-block mt-1 text-[10px] font-bold text-amber-500 bg-amber-50 border border-amber-200 rounded-full px-2 py-0.5">
+                Projected Trends
+              </span>
             </div>
             <div className="flex bg-slate-50 border border-slate-200 rounded-xl p-1 text-xs font-bold">
-              <button 
+              <button
                 onClick={() => setSelectedChart("donations")}
                 className={`px-3 py-1.5 rounded-lg cursor-pointer transition-all ${selectedChart === "donations" ? "bg-white text-primary shadow-xs" : "text-slate-400"}`}
               >
                 Donations
               </button>
-              <button 
+              <button
                 onClick={() => setSelectedChart("volunteers")}
                 className={`px-3 py-1.5 rounded-lg cursor-pointer transition-all ${selectedChart === "volunteers" ? "bg-white text-primary shadow-xs" : "text-slate-400"}`}
               >
@@ -250,35 +302,52 @@ export function Dashboard() {
             {selectedChart === "donations" ? (
               <div className="flex-1 flex flex-col justify-between pt-4">
                 <div className="flex-1 relative flex items-end">
-                  <svg className="w-full h-full overflow-visible" viewBox="0 0 600 200" preserveAspectRatio="none">
+                  <svg
+                    className="w-full h-full overflow-visible"
+                    viewBox="0 0 600 200"
+                    preserveAspectRatio="none"
+                  >
                     <defs>
                       <linearGradient id="donGrad" x1="0" y1="0" x2="0" y2="1">
                         <stop offset="0%" stopColor="#7A9D1C" stopOpacity="0.2" />
                         <stop offset="100%" stopColor="#7A9D1C" stopOpacity="0" />
                       </linearGradient>
                     </defs>
-                    <path 
-                      d="M0,150 Q100,110 200,130 T400,80 T600,40" 
-                      fill="none" 
-                      stroke="#7A9D1C" 
-                      strokeWidth="3.5" 
+                    <path
+                      d="M0,150 Q100,110 200,130 T400,80 T600,40"
+                      fill="none"
+                      stroke="#7A9D1C"
+                      strokeWidth="3.5"
                       strokeLinecap="round"
                     />
-                    <path 
-                      d="M0,150 Q100,110 200,130 T400,80 T600,40 L600,200 L0,200 Z" 
+                    <path
+                      d="M0,150 Q100,110 200,130 T400,80 T600,40 L600,200 L0,200 Z"
                       fill="url(#donGrad)"
                     />
                     {DONATIONS_DATA.map((d, i) => {
                       const x = (i / 6) * 600;
-                      const y = i === 0 ? 150 : i === 1 ? 120 : i === 2 ? 135 : i === 3 ? 90 : i === 4 ? 60 : i === 5 ? 75 : 40;
+                      const y =
+                        i === 0
+                          ? 150
+                          : i === 1
+                            ? 120
+                            : i === 2
+                              ? 135
+                              : i === 3
+                                ? 90
+                                : i === 4
+                                  ? 60
+                                  : i === 5
+                                    ? 75
+                                    : 40;
                       return (
-                        <circle 
+                        <circle
                           key={d.month}
-                          cx={x} 
-                          cy={y} 
-                          r="5.5" 
-                          fill="#white" 
-                          stroke="#7A9D1C" 
+                          cx={x}
+                          cy={y}
+                          r="5.5"
+                          fill="#white"
+                          stroke="#7A9D1C"
                           strokeWidth="3"
                           className="cursor-pointer hover:r-[7.5] transition-all"
                           onMouseEnter={() => setHoveredDonIndex(i)}
@@ -288,19 +357,21 @@ export function Dashboard() {
                     })}
                   </svg>
                   {hoveredDonIndex !== null && (
-                    <div 
+                    <div
                       className="absolute bg-slate-800 text-white rounded-xl p-2.5 shadow-md text-[10px] pointer-events-none z-10 transition-all border border-slate-700"
-                      style={{ 
+                      style={{
                         left: `${(hoveredDonIndex / 6) * 90}%`,
-                        bottom: "60px"
+                        bottom: "60px",
                       }}
                     >
                       <p className="font-bold">{DONATIONS_DATA[hoveredDonIndex].month}</p>
-                      <p className="text-secondary font-bold mt-0.5">{DONATIONS_DATA[hoveredDonIndex].display}</p>
+                      <p className="text-secondary font-bold mt-0.5">
+                        {DONATIONS_DATA[hoveredDonIndex].display}
+                      </p>
                     </div>
                   )}
                 </div>
-                
+
                 <div className="flex justify-between text-[10px] font-bold text-slate-400 mt-2 uppercase tracking-wider">
                   {DONATIONS_DATA.map((d) => (
                     <span key={d.month}>{d.month}</span>
@@ -310,35 +381,52 @@ export function Dashboard() {
             ) : (
               <div className="flex-1 flex flex-col justify-between pt-4">
                 <div className="flex-1 relative flex items-end">
-                  <svg className="w-full h-full overflow-visible" viewBox="0 0 600 200" preserveAspectRatio="none">
+                  <svg
+                    className="w-full h-full overflow-visible"
+                    viewBox="0 0 600 200"
+                    preserveAspectRatio="none"
+                  >
                     <defs>
                       <linearGradient id="volGrad" x1="0" y1="0" x2="0" y2="1">
                         <stop offset="0%" stopColor="#4040A1" stopOpacity="0.2" />
                         <stop offset="100%" stopColor="#4040A1" stopOpacity="0" />
                       </linearGradient>
                     </defs>
-                    <path 
-                      d="M0,160 Q100,140 200,110 T400,100 T600,60" 
-                      fill="none" 
-                      stroke="#4040A1" 
-                      strokeWidth="3.5" 
+                    <path
+                      d="M0,160 Q100,140 200,110 T400,100 T600,60"
+                      fill="none"
+                      stroke="#4040A1"
+                      strokeWidth="3.5"
                       strokeLinecap="round"
                     />
-                    <path 
-                      d="M0,160 Q100,140 200,110 T400,100 T600,60 L600,200 L0,200 Z" 
+                    <path
+                      d="M0,160 Q100,140 200,110 T400,100 T600,60 L600,200 L0,200 Z"
                       fill="url(#volGrad)"
                     />
                     {VOLUNTEER_GROWTH.map((v, i) => {
                       const x = (i / 6) * 600;
-                      const y = i === 0 ? 160 : i === 1 ? 145 : i === 2 ? 115 : i === 3 ? 120 : i === 4 ? 100 : i === 5 ? 80 : 60;
+                      const y =
+                        i === 0
+                          ? 160
+                          : i === 1
+                            ? 145
+                            : i === 2
+                              ? 115
+                              : i === 3
+                                ? 120
+                                : i === 4
+                                  ? 100
+                                  : i === 5
+                                    ? 80
+                                    : 60;
                       return (
-                        <circle 
+                        <circle
                           key={v.month}
-                          cx={x} 
-                          cy={y} 
-                          r="5.5" 
-                          fill="#white" 
-                          stroke="#4040A1" 
+                          cx={x}
+                          cy={y}
+                          r="5.5"
+                          fill="#white"
+                          stroke="#4040A1"
                           strokeWidth="3"
                           className="cursor-pointer hover:r-[7.5] transition-all"
                           onMouseEnter={() => setHoveredDonIndex(i)}
@@ -348,19 +436,21 @@ export function Dashboard() {
                     })}
                   </svg>
                   {hoveredDonIndex !== null && (
-                    <div 
+                    <div
                       className="absolute bg-slate-800 text-white rounded-xl p-2.5 shadow-md text-[10px] pointer-events-none z-10 transition-all border border-slate-700"
-                      style={{ 
+                      style={{
                         left: `${(hoveredDonIndex / 6) * 90}%`,
-                        bottom: "60px"
+                        bottom: "60px",
                       }}
                     >
                       <p className="font-bold">{VOLUNTEER_GROWTH[hoveredDonIndex].month}</p>
-                      <p className="text-secondary font-bold mt-0.5">{VOLUNTEER_GROWTH[hoveredDonIndex].count} Volunteers</p>
+                      <p className="text-secondary font-bold mt-0.5">
+                        {VOLUNTEER_GROWTH[hoveredDonIndex].count} Volunteers
+                      </p>
                     </div>
                   )}
                 </div>
-                
+
                 <div className="flex justify-between text-[10px] font-bold text-slate-400 mt-2 uppercase tracking-wider">
                   {VOLUNTEER_GROWTH.map((v) => (
                     <span key={v.month}>{v.month}</span>
@@ -375,38 +465,84 @@ export function Dashboard() {
         <div className="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs flex flex-col justify-between">
           <div>
             <h3 className="font-bold text-base">Events by Sector</h3>
-            <p className="text-xs text-slate-400">Total activities divided by intervention categories</p>
+            <p className="text-xs text-slate-400">
+              Total activities divided by intervention categories
+            </p>
           </div>
-          
+
           <div className="h-44 relative flex items-center justify-center mt-2">
             <svg className="w-36 h-36 transform -rotate-90 overflow-visible" viewBox="0 0 36 36">
               <circle cx="18" cy="18" r="15.9155" fill="none" stroke="#e2e8f0" strokeWidth="3" />
-              <circle cx="18" cy="18" r="15.9155" fill="none" stroke="#4040A1" strokeWidth="3.5" strokeDasharray="37.5 62.5" strokeDashoffset="100" />
-              <circle cx="18" cy="18" r="15.9155" fill="none" stroke="#7A9D1C" strokeWidth="3.5" strokeDasharray="30 70" strokeDashoffset="62.5" />
-              <circle cx="18" cy="18" r="15.9155" fill="none" stroke="#22C55E" strokeWidth="3.5" strokeDasharray="20 80" strokeDashoffset="32.5" />
-              <circle cx="18" cy="18" r="15.9155" fill="none" stroke="#E25C5C" strokeWidth="3.5" strokeDasharray="12.5 87.5" strokeDashoffset="12.5" />
+              <circle
+                cx="18"
+                cy="18"
+                r="15.9155"
+                fill="none"
+                stroke="#4040A1"
+                strokeWidth="3.5"
+                strokeDasharray="37.5 62.5"
+                strokeDashoffset="100"
+              />
+              <circle
+                cx="18"
+                cy="18"
+                r="15.9155"
+                fill="none"
+                stroke="#7A9D1C"
+                strokeWidth="3.5"
+                strokeDasharray="30 70"
+                strokeDashoffset="62.5"
+              />
+              <circle
+                cx="18"
+                cy="18"
+                r="15.9155"
+                fill="none"
+                stroke="#22C55E"
+                strokeWidth="3.5"
+                strokeDasharray="20 80"
+                strokeDashoffset="32.5"
+              />
+              <circle
+                cx="18"
+                cy="18"
+                r="15.9155"
+                fill="none"
+                stroke="#E25C5C"
+                strokeWidth="3.5"
+                strokeDasharray="12.5 87.5"
+                strokeDashoffset="12.5"
+              />
             </svg>
             <div className="absolute flex flex-col text-center">
               <span className="text-2xl font-bold text-slate-900">{eventsCount || 40}</span>
-              <span className="text-[9px] uppercase tracking-wider text-slate-400 font-semibold">Events</span>
+              <span className="text-[9px] uppercase tracking-wider text-slate-400 font-semibold">
+                Events
+              </span>
             </div>
           </div>
 
           <div className="grid grid-cols-2 gap-2 text-xs font-semibold mt-4">
             {EVENTS_CAT_DATA.map((c) => (
-              <div key={c.name} className="flex items-center gap-2 bg-slate-50 border border-slate-100 p-2 rounded-xl">
-                <span className="h-2.5 w-2.5 rounded-full flex-none" style={{ backgroundColor: c.color }} />
-                <span className="text-slate-600 truncate">{c.name} ({Math.round((eventsCount || 40) * (c.percent / 100))})</span>
+              <div
+                key={c.name}
+                className="flex items-center gap-2 bg-slate-50 border border-slate-100 p-2 rounded-xl"
+              >
+                <span
+                  className="h-2.5 w-2.5 rounded-full flex-none"
+                  style={{ backgroundColor: c.color }}
+                />
+                <span className="text-slate-600 truncate">
+                  {c.name} ({Math.round((eventsCount || 40) * (c.percent / 100))})
+                </span>
               </div>
             ))}
           </div>
         </div>
-
       </div>
 
       {/* 4. Traffic & Recent Activity Row */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        
         {/* Website Traffic */}
         <div className="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs flex flex-col justify-between">
           <div>
@@ -417,8 +553,11 @@ export function Dashboard() {
             {VISITORS_DATA.map((v) => {
               const heightPercent = `${(v.visitors / 2500) * 100}%`;
               return (
-                <div key={v.day} className="flex-1 flex flex-col items-center gap-1.5 h-full justify-end">
-                  <div 
+                <div
+                  key={v.day}
+                  className="flex-1 flex flex-col items-center gap-1.5 h-full justify-end"
+                >
+                  <div
                     className="w-full bg-[#4040A1] hover:bg-[#4040A1]/95 rounded-t-md transition-all duration-300 relative group"
                     style={{ height: heightPercent }}
                   >
@@ -448,12 +587,17 @@ export function Dashboard() {
             ) : (
               recentActivities.map((act) => (
                 <div key={act.id} className="flex items-start gap-2.5 text-xs">
-                  <span className={`h-2 w-2 rounded-full mt-1.5 shrink-0 ${
-                    act.type === "volunteer" ? "bg-blue-500" :
-                    act.type === "partnership" ? "bg-amber-500" :
-                    act.type === "donation" ? "bg-emerald-500" :
-                    "bg-slate-400"
-                  }`} />
+                  <span
+                    className={`h-2 w-2 rounded-full mt-1.5 shrink-0 ${
+                      act.type === "volunteer"
+                        ? "bg-blue-500"
+                        : act.type === "partnership"
+                          ? "bg-amber-500"
+                          : act.type === "donation"
+                            ? "bg-emerald-500"
+                            : "bg-slate-400"
+                    }`}
+                  />
                   <div>
                     <p className="font-bold text-slate-800 leading-snug">{act.title}</p>
                     <p className="text-slate-500 text-[11px] leading-relaxed">{act.message}</p>
@@ -477,12 +621,14 @@ export function Dashboard() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            
             {/* Volunteer Side */}
             <div className="space-y-3">
               <div className="flex justify-between items-center text-xs font-bold text-slate-400 uppercase">
                 <span>Volunteers</span>
-                <Link to="/admin/volunteers" className="text-primary hover:underline flex items-center gap-0.5">
+                <Link
+                  to="/admin/volunteers"
+                  className="text-primary hover:underline flex items-center gap-0.5"
+                >
                   View all <ArrowUpRight className="h-3 w-3" />
                 </Link>
               </div>
@@ -492,18 +638,25 @@ export function Dashboard() {
                   <div className="text-xs text-slate-400 italic py-4">None</div>
                 ) : (
                   recentVolunteers.slice(0, 3).map((v) => (
-                    <div key={v.id} className="bg-slate-50/75 border border-slate-100 p-2 rounded-xl flex items-center justify-between text-xs font-semibold">
+                    <div
+                      key={v.id}
+                      className="bg-slate-50/75 border border-slate-100 p-2 rounded-xl flex items-center justify-between text-xs font-semibold"
+                    >
                       <div className="min-w-0">
                         <div className="text-slate-800 font-bold truncate">{v.name}</div>
-                        <div className="text-[10px] text-slate-400 truncate mt-0.5">{v.role || "General"}</div>
+                        <div className="text-[10px] text-slate-400 truncate mt-0.5">
+                          {v.role || "General"}
+                        </div>
                       </div>
-                      <span className={`px-1.5 py-0.5 rounded-full text-[8px] font-bold uppercase tracking-wider shrink-0 ${
-                        v.status === "approved" 
-                          ? "bg-emerald-50 text-emerald-600 border border-emerald-100" 
-                          : v.status === "rejected"
-                          ? "bg-rose-50 text-rose-600 border border-rose-100"
-                          : "bg-amber-50 text-amber-600 border border-amber-100"
-                      }`}>
+                      <span
+                        className={`px-1.5 py-0.5 rounded-full text-[8px] font-bold uppercase tracking-wider shrink-0 ${
+                          v.status === "approved"
+                            ? "bg-emerald-50 text-emerald-600 border border-emerald-100"
+                            : v.status === "rejected"
+                              ? "bg-rose-50 text-rose-600 border border-rose-100"
+                              : "bg-amber-50 text-amber-600 border border-amber-100"
+                        }`}
+                      >
                         {v.status || "pending"}
                       </span>
                     </div>
@@ -516,7 +669,10 @@ export function Dashboard() {
             <div className="space-y-3">
               <div className="flex justify-between items-center text-xs font-bold text-slate-400 uppercase">
                 <span>Partnerships</span>
-                <Link to="/admin/partnerships" className="text-primary hover:underline flex items-center gap-0.5">
+                <Link
+                  to="/admin/partnerships"
+                  className="text-primary hover:underline flex items-center gap-0.5"
+                >
                   View all <ArrowUpRight className="h-3 w-3" />
                 </Link>
               </div>
@@ -526,18 +682,25 @@ export function Dashboard() {
                   <div className="text-xs text-slate-400 italic py-4">None</div>
                 ) : (
                   recentPartners.slice(0, 3).map((c) => (
-                    <div key={c.id} className="bg-slate-50/75 border border-slate-100 p-2 rounded-xl flex items-center justify-between text-xs font-semibold">
+                    <div
+                      key={c.id}
+                      className="bg-slate-50/75 border border-slate-100 p-2 rounded-xl flex items-center justify-between text-xs font-semibold"
+                    >
                       <div className="min-w-0">
                         <div className="text-slate-800 font-bold truncate">{c.orgName}</div>
-                        <div className="text-[10px] text-slate-400 truncate mt-0.5">{c.contactName}</div>
+                        <div className="text-[10px] text-slate-400 truncate mt-0.5">
+                          {c.contactName}
+                        </div>
                       </div>
-                      <span className={`px-1.5 py-0.5 rounded-full text-[8px] font-bold uppercase tracking-wider shrink-0 ${
-                        c.status === "approved" 
-                          ? "bg-emerald-50 text-emerald-600 border border-emerald-100" 
-                          : c.status === "rejected"
-                          ? "bg-rose-50 text-rose-600 border border-rose-100"
-                          : "bg-amber-50 text-amber-600 border border-amber-100"
-                      }`}>
+                      <span
+                        className={`px-1.5 py-0.5 rounded-full text-[8px] font-bold uppercase tracking-wider shrink-0 ${
+                          c.status === "approved"
+                            ? "bg-emerald-50 text-emerald-600 border border-emerald-100"
+                            : c.status === "rejected"
+                              ? "bg-rose-50 text-rose-600 border border-rose-100"
+                              : "bg-amber-50 text-amber-600 border border-amber-100"
+                        }`}
+                      >
                         {c.status || "pending"}
                       </span>
                     </div>
@@ -545,13 +708,9 @@ export function Dashboard() {
                 )}
               </div>
             </div>
-
           </div>
-
         </div>
-
       </div>
-
     </div>
   );
 }

@@ -63,7 +63,7 @@ export async function syncEventGallery(eventCategory, newImages, oldImages = [])
     const newUrls = extractImageUrls(newImages);
     const oldUrls = extractImageUrls(oldImages);
 
-    const addedUrls   = newUrls.filter((u) => !oldUrls.includes(u));
+    const addedUrls = newUrls.filter((u) => !oldUrls.includes(u));
     const removedUrls = oldUrls.filter((u) => !newUrls.includes(u));
 
     // ── INSERT new gallery items ────────────────────────────────────────────
@@ -81,7 +81,7 @@ export async function syncEventGallery(eventCategory, newImages, oldImages = [])
         .map((url, idx) => ({
           img: url,
           cat: eventCategory || "Events",
-          h:   heightForIndex(idx),
+          h: heightForIndex(idx),
         }));
 
       if (toInsert.length > 0) {
@@ -96,10 +96,7 @@ export async function syncEventGallery(eventCategory, newImages, oldImages = [])
 
     // ── DELETE removed gallery items ────────────────────────────────────────
     if (removedUrls.length > 0) {
-      const { error } = await supabase
-        .from("gallery")
-        .delete()
-        .in("img", removedUrls);
+      const { error } = await supabase.from("gallery").delete().in("img", removedUrls);
 
       if (error) {
         console.error("[GallerySync] DELETE failed:", error.message);

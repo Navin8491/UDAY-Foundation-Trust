@@ -35,7 +35,7 @@ import {
   markNotificationRead,
   markAllNotificationsRead,
   deleteNotification,
-  NotificationItem
+  NotificationItem,
 } from "@/services/db";
 
 export function AdminLayout() {
@@ -45,7 +45,7 @@ export function AdminLayout() {
   const [lang, setLang] = useState("en");
   const [notifOpen, setNotifOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
-  
+
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -62,7 +62,7 @@ export function AdminLayout() {
       },
       (err) => {
         console.error("Realtime notifications subscription failed in AdminLayout:", err);
-      }
+      },
     );
     return () => unsubscribe();
   }, [user]);
@@ -175,48 +175,60 @@ export function AdminLayout() {
   ];
 
   return (
-    <div className={`min-h-screen font-sans flex text-slate-800 ${dark ? "bg-slate-950 text-slate-100 dark" : "bg-slate-50"}`}>
-      
+    <div
+      className={`min-h-screen font-sans flex text-slate-800 ${dark ? "bg-slate-950 text-slate-100 dark" : "bg-slate-50"}`}
+    >
       {/* BACKGROUND DECORATIONS (Vercel-like Glows) */}
       <div className="absolute top-0 right-1/4 w-96 h-96 bg-[#4040A1]/5 rounded-full blur-[120px] pointer-events-none" />
       <div className="absolute bottom-10 left-10 w-96 h-96 bg-[#7A9D1C]/5 rounded-full blur-[120px] pointer-events-none" />
 
       {/* MOBILE DRAWER BACKDROP */}
       {mobileOpen && (
-        <div 
+        <div
           onClick={() => setMobileOpen(false)}
           className="fixed inset-0 bg-black/40 backdrop-blur-xs z-40 lg:hidden animate-fade-in"
         />
       )}
 
       {/* SIDEBAR CONTAINER */}
-      <aside className={`fixed inset-y-0 left-0 z-40 bg-white border-r border-slate-200/80 shadow-xs flex flex-col justify-between transition-all duration-300 lg:sticky lg:translate-x-0 ${
-        mobileOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"
-      } w-64 lg:${collapsed ? "w-20" : "w-64"}`}>
-        
+      <aside
+        className={`fixed inset-y-0 left-0 z-40 bg-white border-r border-slate-200/80 shadow-xs flex flex-col justify-between transition-all duration-300 lg:sticky lg:translate-x-0 ${
+          mobileOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"
+        } w-64 lg:${collapsed ? "w-20" : "w-64"}`}
+      >
         {/* Sidebar Header */}
         <div className="p-4 border-b border-slate-100 flex items-center justify-between">
           <div className="flex items-center gap-3 min-w-0">
-            <img src={SITE.logo} alt="Uday logo" className="h-10 w-10 rounded-full flex-none shadow-xs" />
+            <img
+              src={SITE.logo}
+              alt="Uday logo"
+              className="h-10 w-10 rounded-full flex-none shadow-xs"
+            />
             {!collapsed && (
               <div className="flex flex-col leading-tight min-w-0">
                 <span className="font-bold text-sm text-primary truncate">Uday Trust</span>
-                <span className="text-[10px] text-slate-400 font-semibold tracking-wider uppercase">Admin Portal</span>
+                <span className="text-[10px] text-slate-400 font-semibold tracking-wider uppercase">
+                  Admin Portal
+                </span>
               </div>
             )}
           </div>
-          
+
           <div className="flex items-center gap-1">
             {/* Collapse toggle (desktop only) */}
-            <button 
+            <button
               onClick={() => setCollapsed(!collapsed)}
               className="hidden lg:flex h-8 w-8 items-center justify-center rounded-lg hover:bg-slate-50 text-slate-400 hover:text-slate-600 cursor-pointer"
               title={collapsed ? "Expand Sidebar" : "Collapse Sidebar"}
             >
-              {collapsed ? <ChevronRight className="h-4 w-4" /> : <ChevronLeft className="h-4 w-4" />}
+              {collapsed ? (
+                <ChevronRight className="h-4 w-4" />
+              ) : (
+                <ChevronLeft className="h-4 w-4" />
+              )}
             </button>
             {/* Close toggle (mobile only) */}
-            <button 
+            <button
               onClick={() => setMobileOpen(false)}
               className="lg:hidden h-8 w-8 flex items-center justify-center rounded-lg hover:bg-slate-50 text-slate-400 cursor-pointer"
             >
@@ -260,10 +272,8 @@ export function AdminLayout() {
 
       {/* RIGHT SIDE MAIN CONTAINER */}
       <div className="flex-1 flex flex-col min-w-0">
-        
         {/* TOP NAVBAR */}
         <header className="sticky top-0 z-30 bg-white/80 backdrop-blur-md border-b border-slate-200/80 shadow-xs h-16 flex items-center px-4 md:px-6 justify-between gap-4">
-          
           {/* Left: Mobile hamburger menu & Page Name indicator */}
           <div className="flex items-center gap-3">
             <button
@@ -275,9 +285,9 @@ export function AdminLayout() {
             </button>
             <div className="hidden sm:flex items-center gap-2 bg-slate-50 border border-slate-200 rounded-xl px-3 py-1.5 w-60">
               <Search className="h-4 w-4 text-slate-400 flex-none" />
-              <input 
-                type="text" 
-                placeholder="Search resources..." 
+              <input
+                type="text"
+                placeholder="Search resources..."
                 className="w-full text-xs font-medium focus:outline-hidden bg-transparent"
               />
             </div>
@@ -285,10 +295,9 @@ export function AdminLayout() {
 
           {/* Right: Actions block */}
           <div className="flex items-center gap-2.5">
-            
             {/* Language indicator */}
             <div className="relative">
-              <button 
+              <button
                 onClick={() => setLang(lang === "en" ? "gu" : "en")}
                 className="h-10 px-3 rounded-xl border border-slate-200 hover:bg-slate-50 flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider cursor-pointer"
                 title="Toggle Interface Language"
@@ -304,7 +313,11 @@ export function AdminLayout() {
               className="h-10 w-10 rounded-xl border border-slate-200 hover:bg-slate-50 flex items-center justify-center cursor-pointer"
               title="Toggle Light/Dark Theme"
             >
-              {dark ? <Sun className="h-4 w-4 text-amber-500" /> : <Moon className="h-4 w-4 text-primary" />}
+              {dark ? (
+                <Sun className="h-4 w-4 text-amber-500" />
+              ) : (
+                <Moon className="h-4 w-4 text-primary" />
+              )}
             </button>
 
             {/* Notifications Box */}
@@ -356,12 +369,17 @@ export function AdminLayout() {
                           >
                             <div className="flex items-start gap-2 justify-between pr-10">
                               <div>
-                                <span className={`text-[10px] font-extrabold uppercase tracking-wider px-1.5 py-0.5 rounded-md ${
-                                  n.type === "volunteer" ? "bg-blue-50 text-blue-600" :
-                                  n.type === "partnership" ? "bg-amber-50 text-amber-600" :
-                                  n.type === "donation" ? "bg-emerald-50 text-emerald-600" :
-                                  "bg-slate-50 text-slate-600"
-                                }`}>
+                                <span
+                                  className={`text-[10px] font-extrabold uppercase tracking-wider px-1.5 py-0.5 rounded-md ${
+                                    n.type === "volunteer"
+                                      ? "bg-blue-50 text-blue-600"
+                                      : n.type === "partnership"
+                                        ? "bg-amber-50 text-amber-600"
+                                        : n.type === "donation"
+                                          ? "bg-emerald-50 text-emerald-600"
+                                          : "bg-slate-50 text-slate-600"
+                                  }`}
+                                >
                                   {n.type}
                                 </span>
                                 <h4 className="font-bold text-slate-800 text-[13px] mt-1 leading-snug">
@@ -427,7 +445,9 @@ export function AdminLayout() {
                 </div>
                 <div className="hidden md:flex flex-col text-left leading-none">
                   <span className="text-xs font-bold">Admin User</span>
-                  <span className="text-[9px] text-slate-400 font-semibold">Super Administrator</span>
+                  <span className="text-[9px] text-slate-400 font-semibold">
+                    Super Administrator
+                  </span>
                 </div>
               </button>
 
@@ -435,20 +455,26 @@ export function AdminLayout() {
                 <>
                   <div className="fixed inset-0 z-40" onClick={() => setProfileOpen(false)} />
                   <div className="absolute right-0 mt-2 w-52 bg-white border border-slate-200 shadow-xl rounded-2xl py-2 z-50 animate-in fade-in slide-in-from-top-1 duration-200">
-                    <button 
-                      onClick={() => { setProfileOpen(false); navigate("/admin/settings"); }}
+                    <button
+                      onClick={() => {
+                        setProfileOpen(false);
+                        navigate("/admin/settings");
+                      }}
                       className="w-full text-left px-4 py-2 hover:bg-slate-50 text-xs font-semibold text-slate-700 flex items-center gap-2 cursor-pointer"
                     >
                       <User className="h-4 w-4" /> Profile Info
                     </button>
-                    <button 
-                      onClick={() => { setProfileOpen(false); navigate("/admin/settings"); }}
+                    <button
+                      onClick={() => {
+                        setProfileOpen(false);
+                        navigate("/admin/settings");
+                      }}
                       className="w-full text-left px-4 py-2 hover:bg-slate-50 text-xs font-semibold text-slate-700 flex items-center gap-2 cursor-pointer"
                     >
                       <Settings className="h-4 w-4" /> Settings
                     </button>
                     <div className="h-px bg-slate-100 my-1" />
-                    <button 
+                    <button
                       onClick={async () => {
                         setProfileOpen(false);
                         try {
@@ -466,7 +492,6 @@ export function AdminLayout() {
                 </>
               )}
             </div>
-
           </div>
         </header>
 
@@ -475,7 +500,6 @@ export function AdminLayout() {
           <Outlet />
         </main>
       </div>
-
     </div>
   );
 }

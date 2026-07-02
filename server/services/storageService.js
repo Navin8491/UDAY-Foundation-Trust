@@ -9,13 +9,13 @@ export const initializeStorage = async () => {
   try {
     const { data: buckets, error } = await supabase.storage.listBuckets();
     if (error) throw error;
-    
-    const exists = buckets.find(b => b.name === "uday-assets");
+
+    const exists = buckets.find((b) => b.name === "uday-assets");
     if (!exists) {
       const { error: createError } = await supabase.storage.createBucket("uday-assets", {
         public: true,
         allowedMimeTypes: ["image/png", "image/jpeg", "image/webp", "image/jpg", "application/pdf"],
-        fileSizeLimit: 10 * 1024 * 1024 // 10MB
+        fileSizeLimit: 10 * 1024 * 1024, // 10MB
       });
       if (createError) throw createError;
       console.log("Supabase storage bucket 'uday-assets' created successfully!");
@@ -51,14 +51,12 @@ const optimizeImage = async (buffer) => {
   if (metadata.width > 1200) {
     image = image.resize(1200, null, {
       fit: "inside",
-      withoutEnlargement: true
+      withoutEnlargement: true,
     });
   }
 
   // Convert to WebP format with quality 80 and high compression efficiency
-  return await image
-    .webp({ quality: 80, effort: 6 })
-    .toBuffer();
+  return await image.webp({ quality: 80, effort: 6 }).toBuffer();
 };
 
 /**
@@ -71,7 +69,8 @@ export const uploadFile = async (file, folder = "general") => {
   const cleanFolder = folder.replace(/^\/+|\/+$/g, "");
   const timestamp = Date.now();
   const fileExt = path.extname(file.originalname).toLowerCase();
-  const originalNameClean = path.basename(file.originalname, fileExt)
+  const originalNameClean = path
+    .basename(file.originalname, fileExt)
     .replace(/[^a-zA-Z0-9]/g, "_")
     .substring(0, 50);
 
@@ -97,7 +96,7 @@ export const uploadFile = async (file, folder = "general") => {
     .from("uday-assets")
     .upload(filePath, uploadBuffer, {
       contentType: mimeType,
-      upsert: true
+      upsert: true,
     });
 
   if (error) {
@@ -105,9 +104,9 @@ export const uploadFile = async (file, folder = "general") => {
   }
 
   // Retrieve public URL
-  const { data: { publicUrl } } = supabase.storage
-    .from("uday-assets")
-    .getPublicUrl(filePath);
+  const {
+    data: { publicUrl },
+  } = supabase.storage.from("uday-assets").getPublicUrl(filePath);
 
   return publicUrl;
 };
@@ -124,9 +123,7 @@ export const deleteFile = async (publicUrl) => {
     return;
   }
 
-  const { error } = await supabase.storage
-    .from("uday-assets")
-    .remove([storagePath]);
+  const { error } = await supabase.storage.from("uday-assets").remove([storagePath]);
 
   if (error) {
     console.error(`Failed to delete file from storage (${storagePath}): ${error.message}`);

@@ -12,7 +12,7 @@ export const authLimiter = rateLimit({
   message: {
     message: "Too many login attempts from this IP, please try again after 15 minutes",
   },
-  statusCode: 429
+  statusCode: 429,
 });
 
 // Spam protection for public forms (contact, volunteers, partnerships, donations)
@@ -24,7 +24,7 @@ export const publicFormLimiter = rateLimit({
   message: {
     message: "Too many submissions from this IP, please try again after an hour",
   },
-  statusCode: 429
+  statusCode: 429,
 });
 
 // General limiter for public read operations
@@ -36,5 +36,5 @@ export const generalLimiter = rateLimit({
   message: {
     message: "Too many requests from this IP, please try again after 15 minutes",
   },
-  statusCode: 429
+  statusCode: 429,
 });

@@ -37,11 +37,9 @@ export const loginAdmin = async (req, res, next) => {
     }
 
     // Generate our backend JWT token
-    const token = jwt.sign(
-      { id: data.user.id, email: data.user.email },
-      process.env.JWT_SECRET,
-      { expiresIn: "30d" }
-    );
+    const token = jwt.sign({ id: data.user.id, email: data.user.email }, process.env.JWT_SECRET, {
+      expiresIn: "30d",
+    });
 
     res.json({
       email: data.user.email,

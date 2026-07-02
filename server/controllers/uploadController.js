@@ -14,10 +14,7 @@ export const uploadFile = async (req, res, next) => {
   const { folder } = req.body;
 
   try {
-    const secureUrl = await uploadStorageFile(
-      req.file,
-      folder || "others"
-    );
+    const secureUrl = await uploadStorageFile(req.file, folder || "others");
 
     res.status(200).json({
       url: secureUrl,
@@ -38,10 +35,7 @@ export const uploadEventImage = async (req, res, next) => {
   }
 
   try {
-    const secureUrl = await uploadStorageFile(
-      req.file,
-      "events"
-    );
+    const secureUrl = await uploadStorageFile(req.file, "events");
 
     res.status(200).json({
       url: secureUrl,
@@ -63,10 +57,7 @@ export const uploadGalleryImage = async (req, res, next) => {
 
   try {
     const category = req.body.category || req.query.category || "Education";
-    const secureUrl = await uploadStorageFile(
-      req.file,
-      "gallery"
-    );
+    const secureUrl = await uploadStorageFile(req.file, "gallery");
 
     // Save ONLY the secure url inside the Supabase database
     const { data: item, error } = await supabase
@@ -105,10 +96,7 @@ export const uploadProgramImage = async (req, res, next) => {
   }
 
   try {
-    const secureUrl = await uploadStorageFile(
-      req.file,
-      "programs"
-    );
+    const secureUrl = await uploadStorageFile(req.file, "programs");
 
     res.status(200).json({
       url: secureUrl,
@@ -129,10 +117,7 @@ export const uploadTeamImage = async (req, res, next) => {
   }
 
   try {
-    const secureUrl = await uploadStorageFile(
-      req.file,
-      "team"
-    );
+    const secureUrl = await uploadStorageFile(req.file, "team");
 
     res.status(200).json({
       url: secureUrl,

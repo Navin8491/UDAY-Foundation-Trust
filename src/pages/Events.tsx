@@ -253,13 +253,22 @@ export function Events() {
     if (!field) return "";
     if (typeof field === "string") return field;
     if (typeof field === "object") {
-      return field[language] || field["en"] || field["gu"] || field["hi"] || (Object.values(field)[0] as string) || "";
+      return (
+        field[language] ||
+        field["en"] ||
+        field["gu"] ||
+        field["hi"] ||
+        (Object.values(field)[0] as string) ||
+        ""
+      );
     }
     return String(field);
   };
 
   /** Normalises an images array — handles both string[] (new events) and GalleryPicture[] (old events) */
-  const normalizeImages = (imgs: any): Array<{ img: string; caption: { en: string; gu: string; hi: string }; category: string }> => {
+  const normalizeImages = (
+    imgs: any,
+  ): Array<{ img: string; caption: { en: string; gu: string; hi: string }; category: string }> => {
     if (!imgs || !Array.isArray(imgs)) return [];
     return imgs
       .map((item: any) => {
@@ -412,12 +421,10 @@ export function Events() {
                   <div>
                     <div className="flex flex-wrap gap-4 text-xs font-bold text-slate-400 uppercase tracking-wider mb-4">
                       <span className="inline-flex items-center gap-1.5">
-                        <Calendar className="h-4 w-4 text-[#4040A1]" />{" "}
-                        {featuredEvent.date}
+                        <Calendar className="h-4 w-4 text-[#4040A1]" /> {featuredEvent.date}
                       </span>
                       <span className="inline-flex items-center gap-1.5">
-                        <MapPin className="h-4 w-4 text-[#7A9D1C]" />{" "}
-                        {getL(featuredEvent.place)}
+                        <MapPin className="h-4 w-4 text-[#7A9D1C]" /> {getL(featuredEvent.place)}
                       </span>
                     </div>
 
@@ -436,12 +443,21 @@ export function Events() {
                           {tLocal.highlightsLabel}
                         </h4>
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                          {(featuredEvent.highlights?.[language] || featuredEvent.highlights?.["en"] || []).slice(0, 6).map((hl: string, idx: number) => (
-                            <div key={idx} className="flex items-center gap-2 text-xs text-slate-600 font-gujarati">
-                              <CheckCircle2 className="h-4 w-4 text-[#7A9D1C] flex-shrink-0" />
-                              <span className="truncate">{hl}</span>
-                            </div>
-                          ))}
+                          {(
+                            featuredEvent.highlights?.[language] ||
+                            featuredEvent.highlights?.["en"] ||
+                            []
+                          )
+                            .slice(0, 6)
+                            .map((hl: string, idx: number) => (
+                              <div
+                                key={idx}
+                                className="flex items-center gap-2 text-xs text-slate-600 font-gujarati"
+                              >
+                                <CheckCircle2 className="h-4 w-4 text-[#7A9D1C] flex-shrink-0" />
+                                <span className="truncate">{hl}</span>
+                              </div>
+                            ))}
                         </div>
                       </div>
                     )}
@@ -612,7 +628,11 @@ export function Events() {
               {/* Events Grid */}
               {filteredEvents.length === 0 ? (
                 <div className="text-center py-12 text-slate-400 font-semibold bg-white border border-border rounded-3xl shadow-xs">
-                  {language === "gu" ? "હાલમાં કોઈ આગામી કાર્યક્રમો આયોજિત નથી." : language === "hi" ? "वर्तमान में कोई आगामी कार्यक्रम निर्धारित नहीं है।" : "No upcoming campaigns scheduled at this time."}
+                  {language === "gu"
+                    ? "હાલમાં કોઈ આગામી કાર્યક્રમો આયોજિત નથી."
+                    : language === "hi"
+                      ? "वर्तमान में कोई आगामी कार्यक्रम निर्धारित नहीं है।"
+                      : "No upcoming campaigns scheduled at this time."}
                 </div>
               ) : (
                 <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
@@ -621,7 +641,7 @@ export function Events() {
                     const desc = evt.desc[language];
                     const place = evt.place[language];
                     const displayDate = evt.displayDate[language];
-      
+
                     return (
                       <article
                         key={evt.id}
@@ -636,7 +656,7 @@ export function Events() {
                               loading="lazy"
                             />
                           </div>
-      
+
                           <div className="p-6">
                             <div className="mb-3">
                               <span className="chip bg-[#4040A1]/10 text-[#4040A1] text-[10px] font-bold py-1 px-2.5 rounded-full uppercase tracking-widest">
@@ -651,22 +671,22 @@ export function Events() {
                                 <Clock className="h-3.5 w-3.5 text-[#4040A1]" /> {evt.time}
                               </span>
                             </div>
-      
+
                             <h3 className="text-lg font-display font-bold text-slate-900 group-hover:text-[#4040A1] transition-colors mb-3 leading-snug">
                               {title}
                             </h3>
-      
+
                             <p className="text-slate-600 text-xs md:text-sm leading-relaxed mb-4">
                               {desc}
                             </p>
-      
+
                             <div className="flex items-start gap-1.5 text-xs text-slate-500 border-t border-slate-50 pt-4 mt-2">
                               <MapPin className="h-4 w-4 text-[#7A9D1C] flex-shrink-0 mt-0.5" />
                               <span className="leading-snug">{place}</span>
                             </div>
                           </div>
                         </div>
-      
+
                         <div className="p-6 border-t border-slate-100 bg-[#F8FAFF] flex items-center justify-between gap-3 mt-auto">
                           <button
                             onClick={() => setIsRegistering(evt.id)}
@@ -674,7 +694,7 @@ export function Events() {
                           >
                             {tLocal.btnRegister}
                           </button>
-      
+
                           <button
                             onClick={() => handleShare(evt.id)}
                             className="text-slate-500 hover:text-[#4040A1] text-[10px] font-bold uppercase tracking-widest inline-flex items-center justify-center p-2.5 bg-white border border-slate-200 rounded-xl cursor-pointer"
@@ -708,7 +728,11 @@ export function Events() {
 
           {PAST_CAMPAIGNS.length === 0 ? (
             <div className="text-center py-12 text-slate-400 font-semibold bg-[#F8FAFF] border border-border rounded-3xl shadow-xs">
-              {language === "gu" ? "હજી સુધી કોઈ ભૂતકાળના કાર્યક્રમો ઉપલબ્ધ નથી." : language === "hi" ? "अभी तक कोई पिछला कार्यक्रम उपलब्ध नहीं है।" : "No past campaigns recorded yet."}
+              {language === "gu"
+                ? "હજી સુધી કોઈ ભૂતકાળના કાર્યક્રમો ઉપલબ્ધ નથી."
+                : language === "hi"
+                  ? "अभी तक कोई पिछला कार्यक्रम उपलब्ध नहीं है।"
+                  : "No past campaigns recorded yet."}
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
@@ -717,7 +741,7 @@ export function Events() {
                 const summary = getL(evt.summary);
                 const place = getL(evt.place);
                 const impact = getL((evt as any).impact);
-  
+
                 return (
                   <article
                     key={evt.id}
@@ -732,7 +756,7 @@ export function Events() {
                           loading="lazy"
                         />
                       </div>
-  
+
                       <div className="p-6">
                         <div className="mb-2.5 flex flex-wrap gap-2">
                           <span className="chip bg-[#7A9D1C]/10 text-[#7A9D1C] text-[10px] font-bold py-1 px-2.5 rounded-full uppercase tracking-widest">
@@ -746,17 +770,17 @@ export function Events() {
                           <span>{evt.date}</span>
                           <span>{place}</span>
                         </div>
-  
+
                         <h3 className="text-lg font-display font-bold text-slate-900 group-hover:text-[#4040A1] transition-colors mb-3 leading-snug">
                           {title}
                         </h3>
-  
+
                         <p className="text-slate-600 text-xs md:text-sm leading-relaxed line-clamp-3">
                           {summary}
                         </p>
                       </div>
                     </div>
-  
+
                     <div className="p-6 border-t border-slate-100 bg-white flex flex-col gap-4 mt-auto">
                       <div className="flex items-center justify-between gap-3">
                         <div>
@@ -913,7 +937,11 @@ export function Events() {
       {/* CALL TO ACTION SECTION */}
       <section className="relative overflow-hidden py-20 md:py-28 bg-[#4040A1] text-white text-center">
         <div className="absolute inset-0 z-0">
-          <img src={pavaDistributionGroup} alt="Support" className="w-full h-full object-cover opacity-15" />
+          <img
+            src={pavaDistributionGroup}
+            alt="Support"
+            className="w-full h-full object-cover opacity-15"
+          />
           <div className="absolute inset-0 bg-gradient-to-t from-[#4040A1] via-[#4040A1]/95 to-transparent" />
         </div>
 
@@ -971,10 +999,7 @@ export function Events() {
             {/* Modal Body (Scrollable Grid) */}
             <div className="p-6 md:p-8 overflow-y-auto grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
               {normalizeImages(activeGalleryEvent.images).map((item, idx) => (
-                <div
-                  key={idx}
-                  className="flex flex-col group"
-                >
+                <div key={idx} className="flex flex-col group">
                   <button
                     onClick={() => setLightboxImg(item.img)}
                     className="relative aspect-[4/3] rounded-2xl overflow-hidden bg-slate-100 border border-slate-100 shadow-xs hover:border-[#4040A1]/40 hover:shadow-md transition-all duration-300 cursor-zoom-in block w-full text-left"
@@ -1155,21 +1180,27 @@ export function Events() {
               {/* Event Metadata Row */}
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 bg-[#F8FAFF] p-4 rounded-2xl border border-slate-100 text-center">
                 <div>
-                  <div className="text-xs font-bold text-slate-400 uppercase tracking-wider">{tLocal.locationLabel}</div>
+                  <div className="text-xs font-bold text-slate-400 uppercase tracking-wider">
+                    {tLocal.locationLabel}
+                  </div>
                   <div className="text-sm font-bold text-slate-800 flex items-center justify-center gap-1 mt-1 font-gujarati">
                     <MapPin className="h-4 w-4 text-[#7A9D1C]" />
                     {getL(selectedDetailedEvent.place)}
                   </div>
                 </div>
                 <div>
-                  <div className="text-xs font-bold text-slate-400 uppercase tracking-wider">{tLocal.participantsLabel}</div>
+                  <div className="text-xs font-bold text-slate-400 uppercase tracking-wider">
+                    {tLocal.participantsLabel}
+                  </div>
                   <div className="text-sm font-bold text-slate-800 flex items-center justify-center gap-1 mt-1">
                     <Users className="h-4 w-4 text-[#4040A1]" />
                     {(selectedDetailedEvent.participants || 0).toLocaleString()}
                   </div>
                 </div>
                 <div>
-                  <div className="text-xs font-bold text-slate-400 uppercase tracking-wider">{tLocal.volunteersLabel}</div>
+                  <div className="text-xs font-bold text-slate-400 uppercase tracking-wider">
+                    {tLocal.volunteersLabel}
+                  </div>
                   <div className="text-sm font-bold text-slate-800 flex items-center justify-center gap-1 mt-1">
                     <UserCheck className="h-4 w-4 text-[#7A9D1C]" />
                     {selectedDetailedEvent.volunteers}
@@ -1182,7 +1213,7 @@ export function Events() {
                 <h4 className="text-lg font-display font-bold text-slate-900 border-b border-slate-100 pb-2">
                   {getL(selectedDetailedEvent.title)}
                 </h4>
-                <div 
+                <div
                   className="text-slate-600 text-sm md:text-base leading-relaxed font-gujarati space-y-3 prose prose-slate max-w-none"
                   dangerouslySetInnerHTML={{ __html: getL(selectedDetailedEvent.summary) }}
                 />
@@ -1197,8 +1228,15 @@ export function Events() {
                       {tLocal.highlightsLabel}
                     </h5>
                     <ul className="space-y-2">
-                      {(selectedDetailedEvent.highlights?.[language] || selectedDetailedEvent.highlights?.["en"] || []).map((hl: string, idx: number) => (
-                        <li key={idx} className="flex items-start gap-2 text-xs text-slate-600 font-gujarati">
+                      {(
+                        selectedDetailedEvent.highlights?.[language] ||
+                        selectedDetailedEvent.highlights?.["en"] ||
+                        []
+                      ).map((hl: string, idx: number) => (
+                        <li
+                          key={idx}
+                          className="flex items-start gap-2 text-xs text-slate-600 font-gujarati"
+                        >
                           <CheckCircle2 className="h-4.5 w-4.5 text-[#7A9D1C] flex-shrink-0 mt-0.5" />
                           <span>{hl}</span>
                         </li>

@@ -6,9 +6,7 @@ import { SCHOOL_BAG_SIMPLE_GALLERY } from "@/constants/schoolEvents";
 import pavaDistributionGroup from "@/assets/pava-distribution-group.jpg";
 import { subscribeGallery } from "@/services/db";
 
-const ITEMS = [
-  ...SCHOOL_BAG_SIMPLE_GALLERY,
-];
+const ITEMS = [...SCHOOL_BAG_SIMPLE_GALLERY];
 
 const CATS = [
   "All",

@@ -78,13 +78,12 @@ export const deleteGalleryItem = async (req, res, next) => {
     }
 
     if (item.img) {
-      await deleteFile(item.img).catch(err => console.error("Failed to delete gallery image from storage:", err));
+      await deleteFile(item.img).catch((err) =>
+        console.error("Failed to delete gallery image from storage:", err),
+      );
     }
 
-    const { error: deleteError } = await supabase
-      .from("gallery")
-      .delete()
-      .eq("id", req.params.id);
+    const { error: deleteError } = await supabase.from("gallery").delete().eq("id", req.params.id);
 
     if (deleteError) throw deleteError;
 

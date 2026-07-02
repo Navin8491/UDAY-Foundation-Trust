@@ -19,12 +19,12 @@ export const EVENTS = {
 };
 
 /**
- * Initializes the queue broker. 
+ * Initializes the queue broker.
  * Checks for REDIS_URL or REDIS_HOST in environment variables.
  */
 export function initializeBroker(processorMap = {}) {
   const redisUrl = process.env.REDIS_URL || process.env.REDIS_HOST;
-  
+
   if (redisUrl) {
     try {
       console.log("🚀 Initializing BullMQ with Redis connection...");
@@ -41,7 +41,7 @@ export function initializeBroker(processorMap = {}) {
         async (job) => {
           const { eventName, data } = job.data;
           console.log(`[Queue Worker] Processing job ${job.id} for event ${eventName}`);
-          
+
           if (processorMap[eventName]) {
             await processorMap[eventName](data);
           } else {
@@ -52,7 +52,7 @@ export function initializeBroker(processorMap = {}) {
             }
           }
         },
-        { connection }
+        { connection },
       );
 
       bullWorker.on("completed", (job) => {
@@ -62,9 +62,11 @@ export function initializeBroker(processorMap = {}) {
       bullWorker.on("failed", (job, err) => {
         console.error(`[Queue Worker] Job ${job?.id} failed:`, err.message);
       });
-
     } catch (err) {
-      console.error("❌ Failed to connect to Redis. Falling back to in-memory Event Broker:", err.message);
+      console.error(
+        "❌ Failed to connect to Redis. Falling back to in-memory Event Broker:",
+        err.message,
+      );
       useRedis = false;
     }
   } else {
@@ -81,7 +83,10 @@ export function initializeBroker(processorMap = {}) {
             try {
               await processorMap[eventName](data);
             } catch (err) {
-              console.error(`[InMemory Event Broker] Handler failed for ${eventName}:`, err.message);
+              console.error(
+                `[InMemory Event Broker] Handler failed for ${eventName}:`,
+                err.message,
+              );
             }
           });
         } catch (err) {
@@ -98,7 +103,9 @@ export function initializeBroker(processorMap = {}) {
  * @param {Object} data - event payload
  */
 export async function publishEvent(eventName, data) {
-  console.log(`📢 Publishing Event: [${eventName}]`, { idempotencyKey: data?.idempotencyKey || data?.id });
+  console.log(`📢 Publishing Event: [${eventName}]`, {
+    idempotencyKey: data?.idempotencyKey || data?.id,
+  });
 
   if (useRedis && bullQueue) {
     await bullQueue.add(
@@ -111,7 +118,7 @@ export async function publishEvent(eventName, data) {
           delay: 2000, // Wait 2s, 4s, 8s...
         },
         removeOnComplete: true,
-      }
+      },
     );
   } else {
     eventEmitter.emit(eventName, data);
@@ -120,8 +127,8 @@ export async function publishEvent(eventName, data) {
 
 /**
  * Registers an event handler (useful for non-queue event notifications in memory)
- * @param {string} eventName 
- * @param {Function} handler 
+ * @param {string} eventName
+ * @param {Function} handler
  */
 export function registerHandler(eventName, handler) {
   eventEmitter.on(eventName, handler);

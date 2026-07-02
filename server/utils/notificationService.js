@@ -25,7 +25,10 @@ export async function createNotification(type, title, message, relatedRecordId =
       .single();
 
     if (error) {
-      console.error("[NotificationService] Failed to insert notification in Supabase:", error.message);
+      console.error(
+        "[NotificationService] Failed to insert notification in Supabase:",
+        error.message,
+      );
       return null;
     }
 

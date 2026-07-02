@@ -4,7 +4,6 @@ import { SiteFooter } from "@/components/site/SiteFooter";
 import { FloatingActions } from "@/components/site/FloatingActions";
 import { LanguageProvider } from "@/context/LanguageContext";
 
-
 export function RootLayout() {
   return (
     <LanguageProvider>
@@ -14,7 +13,6 @@ export function RootLayout() {
       </main>
       <SiteFooter />
       <FloatingActions />
-
     </LanguageProvider>
   );
 }

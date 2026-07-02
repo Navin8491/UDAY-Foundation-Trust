@@ -16,11 +16,9 @@ import { createClient } from "@supabase/supabase-js";
 import dotenv from "dotenv";
 dotenv.config();
 
-const supabase = createClient(
-  process.env.SUPABASE_URL,
-  process.env.SUPABASE_SERVICE_ROLE_KEY,
-  { auth: { persistSession: false } }
-);
+const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SERVICE_ROLE_KEY, {
+  auth: { persistSession: false },
+});
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -72,14 +70,14 @@ async function main() {
   const existingUrls = new Set((existingGallery || []).map((g) => g.img));
   console.log(`Gallery currently has ${existingUrls.size} item(s).\n`);
 
-  let totalAdded    = 0;
-  let totalSkipped  = 0;
-  let totalEvents   = 0;
+  let totalAdded = 0;
+  let totalSkipped = 0;
+  let totalEvents = 0;
 
   // 3. Process each event
   for (const event of events) {
-    const title    = event.title?.en || event.title || event.id;
-    const urls     = extractImageUrls(event.images || []);
+    const title = event.title?.en || event.title || event.id;
+    const urls = extractImageUrls(event.images || []);
 
     if (urls.length === 0) {
       console.log(`  — "${title}": No images, skipping.`);
@@ -98,16 +96,14 @@ async function main() {
         toInsert.push({
           img: url,
           cat: event.category || "Events",
-          h:   heightForIndex(idx),
+          h: heightForIndex(idx),
         });
         existingUrls.add(url); // prevent double-insert within this run
       }
     });
 
     if (toInsert.length > 0) {
-      const { error: insertErr } = await supabase
-        .from("gallery")
-        .insert(toInsert);
+      const { error: insertErr } = await supabase.from("gallery").insert(toInsert);
 
       if (insertErr) {
         console.error(`    ❌ Insert failed: ${insertErr.message}`);

@@ -9,26 +9,62 @@ import {
   uploadProgramImage,
   uploadTeamImage,
 } from "../controllers/uploadController.js";
-import { getEvents, createEvent, updateEvent, deleteEvent } from "../controllers/eventController.js";
-import { getGallery, createGalleryItem, updateGalleryItem, deleteGalleryItem } from "../controllers/galleryController.js";
-import { getPrograms, createProgram, updateProgram, deleteProgram } from "../controllers/programController.js";
-import { getTeam, createTeamMember, updateTeamMember, deleteTeamMember } from "../controllers/teamController.js";
 import {
-  getCertificates, createCertificate, deleteCertificate,
-  getTransparencyDocuments, createTransparencyDocument, deleteTransparencyDocument
+  getEvents,
+  createEvent,
+  updateEvent,
+  deleteEvent,
+} from "../controllers/eventController.js";
+import {
+  getGallery,
+  createGalleryItem,
+  updateGalleryItem,
+  deleteGalleryItem,
+} from "../controllers/galleryController.js";
+import {
+  getPrograms,
+  createProgram,
+  updateProgram,
+  deleteProgram,
+} from "../controllers/programController.js";
+import {
+  getTeam,
+  createTeamMember,
+  updateTeamMember,
+  deleteTeamMember,
+} from "../controllers/teamController.js";
+import {
+  getCertificates,
+  createCertificate,
+  deleteCertificate,
+  getTransparencyDocuments,
+  createTransparencyDocument,
+  deleteTransparencyDocument,
 } from "../controllers/docController.js";
 import {
-  getVolunteers, createVolunteer, updateVolunteerStatus, deleteVolunteer, addVolunteerNote,
-  getPartnerships, createPartnership, updatePartnershipStatus, deletePartnership, addPartnershipNote,
-  getContactMessages, createContactMessage, deleteContactMessage, updateContactMessageStatus,
-  getDonations, createDonation
+  getVolunteers,
+  createVolunteer,
+  updateVolunteerStatus,
+  deleteVolunteer,
+  addVolunteerNote,
+  getPartnerships,
+  createPartnership,
+  updatePartnershipStatus,
+  deletePartnership,
+  addPartnershipNote,
+  getContactMessages,
+  createContactMessage,
+  deleteContactMessage,
+  updateContactMessageStatus,
+  getDonations,
+  createDonation,
 } from "../controllers/formController.js";
 import { getSettings, updateSettings } from "../controllers/settingsController.js";
 import {
   getNotifications,
   markNotificationRead,
   markAllNotificationsRead,
-  deleteNotification
+  deleteNotification,
 } from "../controllers/notificationController.js";
 import {
   createCheckoutSession,
@@ -38,7 +74,7 @@ import {
   getPaymentTimeline,
   getPaymentStatus,
   getPaymentEvents,
-  verifyRazorpayPaymentSignature
+  verifyRazorpayPaymentSignature,
 } from "../controllers/paymentController.js";
 
 // Import Security Middleware (Rate Limiters & Validators)
@@ -49,7 +85,7 @@ import {
   volunteerSchema,
   donationSchema,
   partnershipSchema,
-  contactSchema
+  contactSchema,
 } from "../middleware/validation.js";
 
 const router = express.Router();

@@ -31,15 +31,18 @@ export async function transitionToState(eventId, targetState, errorMsg = null) {
     .single();
 
   if (error) {
-    console.error(`[SagaEngine] Failed to transition event ${eventId} to ${targetState}:`, error.message);
+    console.error(
+      `[SagaEngine] Failed to transition event ${eventId} to ${targetState}:`,
+      error.message,
+    );
     throw error;
   }
 
   console.log(`🔄 [Saga State Transition] Event ${eventId}: -> ${targetState}`);
-  
+
   // Notify admin clients of real-time state change
   triggerUpdate("payment_events");
-  
+
   return data;
 }
 
@@ -85,7 +88,7 @@ async function saveDonationRecord(event) {
  */
 async function sendPdfReceiptEmail(event, donation) {
   const pdfBuffer = await generateReceiptPdf(donation);
-  
+
   const formattedAmount = Number(event.amount).toLocaleString("en-IN");
   const dateStr = new Date().toLocaleDateString("en-IN", {
     day: "numeric",
@@ -171,7 +174,7 @@ async function sendRefundEmail(event, refundId) {
  */
 export async function runSaga(eventId) {
   console.log(`[SagaEngine] Starting Saga Coordinator for transaction event: ${eventId}`);
-  
+
   // Fetch event record
   const { data: event, error: fetchError } = await supabase
     .from("payment_events")
@@ -203,8 +206,14 @@ export async function runSaga(eventId) {
         await transitionToState(eventId, currentState);
         await publishEvent(EVENTS.DONATION_CREATED, { event, donation });
       } catch (dbErr) {
-        console.error("[SagaEngine] Downstream Save Donation failed. Triggering SAGA COMPENSATION (Refund)...");
-        await transitionToState(eventId, "REFUND_INITIATED", `Save donation database error: ${dbErr.message}`);
+        console.error(
+          "[SagaEngine] Downstream Save Donation failed. Triggering SAGA COMPENSATION (Refund)...",
+        );
+        await transitionToState(
+          eventId,
+          "REFUND_INITIATED",
+          `Save donation database error: ${dbErr.message}`,
+        );
         await runCompensation(eventId);
         return;
       }
@@ -226,10 +235,17 @@ export async function runSaga(eventId) {
         await transitionToState(eventId, currentState);
         await publishEvent(EVENTS.EMAIL_SENT, event);
       } catch (emailErr) {
-        console.error("[SagaEngine] Email delivery failed, will retry during crash recovery scan:", emailErr.message);
+        console.error(
+          "[SagaEngine] Email delivery failed, will retry during crash recovery scan:",
+          emailErr.message,
+        );
         // Note: Do NOT rollback donation or refund if payment succeeded and donation saved.
         // Simply log the error and allow crash recovery scheduler to retry email transmission.
-        await transitionToState(eventId, "DONATION_SAVED", `Email transmission failed: ${emailErr.message}`);
+        await transitionToState(
+          eventId,
+          "DONATION_SAVED",
+          `Email transmission failed: ${emailErr.message}`,
+        );
         throw emailErr;
       }
     }
@@ -242,14 +258,21 @@ export async function runSaga(eventId) {
           "donation",
           "New Donation Received",
           `₹${Number(event.amount).toLocaleString("en-IN")} donated by ${event.donor_name} (80G Tax Receipt: ${currentDonation.receiptNumber}).`,
-          currentDonation.id
+          currentDonation.id,
         );
         currentState = "ADMIN_NOTIFIED";
         await transitionToState(eventId, currentState);
         await publishEvent(EVENTS.NOTIFICATION_SENT, event);
       } catch (notifErr) {
-        console.error("[SagaEngine] Admin notification creation failed, will retry:", notifErr.message);
-        await transitionToState(eventId, "EMAIL_SENT", `Notification creation failed: ${notifErr.message}`);
+        console.error(
+          "[SagaEngine] Admin notification creation failed, will retry:",
+          notifErr.message,
+        );
+        await transitionToState(
+          eventId,
+          "EMAIL_SENT",
+          `Notification creation failed: ${notifErr.message}`,
+        );
         throw notifErr;
       }
     }
@@ -259,7 +282,6 @@ export async function runSaga(eventId) {
       await transitionToState(eventId, "COMPLETED");
       console.log(`✅ [SagaEngine] Transaction Saga Completed successfully for event: ${eventId}`);
     }
-
   } catch (err) {
     console.error(`[SagaEngine] Saga run failed for event ${eventId}:`, err.message);
   }
@@ -272,7 +294,7 @@ export async function runSaga(eventId) {
  */
 export async function runCompensation(eventId) {
   console.log(`⚠️ [SagaEngine] Initiating automated refund compensation for event: ${eventId}`);
-  
+
   const { data: event, error: fetchErr } = await supabase
     .from("payment_events")
     .select("*")
@@ -293,7 +315,9 @@ export async function runCompensation(eventId) {
   const txId = event.gateway_transaction_id;
 
   if (!txId) {
-    console.error(`[SagaEngine] Cannot refund event ${eventId}: gateway_transaction_id is missing.`);
+    console.error(
+      `[SagaEngine] Cannot refund event ${eventId}: gateway_transaction_id is missing.`,
+    );
     await transitionToState(eventId, "FAILED", "Refund skipped: transaction ID missing.");
     return;
   }
@@ -313,11 +337,16 @@ export async function runCompensation(eventId) {
         })
         .eq("id", eventId);
 
-      console.log(`✅ [SagaEngine] Automated Refund completed successfully: Refund ID ${refundResult.refundId}`);
+      console.log(
+        `✅ [SagaEngine] Automated Refund completed successfully: Refund ID ${refundResult.refundId}`,
+      );
 
       // 2. Notify Donor
-      await sendRefundEmail(event, refundResult.refundId).catch((mailErr) => 
-        console.error("[SagaEngine] Failed to email refund notification to donor:", mailErr.message)
+      await sendRefundEmail(event, refundResult.refundId).catch((mailErr) =>
+        console.error(
+          "[SagaEngine] Failed to email refund notification to donor:",
+          mailErr.message,
+        ),
       );
 
       // 3. Notify Admin
@@ -325,9 +354,9 @@ export async function runCompensation(eventId) {
         "donation",
         "Automated Donation Refund Issued",
         `Refund of ₹${Number(event.amount).toLocaleString("en-IN")} issued for ${event.donor_name}. Cause: Downstream database save error. Refund ID: ${refundResult.refundId}.`,
-        eventId
+        eventId,
       ).catch((notifErr) =>
-        console.error("[SagaEngine] Failed to create admin refund notification:", notifErr.message)
+        console.error("[SagaEngine] Failed to create admin refund notification:", notifErr.message),
       );
 
       await publishEvent(EVENTS.REFUND_CREATED, event);
@@ -336,17 +365,20 @@ export async function runCompensation(eventId) {
       throw new Error("Gateway refund returned success=false");
     }
   } catch (refundErr) {
-    console.error(`❌ [SagaEngine] Automated refund failed for transaction ${txId}:`, refundErr.message);
+    console.error(
+      `❌ [SagaEngine] Automated refund failed for transaction ${txId}:`,
+      refundErr.message,
+    );
     await transitionToState(eventId, "FAILED", `Automatic refund failed: ${refundErr.message}`);
-    
+
     // Critical Alert Notification for Admin
     await createNotification(
       "donation",
       "CRITICAL: Automated Refund Failed!",
       `Refund of ₹${Number(event.amount).toLocaleString("en-IN")} failed for ${event.donor_name} (Tx: ${txId}). Manual intervention required immediately. Error: ${refundErr.message}`,
-      eventId
+      eventId,
     ).catch((notifErr) =>
-      console.error("[SagaEngine] Failed to create admin critical refund alert:", notifErr.message)
+      console.error("[SagaEngine] Failed to create admin critical refund alert:", notifErr.message),
     );
   }
 }

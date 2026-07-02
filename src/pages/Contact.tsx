@@ -112,7 +112,7 @@ export function Contact() {
                   {t("contact.form.sent")}
                 </div>
               ) : (
-                 <form
+                <form
                   onSubmit={async (e) => {
                     e.preventDefault();
                     setLoading(true);

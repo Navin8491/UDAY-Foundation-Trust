@@ -21,7 +21,7 @@ export const getSettings = async (req, res, next) => {
         .insert([{ key: "site" }])
         .select()
         .single();
-      
+
       if (createError) throw createError;
       settings = created;
     }

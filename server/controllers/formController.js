@@ -114,20 +114,17 @@ export const createVolunteer = async (req, res, next) => {
       resumeUrl: resumeUrl || "",
     };
 
-    let result = await supabase
-      .from("volunteers")
-      .insert([fullPayload])
-      .select()
-      .single();
+    let result = await supabase.from("volunteers").insert([fullPayload]).select().single();
 
     // Fallback if the Supabase database schema lacks the new columns
-    if (result.error && (result.error.message.includes("column") || result.error.code === "PGRST204")) {
-      console.warn("[Backend Fallback] Database columns not found. Saving details inside message JSON string...");
-      result = await supabase
-        .from("volunteers")
-        .insert([basePayload])
-        .select()
-        .single();
+    if (
+      result.error &&
+      (result.error.message.includes("column") || result.error.code === "PGRST204")
+    ) {
+      console.warn(
+        "[Backend Fallback] Database columns not found. Saving details inside message JSON string...",
+      );
+      result = await supabase.from("volunteers").insert([basePayload]).select().single();
     }
 
     if (result.error) throw result.error;
@@ -135,7 +132,7 @@ export const createVolunteer = async (req, res, next) => {
 
     // Send acknowledgement email to user
     sendVolunteerReceived(email, name).catch((err) =>
-      console.error("[EmailService] Failed to send volunteer confirmation:", err.message)
+      console.error("[EmailService] Failed to send volunteer confirmation:", err.message),
     );
 
     // Send admin notification
@@ -145,16 +142,14 @@ export const createVolunteer = async (req, res, next) => {
       City: city || "Gujarat",
       Role: role,
       "Applied At": new Date().toLocaleString(),
-    }).catch((err) =>
-      console.error("[EmailService] Failed to send admin alert:", err.message)
-    );
+    }).catch((err) => console.error("[EmailService] Failed to send admin alert:", err.message));
 
     // Create admin notification
     createNotification(
       "volunteer",
       "New Volunteer Application",
       `${name} has applied to become a volunteer.`,
-      data.id
+      data.id,
     );
 
     triggerUpdate("volunteers");
@@ -182,17 +177,21 @@ export const updateVolunteerStatus = async (req, res, next) => {
     }
 
     const parsedMsg = parseExtendedMessage(current.message);
-    
+
     // Ensure notes and timeline arrays exist
     if (!parsedMsg.notes) parsedMsg.notes = [];
     if (!parsedMsg.timeline) parsedMsg.timeline = [];
 
     // Append to timeline
     parsedMsg.timeline.push({
-      action: status === "approved" ? "Approved" : status === "rejected" ? "Rejected" : "Marked Pending",
+      action:
+        status === "approved" ? "Approved" : status === "rejected" ? "Rejected" : "Marked Pending",
       admin: adminEmail,
       date: new Date().toISOString(),
-      notes: status === "rejected" && reason ? `Rejection reason: ${reason}` : `Status updated to ${status}.`,
+      notes:
+        status === "rejected" && reason
+          ? `Rejection reason: ${reason}`
+          : `Status updated to ${status}.`,
     });
 
     const { data, error } = await supabase
@@ -213,11 +212,11 @@ export const updateVolunteerStatus = async (req, res, next) => {
     // Send email notification based on status
     if (status === "approved") {
       sendVolunteerApproved(current.email, current.name).catch((err) =>
-        console.error("[EmailService] Approved status email failed:", err.message)
+        console.error("[EmailService] Approved status email failed:", err.message),
       );
     } else if (status === "rejected") {
       sendVolunteerRejected(current.email, current.name, reason).catch((err) =>
-        console.error("[EmailService] Rejected status email failed:", err.message)
+        console.error("[EmailService] Rejected status email failed:", err.message),
       );
     }
 
@@ -290,10 +289,7 @@ export const addVolunteerNote = async (req, res, next) => {
 
 export const deleteVolunteer = async (req, res, next) => {
   try {
-    const { error } = await supabase
-      .from("volunteers")
-      .delete()
-      .eq("id", req.params.id);
+    const { error } = await supabase.from("volunteers").delete().eq("id", req.params.id);
 
     if (error) {
       res.status(404);
@@ -362,17 +358,13 @@ export const createPartnership = async (req, res, next) => {
       status: "pending",
     };
 
-    const { data, error } = await supabase
-      .from("partnerships")
-      .insert([payload])
-      .select()
-      .single();
+    const { data, error } = await supabase.from("partnerships").insert([payload]).select().single();
 
     if (error) throw error;
 
     // Send confirmation email to client
     sendPartnershipReceived(email, contactPerson, organization).catch((err) =>
-      console.error("[EmailService] Failed to send partnership confirmation:", err.message)
+      console.error("[EmailService] Failed to send partnership confirmation:", err.message),
     );
 
     // Send admin notification
@@ -382,16 +374,14 @@ export const createPartnership = async (req, res, next) => {
       Phone: phone,
       Type: type,
       "Applied At": new Date().toLocaleString(),
-    }).catch((err) =>
-      console.error("[EmailService] Failed to send admin alert:", err.message)
-    );
+    }).catch((err) => console.error("[EmailService] Failed to send admin alert:", err.message));
 
     // Create admin notification
     createNotification(
       "partnership",
       "New Partnership Request",
       `${organization} submitted a partnership request.`,
-      data.id
+      data.id,
     );
 
     triggerUpdate("partnership_requests");
@@ -422,10 +412,14 @@ export const updatePartnershipStatus = async (req, res, next) => {
     if (!parsedMsg.timeline) parsedMsg.timeline = [];
 
     parsedMsg.timeline.push({
-      action: status === "approved" ? "Approved" : status === "rejected" ? "Rejected" : "Marked Pending",
+      action:
+        status === "approved" ? "Approved" : status === "rejected" ? "Rejected" : "Marked Pending",
       admin: adminEmail,
       date: new Date().toISOString(),
-      notes: status === "rejected" && reason ? `Rejection reason: ${reason}` : `Status updated to ${status}.`,
+      notes:
+        status === "rejected" && reason
+          ? `Rejection reason: ${reason}`
+          : `Status updated to ${status}.`,
     });
 
     const { data, error } = await supabase
@@ -446,11 +440,11 @@ export const updatePartnershipStatus = async (req, res, next) => {
     // Send email notification based on status
     if (status === "approved") {
       sendPartnershipApproved(current.email, current.contactName, current.orgName).catch((err) =>
-        console.error("[EmailService] Approved status email failed:", err.message)
+        console.error("[EmailService] Approved status email failed:", err.message),
       );
     } else if (status === "rejected") {
-      sendPartnershipRejected(current.email, current.contactName, current.orgName, reason).catch((err) =>
-        console.error("[EmailService] Rejected status email failed:", err.message)
+      sendPartnershipRejected(current.email, current.contactName, current.orgName, reason).catch(
+        (err) => console.error("[EmailService] Rejected status email failed:", err.message),
       );
     }
 
@@ -521,10 +515,7 @@ export const addPartnershipNote = async (req, res, next) => {
 
 export const deletePartnership = async (req, res, next) => {
   try {
-    const { error } = await supabase
-      .from("partnerships")
-      .delete()
-      .eq("id", req.params.id);
+    const { error } = await supabase.from("partnerships").delete().eq("id", req.params.id);
 
     if (error) {
       res.status(404);
@@ -567,7 +558,7 @@ export const createContactMessage = async (req, res, next) => {
       "contact",
       "New Contact Message",
       `New inquiry: "${req.body.subject}" from ${req.body.name}.`,
-      data.id
+      data.id,
     );
 
     triggerUpdate("contact_messages");
@@ -579,10 +570,7 @@ export const createContactMessage = async (req, res, next) => {
 
 export const deleteContactMessage = async (req, res, next) => {
   try {
-    const { error } = await supabase
-      .from("contact_messages")
-      .delete()
-      .eq("id", req.params.id);
+    const { error } = await supabase.from("contact_messages").delete().eq("id", req.params.id);
 
     if (error) {
       res.status(404);
@@ -632,17 +620,13 @@ export const getDonations = async (req, res, next) => {
 
 export const createDonation = async (req, res, next) => {
   try {
-    const { data, error } = await supabase
-      .from("donations")
-      .insert([req.body])
-      .select()
-      .single();
+    const { data, error } = await supabase.from("donations").insert([req.body]).select().single();
 
     if (error) throw error;
 
     // Send thank you confirmation email to donor
     sendDonationReceived(data.email, data.donorName, data.amount, data.id).catch((err) =>
-      console.error("[EmailService] Failed to send donation confirmation email:", err.message)
+      console.error("[EmailService] Failed to send donation confirmation email:", err.message),
     );
 
     // Create admin notification
@@ -650,7 +634,7 @@ export const createDonation = async (req, res, next) => {
       "donation",
       "New Donation Received",
       `₹${Number(data.amount).toLocaleString("en-IN")} donated by ${data.donorName}.`,
-      data.id
+      data.id,
     );
 
     triggerUpdate("donations");

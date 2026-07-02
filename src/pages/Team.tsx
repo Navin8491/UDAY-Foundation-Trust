@@ -151,8 +151,6 @@ const TRANSLATIONS_LOCAL = {
   },
 };
 
-
-
 const PALETTES = [
   "from-[#4040A1]/15 to-[#F7E81D]/10",
   "from-[#7A9D1C]/15 to-[#4040A1]/10",
@@ -204,10 +202,10 @@ export function Team() {
   const vicePresident = membersList.find((m) => m.id === "sanjaykumar");
   const secretaries = membersList.filter((m) => m.id === "prakash" || m.id === "kartikeya");
   const permanentMembers = membersList.filter(
-    (m) => m.id === "rahulkumar" || m.id === "mehulbhai" || m.id === "kuldeep"
+    (m) => m.id === "rahulkumar" || m.id === "mehulbhai" || m.id === "kuldeep",
   );
 
-  const renderMemberCard = (member: typeof MEMBERS_DATA[0], index: number) => {
+  const renderMemberCard = (member: (typeof MEMBERS_DATA)[0], index: number) => {
     const name = member.name[language] || member.name["en"];
     const role = member.role[language] || member.role["en"];
     const bio = member.bio[language] || member.bio["en"];
@@ -255,9 +253,7 @@ export function Team() {
             <p className="text-slate-500 text-xs font-semibold uppercase tracking-wider mb-3">
               {role}
             </p>
-            <p className="text-slate-600 text-xs md:text-sm leading-relaxed font-gujarati">
-              {bio}
-            </p>
+            <p className="text-slate-600 text-xs md:text-sm leading-relaxed font-gujarati">{bio}</p>
           </div>
         </div>
 

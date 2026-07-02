@@ -65,9 +65,21 @@ export function Transparency() {
   const cards = [
     { title: "PAN Card Number", val: data.pan, desc: "Permanent Account Number for Uday Trust" },
     { title: "NGO DARPAN ID", val: data.darpan, desc: "NITI Aayog national registration ID" },
-    { title: "Trust Registration Number", val: data.regNo, desc: "Gujarat Charity Commissioner Office Certificate" },
-    { title: "12A Registration Number", val: data.twelveA, desc: "Income tax exemption status code" },
-    { title: "80G Certificate Code", val: data.eightyG, desc: "Tax exemption eligibility code for donors" },
+    {
+      title: "Trust Registration Number",
+      val: data.regNo,
+      desc: "Gujarat Charity Commissioner Office Certificate",
+    },
+    {
+      title: "12A Registration Number",
+      val: data.twelveA,
+      desc: "Income tax exemption status code",
+    },
+    {
+      title: "80G Certificate Code",
+      val: data.eightyG,
+      desc: "Tax exemption eligibility code for donors",
+    },
   ];
 
   if (fetching) {
@@ -88,15 +100,19 @@ export function Transparency() {
 
   return (
     <div className="space-y-6">
-      
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl md:text-3xl font-display font-bold">Transparency Management</h1>
-          <p className="text-sm text-slate-500 font-medium font-gujarati">સરકારી રજીસ્ટ્રેશન અને નાણાકીય પારદર્શકતા માહિતી</p>
+          <p className="text-sm text-slate-500 font-medium font-gujarati">
+            સરકારી રજીસ્ટ્રેશન અને નાણાકીય પારદર્શકતા માહિતી
+          </p>
         </div>
         <button
-          onClick={() => { setForm({ ...data }); setEditing(!editing); }}
+          onClick={() => {
+            setForm({ ...data });
+            setEditing(!editing);
+          }}
           className="btn-primary text-xs py-2.5 px-4 cursor-pointer self-start sm:self-center"
         >
           {editing ? "Cancel Edit" : "Edit Registry Data"}
@@ -104,7 +120,6 @@ export function Transparency() {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
-        
         {/* Registration Cards (Left side, takes 2 cols) */}
         <div className="lg:col-span-2 grid grid-cols-1 sm:grid-cols-2 gap-4">
           {cards.map((c) => (
@@ -113,10 +128,16 @@ export function Transparency() {
               className="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs flex flex-col justify-between"
             >
               <div>
-                <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider block">{c.title}</span>
-                <span className="text-base font-mono font-bold text-slate-900 mt-2 block select-all">{c.val}</span>
+                <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider block">
+                  {c.title}
+                </span>
+                <span className="text-base font-mono font-bold text-slate-900 mt-2 block select-all">
+                  {c.val}
+                </span>
               </div>
-              <p className="text-[10px] text-slate-400 font-semibold block mt-4 border-t border-slate-50 pt-2">{c.desc}</p>
+              <p className="text-[10px] text-slate-400 font-semibold block mt-4 border-t border-slate-50 pt-2">
+                {c.desc}
+              </p>
             </div>
           ))}
         </div>
@@ -125,9 +146,11 @@ export function Transparency() {
         <div className="bg-white rounded-3xl border border-slate-200/80 shadow-xs p-6 space-y-4">
           <div>
             <h3 className="font-bold text-base text-slate-800">Compliance Registry Form</h3>
-            <p className="text-[10px] text-slate-400 font-bold block mt-0.5">UPDATE government verification records</p>
+            <p className="text-[10px] text-slate-400 font-bold block mt-0.5">
+              UPDATE government verification records
+            </p>
           </div>
-          
+
           <form onSubmit={handleSave} className="space-y-4 text-xs font-semibold">
             <div className="space-y-1">
               <label className="text-slate-500 uppercase tracking-wider">PAN Number</label>
@@ -139,7 +162,7 @@ export function Transparency() {
                 className="w-full h-10 px-3 rounded-xl border border-slate-200 bg-slate-50 disabled:opacity-60 text-sm font-mono font-medium focus:outline-none"
               />
             </div>
-            
+
             <div className="space-y-1">
               <label className="text-slate-500 uppercase tracking-wider">NGO DARPAN ID</label>
               <input
@@ -195,9 +218,7 @@ export function Transparency() {
             )}
           </form>
         </div>
-
       </div>
-
     </div>
   );
 }

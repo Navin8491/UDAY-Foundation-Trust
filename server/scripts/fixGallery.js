@@ -23,11 +23,9 @@ const ASSETS_DIR = path.resolve(__dirname, "../../src/assets");
 const SUPABASE_PROJECT_URL = process.env.SUPABASE_URL;
 const PUBLIC_BASE = `${SUPABASE_PROJECT_URL}/storage/v1/object/public/uday-assets`;
 
-const supabase = createClient(
-  SUPABASE_PROJECT_URL,
-  process.env.SUPABASE_SERVICE_ROLE_KEY,
-  { auth: { persistSession: false } }
-);
+const supabase = createClient(SUPABASE_PROJECT_URL, process.env.SUPABASE_SERVICE_ROLE_KEY, {
+  auth: { persistSession: false },
+});
 
 /** Upload a local file to Supabase Storage and return its public URL */
 async function uploadLocal(localFilePath, storagePath) {
@@ -61,13 +59,13 @@ async function tryFixImgUrl(imgVal) {
     }
 
     const storagePath = `events/${filename}`;
-    
+
     // Check if already in storage
     const { data: existing } = await supabase.storage
       .from("uday-assets")
       .list("events", { search: filename });
 
-    if (existing && existing.some(f => f.name === filename)) {
+    if (existing && existing.some((f) => f.name === filename)) {
       return `${PUBLIC_BASE}/${storagePath}`;
     }
 
@@ -87,7 +85,10 @@ async function main() {
     .select("*")
     .order("created_at", { ascending: false });
 
-  if (error) { console.error("Failed to fetch gallery:", error.message); process.exit(1); }
+  if (error) {
+    console.error("Failed to fetch gallery:", error.message);
+    process.exit(1);
+  }
 
   console.log(`Total gallery items: ${items.length}\n`);
 
@@ -131,10 +132,7 @@ async function main() {
       }
     } else {
       // Cannot fix → delete the orphan record
-      const { error: deleteErr } = await supabase
-        .from("gallery")
-        .delete()
-        .eq("id", id);
+      const { error: deleteErr } = await supabase.from("gallery").delete().eq("id", id);
 
       if (deleteErr) {
         console.log(`   ❌ Delete failed: ${deleteErr.message}`);
@@ -156,7 +154,7 @@ async function main() {
   console.log(`Total processed:         ${items.length}`);
 }
 
-main().catch(err => {
+main().catch((err) => {
   console.error("❌ Script failed:", err.message);
   process.exit(1);
 });

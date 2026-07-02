@@ -37,7 +37,7 @@ export const createEvent = async (req, res, next) => {
     // Auto-sync event images → gallery (fire-and-forget, non-blocking)
     if (event.images && Array.isArray(event.images)) {
       syncEventGallery(event.category, event.images, []).catch((err) =>
-        console.error("[GallerySync] Create sync error:", err.message)
+        console.error("[GallerySync] Create sync error:", err.message),
       );
     }
 
@@ -46,7 +46,7 @@ export const createEvent = async (req, res, next) => {
       "event",
       "New Event Created",
       `Event "${event.title?.en || req.body.title?.en || "Untitled Event"}" has been created.`,
-      event.id
+      event.id,
     );
 
     triggerUpdate("events");
@@ -83,12 +83,8 @@ export const updateEvent = async (req, res, next) => {
     // Sync gallery: diff previous images vs current images
     const oldImages = prevEvent?.images || [];
     const newImages = event.images || [];
-    syncEventGallery(
-      event.category || req.body.category,
-      newImages,
-      oldImages
-    ).catch((err) =>
-      console.error("[GallerySync] Update sync error:", err.message)
+    syncEventGallery(event.category || req.body.category, newImages, oldImages).catch((err) =>
+      console.error("[GallerySync] Update sync error:", err.message),
     );
 
     triggerUpdate("events");
@@ -141,15 +137,12 @@ export const deleteEvent = async (req, res, next) => {
       // Delete files from Supabase Storage
       allUrls.forEach((url) => {
         deleteFile(url).catch((err) =>
-          console.error("Failed to delete event image from storage:", err)
+          console.error("Failed to delete event image from storage:", err),
         );
       });
     }
 
-    const { error: deleteError } = await supabase
-      .from("events")
-      .delete()
-      .eq("id", req.params.id);
+    const { error: deleteError } = await supabase.from("events").delete().eq("id", req.params.id);
 
     if (deleteError) throw deleteError;
 

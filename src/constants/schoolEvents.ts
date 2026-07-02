@@ -248,7 +248,7 @@ export const SCHOOL_BAG_EVENTS: PastEventItem[] = [
         "Community Leadership Recognition",
         "Award Ceremony",
         "Appreciation Program",
-        "Guest Honor Ceremony"
+        "Guest Honor Ceremony",
       ],
       gu: [
         "સન્માન પત્ર વિતરણ",
@@ -258,7 +258,7 @@ export const SCHOOL_BAG_EVENTS: PastEventItem[] = [
         "સામુદાયિક નેતૃત્વ સન્માન",
         "એવોર્ડ સમારોહ",
         "પ્રોત્સાહન કાર્યક્રમ",
-        "અતિથિ વિશેષ સન્માન"
+        "અતિથિ વિશેષ સન્માન",
       ],
       hi: [
         "प्रशस्ति पत्र वितरण",
@@ -268,8 +268,8 @@ export const SCHOOL_BAG_EVENTS: PastEventItem[] = [
         "सामुदायिक नेतृत्व सम्मान",
         "पुरस्कार समारोह",
         "सराहना कार्यक्रम",
-        "अतिथि सम्मान समारोह"
-      ]
+        "अतिथि सम्मान समारोह",
+      ],
     },
     images: [
       {
@@ -604,7 +604,7 @@ export const SCHOOL_BAG_EVENTS: PastEventItem[] = [
         "Trophy Distribution",
         "Medal Ceremony",
         "Certificate Distribution",
-        "Youth & Community Participation"
+        "Youth & Community Participation",
       ],
       gu: [
         "સ્પોર્ટ્સ ડે ઉજવણી",
@@ -614,7 +614,7 @@ export const SCHOOL_BAG_EVENTS: PastEventItem[] = [
         "ટ્રોફી વિતરણ",
         "મેડલ સમારોહ",
         "પ્રમાણપત્ર વિતરણ",
-        "યુવા અને સમુદાય ભાગીદારી"
+        "યુવા અને સમુદાય ભાગીદારી",
       ],
       hi: [
         "खेलकूद दिवस समारोह",
@@ -624,38 +624,254 @@ export const SCHOOL_BAG_EVENTS: PastEventItem[] = [
         "ट्रॉफी वितरण",
         "पदक समारोह",
         "प्रमाण पत्र वितरण",
-        "युवा और सामुदायिक भागीदारी"
-      ]
+        "युवा और सामुदायिक भागीदारी",
+      ],
     },
     images: [
-      { img: sports1, category: "Sports Activities", caption: { en: "Winner receiving trophy from guest", gu: "મહેમાન તરફથી ટ્રોફી સ્વીકારતો વિજેતા", hi: "अतिथि से ट्रॉफी प्राप्त करता विजेता" } },
-      { img: sports2, category: "Sports Activities", caption: { en: "Students showing their certificates and medals", gu: "પોતાના પ્રમાણપત્રો અને મેડલ પ્રદર્શિત કરતા વિદ્યાર્થીઓ", hi: "अपने प्रमाण पत्र और पदक प्रदर्शित करते छात्र" } },
-      { img: sports3, category: "Sports Activities", caption: { en: "Young student honored with a trophy", gu: "યુવાન વિદ્યાર્થીનું ટ્રોફીથી સન્માન", hi: "युवा छात्र को ट्रॉफी से सम्मानित किया गया" } },
-      { img: sports4, category: "Sports Activities", caption: { en: "Guest distributing sports gear to winners", gu: "વિજેતાઓને રમતગમતના સાધનો વિતરણ કરતા મહેમાન", hi: "विजेताओं को खेल सामग्री वितरित करते अतिथि" } },
-      { img: sports5, category: "Sports Activities", caption: { en: "Group of youth players holding trophies", gu: "ટ્રોફી સાથે યુવા ખેલાડીઓનું જૂથ", hi: "ट्रॉफी के साथ युवा खिलाड़ियों का समूह" } },
-      { img: sports6, category: "Sports Activities", caption: { en: "Award distribution ceremony for running race", gu: "દોડ સ્પર્ધા માટે એવોર્ડ વિતરણ સમારોહ", hi: "दौड़ प्रतियोगिता के लिए पुरस्कार वितरण समारोह" } },
-      { img: sports7, category: "Sports Activities", caption: { en: "Girl student standing on first place podium", gu: "પ્રથમ સ્થાને પોડિયમ પર ઊભેલી વિદ્યાર્થિની", hi: "प्रथम स्थान के पोडियम पर खड़ी छात्रा" } },
-      { img: sports8, category: "Sports Activities", caption: { en: "Winners on the podium receiving prizes", gu: "પોડિયમ પર પુરસ્કાર સ્વીકારતા વિજેતાઓ", hi: "पोडियम पर पुरस्कार प्राप्त करते विजेता" } },
-      { img: sports9, category: "Sports Activities", caption: { en: "Group photo of all participants and organizers", gu: "તમામ ભાગીદારો અને આયોજકોનો ગ્રુપ ફોટો", hi: "सभी प्रतिभागियों और आयोजकों का समूह चित्र" } },
-      { img: sports10, category: "Sports Activities", caption: { en: "Community members posing with winners", gu: "વિજેતાઓ સાથે સામુદાયિક સભ્યોનો ફોટો", hi: "विजेताओं के साथ सामुदायिक सदस्य" } },
-      { img: sports11, category: "Sports Activities", caption: { en: "Encouraging sports and fitness among kids", gu: "બાળકોમાં રમતગમત અને ફિટનેસને પ્રોત્સાહન", hi: "बच्चों में खेल और फिटनेस को बढ़ावा देना" } },
-      { img: sports12, category: "Sports Activities", caption: { en: "Audience watching sports games", gu: "રમતગમતની રમત નિહાળતા પ્રેક્ષકો", hi: "खेलकूद प्रतियोगिता देखते दर्शक" } },
-      { img: sports13, category: "Sports Activities", caption: { en: "Awarding certificate of appreciation to girl student", gu: "વિદ્યાર્થિનીને સન્માન પત્ર એનાયત કરવામાં આવ્યું", hi: "छात्रा को प्रशस्ति पत्र प्रदान किया गया" } },
-      { img: sports14, category: "Sports Activities", caption: { en: "Four girls holding participation certificates", gu: "ભાગીદારી પ્રમાણપત્ર ધરાવતી ચાર છોકરીઓ", hi: "भागदारी प्रमाण पत्र पकड़े चार लड़कियां" } },
-      { img: sports15, category: "Sports Activities", caption: { en: "Winners displaying their sports awards", gu: "ખેલ પુરસ્કારો પ્રદર્શિત કરતા વિજેતાઓ", hi: "खेल पुरस्कार प्रदर्शित करते विजेता" } },
-      { img: sports16, category: "Sports Activities", caption: { en: "Certificate ceremony for sports events", gu: "રમતગમત સ્પર્ધાઓ માટે પ્રમાણપત્ર વિતરણ", hi: "खेल आयोजनों के लिए प्रमाण पत्र समारोह" } },
-      { img: sports17, category: "Sports Activities", caption: { en: "Young girl receiving certificate from coordinator", gu: "સંયોજક પાસેથી પ્રમાણપત્ર મેળવતી નાની બાળકી", hi: "समन्वयक से प्रमाण पत्र प्राप्त करती बच्ची" } },
-      { img: sports18, category: "Sports Activities", caption: { en: "Student receiving trophy from police officer and guests", gu: "પોલીસ અધિકારી અને મહેમાનો પાસેથી ટ્રોફી સ્વીકારતો વિદ્યાર્થી", hi: "पुलिस अधिकारी और अतिथियों से ट्रॉफी प्राप्त करता छात्र" } },
-      { img: sports19, category: "Sports Activities", caption: { en: "Medal presentation by local authority", gu: "સ્થાનિક અધિકારીઓ દ્વારા મેડલ એનાયત", hi: "स्थानीय अधिकारियों द्वारा पदक प्रदान करना" } },
-      { img: sports20, category: "Sports Activities", caption: { en: "Felicitation ceremony for sports day winners", gu: "સ્પોર્ટ્સ ડે વિજેતાઓ માટે સન્માન સમારોહ", hi: "खेलकूद दिवस के विजेताओं के लिए सम्मान समारोह" } },
-      { img: sports21, category: "Sports Activities", caption: { en: "Boys participating in Kabaddi match", gu: "કબડ્ડી મેચમાં ભાગ લેતા છોકરાઓ", hi: "कबड्डी मैच में भाग लेते लड़के" } },
-      { img: sports22, category: "Sports Activities", caption: { en: "Action shot of youth Kabaddi competition", gu: "કબડ્ડી સ્પર્ધાનો એક્શન ફોટો", hi: "कबड्डी प्रतियोगिता का एक्शन शॉट" } },
-      { img: sports23, category: "Sports Activities", caption: { en: "Running race starting line configuration", gu: "દોડ સ્પર્ધાની પ્રારંભિક લાઇન", hi: "दौड़ प्रतियोगिता की शुरुआती लाइन" } },
-      { img: sports24, category: "Sports Activities", caption: { en: "Yoga and fitness session for students", gu: "વિદ્યાર્થીઓ માટે યોગ અને ફિટનેસ સત્ર", hi: "छात्रों के लिए योग और फिटनेस सत्र" } },
-      { img: sports25, category: "Sports Activities", caption: { en: "Mass yoga posture demonstration", gu: "સામૂહિક યોગાસન પ્રદર્શન", hi: "सामूहिक योगासन प्रदर्शन" } },
-      { img: sports26, category: "Sports Activities", caption: { en: "Girls ready at the running race start line", gu: "દોડ સ્પર્ધાની સ્ટાર્ટ લાઇન પર તૈયાર છોકરીઓ", hi: "दौड़ प्रतियोगिता की स्टार्ट लाइन पर तैयार लड़कियां" } },
-      { img: sports27, category: "Sports Activities", caption: { en: "Three-legged race competition in progress", gu: "ત્રણ પગ વાળી દોડ સ્પર્ધા ચાલુ છે", hi: "तीन टांगों वाली दौड़ प्रतियोगिता जारी" } }
-    ]
+      {
+        img: sports1,
+        category: "Sports Activities",
+        caption: {
+          en: "Winner receiving trophy from guest",
+          gu: "મહેમાન તરફથી ટ્રોફી સ્વીકારતો વિજેતા",
+          hi: "अतिथि से ट्रॉफी प्राप्त करता विजेता",
+        },
+      },
+      {
+        img: sports2,
+        category: "Sports Activities",
+        caption: {
+          en: "Students showing their certificates and medals",
+          gu: "પોતાના પ્રમાણપત્રો અને મેડલ પ્રદર્શિત કરતા વિદ્યાર્થીઓ",
+          hi: "अपने प्रमाण पत्र और पदक प्रदर्शित करते छात्र",
+        },
+      },
+      {
+        img: sports3,
+        category: "Sports Activities",
+        caption: {
+          en: "Young student honored with a trophy",
+          gu: "યુવાન વિદ્યાર્થીનું ટ્રોફીથી સન્માન",
+          hi: "युवा छात्र को ट्रॉफी से सम्मानित किया गया",
+        },
+      },
+      {
+        img: sports4,
+        category: "Sports Activities",
+        caption: {
+          en: "Guest distributing sports gear to winners",
+          gu: "વિજેતાઓને રમતગમતના સાધનો વિતરણ કરતા મહેમાન",
+          hi: "विजेताओं को खेल सामग्री वितरित करते अतिथि",
+        },
+      },
+      {
+        img: sports5,
+        category: "Sports Activities",
+        caption: {
+          en: "Group of youth players holding trophies",
+          gu: "ટ્રોફી સાથે યુવા ખેલાડીઓનું જૂથ",
+          hi: "ट्रॉफी के साथ युवा खिलाड़ियों का समूह",
+        },
+      },
+      {
+        img: sports6,
+        category: "Sports Activities",
+        caption: {
+          en: "Award distribution ceremony for running race",
+          gu: "દોડ સ્પર્ધા માટે એવોર્ડ વિતરણ સમારોહ",
+          hi: "दौड़ प्रतियोगिता के लिए पुरस्कार वितरण समारोह",
+        },
+      },
+      {
+        img: sports7,
+        category: "Sports Activities",
+        caption: {
+          en: "Girl student standing on first place podium",
+          gu: "પ્રથમ સ્થાને પોડિયમ પર ઊભેલી વિદ્યાર્થિની",
+          hi: "प्रथम स्थान के पोडियम पर खड़ी छात्रा",
+        },
+      },
+      {
+        img: sports8,
+        category: "Sports Activities",
+        caption: {
+          en: "Winners on the podium receiving prizes",
+          gu: "પોડિયમ પર પુરસ્કાર સ્વીકારતા વિજેતાઓ",
+          hi: "पोडियम पर पुरस्कार प्राप्त करते विजेता",
+        },
+      },
+      {
+        img: sports9,
+        category: "Sports Activities",
+        caption: {
+          en: "Group photo of all participants and organizers",
+          gu: "તમામ ભાગીદારો અને આયોજકોનો ગ્રુપ ફોટો",
+          hi: "सभी प्रतिभागियों और आयोजकों का समूह चित्र",
+        },
+      },
+      {
+        img: sports10,
+        category: "Sports Activities",
+        caption: {
+          en: "Community members posing with winners",
+          gu: "વિજેતાઓ સાથે સામુદાયિક સભ્યોનો ફોટો",
+          hi: "विजेताओं के साथ सामुदायिक सदस्य",
+        },
+      },
+      {
+        img: sports11,
+        category: "Sports Activities",
+        caption: {
+          en: "Encouraging sports and fitness among kids",
+          gu: "બાળકોમાં રમતગમત અને ફિટનેસને પ્રોત્સાહન",
+          hi: "बच्चों में खेल और फिटनेस को बढ़ावा देना",
+        },
+      },
+      {
+        img: sports12,
+        category: "Sports Activities",
+        caption: {
+          en: "Audience watching sports games",
+          gu: "રમતગમતની રમત નિહાળતા પ્રેક્ષકો",
+          hi: "खेलकूद प्रतियोगिता देखते दर्शक",
+        },
+      },
+      {
+        img: sports13,
+        category: "Sports Activities",
+        caption: {
+          en: "Awarding certificate of appreciation to girl student",
+          gu: "વિદ્યાર્થિનીને સન્માન પત્ર એનાયત કરવામાં આવ્યું",
+          hi: "छात्रा को प्रशस्ति पत्र प्रदान किया गया",
+        },
+      },
+      {
+        img: sports14,
+        category: "Sports Activities",
+        caption: {
+          en: "Four girls holding participation certificates",
+          gu: "ભાગીદારી પ્રમાણપત્ર ધરાવતી ચાર છોકરીઓ",
+          hi: "भागदारी प्रमाण पत्र पकड़े चार लड़कियां",
+        },
+      },
+      {
+        img: sports15,
+        category: "Sports Activities",
+        caption: {
+          en: "Winners displaying their sports awards",
+          gu: "ખેલ પુરસ્કારો પ્રદર્શિત કરતા વિજેતાઓ",
+          hi: "खेल पुरस्कार प्रदर्शित करते विजेता",
+        },
+      },
+      {
+        img: sports16,
+        category: "Sports Activities",
+        caption: {
+          en: "Certificate ceremony for sports events",
+          gu: "રમતગમત સ્પર્ધાઓ માટે પ્રમાણપત્ર વિતરણ",
+          hi: "खेल आयोजनों के लिए प्रमाण पत्र समारोह",
+        },
+      },
+      {
+        img: sports17,
+        category: "Sports Activities",
+        caption: {
+          en: "Young girl receiving certificate from coordinator",
+          gu: "સંયોજક પાસેથી પ્રમાણપત્ર મેળવતી નાની બાળકી",
+          hi: "समन्वयक से प्रमाण पत्र प्राप्त करती बच्ची",
+        },
+      },
+      {
+        img: sports18,
+        category: "Sports Activities",
+        caption: {
+          en: "Student receiving trophy from police officer and guests",
+          gu: "પોલીસ અધિકારી અને મહેમાનો પાસેથી ટ્રોફી સ્વીકારતો વિદ્યાર્થી",
+          hi: "पुलिस अधिकारी और अतिथियों से ट्रॉफी प्राप्त करता छात्र",
+        },
+      },
+      {
+        img: sports19,
+        category: "Sports Activities",
+        caption: {
+          en: "Medal presentation by local authority",
+          gu: "સ્થાનિક અધિકારીઓ દ્વારા મેડલ એનાયત",
+          hi: "स्थानीय अधिकारियों द्वारा पदक प्रदान करना",
+        },
+      },
+      {
+        img: sports20,
+        category: "Sports Activities",
+        caption: {
+          en: "Felicitation ceremony for sports day winners",
+          gu: "સ્પોર્ટ્સ ડે વિજેતાઓ માટે સન્માન સમારોહ",
+          hi: "खेलकूद दिवस के विजेताओं के लिए सम्मान समारोह",
+        },
+      },
+      {
+        img: sports21,
+        category: "Sports Activities",
+        caption: {
+          en: "Boys participating in Kabaddi match",
+          gu: "કબડ્ડી મેચમાં ભાગ લેતા છોકરાઓ",
+          hi: "कबड्डी मैच में भाग लेते लड़के",
+        },
+      },
+      {
+        img: sports22,
+        category: "Sports Activities",
+        caption: {
+          en: "Action shot of youth Kabaddi competition",
+          gu: "કબડ્ડી સ્પર્ધાનો એક્શન ફોટો",
+          hi: "कबड्डी प्रतियोगिता का एक्शन शॉट",
+        },
+      },
+      {
+        img: sports23,
+        category: "Sports Activities",
+        caption: {
+          en: "Running race starting line configuration",
+          gu: "દોડ સ્પર્ધાની પ્રારંભિક લાઇન",
+          hi: "दौड़ प्रतियोगिता की शुरुआती लाइन",
+        },
+      },
+      {
+        img: sports24,
+        category: "Sports Activities",
+        caption: {
+          en: "Yoga and fitness session for students",
+          gu: "વિદ્યાર્થીઓ માટે યોગ અને ફિટનેસ સત્ર",
+          hi: "छात्रों के लिए योग और फिटनेस सत्र",
+        },
+      },
+      {
+        img: sports25,
+        category: "Sports Activities",
+        caption: {
+          en: "Mass yoga posture demonstration",
+          gu: "સામૂહિક યોગાસન પ્રદર્શન",
+          hi: "सामूहिक योगासन प्रदर्शन",
+        },
+      },
+      {
+        img: sports26,
+        category: "Sports Activities",
+        caption: {
+          en: "Girls ready at the running race start line",
+          gu: "દોડ સ્પર્ધાની સ્ટાર્ટ લાઇન પર તૈયાર છોકરીઓ",
+          hi: "दौड़ प्रतियोगिता की स्टार्ट लाइन पर तैयार लड़कियां",
+        },
+      },
+      {
+        img: sports27,
+        category: "Sports Activities",
+        caption: {
+          en: "Three-legged race competition in progress",
+          gu: "ત્રણ પગ વાળી દોડ સ્પર્ધા ચાલુ છે",
+          hi: "तीन टांगों वाली दौड़ प्रतियोगिता जारी",
+        },
+      },
+    ],
   },
   {
     id: "hebatpur-school-distribution-2025",
@@ -1253,7 +1469,7 @@ export const SCHOOL_BAG_EVENTS: PastEventItem[] = [
         "Student participation",
         "Volunteer engagement",
         "Green environment initiative",
-        "Nature conservation activities"
+        "Nature conservation activities",
       ],
       gu: [
         "વૃક્ષારોપણ ઝુંબેશ",
@@ -1262,7 +1478,7 @@ export const SCHOOL_BAG_EVENTS: PastEventItem[] = [
         "વિદ્યાર્થીઓની ભાગીદારી",
         "સ્વયંસેવકો જોડાણ",
         "હરિયાળું પર્યાવરણ પહેલ",
-        "કુદરત સંરક્ષણ પ્રવૃત્તિઓ"
+        "કુદરત સંરક્ષણ પ્રવૃત્તિઓ",
       ],
       hi: [
         "वृक्षारोपण अभियान",
@@ -1271,30 +1487,182 @@ export const SCHOOL_BAG_EVENTS: PastEventItem[] = [
         "छात्रों की भागीदारी",
         "स्वयंसेवकों की भागीदारी",
         "हरित पर्यावरण पहल",
-        "प्रकृति संरक्षण गतिविधियां"
-      ]
+        "प्रकृति संरक्षण गतिविधियां",
+      ],
     },
     images: [
-      { img: treePlantation1, category: "Environmental Activities", caption: { en: "Volunteers planting a sapling together", gu: "સ્વયંસેવકો સાથે મળીને છોડ રોપી રહ્યા છે", hi: "स्वयंसेवक मिलकर पौधे लगा रहे हैं" } },
-      { img: treePlantation2, category: "Environmental Activities", caption: { en: "Community members planting a sapling near a wall", gu: "સામુદાયિક સભ્યો દીવાલ પાસે છોડ રોપી રહ્યા છે", hi: "सामुदायिक सदस्य दीवार के पास पौधे लगा रहे हैं" } },
-      { img: treePlantation3, category: "Environmental Activities", caption: { en: "A young girl planting a small tree in a garden bed", gu: "બગીચાના ક્યારામાં છોડ રોપી રહેલી એક નાની બાળકી", hi: "बगीचे की क्यारी में एक छोटी बच्ची पौधा लगा रही है" } },
-      { img: treePlantation4, category: "Environmental Activities", caption: { en: "Volunteer planting a tree in a rocky field", gu: "પથરાળ ખેતરમાં છોડ રોપી રહેલો સ્વયંસેવક", hi: "पथरीले खेत में पौधा लगाता स्वयंसेवक" } },
-      { img: treePlantation5, category: "Environmental Activities", caption: { en: "Watering a newly planted tree in dry field", gu: "સુકા ખેતરમાં નવા રોપેલા વૃક્ષને પાણી આપવું", hi: "सूखे खेत में नए लगाए गए पेड़ को पानी देना" } },
-      { img: treePlantation6, category: "Environmental Activities", caption: { en: "Volunteer checking on a young sapling in dry soil", gu: "સુકી જમીનમાં નાના છોડની તપાસ કરતો સ્વયંસેવક", hi: "सूखी मिट्टी में छोटे पौधे की जांच करता स्वयंसेवक" } },
-      { img: treePlantation7, category: "Environmental Activities", caption: { en: "Watering the saplings in the dry field", gu: "સુકા ખેતરમાં છોડને પાણી આપવું", hi: "सूखे खेत में पौधों को पानी देना" } },
-      { img: treePlantation8, category: "Environmental Activities", caption: { en: "Preparing the soil for tree plantation", gu: "વૃક્ષારોપણ માટે જમીન તૈયાર કરવી", hi: "वृक्षारोपण के लिए मिट्टी तैयार करना" } },
-      { img: treePlantation9, category: "Environmental Activities", caption: { en: "Volunteer watering the young saplings in the field", gu: "ખેતરમાં નાના છોડને પાણી આપતો સ્વયંસેવક", hi: "खेत में छोटे पौधों को पानी देता स्वयंसेवक" } },
-      { img: treePlantation10, category: "Environmental Activities", caption: { en: "Care and watering of the plants", gu: "છોડની સંભાળ અને પાણી આપવું", hi: "पौधों की देखभाल और पानी देना" } },
-      { img: treePlantation11, category: "Environmental Activities", caption: { en: "Student planting a tree near dry bank", gu: "સુકા કાંઠા પાસે વૃક્ષ રોપતો વિદ્યાર્થી", hi: "सूखे किनारे के पास पौधा लगाता छात्र" } },
-      { img: treePlantation12, category: "Environmental Activities", caption: { en: "Soyla Gram Panchayat Tree Plantation Ceremony", gu: "સોયલા ગ્રામ પંચાયત વૃક્ષારોપણ સમારોહ", hi: "सोयला ग्राम पंचायत वृक्षारोपण समारोह" } },
-      { img: treePlantation13, category: "Environmental Activities", caption: { en: "Stage ceremony with organizers holding saplings", gu: "છોડ સાથેના આયોજકો સાથે સ્ટેજ સમારોહ", hi: "पौधे पकड़े आयोजकों के साथ मंच समारोह" } },
-      { img: treePlantation14, category: "Environmental Activities", caption: { en: "Group of volunteers planting trees on the bank", gu: "ટેકરા પર વૃક્ષારોપણ કરતા સ્વયંસેવકોનું જૂથ", hi: "टीले पर वृक्षारोपण करते स्वयंसेवकों का समूह" } },
-      { img: treePlantation15, category: "Environmental Activities", caption: { en: "Planting a tree on the slope of a sandy bank", gu: "રેતાળ કાંઠાના ઢોળાવ પર વૃક્ષ રોપવું", hi: "रेतीले किनारे के ढलान पर पौधा लगाना" } },
-      { img: treePlantation16, category: "Environmental Activities", caption: { en: "Volunteers planting trees near a small creek", gu: "નાની ખાડી પાસે વૃક્ષારોપણ કરતા સ્વયંસેવકો", hi: "छोटी खाड़ी के पास वृक्षारोपण करते स्वयंसेवक" } },
-      { img: treePlantation17, category: "Environmental Activities", caption: { en: "Watering a young tree in the garden", gu: "બગીચામાં નાના વૃક્ષને પાણી આપવું", hi: "बगीचे में छोटे पेड़ को पानी देना" } },
-      { img: treePlantation18, category: "Environmental Activities", caption: { en: "Students and volunteers watering a tree", gu: "વૃક્ષને પાણી આપતા વિદ્યાર્થીઓ અને સ્વયંસેવકો", hi: "पेड़ को पानी देते छात्र और स्वयंसेवक" } },
-      { img: treePlantation19, category: "Environmental Activities", caption: { en: "Family planting a tree together near their home", gu: "ઘર પાસે સાથે મળીને વૃક્ષારોપણ કરતો પરિવાર", hi: "घर के पास मिलकर वृक्षारोपण करता परिवार" } }
-    ]
+      {
+        img: treePlantation1,
+        category: "Environmental Activities",
+        caption: {
+          en: "Volunteers planting a sapling together",
+          gu: "સ્વયંસેવકો સાથે મળીને છોડ રોપી રહ્યા છે",
+          hi: "स्वयंसेवक मिलकर पौधे लगा रहे हैं",
+        },
+      },
+      {
+        img: treePlantation2,
+        category: "Environmental Activities",
+        caption: {
+          en: "Community members planting a sapling near a wall",
+          gu: "સામુદાયિક સભ્યો દીવાલ પાસે છોડ રોપી રહ્યા છે",
+          hi: "सामुदायिक सदस्य दीवार के पास पौधे लगा रहे हैं",
+        },
+      },
+      {
+        img: treePlantation3,
+        category: "Environmental Activities",
+        caption: {
+          en: "A young girl planting a small tree in a garden bed",
+          gu: "બગીચાના ક્યારામાં છોડ રોપી રહેલી એક નાની બાળકી",
+          hi: "बगीचे की क्यारी में एक छोटी बच्ची पौधा लगा रही है",
+        },
+      },
+      {
+        img: treePlantation4,
+        category: "Environmental Activities",
+        caption: {
+          en: "Volunteer planting a tree in a rocky field",
+          gu: "પથરાળ ખેતરમાં છોડ રોપી રહેલો સ્વયંસેવક",
+          hi: "पथरीले खेत में पौधा लगाता स्वयंसेवक",
+        },
+      },
+      {
+        img: treePlantation5,
+        category: "Environmental Activities",
+        caption: {
+          en: "Watering a newly planted tree in dry field",
+          gu: "સુકા ખેતરમાં નવા રોપેલા વૃક્ષને પાણી આપવું",
+          hi: "सूखे खेत में नए लगाए गए पेड़ को पानी देना",
+        },
+      },
+      {
+        img: treePlantation6,
+        category: "Environmental Activities",
+        caption: {
+          en: "Volunteer checking on a young sapling in dry soil",
+          gu: "સુકી જમીનમાં નાના છોડની તપાસ કરતો સ્વયંસેવક",
+          hi: "सूखी मिट्टी में छोटे पौधे की जांच करता स्वयंसेवक",
+        },
+      },
+      {
+        img: treePlantation7,
+        category: "Environmental Activities",
+        caption: {
+          en: "Watering the saplings in the dry field",
+          gu: "સુકા ખેતરમાં છોડને પાણી આપવું",
+          hi: "सूखे खेत में पौधों को पानी देना",
+        },
+      },
+      {
+        img: treePlantation8,
+        category: "Environmental Activities",
+        caption: {
+          en: "Preparing the soil for tree plantation",
+          gu: "વૃક્ષારોપણ માટે જમીન તૈયાર કરવી",
+          hi: "वृक्षारोपण के लिए मिट्टी तैयार करना",
+        },
+      },
+      {
+        img: treePlantation9,
+        category: "Environmental Activities",
+        caption: {
+          en: "Volunteer watering the young saplings in the field",
+          gu: "ખેતરમાં નાના છોડને પાણી આપતો સ્વયંસેવક",
+          hi: "खेत में छोटे पौधों को पानी देता स्वयंसेवक",
+        },
+      },
+      {
+        img: treePlantation10,
+        category: "Environmental Activities",
+        caption: {
+          en: "Care and watering of the plants",
+          gu: "છોડની સંભાળ અને પાણી આપવું",
+          hi: "पौधों की देखभाल और पानी देना",
+        },
+      },
+      {
+        img: treePlantation11,
+        category: "Environmental Activities",
+        caption: {
+          en: "Student planting a tree near dry bank",
+          gu: "સુકા કાંઠા પાસે વૃક્ષ રોપતો વિદ્યાર્થી",
+          hi: "सूखे किनारे के पास पौधा लगाता छात्र",
+        },
+      },
+      {
+        img: treePlantation12,
+        category: "Environmental Activities",
+        caption: {
+          en: "Soyla Gram Panchayat Tree Plantation Ceremony",
+          gu: "સોયલા ગ્રામ પંચાયત વૃક્ષારોપણ સમારોહ",
+          hi: "सोयला ग्राम पंचायत वृक्षारोपण समारोह",
+        },
+      },
+      {
+        img: treePlantation13,
+        category: "Environmental Activities",
+        caption: {
+          en: "Stage ceremony with organizers holding saplings",
+          gu: "છોડ સાથેના આયોજકો સાથે સ્ટેજ સમારોહ",
+          hi: "पौधे पकड़े आयोजकों के साथ मंच समारोह",
+        },
+      },
+      {
+        img: treePlantation14,
+        category: "Environmental Activities",
+        caption: {
+          en: "Group of volunteers planting trees on the bank",
+          gu: "ટેકરા પર વૃક્ષારોપણ કરતા સ્વયંસેવકોનું જૂથ",
+          hi: "टीले पर वृक्षारोपण करते स्वयंसेवकों का समूह",
+        },
+      },
+      {
+        img: treePlantation15,
+        category: "Environmental Activities",
+        caption: {
+          en: "Planting a tree on the slope of a sandy bank",
+          gu: "રેતાળ કાંઠાના ઢોળાવ પર વૃક્ષ રોપવું",
+          hi: "रेतीले किनारे के ढलान पर पौधा लगाना",
+        },
+      },
+      {
+        img: treePlantation16,
+        category: "Environmental Activities",
+        caption: {
+          en: "Volunteers planting trees near a small creek",
+          gu: "નાની ખાડી પાસે વૃક્ષારોપણ કરતા સ્વયંસેવકો",
+          hi: "छोटी खाड़ी के पास वृक्षारोपण करते स्वयंसेवक",
+        },
+      },
+      {
+        img: treePlantation17,
+        category: "Environmental Activities",
+        caption: {
+          en: "Watering a young tree in the garden",
+          gu: "બગીચામાં નાના વૃક્ષને પાણી આપવું",
+          hi: "बगीचे में छोटे पेड़ को पानी देना",
+        },
+      },
+      {
+        img: treePlantation18,
+        category: "Environmental Activities",
+        caption: {
+          en: "Students and volunteers watering a tree",
+          gu: "વૃક્ષને પાણી આપતા વિદ્યાર્થીઓ અને સ્વયંસેવકો",
+          hi: "पेड़ को पानी देते छात्र और स्वयंसेवक",
+        },
+      },
+      {
+        img: treePlantation19,
+        category: "Environmental Activities",
+        caption: {
+          en: "Family planting a tree together near their home",
+          gu: "ઘર પાસે સાથે મળીને વૃક્ષારોપણ કરતો પરિવાર",
+          hi: "घर के पास मिलकर वृक्षारोपण करता परिवार",
+        },
+      },
+    ],
   },
   {
     id: "government-welfare-camp-2022",
@@ -1847,7 +2215,7 @@ export const SCHOOL_BAG_EVENTS: PastEventItem[] = [
         },
       },
     ],
-  }
+  },
 ];
 
 export const SCHOOL_BAG_GALLERY: GalleryPicture[] = [

@@ -87,7 +87,7 @@ export function Settings() {
           trees: Number(statsTrees),
           volunteers: Number(statsVolunteers),
           villages: Number(statsVillages),
-        }
+        },
       };
       await updateSettings(payload);
       toast.success("Configurations saved successfully!", { id: toastId });
@@ -117,15 +117,15 @@ export function Settings() {
 
   return (
     <div className="space-y-6">
-      
       {/* Header */}
       <div>
         <h1 className="text-2xl md:text-3xl font-display font-bold">Settings</h1>
-        <p className="text-sm text-slate-500 font-medium font-gujarati">વેબસાઇટની ગ્લોબલ સેટિંગ્સ અને એસ.ઈ.ઓ મેનેજમેન્ટ</p>
+        <p className="text-sm text-slate-500 font-medium font-gujarati">
+          વેબસાઇટની ગ્લોબલ સેટિંગ્સ અને એસ.ઈ.ઓ મેનેજમેન્ટ
+        </p>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 items-start">
-        
         {/* Sidebar Nav (Left side, takes 1 col) */}
         <div className="bg-white rounded-3xl border border-slate-200/80 shadow-xs overflow-hidden py-2">
           {[
@@ -152,13 +152,16 @@ export function Settings() {
         {/* Configuration Forms Viewport (Right side, takes 3 cols) */}
         <div className="lg:col-span-3 bg-white rounded-3xl border border-slate-200/80 shadow-xs p-6">
           <form onSubmit={handleSave} className="space-y-5 text-xs font-semibold">
-            
             {activeTab === "org" && (
               <div className="space-y-4">
-                <h3 className="font-bold text-sm text-slate-800 pb-2 border-b border-slate-100">NGO Organization Metadata</h3>
-                
+                <h3 className="font-bold text-sm text-slate-800 pb-2 border-b border-slate-100">
+                  NGO Organization Metadata
+                </h3>
+
                 <div className="space-y-1.5">
-                  <label className="text-slate-500 uppercase tracking-wider">Trust Corporate Name *</label>
+                  <label className="text-slate-500 uppercase tracking-wider">
+                    Trust Corporate Name *
+                  </label>
                   <input
                     type="text"
                     required
@@ -170,7 +173,9 @@ export function Settings() {
 
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-1.5">
-                    <label className="text-slate-500 uppercase tracking-wider">Office Hotline *</label>
+                    <label className="text-slate-500 uppercase tracking-wider">
+                      Office Hotline *
+                    </label>
                     <input
                       type="text"
                       required
@@ -180,7 +185,9 @@ export function Settings() {
                     />
                   </div>
                   <div className="space-y-1.5">
-                    <label className="text-slate-500 uppercase tracking-wider">Public Support Email *</label>
+                    <label className="text-slate-500 uppercase tracking-wider">
+                      Public Support Email *
+                    </label>
                     <input
                       type="email"
                       required
@@ -192,7 +199,9 @@ export function Settings() {
                 </div>
 
                 <div className="space-y-1.5">
-                  <label className="text-slate-500 uppercase tracking-wider">Office Headquarters *</label>
+                  <label className="text-slate-500 uppercase tracking-wider">
+                    Office Headquarters *
+                  </label>
                   <input
                     type="text"
                     required
@@ -206,10 +215,14 @@ export function Settings() {
 
             {activeTab === "seo" && (
               <div className="space-y-4">
-                <h3 className="font-bold text-sm text-slate-800 pb-2 border-b border-slate-100">Global Website SEO Settings</h3>
-                
+                <h3 className="font-bold text-sm text-slate-800 pb-2 border-b border-slate-100">
+                  Global Website SEO Settings
+                </h3>
+
                 <div className="space-y-1.5">
-                  <label className="text-slate-500 uppercase tracking-wider">Meta Page Title *</label>
+                  <label className="text-slate-500 uppercase tracking-wider">
+                    Meta Page Title *
+                  </label>
                   <input
                     type="text"
                     required
@@ -231,7 +244,9 @@ export function Settings() {
                 </div>
 
                 <div className="space-y-1.5">
-                  <label className="text-slate-500 uppercase tracking-wider">Meta SEO Description *</label>
+                  <label className="text-slate-500 uppercase tracking-wider">
+                    Meta SEO Description *
+                  </label>
                   <textarea
                     required
                     rows={3}
@@ -245,10 +260,14 @@ export function Settings() {
 
             {activeTab === "social" && (
               <div className="space-y-4">
-                <h3 className="font-bold text-sm text-slate-800 pb-2 border-b border-slate-100">Social Networking Links</h3>
-                
+                <h3 className="font-bold text-sm text-slate-800 pb-2 border-b border-slate-100">
+                  Social Networking Links
+                </h3>
+
                 <div className="space-y-1.5">
-                  <label className="text-slate-500 uppercase tracking-wider">Facebook Page Link</label>
+                  <label className="text-slate-500 uppercase tracking-wider">
+                    Facebook Page Link
+                  </label>
                   <input
                     type="url"
                     value={socialFb}
@@ -268,7 +287,9 @@ export function Settings() {
                 </div>
 
                 <div className="space-y-1.5">
-                  <label className="text-slate-500 uppercase tracking-wider">Instagram Handle URL</label>
+                  <label className="text-slate-500 uppercase tracking-wider">
+                    Instagram Handle URL
+                  </label>
                   <input
                     type="url"
                     value={socialIn}
@@ -279,13 +300,17 @@ export function Settings() {
               </div>
             )}
 
-             {activeTab === "stats" && (
+            {activeTab === "stats" && (
               <div className="space-y-4">
-                <h3 className="font-bold text-sm text-slate-800 pb-2 border-b border-slate-100">Homepage Impact Statistics</h3>
-                
+                <h3 className="font-bold text-sm text-slate-800 pb-2 border-b border-slate-100">
+                  Homepage Impact Statistics
+                </h3>
+
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-1.5">
-                    <label className="text-slate-500 uppercase tracking-wider">Families Served *</label>
+                    <label className="text-slate-500 uppercase tracking-wider">
+                      Families Served *
+                    </label>
                     <input
                       type="number"
                       required
@@ -295,7 +320,9 @@ export function Settings() {
                     />
                   </div>
                   <div className="space-y-1.5">
-                    <label className="text-slate-500 uppercase tracking-wider">Students Impacted *</label>
+                    <label className="text-slate-500 uppercase tracking-wider">
+                      Students Impacted *
+                    </label>
                     <input
                       type="number"
                       required
@@ -308,7 +335,9 @@ export function Settings() {
 
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-1.5">
-                    <label className="text-slate-500 uppercase tracking-wider">Camps Conducted *</label>
+                    <label className="text-slate-500 uppercase tracking-wider">
+                      Camps Conducted *
+                    </label>
                     <input
                       type="number"
                       required
@@ -318,7 +347,9 @@ export function Settings() {
                     />
                   </div>
                   <div className="space-y-1.5">
-                    <label className="text-slate-500 uppercase tracking-wider">Trees Planted *</label>
+                    <label className="text-slate-500 uppercase tracking-wider">
+                      Trees Planted *
+                    </label>
                     <input
                       type="number"
                       required
@@ -331,7 +362,9 @@ export function Settings() {
 
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-1.5">
-                    <label className="text-slate-500 uppercase tracking-wider">Active Volunteers *</label>
+                    <label className="text-slate-500 uppercase tracking-wider">
+                      Active Volunteers *
+                    </label>
                     <input
                       type="number"
                       required
@@ -341,7 +374,9 @@ export function Settings() {
                     />
                   </div>
                   <div className="space-y-1.5">
-                    <label className="text-slate-500 uppercase tracking-wider">Villages Impacted *</label>
+                    <label className="text-slate-500 uppercase tracking-wider">
+                      Villages Impacted *
+                    </label>
                     <input
                       type="number"
                       required
@@ -364,12 +399,9 @@ export function Settings() {
                 <Save className="h-4 w-4" /> {loading ? "Saving..." : "Save System Settings"}
               </button>
             </div>
-
           </form>
         </div>
-
       </div>
-
     </div>
   );
 }

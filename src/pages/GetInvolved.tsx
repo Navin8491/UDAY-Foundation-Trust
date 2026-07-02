@@ -30,12 +30,12 @@ import {
   Compass,
   Award,
   ArrowUpRight,
-  CheckCircle2
+  CheckCircle2,
 } from "lucide-react";
 
 // Types for pre-filling the modal
 type InterestCategory = "volunteer" | "donate" | "sponsor" | "csr" | "general";
-type VolunteerRole = 
+type VolunteerRole =
   | "Medical Camp Volunteer"
   | "Teaching Volunteer"
   | "Community Outreach"
@@ -126,24 +126,24 @@ export function GetInvolved() {
       gsap.fromTo(
         ".gsap-hero-animate",
         { opacity: 0, y: 30 },
-        { opacity: 1, y: 0, duration: 1, stagger: 0.2, ease: "power3.out" }
+        { opacity: 1, y: 0, duration: 1, stagger: 0.2, ease: "power3.out" },
       );
-      
+
       // Fade in sections on load/scroll slowly
       gsap.fromTo(
         ".gsap-section-header",
         { opacity: 0, y: 20 },
-        { 
-          opacity: 1, 
-          y: 0, 
-          duration: 0.8, 
-          stagger: 0.1, 
+        {
+          opacity: 1,
+          y: 0,
+          duration: 0.8,
+          stagger: 0.1,
           ease: "power2.out",
           scrollTrigger: {
             trigger: ".gsap-section-header",
             start: "top 85%",
-          }
-        }
+          },
+        },
       );
     }, containerRef);
 
@@ -159,7 +159,9 @@ export function GetInvolved() {
   const [modalRole, setModalRole] = useState<VolunteerRole>("");
 
   // Impact Modal State
-  const [selectedImpact, setSelectedImpact] = useState<typeof IMPACT_DETAILS[keyof typeof IMPACT_DETAILS] | null>(null);
+  const [selectedImpact, setSelectedImpact] = useState<
+    (typeof IMPACT_DETAILS)[keyof typeof IMPACT_DETAILS] | null
+  >(null);
 
   // Form State
   const [formName, setFormName] = useState("");
@@ -292,13 +294,13 @@ export function GetInvolved() {
         // Upload photo, id doc, and resume to storage
         let photoUrl = "";
         let resumeUrl = "";
-        
+
         if (formSelfie) {
           photoUrl = await uploadFile(formSelfie, "volunteers/photos", (progress) => {
             toast.loading(`Uploading profile photo: ${progress}%`, { id: toastId });
           });
         }
-        
+
         const idProofUrl = await uploadFile(formIdDoc, "volunteers/documents", (progress) => {
           toast.loading(`Uploading ID Proof: ${progress}%`, { id: toastId });
         });
@@ -336,7 +338,9 @@ export function GetInvolved() {
           resumeUrl,
         });
 
-        toast.success("Thank you! Your volunteer application has been submitted successfully.", { id: toastId });
+        toast.success("Thank you! Your volunteer application has been submitted successfully.", {
+          id: toastId,
+        });
       } else {
         // Upload proposal document
         const documentUrl = await uploadFile(formIdDoc, "partnerships/documents", (progress) => {
@@ -356,7 +360,9 @@ export function GetInvolved() {
           documentUrl,
         });
 
-        toast.success("Thank you! Your partnership request has been submitted successfully.", { id: toastId });
+        toast.success("Thank you! Your partnership request has been submitted successfully.", {
+          id: toastId,
+        });
       }
 
       // Reset Volunteer Form
@@ -395,7 +401,9 @@ export function GetInvolved() {
       setIsModalOpen(false);
     } catch (err: any) {
       console.error(err);
-      toast.error(err.message || "Failed to submit application. Please try again.", { id: toastId });
+      toast.error(err.message || "Failed to submit application. Please try again.", {
+        id: toastId,
+      });
     } finally {
       setFormSubmitting(false);
     }
@@ -491,37 +499,43 @@ export function GetInvolved() {
   const VOL_ROLES = [
     {
       role: "Medical Camp Volunteer",
-      responsibilities: "Manage queue flow, handle patient registration sheets, coordinate medicine dispensing tables, and guide senior citizens.",
+      responsibilities:
+        "Manage queue flow, handle patient registration sheets, coordinate medicine dispensing tables, and guide senior citizens.",
       commitment: "4-6 hours per weekend camp",
       Icon: Stethoscope,
     },
     {
       role: "Teaching Volunteer",
-      responsibilities: "Conduct basic English speaking, elementary arithmetic, and computing workshops for students at our learning centers.",
+      responsibilities:
+        "Conduct basic English speaking, elementary arithmetic, and computing workshops for students at our learning centers.",
       commitment: "2-3 hours per week (min 2 months)",
       Icon: GraduationCap,
     },
     {
       role: "Community Outreach",
-      responsibilities: "Accompany senior leads to neighboring villages, explain welfare schemes, record feedback, and raise local health awareness.",
+      responsibilities:
+        "Accompany senior leads to neighboring villages, explain welfare schemes, record feedback, and raise local health awareness.",
       commitment: "4 hours per week (flexible)",
       Icon: Compass,
     },
     {
       role: "Event Management",
-      responsibilities: "Assist in setting up fundraising events, coordinating logistics, handling sound/mic systems, and managing site registrations.",
+      responsibilities:
+        "Assist in setting up fundraising events, coordinating logistics, handling sound/mic systems, and managing site registrations.",
       commitment: "Flexible (on call during events)",
       Icon: Calendar,
     },
     {
       role: "Environmental Volunteer",
-      responsibilities: "Join our active tree planting groups, distribute seeds, assist in community weeding, and lead environmental talks.",
+      responsibilities:
+        "Join our active tree planting groups, distribute seeds, assist in community weeding, and lead environmental talks.",
       commitment: "3-5 hours per drive",
       Icon: Sprout,
     },
     {
       role: "Social Media Volunteer",
-      responsibilities: "Capture raw program updates on-ground, write engaging short-form text copies, and design simple graphics using Canva.",
+      responsibilities:
+        "Capture raw program updates on-ground, write engaging short-form text copies, and design simple graphics using Canva.",
       commitment: "2-4 hours per week (remote)",
       Icon: MessageSquare,
     },
@@ -589,21 +603,24 @@ export function GetInvolved() {
     {
       name: "Aditya Patel",
       role: "Volunteering Lead",
-      quote: "Volunteering with Uday Foundation's medical camps opened my eyes to rural healthcare gaps. Being able to help screen over 200 seniors in Sanand was incredibly fulfilling. The organization handles every volunteer's support with great structure.",
+      quote:
+        "Volunteering with Uday Foundation's medical camps opened my eyes to rural healthcare gaps. Being able to help screen over 200 seniors in Sanand was incredibly fulfilling. The organization handles every volunteer's support with great structure.",
       impact: "Organized 12 successful village medical camps",
       img: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=150&auto=format&fit=crop",
     },
     {
       name: "Meenaben Vaghela",
       role: "Beneficiary Mother",
-      quote: "When my children received school kits, it was a huge relief. Uday Foundation Trust's support has kept my daughter in school, and now she wants to become a teacher herself. The regular visits by volunteers keep the kids excited to learn.",
+      quote:
+        "When my children received school kits, it was a huge relief. Uday Foundation Trust's support has kept my daughter in school, and now she wants to become a teacher herself. The regular visits by volunteers keep the kids excited to learn.",
       impact: "Two children continuing school with educational sponsorships",
       img: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?q=80&w=150&auto=format&fit=crop",
     },
     {
       name: "Rajesh Shah",
       role: "VP of CSR, Alliance Corp",
-      quote: "Partnering with Uday for our CSR initiative was seamless. Their transparency, regular reporting, and true focus on community development matched our corporate values perfectly. The employee volunteering day they structured was incredibly impactful.",
+      quote:
+        "Partnering with Uday for our CSR initiative was seamless. Their transparency, regular reporting, and true focus on community development matched our corporate values perfectly. The employee volunteering day they structured was incredibly impactful.",
       impact: "Adopted 3 community schools and built modern libraries",
       img: "https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?q=80&w=150&auto=format&fit=crop",
     },
@@ -634,8 +651,10 @@ export function GetInvolved() {
   ];
 
   return (
-    <div ref={containerRef} className="bg-slate-50 min-h-screen text-slate-800 font-sans overflow-hidden">
-      
+    <div
+      ref={containerRef}
+      className="bg-slate-50 min-h-screen text-slate-800 font-sans overflow-hidden"
+    >
       {/* 1. HERO SECTION */}
       <section className="relative min-h-[75vh] flex items-center justify-center text-white py-20 px-4">
         {/* Background Image */}
@@ -665,11 +684,13 @@ export function GetInvolved() {
           </span>
 
           <h1 className="gsap-hero-animate text-4xl md:text-6xl lg:text-7xl font-display font-bold leading-tight tracking-tight mb-6">
-            Together We Can <span className="text-secondary bg-clip-text">Build a Better Tomorrow</span>
+            Together We Can{" "}
+            <span className="text-secondary bg-clip-text">Build a Better Tomorrow</span>
           </h1>
 
           <p className="gsap-hero-animate text-lg md:text-xl lg:text-2xl text-slate-200 font-light leading-relaxed max-w-3xl mx-auto mb-10">
-            Join Uday Foundation Trust in creating meaningful impact through education, healthcare, environmental initiatives, disaster relief, and community development.
+            Join Uday Foundation Trust in creating meaningful impact through education, healthcare,
+            environmental initiatives, disaster relief, and community development.
           </p>
 
           <div className="gsap-hero-animate flex flex-wrap justify-center gap-4">
@@ -690,7 +711,11 @@ export function GetInvolved() {
 
         {/* Wave divider */}
         <div className="absolute bottom-0 left-0 w-full overflow-hidden leading-none z-10">
-          <svg className="relative block w-full h-8 md:h-12 text-slate-50 fill-current" viewBox="0 0 1200 120" preserveAspectRatio="none">
+          <svg
+            className="relative block w-full h-8 md:h-12 text-slate-50 fill-current"
+            viewBox="0 0 1200 120"
+            preserveAspectRatio="none"
+          >
             <path d="M985.66,92.83C906.67,72,823.78,31,743.84,14.19c-82.26-17.34-168.06-16.33-250.45.39-57.84,11.73-114,31.07-172,41.86A600.21,600.21,0,0,1,0,27.35V120H1200V95.8C1132.19,118.92,1055.71,111.31,985.66,92.83Z" />
           </svg>
         </div>
@@ -707,7 +732,8 @@ export function GetInvolved() {
               Why Get Involved with Us
             </h2>
             <p className="text-base md:text-lg text-slate-600 mt-4 leading-relaxed">
-              Every hand that joins, every contribution made, fuels our focus on sustainable development, self-reliant villages, and transparent grassroot actions.
+              Every hand that joins, every contribution made, fuels our focus on sustainable
+              development, self-reliant villages, and transparent grassroot actions.
             </p>
           </div>
 
@@ -723,15 +749,15 @@ export function GetInvolved() {
                 className="bg-white p-6 rounded-3xl border border-slate-200/80 shadow-md flex flex-col justify-between hover:shadow-xl transition-all duration-300 group"
               >
                 <div>
-                  <div className={`h-12 w-12 rounded-2xl bg-gradient-to-br ${color} flex items-center justify-center mb-6`}>
+                  <div
+                    className={`h-12 w-12 rounded-2xl bg-gradient-to-br ${color} flex items-center justify-center mb-6`}
+                  >
                     <Icon className="h-6 w-6" />
                   </div>
                   <h3 className="text-lg font-display font-bold text-slate-900 leading-snug mb-3">
                     {title}
                   </h3>
-                  <p className="text-sm text-slate-600 leading-relaxed font-light">
-                    {desc}
-                  </p>
+                  <p className="text-sm text-slate-600 leading-relaxed font-light">{desc}</p>
                 </div>
                 <button
                   onClick={() => setSelectedImpact(IMPACT_DETAILS[title])}
@@ -756,7 +782,8 @@ export function GetInvolved() {
               Ways You Can Help
             </h2>
             <p className="text-base md:text-lg text-slate-600 mt-4 leading-relaxed">
-              Find the perfect engagement model. From immediate micro-actions on your phone to long-term community partnerships on site.
+              Find the perfect engagement model. From immediate micro-actions on your phone to
+              long-term community partnerships on site.
             </p>
           </div>
 
@@ -775,12 +802,8 @@ export function GetInvolved() {
                   <div className="h-10 w-10 rounded-xl bg-primary/10 text-primary flex items-center justify-center mb-5 group-hover:bg-primary group-hover:text-white transition-all duration-300">
                     <Icon className="h-5 w-5" />
                   </div>
-                  <h3 className="text-xl font-display font-bold text-slate-900 mb-2">
-                    {title}
-                  </h3>
-                  <p className="text-sm text-slate-600 leading-relaxed font-light mb-6">
-                    {desc}
-                  </p>
+                  <h3 className="text-xl font-display font-bold text-slate-900 mb-2">{title}</h3>
+                  <p className="text-sm text-slate-600 leading-relaxed font-light mb-6">{desc}</p>
                 </div>
                 <button
                   onClick={action}
@@ -805,7 +828,8 @@ export function GetInvolved() {
               Active Volunteer Opportunities
             </h2>
             <p className="text-base md:text-lg text-slate-600 mt-4 leading-relaxed">
-              Become a driver of change. We are looking for volunteers to fill roles across different programs. Apply now to get started.
+              Become a driver of change. We are looking for volunteers to fill roles across
+              different programs. Apply now to get started.
             </p>
           </div>
 
@@ -821,7 +845,7 @@ export function GetInvolved() {
               >
                 {/* Visual side highlights */}
                 <div className="absolute top-0 left-0 w-2 h-full bg-primary/20 group-hover:bg-primary transition-all duration-300" />
-                
+
                 <div>
                   <div className="flex items-start justify-between mb-6">
                     <span className="text-xs font-semibold text-primary uppercase tracking-wider bg-primary/10 px-3 py-1 rounded-full">
@@ -829,11 +853,11 @@ export function GetInvolved() {
                     </span>
                     <Icon className="h-5 w-5 text-slate-400 group-hover:text-primary transition-colors" />
                   </div>
-                  
+
                   <h3 className="text-xl font-display font-bold text-slate-955 mb-4 pl-2">
                     {role}
                   </h3>
-                  
+
                   <div className="space-y-4 text-sm pl-2">
                     <div>
                       <span className="text-slate-400 block text-xs font-semibold uppercase tracking-wider">
@@ -847,9 +871,7 @@ export function GetInvolved() {
                       <span className="text-slate-400 block text-xs font-semibold uppercase tracking-wider">
                         Time Commitment
                       </span>
-                      <p className="text-slate-900 font-semibold mt-1">
-                        {commitment}
-                      </p>
+                      <p className="text-slate-900 font-semibold mt-1">{commitment}</p>
                     </div>
                   </div>
                 </div>
@@ -881,15 +903,18 @@ export function GetInvolved() {
                 Corporate & CSR Partnerships
               </h2>
               <p className="text-slate-600 mt-6 leading-relaxed font-light">
-                We partner with socially conscious companies to structure sustainable programs that meet Corporate Social Responsibility targets, comply fully with statutory rules, and generate clean auditing reports.
+                We partner with socially conscious companies to structure sustainable programs that
+                meet Corporate Social Responsibility targets, comply fully with statutory rules, and
+                generate clean auditing reports.
               </p>
-              
+
               <div className="mt-8 p-6 bg-slate-50 border border-slate-200 rounded-3xl flex items-start gap-4">
                 <CheckCircle2 className="h-6 w-6 text-leaf shrink-0 mt-0.5" />
                 <div>
                   <h4 className="font-semibold text-slate-900">Compliant & Transparent</h4>
                   <p className="text-sm text-slate-600 font-light mt-1">
-                    Uday Foundation Trust holds full certification for 12A, 80G, and DARPAN registrations, facilitating easy, clean CSR operations.
+                    Uday Foundation Trust holds full certification for 12A, 80G, and DARPAN
+                    registrations, facilitating easy, clean CSR operations.
                   </p>
                 </div>
               </div>
@@ -922,15 +947,11 @@ export function GetInvolved() {
                   className="bg-slate-50 hover:bg-slate-100/50 p-6 rounded-2xl border border-slate-200/80 transition-colors shadow-sm flex flex-col md:flex-row md:items-start gap-4"
                 >
                   <div className="h-8 w-8 rounded-lg bg-primary/10 text-primary flex items-center justify-center font-bold text-sm shrink-0">
-                    0{i+1}
+                    0{i + 1}
                   </div>
                   <div>
-                    <h3 className="text-lg font-display font-bold text-slate-900 mb-1">
-                      {title}
-                    </h3>
-                    <p className="text-sm text-slate-600 font-light leading-relaxed mb-3">
-                      {desc}
-                    </p>
+                    <h3 className="text-lg font-display font-bold text-slate-900 mb-1">{title}</h3>
+                    <p className="text-sm text-slate-600 font-light leading-relaxed mb-3">{desc}</p>
                     <span className="text-xs font-semibold text-leaf bg-leaf/5 px-2.5 py-1 rounded-full border border-leaf/10">
                       Core Benefit: {benefit}
                     </span>
@@ -953,7 +974,8 @@ export function GetInvolved() {
               Your Volunteer Journey
             </h2>
             <p className="text-base md:text-lg text-slate-600 mt-4 leading-relaxed">
-              Getting started is easy. We outline steps to prepare you for impact without disrupting your professional calendar.
+              Getting started is easy. We outline steps to prepare you for impact without disrupting
+              your professional calendar.
             </p>
           </div>
 
@@ -963,7 +985,10 @@ export function GetInvolved() {
 
             <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8 relative z-10">
               {JOURNEY_STEPS.map(({ step, title, desc, Icon }) => (
-                <div key={title} className="bg-slate-50 p-6 rounded-3xl border border-slate-200/80 shadow-sm text-center flex flex-col items-center">
+                <div
+                  key={title}
+                  className="bg-slate-50 p-6 rounded-3xl border border-slate-200/80 shadow-sm text-center flex flex-col items-center"
+                >
                   <div className="relative mb-6">
                     {/* Circle Wrapper */}
                     <div className="h-14 w-14 rounded-full bg-primary text-white flex items-center justify-center shadow-lg relative z-10">
@@ -978,10 +1003,8 @@ export function GetInvolved() {
                   <h3 className="text-lg font-display font-bold text-slate-900 leading-snug mb-3">
                     {title}
                   </h3>
-                  
-                  <p className="text-sm text-slate-600 leading-relaxed font-light">
-                    {desc}
-                  </p>
+
+                  <p className="text-sm text-slate-600 leading-relaxed font-light">{desc}</p>
                 </div>
               ))}
             </div>
@@ -1000,13 +1023,17 @@ export function GetInvolved() {
               Success Stories
             </h2>
             <p className="text-base md:text-lg text-slate-600 mt-4 leading-relaxed">
-              Listen to the testimonies of volunteers, corporate stakeholders, and beneficiaries whose lives are enriched by Uday Trust programs.
+              Listen to the testimonies of volunteers, corporate stakeholders, and beneficiaries
+              whose lives are enriched by Uday Trust programs.
             </p>
           </div>
 
           <div className="grid lg:grid-cols-3 gap-8">
             {SUCCESS_STORIES.map(({ name, role, quote, impact, img }) => (
-              <div key={name} className="bg-slate-50 border border-slate-200 rounded-3xl p-6 md:p-8 flex flex-col justify-between shadow-sm relative">
+              <div
+                key={name}
+                className="bg-slate-50 border border-slate-200 rounded-3xl p-6 md:p-8 flex flex-col justify-between shadow-sm relative"
+              >
                 <div>
                   <div className="flex items-center gap-4 mb-6">
                     <img
@@ -1018,9 +1045,7 @@ export function GetInvolved() {
                       <h4 className="font-display font-bold text-slate-900 text-lg leading-tight">
                         {name}
                       </h4>
-                      <span className="text-xs text-slate-500 font-medium">
-                        {role}
-                      </span>
+                      <span className="text-xs text-slate-500 font-medium">{role}</span>
                     </div>
                   </div>
 
@@ -1033,9 +1058,7 @@ export function GetInvolved() {
                   <span className="text-slate-400 block text-[10px] font-semibold uppercase tracking-wider">
                     Verifiable Impact
                   </span>
-                  <p className="text-leaf text-sm font-semibold mt-1">
-                    {impact}
-                  </p>
+                  <p className="text-leaf text-sm font-semibold mt-1">{impact}</p>
                 </div>
               </div>
             ))}
@@ -1049,8 +1072,7 @@ export function GetInvolved() {
         <div
           className="absolute inset-0 pointer-events-none opacity-10"
           style={{
-            backgroundImage:
-              "radial-gradient(circle at 1px 1px, white 1px, transparent 0)",
+            backgroundImage: "radial-gradient(circle at 1px 1px, white 1px, transparent 0)",
             backgroundSize: "24px 24px",
           }}
         />
@@ -1064,7 +1086,8 @@ export function GetInvolved() {
               Our Collective Impact
             </h2>
             <p className="text-slate-200 mt-4 leading-relaxed font-light">
-              Thousands of lives are assisted, saplings planted, and diagnostics completed through combined donations and volunteer hours.
+              Thousands of lives are assisted, saplings planted, and diagnostics completed through
+              combined donations and volunteer hours.
             </p>
           </div>
 
@@ -1077,7 +1100,10 @@ export function GetInvolved() {
               { to: 25000, suffix: "+", label: "Trees Planted" },
               { to: 120, suffix: "+", label: "Villages Reached" },
             ].map(({ to, suffix, label }) => (
-              <div key={label} className="bg-white/10 backdrop-blur-md border border-white/10 rounded-2xl p-4 md:p-6 text-center shadow-md">
+              <div
+                key={label}
+                className="bg-white/10 backdrop-blur-md border border-white/10 rounded-2xl p-4 md:p-6 text-center shadow-md"
+              >
                 <span className="block text-3xl md:text-4xl lg:text-5xl font-bold font-display text-secondary tracking-tight">
                   <Counter to={to} suffix={suffix} />
                 </span>
@@ -1101,7 +1127,8 @@ export function GetInvolved() {
               Frequently Asked Questions
             </h2>
             <p className="text-base text-slate-600 mt-4 leading-relaxed">
-              Find quick answers regarding volunteer certificates, student engagement guidelines, and donation auditing details.
+              Find quick answers regarding volunteer certificates, student engagement guidelines,
+              and donation auditing details.
             </p>
           </div>
 
@@ -1124,7 +1151,7 @@ export function GetInvolved() {
                       <ChevronDown className="h-5 w-5 text-slate-400 shrink-0" />
                     )}
                   </button>
-                  
+
                   <AnimatePresence initial={false}>
                     {isOpen && (
                       <motion.div
@@ -1161,9 +1188,10 @@ export function GetInvolved() {
           <h2 className="text-3xl md:text-5xl lg:text-6xl font-display font-bold leading-tight tracking-tight mb-6">
             Be the Reason <span className="text-secondary">Someone Smiles Today</span>
           </h2>
-          
+
           <p className="text-lg md:text-xl text-slate-200 font-light leading-relaxed max-w-2xl mx-auto mb-10">
-            Your support can transform lives, support students, build rural health accessibility, and strengthen communities.
+            Your support can transform lives, support students, build rural health accessibility,
+            and strengthen communities.
           </p>
 
           <div className="flex flex-wrap justify-center gap-4">
@@ -1182,7 +1210,6 @@ export function GetInvolved() {
           </div>
         </div>
       </section>
-
 
       {/* REGISTRATION MODAL FORM */}
       <AnimatePresence>
@@ -1215,9 +1242,11 @@ export function GetInvolved() {
               </span>
 
               <h3 className="text-2xl font-display font-semibold text-slate-900 mt-4">
-                {modalCategory === "volunteer" ? "Become a Change Maker" : "Collaborate with Uday Trust"}
+                {modalCategory === "volunteer"
+                  ? "Become a Change Maker"
+                  : "Collaborate with Uday Trust"}
               </h3>
-              
+
               <p className="text-sm text-slate-500 mt-2 font-light">
                 {modalCategory === "volunteer"
                   ? "Enter your details to register as an on-ground volunteer for our community programs."
@@ -1767,7 +1796,8 @@ export function GetInvolved() {
                   disabled={formSubmitting}
                   className="w-full py-4 bg-primary text-white text-sm font-semibold rounded-xl hover:bg-primary/95 transition-all shadow-md hover:shadow-primary/20 flex items-center justify-center gap-1.5 mt-2 disabled:opacity-50 cursor-pointer"
                 >
-                  {formSubmitting ? "Uploading Documents..." : "Submit Registration"} <ArrowRight className="h-4 w-4" />
+                  {formSubmitting ? "Uploading Documents..." : "Submit Registration"}{" "}
+                  <ArrowRight className="h-4 w-4" />
                 </button>
               </form>
             </motion.div>
@@ -1808,7 +1838,7 @@ export function GetInvolved() {
               <h3 className="text-2xl font-display font-semibold text-slate-900 mt-4">
                 {selectedImpact.title}
               </h3>
-              
+
               <div className="w-12 h-1 bg-[#F7E81D] my-4 rounded-full" />
 
               <p className="text-sm text-slate-600 leading-relaxed font-light mt-4">
@@ -1841,7 +1871,6 @@ export function GetInvolved() {
           </motion.div>
         )}
       </AnimatePresence>
-
     </div>
   );
 }

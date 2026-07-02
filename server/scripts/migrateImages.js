@@ -21,11 +21,9 @@ const ASSETS_DIR = path.resolve(__dirname, "../../src/assets");
 const SUPABASE_PROJECT_URL = process.env.SUPABASE_URL;
 const PUBLIC_BASE = `${SUPABASE_PROJECT_URL}/storage/v1/object/public/uday-assets`;
 
-const supabase = createClient(
-  SUPABASE_PROJECT_URL,
-  process.env.SUPABASE_SERVICE_ROLE_KEY,
-  { auth: { persistSession: false } }
-);
+const supabase = createClient(SUPABASE_PROJECT_URL, process.env.SUPABASE_SERVICE_ROLE_KEY, {
+  auth: { persistSession: false },
+});
 
 // ── Upload cache so we don't re-upload the same file ──────────────────────
 const uploadCache = new Map(); // localPath -> supabasePublicUrl
@@ -69,7 +67,7 @@ async function resolveUrl(srcPath, folder = "general") {
     .from("uday-assets")
     .list(autoFolder, { search: filename });
 
-  if (existing && existing.some(f => f.name === filename)) {
+  if (existing && existing.some((f) => f.name === filename)) {
     console.log(`  ↩️  Already in storage: ${storagePath}`);
     uploadCache.set(localFilePath, publicUrl);
     return publicUrl;
@@ -97,9 +95,17 @@ async function resolveUrl(srcPath, folder = "general") {
 /** Guess the Supabase storage folder based on filename patterns */
 function guessFolder(filename, defaultFolder) {
   const name = filename.toLowerCase();
-  if (name.includes("president") || name.includes("vice-president") || name.includes("treasurer") ||
-      name.includes("prakash") || name.includes("kartikeya") || name.includes("kuldeep") ||
-      name.includes("mehul") || name.includes("rahul")) return "team";
+  if (
+    name.includes("president") ||
+    name.includes("vice-president") ||
+    name.includes("treasurer") ||
+    name.includes("prakash") ||
+    name.includes("kartikeya") ||
+    name.includes("kuldeep") ||
+    name.includes("mehul") ||
+    name.includes("rahul")
+  )
+    return "team";
   if (name.includes("gallery")) return "gallery";
   // Events and general assets
   return defaultFolder || "events";
@@ -119,7 +125,10 @@ async function resolveImgField(val, folder) {
 async function migrateEvents() {
   console.log("\n\n══ MIGRATING EVENTS ══");
   const { data: events, error } = await supabase.from("events").select("*");
-  if (error) { console.error("Failed to fetch events:", error.message); return; }
+  if (error) {
+    console.error("Failed to fetch events:", error.message);
+    return;
+  }
 
   for (const ev of events) {
     const title = ev.title?.en || ev.id;
@@ -130,13 +139,14 @@ async function migrateEvents() {
 
     // Migrate cover image
     const newImg = await resolveUrl(ev.img, "events");
-    if (newImg !== ev.img) { updates.img = newImg; changed = true; }
+    if (newImg !== ev.img) {
+      updates.img = newImg;
+      changed = true;
+    }
 
     // Migrate images array
     if (ev.images && Array.isArray(ev.images)) {
-      const newImages = await Promise.all(
-        ev.images.map(img => resolveImgField(img, "events"))
-      );
+      const newImages = await Promise.all(ev.images.map((img) => resolveImgField(img, "events")));
       // Deep compare
       if (JSON.stringify(newImages) !== JSON.stringify(ev.images)) {
         updates.images = newImages;
@@ -145,10 +155,7 @@ async function migrateEvents() {
     }
 
     if (changed) {
-      const { error: updateError } = await supabase
-        .from("events")
-        .update(updates)
-        .eq("id", ev.id);
+      const { error: updateError } = await supabase.from("events").update(updates).eq("id", ev.id);
 
       if (updateError) console.error(`  ❌ Update failed: ${updateError.message}`);
       else console.log(`  ✅ Event updated in DB`);
@@ -162,7 +169,10 @@ async function migrateEvents() {
 async function migrateGallery() {
   console.log("\n\n══ MIGRATING GALLERY ══");
   const { data: gallery, error } = await supabase.from("gallery").select("*");
-  if (error) { console.error("Failed to fetch gallery:", error.message); return; }
+  if (error) {
+    console.error("Failed to fetch gallery:", error.message);
+    return;
+  }
 
   for (const item of gallery) {
     const newImg = await resolveUrl(item.img, "gallery");
@@ -182,7 +192,10 @@ async function migrateGallery() {
 async function migratePrograms() {
   console.log("\n\n══ MIGRATING PROGRAMS ══");
   const { data: programs, error } = await supabase.from("programs").select("*");
-  if (error) { console.error("Failed to fetch programs:", error.message); return; }
+  if (error) {
+    console.error("Failed to fetch programs:", error.message);
+    return;
+  }
 
   for (const prog of programs) {
     const title = prog.title?.en || prog.id;
@@ -192,12 +205,13 @@ async function migratePrograms() {
     const updates = {};
 
     const newImage = await resolveUrl(prog.image, "programs");
-    if (newImage !== prog.image) { updates.image = newImage; changed = true; }
+    if (newImage !== prog.image) {
+      updates.image = newImage;
+      changed = true;
+    }
 
     if (prog.thumbnails && Array.isArray(prog.thumbnails)) {
-      const newThumbs = await Promise.all(
-        prog.thumbnails.map(t => resolveUrl(t, "programs"))
-      );
+      const newThumbs = await Promise.all(prog.thumbnails.map((t) => resolveUrl(t, "programs")));
       if (JSON.stringify(newThumbs) !== JSON.stringify(prog.thumbnails)) {
         updates.thumbnails = newThumbs;
         changed = true;
@@ -222,7 +236,10 @@ async function migratePrograms() {
 async function migrateTeam() {
   console.log("\n\n══ MIGRATING TEAM ══");
   const { data: team, error } = await supabase.from("team").select("*");
-  if (error) { console.error("Failed to fetch team:", error.message); return; }
+  if (error) {
+    console.error("Failed to fetch team:", error.message);
+    return;
+  }
 
   for (const member of team) {
     const name = member.name?.en || member.id;
@@ -265,7 +282,7 @@ async function main() {
   console.log(`Total files uploaded: ${uploadCache.size}`);
 }
 
-main().catch(err => {
+main().catch((err) => {
   console.error("❌ Migration failed:", err.message);
   process.exit(1);
 });

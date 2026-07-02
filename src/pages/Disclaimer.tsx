@@ -1,9 +1,7 @@
 import { useDocumentMetadata } from "@/hooks/useDocumentMetadata";
 import { PageHero } from "@/components/site/PageHero";
 import { SITE } from "@/constants/site";
-import {
-  Info, Heart, Wifi, Link2, BadgeCheck, Scale, RefreshCw, Mail,
-} from "lucide-react";
+import { Info, Heart, Wifi, Link2, BadgeCheck, Scale, RefreshCw, Mail } from "lucide-react";
 
 const LAST_UPDATED = "July 1, 2026";
 
@@ -108,7 +106,7 @@ const SECTIONS = [
 export function Disclaimer() {
   useDocumentMetadata(
     "Disclaimer | Uday Foundation Trust",
-    "Read the Disclaimer for Uday Foundation Trust's website. Information is provided in good faith. We are not liable for service interruptions, external links, or reliance on website content."
+    "Read the Disclaimer for Uday Foundation Trust's website. Information is provided in good faith. We are not liable for service interruptions, external links, or reliance on website content.",
   );
 
   return (
@@ -163,8 +161,8 @@ export function Disclaimer() {
           {/* Footer note */}
           <div className="mt-10 rounded-2xl bg-surface-warm border border-border p-5 text-center">
             <p className="text-sm text-muted-foreground">
-              This Disclaimer is governed by the laws of India. Any disputes shall be subject to
-              the exclusive jurisdiction of the courts of Ahmedabad, Gujarat.
+              This Disclaimer is governed by the laws of India. Any disputes shall be subject to the
+              exclusive jurisdiction of the courts of Ahmedabad, Gujarat.
             </p>
           </div>
         </div>

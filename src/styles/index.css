@@ -279,15 +279,21 @@
 
 .hero-gradient {
   background:
-    radial-gradient(circle at 15% 20%,
+    radial-gradient(
+      circle at 15% 20%,
       color-mix(in oklab, var(--secondary) 35%, transparent),
-      transparent 55%),
-    radial-gradient(circle at 85% 10%,
+      transparent 55%
+    ),
+    radial-gradient(
+      circle at 85% 10%,
       color-mix(in oklab, var(--accent) 28%, transparent),
-      transparent 50%),
-    radial-gradient(circle at 70% 90%,
+      transparent 50%
+    ),
+    radial-gradient(
+      circle at 70% 90%,
       color-mix(in oklab, var(--leaf) 25%, transparent),
-      transparent 55%),
+      transparent 55%
+    ),
     linear-gradient(180deg, var(--surface-warm), var(--background));
 }
 
@@ -296,7 +302,6 @@
 }
 
 @keyframes float-soft {
-
   0%,
   100% {
     transform: translateY(0);
@@ -359,12 +364,16 @@
 
 .about-hero-bg {
   background:
-    radial-gradient(circle at 10% 20%,
+    radial-gradient(
+      circle at 10% 20%,
       color-mix(in oklab, var(--primary) 6%, transparent),
-      transparent 45%),
-    radial-gradient(circle at 90% 80%,
+      transparent 45%
+    ),
+    radial-gradient(
+      circle at 90% 80%,
       color-mix(in oklab, var(--secondary) 15%, transparent),
-      transparent 40%),
+      transparent 40%
+    ),
     linear-gradient(180deg, var(--surface-warm), var(--background));
 }
 
@@ -375,10 +384,12 @@
   top: 0;
   bottom: 0;
   width: 2px;
-  background: linear-gradient(180deg,
-      color-mix(in oklab, var(--primary) 20%, transparent),
-      var(--primary),
-      color-mix(in oklab, var(--primary) 20%, transparent));
+  background: linear-gradient(
+    180deg,
+    color-mix(in oklab, var(--primary) 20%, transparent),
+    var(--primary),
+    color-mix(in oklab, var(--primary) 20%, transparent)
+  );
 }
 
 @media (min-width: 768px) {
@@ -443,7 +454,13 @@
     background: white !important;
     color: black !important;
   }
-  header, footer, aside, .PageHero, button, a, .print\:hidden {
+  header,
+  footer,
+  aside,
+  .PageHero,
+  button,
+  a,
+  .print\:hidden {
     display: none !important;
   }
   main {

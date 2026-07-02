@@ -169,7 +169,7 @@ export function Team() {
 
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (coverImages.length === 0) {
       toast.error("A profile photo is required.");
       return;
@@ -265,7 +265,9 @@ export function Team() {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl md:text-3xl font-display font-bold">Team Members</h1>
-          <p className="text-sm text-slate-500 font-medium font-gujarati">ટ્રસ્ટી મંડળ અને મુખ્ય વ્યવસ્થાપક સમિતિ</p>
+          <p className="text-sm text-slate-500 font-medium font-gujarati">
+            ટ્રસ્ટી મંડળ અને મુખ્ય વ્યવસ્થાપક સમિતિ
+          </p>
         </div>
         <button
           onClick={handleOpenAddModal}
@@ -279,7 +281,10 @@ export function Team() {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         {loading ? (
           Array.from({ length: 4 }).map((_, idx) => (
-            <div key={idx} className="bg-white rounded-3xl border border-slate-200/80 p-5 space-y-4 animate-pulse">
+            <div
+              key={idx}
+              className="bg-white rounded-3xl border border-slate-200/80 p-5 space-y-4 animate-pulse"
+            >
               <div className="aspect-square bg-slate-100 rounded-2xl w-full" />
               <div className="space-y-2">
                 <div className="h-4 w-1/4 bg-slate-100 rounded" />
@@ -292,83 +297,89 @@ export function Team() {
           <div className="col-span-full text-center py-12 text-slate-400 font-bold">
             No team members found.
           </div>
-        ) : team.map((m, index) => (
-          <div
-            key={m.id || m._id}
-            className="bg-white rounded-3xl border border-slate-200/80 shadow-xs hover:shadow-md transition-all overflow-hidden flex flex-col justify-between"
-          >
-            <div>
-              {/* Picture */}
-              <div className="relative aspect-square bg-slate-100 overflow-hidden">
-                <img src={m.img} alt={m.name} className="w-full h-full object-cover" />
-              </div>
-
-              {/* Details */}
-              <div className="p-5 space-y-2">
-                <div className="flex justify-between items-center">
-                  <span className="text-[10px] text-primary font-bold uppercase tracking-wider block">
-                    {m.role}
-                  </span>
-                  <span className="text-[10px] text-slate-400 font-bold">Order: {m.displayOrder}</span>
+        ) : (
+          team.map((m, index) => (
+            <div
+              key={m.id || m._id}
+              className="bg-white rounded-3xl border border-slate-200/80 shadow-xs hover:shadow-md transition-all overflow-hidden flex flex-col justify-between"
+            >
+              <div>
+                {/* Picture */}
+                <div className="relative aspect-square bg-slate-100 overflow-hidden">
+                  <img src={m.img} alt={m.name} className="w-full h-full object-cover" />
                 </div>
-                <h3 className="text-base font-bold text-slate-900 leading-snug">{m.name}</h3>
-                <p className="text-xs text-slate-500 leading-relaxed font-medium line-clamp-3">{m.bio}</p>
-                
-                <div className="pt-3 space-y-1.5 text-[10px] text-slate-400 font-bold border-t border-slate-100">
-                  <div className="flex items-center gap-2 text-slate-600">
-                    <Mail className="h-3.5 w-3.5 text-slate-400 flex-none" />
-                    <span className="truncate">{m.email}</span>
+
+                {/* Details */}
+                <div className="p-5 space-y-2">
+                  <div className="flex justify-between items-center">
+                    <span className="text-[10px] text-primary font-bold uppercase tracking-wider block">
+                      {m.role}
+                    </span>
+                    <span className="text-[10px] text-slate-400 font-bold">
+                      Order: {m.displayOrder}
+                    </span>
                   </div>
-                  {m.phone && (
+                  <h3 className="text-base font-bold text-slate-900 leading-snug">{m.name}</h3>
+                  <p className="text-xs text-slate-500 leading-relaxed font-medium line-clamp-3">
+                    {m.bio}
+                  </p>
+
+                  <div className="pt-3 space-y-1.5 text-[10px] text-slate-400 font-bold border-t border-slate-100">
                     <div className="flex items-center gap-2 text-slate-600">
-                      <Phone className="h-3.5 w-3.5 text-slate-400 flex-none" />
-                      <span>{m.phone}</span>
+                      <Mail className="h-3.5 w-3.5 text-slate-400 flex-none" />
+                      <span className="truncate">{m.email}</span>
                     </div>
-                  )}
+                    {m.phone && (
+                      <div className="flex items-center gap-2 text-slate-600">
+                        <Phone className="h-3.5 w-3.5 text-slate-400 flex-none" />
+                        <span>{m.phone}</span>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              {/* Actions */}
+              <div className="p-4 border-t border-slate-100 bg-slate-50/50 flex gap-2 items-center justify-between">
+                <div className="flex gap-1.5 flex-1">
+                  <button
+                    onClick={() => handleEditOpen(m)}
+                    className="flex-1 py-2 bg-white hover:bg-slate-100 border border-slate-200 rounded-xl text-xs font-bold text-slate-600 flex items-center justify-center gap-1 cursor-pointer"
+                  >
+                    <Edit className="h-3.5 w-3.5" /> Edit
+                  </button>
+                  <button
+                    onClick={() => handleDelete(m.id || m._id)}
+                    className="py-2 px-3 hover:bg-rose-50 border border-rose-100 rounded-xl text-rose-500 cursor-pointer"
+                    title="Remove Member"
+                  >
+                    <Trash2 className="h-3.5 w-3.5" />
+                  </button>
+                </div>
+
+                {/* Move Left / Right buttons */}
+                <div className="flex gap-1">
+                  <button
+                    disabled={index === 0}
+                    onClick={() => handleMove(index, "left")}
+                    className="h-7 w-7 rounded bg-white border border-slate-200 hover:bg-slate-50 disabled:opacity-30 disabled:pointer-events-none flex items-center justify-center cursor-pointer"
+                    title="Move Left"
+                  >
+                    <ArrowLeft className="h-3.5 w-3.5 text-slate-500" />
+                  </button>
+                  <button
+                    disabled={index === team.length - 1}
+                    onClick={() => handleMove(index, "right")}
+                    className="h-7 w-7 rounded bg-white border border-slate-200 hover:bg-slate-50 disabled:opacity-30 disabled:pointer-events-none flex items-center justify-center cursor-pointer"
+                    title="Move Right"
+                  >
+                    <ArrowRight className="h-3.5 w-3.5 text-slate-500" />
+                  </button>
                 </div>
               </div>
             </div>
-
-            {/* Actions */}
-            <div className="p-4 border-t border-slate-100 bg-slate-50/50 flex gap-2 items-center justify-between">
-              <div className="flex gap-1.5 flex-1">
-                <button
-                  onClick={() => handleEditOpen(m)}
-                  className="flex-1 py-2 bg-white hover:bg-slate-100 border border-slate-200 rounded-xl text-xs font-bold text-slate-600 flex items-center justify-center gap-1 cursor-pointer"
-                >
-                  <Edit className="h-3.5 w-3.5" /> Edit
-                </button>
-                <button
-                  onClick={() => handleDelete(m.id || m._id)}
-                  className="py-2 px-3 hover:bg-rose-50 border border-rose-100 rounded-xl text-rose-500 cursor-pointer"
-                  title="Remove Member"
-                >
-                  <Trash2 className="h-3.5 w-3.5" />
-                </button>
-              </div>
-
-              {/* Move Left / Right buttons */}
-              <div className="flex gap-1">
-                <button
-                  disabled={index === 0}
-                  onClick={() => handleMove(index, "left")}
-                  className="h-7 w-7 rounded bg-white border border-slate-200 hover:bg-slate-50 disabled:opacity-30 disabled:pointer-events-none flex items-center justify-center cursor-pointer"
-                  title="Move Left"
-                >
-                  <ArrowLeft className="h-3.5 w-3.5 text-slate-500" />
-                </button>
-                <button
-                  disabled={index === team.length - 1}
-                  onClick={() => handleMove(index, "right")}
-                  className="h-7 w-7 rounded bg-white border border-slate-200 hover:bg-slate-50 disabled:opacity-30 disabled:pointer-events-none flex items-center justify-center cursor-pointer"
-                  title="Move Right"
-                >
-                  <ArrowRight className="h-3.5 w-3.5 text-slate-500" />
-                </button>
-              </div>
-            </div>
-          </div>
-        ))}
+          ))
+        )}
       </div>
 
       {/* Edit Modal */}
@@ -376,7 +387,9 @@ export function Team() {
         <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
           <div className="bg-white rounded-3xl border border-slate-200 shadow-2xl max-w-md w-full overflow-hidden animate-scale-up max-h-[90vh] flex flex-col">
             <div className="p-6 border-b border-slate-100 flex items-center justify-between">
-              <h3 className="font-bold text-lg">{selectedMember ? "Edit Team Member" : "Add Team Member"}</h3>
+              <h3 className="font-bold text-lg">
+                {selectedMember ? "Edit Team Member" : "Add Team Member"}
+              </h3>
               <button
                 onClick={() => setModalOpen(false)}
                 className="text-slate-400 hover:text-slate-600 p-1.5 rounded-lg hover:bg-slate-50 cursor-pointer"
@@ -384,89 +397,94 @@ export function Team() {
                 <X className="h-5 w-5" />
               </button>
             </div>
-            
+
             {/* Outer Form */}
             <form onSubmit={handleSave} className="flex-1 flex flex-col overflow-hidden">
               {/* Scrollable Form Body */}
               <div className="flex-1 overflow-y-auto p-6 space-y-4 text-xs font-semibold">
-              <div className="space-y-1.5">
-                <label className="text-slate-500 uppercase tracking-wider">Full Name *</label>
-                <input
-                  type="text"
-                  required
-                  value={formName}
-                  onChange={(e) => setFormName(e.target.value)}
-                  className="w-full h-11 px-4 rounded-xl border border-slate-200 bg-slate-50 focus:outline-none focus:border-primary text-sm font-medium"
-                />
-              </div>
-
-              <div className="space-y-1.5">
-                <label className="text-slate-500 uppercase tracking-wider">Role / Designation *</label>
-                <input
-                  type="text"
-                  required
-                  value={formRole}
-                  onChange={(e) => setFormRole(e.target.value)}
-                  className="w-full h-11 px-4 rounded-xl border border-slate-200 bg-slate-50 focus:outline-none focus:border-primary text-sm font-medium"
-                />
-              </div>
-
-              <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-1.5">
-                  <label className="text-slate-500 uppercase tracking-wider">Email Address</label>
-                  <input
-                    type="email"
-                    value={formEmail}
-                    onChange={(e) => setFormEmail(e.target.value)}
-                    className="w-full h-11 px-4 rounded-xl border border-slate-200 bg-slate-50 focus:outline-none focus:border-primary text-sm font-medium"
-                  />
-                </div>
-                <div className="space-y-1.5">
-                  <label className="text-slate-500 uppercase tracking-wider">Phone Number</label>
+                  <label className="text-slate-500 uppercase tracking-wider">Full Name *</label>
                   <input
                     type="text"
-                    value={formPhone}
-                    onChange={(e) => setFormPhone(e.target.value)}
-                    className="w-full h-11 px-4 rounded-xl border border-slate-200 bg-slate-50 focus:outline-none focus:border-primary text-sm font-medium"
-                  />
-                </div>
-              </div>
-
-              <div className="grid grid-cols-1 gap-4">
-                <div className="space-y-1.5">
-                  <label className="text-slate-500 uppercase tracking-wider">Display Order *</label>
-                  <input
-                    type="number"
                     required
-                    value={formDisplayOrder}
-                    onChange={(e) => setFormDisplayOrder(Number(e.target.value))}
+                    value={formName}
+                    onChange={(e) => setFormName(e.target.value)}
                     className="w-full h-11 px-4 rounded-xl border border-slate-200 bg-slate-50 focus:outline-none focus:border-primary text-sm font-medium"
                   />
                 </div>
-              </div>
 
-              <div className="space-y-1.5">
-                <label className="text-slate-500 uppercase tracking-wider">Biography Profile</label>
-                <textarea
-                  rows={3}
-                  value={formBio}
-                  onChange={(e) => setFormBio(e.target.value)}
-                  className="w-full p-4 rounded-xl border border-slate-200 bg-slate-50 focus:outline-none focus:border-primary text-sm font-medium"
-                />
-              </div>
+                <div className="space-y-1.5">
+                  <label className="text-slate-500 uppercase tracking-wider">
+                    Role / Designation *
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    value={formRole}
+                    onChange={(e) => setFormRole(e.target.value)}
+                    className="w-full h-11 px-4 rounded-xl border border-slate-200 bg-slate-50 focus:outline-none focus:border-primary text-sm font-medium"
+                  />
+                </div>
 
-              {/* Profile Photo Upload */}
-              <div className="space-y-2">
-                <label className="text-slate-500 uppercase tracking-wider">Profile Photo *</label>
-                <ImageManager
-                  images={coverImages}
-                  coverImage={coverImages[0] || ""}
-                  onChange={(images) => setCoverImages(images)}
-                  folder="team"
-                  singleOnly={true}
-                />
-              </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-1.5">
+                    <label className="text-slate-500 uppercase tracking-wider">Email Address</label>
+                    <input
+                      type="email"
+                      value={formEmail}
+                      onChange={(e) => setFormEmail(e.target.value)}
+                      className="w-full h-11 px-4 rounded-xl border border-slate-200 bg-slate-50 focus:outline-none focus:border-primary text-sm font-medium"
+                    />
+                  </div>
+                  <div className="space-y-1.5">
+                    <label className="text-slate-500 uppercase tracking-wider">Phone Number</label>
+                    <input
+                      type="text"
+                      value={formPhone}
+                      onChange={(e) => setFormPhone(e.target.value)}
+                      className="w-full h-11 px-4 rounded-xl border border-slate-200 bg-slate-50 focus:outline-none focus:border-primary text-sm font-medium"
+                    />
+                  </div>
+                </div>
 
+                <div className="grid grid-cols-1 gap-4">
+                  <div className="space-y-1.5">
+                    <label className="text-slate-500 uppercase tracking-wider">
+                      Display Order *
+                    </label>
+                    <input
+                      type="number"
+                      required
+                      value={formDisplayOrder}
+                      onChange={(e) => setFormDisplayOrder(Number(e.target.value))}
+                      className="w-full h-11 px-4 rounded-xl border border-slate-200 bg-slate-50 focus:outline-none focus:border-primary text-sm font-medium"
+                    />
+                  </div>
+                </div>
+
+                <div className="space-y-1.5">
+                  <label className="text-slate-500 uppercase tracking-wider">
+                    Biography Profile
+                  </label>
+                  <textarea
+                    rows={3}
+                    value={formBio}
+                    onChange={(e) => setFormBio(e.target.value)}
+                    className="w-full p-4 rounded-xl border border-slate-200 bg-slate-50 focus:outline-none focus:border-primary text-sm font-medium"
+                  />
+                </div>
+
+                {/* Profile Photo Upload */}
+                <div className="space-y-2">
+                  <label className="text-slate-500 uppercase tracking-wider">Profile Photo *</label>
+                  <ImageManager
+                    images={coverImages}
+                    coverImage={coverImages[0] || ""}
+                    onChange={(images) => setCoverImages(images)}
+                    folder="team"
+                    singleOnly={true}
+                  />
+                </div>
               </div>
 
               {/* Fixed Footer Submit Buttons */}
@@ -484,7 +502,7 @@ export function Team() {
                   disabled={loading}
                   className="flex-1 btn-primary text-xs py-2.5 px-4 cursor-pointer disabled:opacity-50"
                 >
-                  {loading ? "Saving..." : (selectedMember ? "Save Changes" : "Add Member")}
+                  {loading ? "Saving..." : selectedMember ? "Save Changes" : "Add Member"}
                 </button>
               </div>
             </form>

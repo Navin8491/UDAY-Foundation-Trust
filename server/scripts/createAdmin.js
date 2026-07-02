@@ -3,11 +3,9 @@ import dotenv from "dotenv";
 
 dotenv.config();
 
-const supabase = createClient(
-  process.env.SUPABASE_URL,
-  process.env.SUPABASE_SERVICE_ROLE_KEY,
-  { auth: { persistSession: false, autoRefreshToken: false } }
-);
+const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SERVICE_ROLE_KEY, {
+  auth: { persistSession: false, autoRefreshToken: false },
+});
 
 const ADMIN_EMAIL = process.env.ADMIN_EMAIL;
 const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD;
@@ -20,7 +18,10 @@ async function createAdmin() {
   console.log("Creating admin user in Supabase Auth...");
 
   // 1. Create the user in Supabase Auth
-  const { data: { user }, error: createError } = await supabase.auth.admin.createUser({
+  const {
+    data: { user },
+    error: createError,
+  } = await supabase.auth.admin.createUser({
     email: ADMIN_EMAIL,
     password: ADMIN_PASSWORD,
     email_confirm: true,
@@ -29,9 +30,12 @@ async function createAdmin() {
   if (createError) {
     if (createError.message.includes("already been registered")) {
       console.log("Admin user already exists in Supabase Auth. Fetching existing user...");
-      const { data: { users }, error: listError } = await supabase.auth.admin.listUsers();
+      const {
+        data: { users },
+        error: listError,
+      } = await supabase.auth.admin.listUsers();
       if (listError) throw new Error(listError.message);
-      const existing = users.find(u => u.email === ADMIN_EMAIL);
+      const existing = users.find((u) => u.email === ADMIN_EMAIL);
       if (!existing) throw new Error("Could not find existing admin user.");
       return ensureAdminRecord(existing.id, ADMIN_EMAIL);
     }
@@ -72,7 +76,7 @@ ON CONFLICT (id) DO NOTHING;
   console.log("===========================================");
 }
 
-createAdmin().catch(err => {
+createAdmin().catch((err) => {
   console.error("❌ Error:", err.message);
   process.exit(1);
 });
