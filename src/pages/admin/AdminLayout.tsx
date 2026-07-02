@@ -50,9 +50,12 @@ export function AdminLayout() {
   const location = useLocation();
 
   const [loading, setLoading] = useState(true);
+  const [user, setUser] = useState<any>(null);
   const [notifications, setNotifications] = useState<NotificationItem[]>([]);
 
   useEffect(() => {
+    if (!user) return;
+
     const unsubscribe = subscribeNotifications(
       (items) => {
         setNotifications(items || []);
@@ -62,7 +65,7 @@ export function AdminLayout() {
       }
     );
     return () => unsubscribe();
-  }, []);
+  }, [user]);
 
   const unreadCount = notifications.filter((n) => !n.read_status).length;
 
@@ -133,6 +136,7 @@ export function AdminLayout() {
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged((currentUser) => {
+      setUser(currentUser);
       setLoading(false);
       if (!currentUser) {
         navigate("/admin/login");
@@ -146,7 +150,7 @@ export function AdminLayout() {
     setMobileOpen(false);
   }, [location.pathname]);
 
-  if (loading) {
+  if (loading || !user) {
     return (
       <div className="flex h-screen w-full items-center justify-center bg-slate-950 text-slate-100">
         <Loader2 className="h-8 w-8 animate-spin text-[#4040A1]" />
