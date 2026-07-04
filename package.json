@@ -6,6 +6,8 @@
   "type": "module",
   "scripts": {
     "dev": "next dev",
+    "dev:all": "concurrently --names \"NEXT,SERVER\" --prefix-colors \"cyan,yellow\" \"next dev\" \"npm run server\"",
+    "server": "node server/server.js",
     "build": "next build",
     "start": "next start",
     "lint": "eslint .",
@@ -36,6 +38,7 @@
     "@types/node": "^22.16.5",
     "@types/react": "^19.2.0",
     "@types/react-dom": "^19.2.0",
+    "concurrently": "^10.0.3",
     "eslint": "^9.32.0",
     "eslint-config-prettier": "^10.1.1",
     "eslint-plugin-prettier": "^5.2.6",
