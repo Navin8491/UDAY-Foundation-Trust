@@ -4,8 +4,12 @@ let authState: any = null;
 const listeners = new Set<(user: any | null) => void>();
 
 // Read initial session state from localStorage or sessionStorage
-const token = localStorage.getItem("admin_token") || sessionStorage.getItem("admin_token");
-const email = localStorage.getItem("admin_email") || sessionStorage.getItem("admin_email");
+let token = null;
+let email = null;
+if (typeof window !== "undefined") {
+  token = localStorage.getItem("admin_token") || sessionStorage.getItem("admin_token");
+  email = localStorage.getItem("admin_email") || sessionStorage.getItem("admin_email");
+}
 if (token && email) {
   authState = { email };
 }
@@ -27,6 +31,7 @@ function notifyListeners() {
 
 // Retrieve authorization header helper
 export function getAuthHeader(): Record<string, string> {
+  if (typeof window === "undefined") return {};
   const activeToken = localStorage.getItem("admin_token") || sessionStorage.getItem("admin_token");
   return activeToken ? { Authorization: `Bearer ${activeToken}` } : {};
 }
@@ -62,10 +67,12 @@ export async function signInAdmin(
 }
 
 export async function signOutAdmin(): Promise<void> {
-  localStorage.removeItem("admin_token");
-  localStorage.removeItem("admin_email");
-  sessionStorage.removeItem("admin_token");
-  sessionStorage.removeItem("admin_email");
+  if (typeof window !== "undefined") {
+    localStorage.removeItem("admin_token");
+    localStorage.removeItem("admin_email");
+    sessionStorage.removeItem("admin_token");
+    sessionStorage.removeItem("admin_email");
+  }
 
   authState = null;
   notifyListeners();

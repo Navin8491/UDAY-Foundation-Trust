@@ -5,6 +5,7 @@ import { initializeStorage } from "./services/storageService.js";
 import { initializeBroker } from "./utils/eventQueue.js";
 import { startCrashRecovery } from "./services/crashRecovery.js";
 import { runSaga } from "./services/sagaEngine.js";
+import { initEmailQueue } from "./utils/emailService.js";
 
 // Validate critical environment variables
 if (!process.env.JWT_SECRET) {
@@ -32,6 +33,9 @@ const startServer = async () => {
 
     // Start transaction crash recovery background loops
     startCrashRecovery();
+
+    // Start email logging retry queue boot-recovery scanner
+    await initEmailQueue();
 
     const PORT = process.env.PORT || 5000;
     app.listen(PORT, () => {

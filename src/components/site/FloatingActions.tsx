@@ -1,4 +1,6 @@
-import { Link } from "react-router-dom";
+"use client";
+
+import Link from "next/link";
 import { useEffect, useState } from "react";
 import { Heart, ArrowUp, MessageCircle } from "lucide-react";
 import { SITE } from "@/constants/site";
@@ -32,7 +34,7 @@ export function FloatingActions() {
         <MessageCircle className="h-6 w-6" />
       </a>
       <Link
-        to="/donate"
+        href="/donate"
         aria-label="Donate"
         className="px-5 py-3.5 rounded-full bg-secondary text-secondary-foreground font-bold shadow-xl inline-flex items-center gap-2 hover:scale-105 transition-transform"
       >

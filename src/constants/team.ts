@@ -1,10 +1,24 @@
-import presidentImg from "@/assets/president.jpg";
-import vicePresidentImg from "@/assets/vice-president.jpg";
-import treasurerImg from "@/assets/treasurer.jpg";
-import prakashImg from "@/assets/prakash.jpg";
-import kartikeyaImg from "@/assets/kartikeya.jpg";
-import mehulbhaiImg from "@/assets/mehulbhai.jpg";
-import kuldeepImg from "@/assets/kuldeep.jpg";
+import presidentImg_raw_raw from "@/assets/president.jpg";
+const presidentImg_raw = (presidentImg_raw_raw as any).src || presidentImg_raw_raw;
+const presidentImg = (presidentImg_raw as any).src || presidentImg_raw;
+import vicePresidentImg_raw_raw from "@/assets/vice-president.jpg";
+const vicePresidentImg_raw = (vicePresidentImg_raw_raw as any).src || vicePresidentImg_raw_raw;
+const vicePresidentImg = (vicePresidentImg_raw as any).src || vicePresidentImg_raw;
+import treasurerImg_raw_raw from "@/assets/treasurer.jpg";
+const treasurerImg_raw = (treasurerImg_raw_raw as any).src || treasurerImg_raw_raw;
+const treasurerImg = (treasurerImg_raw as any).src || treasurerImg_raw;
+import prakashImg_raw_raw from "@/assets/prakash.jpg";
+const prakashImg_raw = (prakashImg_raw_raw as any).src || prakashImg_raw_raw;
+const prakashImg = (prakashImg_raw as any).src || prakashImg_raw;
+import kartikeyaImg_raw_raw from "@/assets/kartikeya.jpg";
+const kartikeyaImg_raw = (kartikeyaImg_raw_raw as any).src || kartikeyaImg_raw_raw;
+const kartikeyaImg = (kartikeyaImg_raw as any).src || kartikeyaImg_raw;
+import mehulbhaiImg_raw_raw from "@/assets/mehulbhai.jpg";
+const mehulbhaiImg_raw = (mehulbhaiImg_raw_raw as any).src || mehulbhaiImg_raw_raw;
+const mehulbhaiImg = (mehulbhaiImg_raw as any).src || mehulbhaiImg_raw;
+import kuldeepImg_raw_raw from "@/assets/kuldeep.jpg";
+const kuldeepImg_raw = (kuldeepImg_raw_raw as any).src || kuldeepImg_raw_raw;
+const kuldeepImg = (kuldeepImg_raw as any).src || kuldeepImg_raw;
 
 export const MEMBERS_DATA = [
   {

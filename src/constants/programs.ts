@@ -1,30 +1,72 @@
-import imgEdu from "@/assets/hebatpur_3.jpg";
-import imgEdu2 from "@/assets/hebatpur_6.jpg";
-import imgEdu3 from "@/assets/hebatpur_12.jpg";
+import imgEdu_raw_raw from "@/assets/hebatpur_3.jpg";
+const imgEdu_raw = (imgEdu_raw_raw as any).src || imgEdu_raw_raw;
+const imgEdu = (imgEdu_raw as any).src || imgEdu_raw;
+import imgEdu2_raw_raw from "@/assets/hebatpur_6.jpg";
+const imgEdu2_raw = (imgEdu2_raw_raw as any).src || imgEdu2_raw_raw;
+const imgEdu2 = (imgEdu2_raw as any).src || imgEdu2_raw;
+import imgEdu3_raw_raw from "@/assets/hebatpur_12.jpg";
+const imgEdu3_raw = (imgEdu3_raw_raw as any).src || imgEdu3_raw_raw;
+const imgEdu3 = (imgEdu3_raw as any).src || imgEdu3_raw;
 
-import imgHealth from "@/assets/healthcare_8.jpg";
-import imgHealth2 from "@/assets/healthcare_1.jpg";
-import imgHealth3 from "@/assets/healthcare_2.jpg";
+import imgHealth_raw_raw from "@/assets/healthcare_8.jpg";
+const imgHealth_raw = (imgHealth_raw_raw as any).src || imgHealth_raw_raw;
+const imgHealth = (imgHealth_raw as any).src || imgHealth_raw;
+import imgHealth2_raw_raw from "@/assets/healthcare_1.jpg";
+const imgHealth2_raw = (imgHealth2_raw_raw as any).src || imgHealth2_raw_raw;
+const imgHealth2 = (imgHealth2_raw as any).src || imgHealth2_raw;
+import imgHealth3_raw_raw from "@/assets/healthcare_2.jpg";
+const imgHealth3_raw = (imgHealth3_raw_raw as any).src || imgHealth3_raw_raw;
+const imgHealth3 = (imgHealth3_raw as any).src || imgHealth3_raw;
 
-import imgTrees from "@/assets/tree_plantation_15.jpg";
-import imgTrees2 from "@/assets/tree_plantation_6.jpg";
-import imgTrees3 from "@/assets/tree_plantation_14.jpg";
+import imgTrees_raw_raw from "@/assets/tree_plantation_15.jpg";
+const imgTrees_raw = (imgTrees_raw_raw as any).src || imgTrees_raw_raw;
+const imgTrees = (imgTrees_raw as any).src || imgTrees_raw;
+import imgTrees2_raw_raw from "@/assets/tree_plantation_6.jpg";
+const imgTrees2_raw = (imgTrees2_raw_raw as any).src || imgTrees2_raw_raw;
+const imgTrees2 = (imgTrees2_raw as any).src || imgTrees2_raw;
+import imgTrees3_raw_raw from "@/assets/tree_plantation_14.jpg";
+const imgTrees3_raw = (imgTrees3_raw_raw as any).src || imgTrees3_raw_raw;
+const imgTrees3 = (imgTrees3_raw as any).src || imgTrees3_raw;
 
-import welfare2 from "@/assets/welfare_2.jpg";
-import welfare3 from "@/assets/welfare_3.jpg";
-import childWelfareDirect from "@/assets/child-welfare-direct.jpg";
+import welfare2_raw_raw from "@/assets/welfare_2.jpg";
+const welfare2_raw = (welfare2_raw_raw as any).src || welfare2_raw_raw;
+const welfare2 = (welfare2_raw as any).src || welfare2_raw;
+import welfare3_raw_raw from "@/assets/welfare_3.jpg";
+const welfare3_raw = (welfare3_raw_raw as any).src || welfare3_raw_raw;
+const welfare3 = (welfare3_raw as any).src || welfare3_raw;
+import childWelfareDirect_raw_raw from "@/assets/child-welfare-direct.jpg";
+const childWelfareDirect_raw = (childWelfareDirect_raw_raw as any).src || childWelfareDirect_raw_raw;
+const childWelfareDirect = (childWelfareDirect_raw as any).src || childWelfareDirect_raw;
 
-import hebatpur8 from "@/assets/hebatpur_8.jpg";
-import ruralOutreachDirect from "@/assets/rural-outreach-direct.jpg";
-import ruralDevCommunity from "@/assets/rural-development-community.jpg";
+import hebatpur8_raw_raw from "@/assets/hebatpur_8.jpg";
+const hebatpur8_raw = (hebatpur8_raw_raw as any).src || hebatpur8_raw_raw;
+const hebatpur8 = (hebatpur8_raw as any).src || hebatpur8_raw;
+import ruralOutreachDirect_raw_raw from "@/assets/rural-outreach-direct.jpg";
+const ruralOutreachDirect_raw = (ruralOutreachDirect_raw_raw as any).src || ruralOutreachDirect_raw_raw;
+const ruralOutreachDirect = (ruralOutreachDirect_raw as any).src || ruralOutreachDirect_raw;
+import ruralDevCommunity_raw_raw from "@/assets/rural-development-community.jpg";
+const ruralDevCommunity_raw = (ruralDevCommunity_raw_raw as any).src || ruralDevCommunity_raw_raw;
+const ruralDevCommunity = (ruralDevCommunity_raw as any).src || ruralDevCommunity_raw;
 
-import imgTauktae1 from "@/assets/tauktae_7.jpg";
-import imgTauktae2 from "@/assets/tauktae_8.jpg";
-import imgCovid1 from "@/assets/covid_7.jpg";
+import imgTauktae1_raw_raw from "@/assets/tauktae_7.jpg";
+const imgTauktae1_raw = (imgTauktae1_raw_raw as any).src || imgTauktae1_raw_raw;
+const imgTauktae1 = (imgTauktae1_raw as any).src || imgTauktae1_raw;
+import imgTauktae2_raw_raw from "@/assets/tauktae_8.jpg";
+const imgTauktae2_raw = (imgTauktae2_raw_raw as any).src || imgTauktae2_raw_raw;
+const imgTauktae2 = (imgTauktae2_raw as any).src || imgTauktae2_raw;
+import imgCovid1_raw_raw from "@/assets/covid_7.jpg";
+const imgCovid1_raw = (imgCovid1_raw_raw as any).src || imgCovid1_raw_raw;
+const imgCovid1 = (imgCovid1_raw as any).src || imgCovid1_raw;
 
-import imgHuman1 from "@/assets/clothes_8.jpg";
-import imgHuman2 from "@/assets/welfare_11.jpg";
-import imgHuman3 from "@/assets/diwali_6.jpg";
+import imgHuman1_raw_raw from "@/assets/clothes_8.jpg";
+const imgHuman1_raw = (imgHuman1_raw_raw as any).src || imgHuman1_raw_raw;
+const imgHuman1 = (imgHuman1_raw as any).src || imgHuman1_raw;
+import imgHuman2_raw_raw from "@/assets/welfare_11.jpg";
+const imgHuman2_raw = (imgHuman2_raw_raw as any).src || imgHuman2_raw_raw;
+const imgHuman2 = (imgHuman2_raw as any).src || imgHuman2_raw;
+import imgHuman3_raw_raw from "@/assets/diwali_6.jpg";
+const imgHuman3_raw = (imgHuman3_raw_raw as any).src || imgHuman3_raw_raw;
+const imgHuman3 = (imgHuman3_raw as any).src || imgHuman3_raw;
 
 export const PROGRAMS_DETAIL_DATA = [
   {

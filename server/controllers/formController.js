@@ -553,6 +553,14 @@ export const createContactMessage = async (req, res, next) => {
 
     if (error) throw error;
 
+    // Send admin notification
+    sendAdminAlert("contact", req.body.name, {
+      Email: req.body.email,
+      Subject: req.body.subject,
+      Message: req.body.message,
+      "Submitted At": new Date().toLocaleString(),
+    }).catch((err) => console.error("[EmailService] Failed to send contact admin alert:", err.message));
+
     // Create admin notification
     createNotification(
       "contact",
@@ -624,10 +632,33 @@ export const createDonation = async (req, res, next) => {
 
     if (error) throw error;
 
-    // Send thank you confirmation email to donor
-    sendDonationReceived(data.email, data.donorName, data.amount, data.id).catch((err) =>
-      console.error("[EmailService] Failed to send donation confirmation email:", err.message),
-    );
+    // Generate PDF invoice and send thank you confirmation email to donor
+    (async () => {
+      try {
+        const { generateReceiptPdf } = await import("../utils/pdfGenerator.js");
+        const pdfBuffer = await generateReceiptPdf(data).catch(() => null);
+        await sendDonationReceived(
+          data.email,
+          data.donorName,
+          data.amount,
+          data.id,
+          data.panNumber,
+          data.receiptNumber || `UFT/REC-${data.id.substring(0, 8).toUpperCase()}`,
+          pdfBuffer
+        );
+      } catch (err) {
+        console.error("[EmailService] Failed to send donation confirmation email:", err.message);
+      }
+    })();
+
+    // Send admin notification email
+    sendAdminAlert("donation", data.donorName, {
+      Email: data.email,
+      Amount: `₹${Number(data.amount).toLocaleString("en-IN")}`,
+      Purpose: data.purpose || "General Donation",
+      "Receipt Number": data.receiptNumber || `UFT/REC-${data.id.substring(0, 8).toUpperCase()}`,
+      "Submitted At": new Date().toLocaleString(),
+    }).catch((err) => console.error("[EmailService] Failed to send admin donation alert:", err.message));
 
     // Create admin notification
     createNotification(

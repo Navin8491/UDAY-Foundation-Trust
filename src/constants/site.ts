@@ -23,7 +23,7 @@ export const SITE = {
     "12A": "AABTU5153HE20251",
     "80G": "AABTU5153HF20261",
   },
-  logo: logo,
+  logo: logo.src,
 };
 
 export const NAV_LINKS = [

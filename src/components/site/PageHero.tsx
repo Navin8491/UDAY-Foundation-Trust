@@ -1,5 +1,7 @@
+"use client";
+
 import type { ReactNode } from "react";
-import { Link } from "react-router-dom";
+import Link from "next/link";
 import { Sparkles } from "lucide-react";
 
 export function PageHero({
@@ -36,7 +38,7 @@ export function PageHero({
       <div className="container-page relative z-10 text-center max-w-4xl">
         {/* Breadcrumbs */}
         <nav className="flex items-center justify-center gap-2 text-xs md:text-sm font-semibold uppercase tracking-wider text-slate-300 mb-6">
-          <Link to="/" className="hover:text-primary transition-colors">
+          <Link href="/" className="hover:text-primary transition-colors">
             Home
           </Link>
           <span className="text-slate-400">/</span>

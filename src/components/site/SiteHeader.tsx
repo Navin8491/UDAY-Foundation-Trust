@@ -1,4 +1,7 @@
-import { Link, NavLink } from "react-router-dom";
+"use client";
+
+import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { Menu, X, Heart, Globe } from "lucide-react";
 import { NAV_LINKS, SITE } from "@/constants/site";
@@ -51,7 +54,7 @@ export function SiteHeader() {
       <div className="container-full flex flex-col lg:flex-row lg:items-center justify-between py-3 md:py-4 gap-2.5 lg:gap-0">
         {/* Row 1 (All Viewports): Logo & Title on Left, Hamburger Menu on Right (Mobile/Tablet only) */}
         <div className="flex items-center justify-between w-full lg:w-auto">
-          <Link to="/" className="flex items-center gap-2 md:gap-3 group shrink-0">
+          <Link href="/" className="flex items-center gap-2 md:gap-3 group shrink-0">
             <img
               src={SITE.logo}
               alt={`${SITE.name} logo`}
@@ -80,21 +83,23 @@ export function SiteHeader() {
 
         {/* Center: Desktop Navigation (Desktop only) */}
         <nav className="hidden lg:flex items-center justify-center gap-1 flex-none">
-          {NAV_LINKS.map((l) => (
-            <NavLink
-              key={l.to}
-              to={l.to}
-              className={({ isActive }) =>
-                `px-3.5 py-2 text-sm font-medium rounded-full transition-colors whitespace-nowrap ${
+          {NAV_LINKS.map((l) => {
+            const pathname = usePathname();
+            const isActive = pathname === l.to;
+            return (
+              <Link
+                key={l.to}
+                href={l.to}
+                className={`px-3.5 py-2 text-sm font-medium rounded-full transition-colors whitespace-nowrap ${
                   isActive
                     ? "text-primary bg-primary/10"
                     : "text-foreground/80 hover:text-primary hover:bg-primary/8"
-                }`
-              }
-            >
-              {getNavLabel(l.label)}
-            </NavLink>
-          ))}
+                }`}
+              >
+                {getNavLabel(l.label)}
+              </Link>
+            );
+          })}
         </nav>
 
         {/* Row 2 (Mobile/Tablet only) / Right Side (Desktop): Language Selector & Donate Button */}
@@ -140,7 +145,7 @@ export function SiteHeader() {
 
           {/* Donate Button */}
           <Link
-            to="/donate"
+            href="/donate"
             className="btn-saffron text-xs md:text-sm px-4 py-2.5 md:px-5 md:py-3 rounded-full shrink-0 whitespace-nowrap flex items-center gap-1.5 font-bold shadow-md hover:scale-105 transition-transform"
           >
             <Heart className="h-3.5 w-3.5 md:h-4 md:w-4 fill-current" /> {t("nav.donate")}
@@ -168,24 +173,26 @@ export function SiteHeader() {
               ))}
             </div>
 
-            {NAV_LINKS.map((l) => (
-              <NavLink
-                key={l.to}
-                to={l.to}
-                onClick={() => setOpen(false)}
-                className={({ isActive }) =>
-                  `px-4 py-3 rounded-xl text-base font-medium transition-colors ${
+            {NAV_LINKS.map((l) => {
+              const pathname = usePathname();
+              const isActive = pathname === l.to;
+              return (
+                <Link
+                  key={l.to}
+                  href={l.to}
+                  onClick={() => setOpen(false)}
+                  className={`px-4 py-3 rounded-xl text-base font-medium transition-colors ${
                     isActive
                       ? "text-primary bg-primary/10"
                       : "hover:bg-primary/8 text-foreground/80"
-                  }`
-                }
-              >
-                {getNavLabel(l.label)}
-              </NavLink>
-            ))}
+                  }`}
+                >
+                  {getNavLabel(l.label)}
+                </Link>
+              );
+            })}
             <Link
-              to="/donate"
+              href="/donate"
               onClick={() => setOpen(false)}
               className="btn-saffron mt-2 justify-center"
             >

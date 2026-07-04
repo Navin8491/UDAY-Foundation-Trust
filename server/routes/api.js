@@ -60,6 +60,7 @@ import {
   createDonation,
 } from "../controllers/formController.js";
 import { getSettings, updateSettings } from "../controllers/settingsController.js";
+import { getEmailStats, retryEmailLogs } from "../controllers/emailController.js";
 import {
   getNotifications,
   markNotificationRead,
@@ -179,5 +180,9 @@ router.get("/notifications", protectAdmin, getNotifications);
 router.put("/notifications/read-all", protectAdmin, markAllNotificationsRead);
 router.put("/notifications/:id/read", protectAdmin, markNotificationRead);
 router.delete("/notifications/:id", protectAdmin, deleteNotification);
+
+// Email Logs routes
+router.get("/email-logs/stats", protectAdmin, getEmailStats);
+router.post("/email-logs/retry/:id", protectAdmin, retryEmailLogs);
 
 export default router;

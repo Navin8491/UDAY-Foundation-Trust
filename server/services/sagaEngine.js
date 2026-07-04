@@ -1,7 +1,7 @@
 import { supabase } from "../config/db.js";
 import { getPaymentGateway } from "./paymentGateway.js";
 import { generateReceiptPdf } from "../utils/pdfGenerator.js";
-import { sendMail } from "../utils/emailService.js";
+import { sendDonationReceived, sendDonationFailed, sendAdminAlert, queueEmail } from "../utils/emailService.js";
 import { createNotification } from "../utils/notificationService.js";
 import { triggerUpdate } from "../utils/realtime.js";
 import { publishEvent, EVENTS } from "../utils/eventQueue.js";
@@ -89,62 +89,32 @@ async function saveDonationRecord(event) {
 async function sendPdfReceiptEmail(event, donation) {
   const pdfBuffer = await generateReceiptPdf(donation);
 
-  const formattedAmount = Number(event.amount).toLocaleString("en-IN");
-  const dateStr = new Date().toLocaleDateString("en-IN", {
-    day: "numeric",
-    month: "long",
-    year: "numeric",
-  });
+  // Send branded thank you receipt email to donor
+  await sendDonationReceived(
+    event.email,
+    event.donor_name,
+    event.amount,
+    event.gateway_transaction_id || event.id,
+    event.pan_number,
+    donation.receiptNumber || `UFT/REC-${donation.id.substring(0, 8).toUpperCase()}`,
+    pdfBuffer
+  );
 
-  const emailBody = `
-    <h1 style="color:#7A9D1C; font-family:sans-serif; text-align:center;">Donation Receipt Confirmation</h1>
-    <p>Dear ${event.donor_name},</p>
-    <p>Thank you for your generous contribution of <strong>₹${formattedAmount}</strong> to <strong>Uday Foundation Trust</strong>.</p>
-    <p>Your support is highly appreciated and will be utilized to run our education, healthcare, and environmental protection initiatives in rural Gujarat.</p>
-    
-    <div style="background-color:#F4F7EB; border-left:4px solid #7A9D1C; padding:15px; margin:20px 0; font-family:sans-serif; font-size:13px;">
-      <strong>Transaction Reference Details:</strong><br/>
-      • Receipt Number: ${donation.receiptNumber}<br/>
-      • Transaction ID: ${event.gateway_transaction_id || event.id}<br/>
-      • Amount Paid: ₹${formattedAmount}<br/>
-      • Date: ${dateStr}<br/>
-      • PAN Card: ${event.pan_number || "N/A"}<br/>
-    </div>
-
-    <p>We have attached your official 80G tax-exemption donation receipt (PDF) to this email for your tax records.</p>
-    <p>Warm regards,<br/>Uday Foundation Trust Team</p>
-  `;
-
-  const mailOptions = {
-    to: event.email,
-    subject: `Official Donation Receipt - Uday Foundation Trust (${donation.receiptNumber})`,
-    html: emailBody,
-    attachments: [
-      {
-        filename: `Donation_Receipt_${donation.receiptNumber.replace(/\//g, "_")}.pdf`,
-        content: pdfBuffer,
-        contentType: "application/pdf",
-      },
-    ],
-  };
-
-  // We reuse SMTP transporter from emailService.js
-  await sendMail(mailOptions.to, mailOptions.subject, mailOptions.html, mailOptions.attachments);
+  // Send email notification alert to admin
+  await sendAdminAlert("donation", event.donor_name, {
+    Email: event.email,
+    Amount: `₹${Number(event.amount).toLocaleString("en-IN")}`,
+    "Receipt Number": donation.receiptNumber || `UFT/REC-${donation.id.substring(0, 8).toUpperCase()}`,
+    "Transaction ID": event.gateway_transaction_id || event.id,
+    "Completed At": new Date().toLocaleString(),
+  }).catch((err) => console.error("[SagaEngine] Failed to send admin alert:", err.message));
 }
 
 /**
  * Sends a payment failure email to the donor.
  */
 async function sendFailureEmail(event) {
-  const emailBody = `
-    <h1 style="color:#DC2626; font-family:sans-serif;">Payment Attempt Failed</h1>
-    <p>Dear ${event.donor_name},</p>
-    <p>We noticed that your donation attempt of <strong>₹${Number(event.amount).toLocaleString("en-IN")}</strong> to <strong>Uday Foundation Trust</strong> could not be completed successfully.</p>
-    <p>No funds were charged. If your account was debited, the amount will be automatically refunded by your bank/payment provider within 3-5 business days.</p>
-    <p>Please try again or contact us if you need assistance.</p>
-    <p>Regards,<br/>Uday Foundation Trust Team</p>
-  `;
-  await sendMail(event.email, "Donation Payment Failed", emailBody);
+  await sendDonationFailed(event.email, event.donor_name, event.amount);
 }
 
 /**
@@ -152,7 +122,7 @@ async function sendFailureEmail(event) {
  */
 async function sendRefundEmail(event, refundId) {
   const emailBody = `
-    <h1 style="color:#DC2626; font-family:sans-serif;">Refund Processed Successfully</h1>
+    <h1 style="color:#dc2626; font-family:sans-serif;">Refund Processed Successfully</h1>
     <p>Dear ${event.donor_name},</p>
     <p>A refund of <strong>₹${Number(event.amount).toLocaleString("en-IN")}</strong> has been initiated and successfully processed for your donation attempt.</p>
     <p><strong>Refund Details:</strong><br/>
@@ -164,7 +134,12 @@ async function sendRefundEmail(event, refundId) {
     <p>If you have any questions, please contact our support desk.</p>
     <p>Warm regards,<br/>Uday Foundation Trust Team</p>
   `;
-  await sendMail(event.email, "Refund Confirmation - Uday Foundation Trust", emailBody);
+  await queueEmail(
+    event.email,
+    "Refund Confirmation - Uday Foundation Trust",
+    emailBody,
+    "donation_refund"
+  );
 }
 
 /**

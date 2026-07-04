@@ -1,5 +1,7 @@
+"use client";
+
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import Link from "next/link";
 import {
   Instagram,
   Facebook,
@@ -151,7 +153,7 @@ export function SiteFooter() {
               {QUICK_LINKS.map((link) => (
                 <Link
                   key={link.label}
-                  to={link.to}
+                  href={link.to}
                   className="hover:text-[#3B82F6] transition-all duration-300 flex items-center gap-1 group"
                 >
                   <span className="w-1.5 h-1.5 rounded-full bg-[#3B82F6] opacity-0 group-hover:opacity-100 transition-all duration-300 flex-none" />
@@ -257,7 +259,7 @@ export function SiteFooter() {
           ].map((link) => (
             <Link
               key={link.to}
-              to={link.to}
+              href={link.to}
               className="hover:text-white transition-colors duration-200"
             >
               {link.label}
