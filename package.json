@@ -7,7 +7,7 @@
   "scripts": {
     "dev": "next dev",
     "dev:all": "concurrently --names \"NEXT,SERVER\" --prefix-colors \"cyan,yellow\" \"next dev\" \"npm run server\"",
-    "server": "node server/server.js",
+    "server": "npm --prefix server start",
     "build": "next build",
     "start": "next start",
     "lint": "eslint .",
