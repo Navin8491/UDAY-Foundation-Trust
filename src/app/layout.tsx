@@ -34,6 +34,81 @@ export default function RootLayout({
           href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Noto+Sans+Gujarati:wght@400;500;600;700;800&family=Noto+Serif+Gujarati:wght@500;700&family=Noto+Sans+Devanagari:wght@400;500;600;700;800&family=Noto+Serif+Devanagari:wght@500;700&display=swap"
           rel="stylesheet"
         />
+        {/* ── Structured Data: Organization + NGO Schema ── */}
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@graph": [
+                {
+                  "@type": ["Organization", "NGO"],
+                  "@id": "https://www.udayfoundationstrust.org/#organization",
+                  "name": "Uday Foundation Trust",
+                  "alternateName": "ઉદય ફાઉન્ડેશન ટ્રસ્ટ",
+                  "url": "https://www.udayfoundationstrust.org",
+                  "logo": {
+                    "@type": "ImageObject",
+                    "url": "https://www.udayfoundationstrust.org/uday-logo.png",
+                    "width": 512,
+                    "height": 512,
+                  },
+                  "description": "Uday Foundation Trust is a Gujarat-based NGO serving education, healthcare, women empowerment, disaster relief and rural development across Ahmedabad and beyond.",
+                  "slogan": "Service is Culture, Service is True Dharma",
+                  "foundingDate": "2024-10-05",
+                  "taxID": "AABTU5153H",
+                  "address": {
+                    "@type": "PostalAddress",
+                    "streetAddress": "314, Ambedkar Nagar, Mu. Soyla, Taluka Sanand",
+                    "addressLocality": "Sanand",
+                    "addressRegion": "Gujarat",
+                    "postalCode": "382110",
+                    "addressCountry": "IN",
+                  },
+                  "contactPoint": {
+                    "@type": "ContactPoint",
+                    "telephone": "+91-96246-68484",
+                    "contactType": "customer support",
+                    "availableLanguage": ["English", "Gujarati", "Hindi"],
+                  },
+                  "email": "udayfts1024@gmail.com",
+                  "telephone": "+91-96246-68484",
+                  "sameAs": [
+                    "https://www.instagram.com/uday_foundation_trust_sanand",
+                    "https://facebook.com/",
+                    "https://whatsapp.com/channel/0029Vasojke4NVimvIkQOG1g",
+                  ],
+                  "areaServed": {
+                    "@type": "State",
+                    "name": "Gujarat",
+                  },
+                  "knowsAbout": [
+                    "Education",
+                    "Healthcare",
+                    "Women Empowerment",
+                    "Disaster Relief",
+                    "Rural Development",
+                    "Environmental Sustainability",
+                  ],
+                },
+                {
+                  "@type": "WebSite",
+                  "@id": "https://www.udayfoundationstrust.org/#website",
+                  "url": "https://www.udayfoundationstrust.org",
+                  "name": "Uday Foundation Trust",
+                  "publisher": {
+                    "@id": "https://www.udayfoundationstrust.org/#organization",
+                  },
+                  "potentialAction": {
+                    "@type": "SearchAction",
+                    "target": "https://www.udayfoundationstrust.org/?s={search_term_string}",
+                    "query-input": "required name=search_term_string",
+                  },
+                },
+              ],
+            }),
+          }}
+        />
       </head>
       <body>
         <Providers>
