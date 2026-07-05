@@ -95,6 +95,8 @@ export function Login() {
                 </div>
                 <input
                   id="email"
+                  name="email"
+                  autoComplete="email"
                   type="email"
                   required
                   placeholder="Enter the email"
@@ -121,6 +123,8 @@ export function Login() {
                 </div>
                 <input
                   id="password"
+                  name="password"
+                  autoComplete="current-password"
                   type={showPassword ? "text" : "password"}
                   required
                   placeholder="••••••••••••"
@@ -140,8 +144,10 @@ export function Login() {
 
             {/* Remember Me */}
             <div className="flex items-center justify-between text-xs pt-1">
-              <label className="flex items-center gap-2 text-slate-400 font-medium cursor-pointer">
+              <label htmlFor="remember-me" className="flex items-center gap-2 text-slate-400 font-medium cursor-pointer">
                 <input
+                  id="remember-me"
+                  name="remember-me"
                   type="checkbox"
                   checked={rememberMe}
                   onChange={(e) => setRememberMe(e.target.checked)}

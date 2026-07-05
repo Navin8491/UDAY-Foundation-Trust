@@ -384,10 +384,12 @@ export function Donate() {
                   </div>
 
                   <div className="space-y-2">
-                    <label className="text-xs font-bold text-slate-400 uppercase tracking-wider">
+                    <label htmlFor="custom-amount" className="text-xs font-bold text-slate-400 uppercase tracking-wider">
                       {t("donate.custom.placeholder")}
                     </label>
                     <input
+                      id="custom-amount"
+                      name="custom-amount"
                       type="number"
                       value={custom}
                       onChange={(e) => setCustom(e.target.value)}
@@ -452,10 +454,13 @@ export function Donate() {
                     >
                       {/* Name */}
                       <div className="space-y-1.5">
-                        <label className="text-slate-500 uppercase tracking-wider">
+                        <label htmlFor="donor-name" className="text-slate-500 uppercase tracking-wider">
                           {trans.name} *
                         </label>
                         <input
+                          id="donor-name"
+                          name="donor-name"
+                          autoComplete="name"
                           type="text"
                           required
                           value={name}
@@ -469,10 +474,13 @@ export function Donate() {
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         {/* Email */}
                         <div className="space-y-1.5">
-                          <label className="text-slate-500 uppercase tracking-wider">
+                          <label htmlFor="donor-email" className="text-slate-500 uppercase tracking-wider">
                             {trans.email} *
                           </label>
                           <input
+                            id="donor-email"
+                            name="donor-email"
+                            autoComplete="email"
                             type="email"
                             required
                             value={email}
@@ -483,10 +491,13 @@ export function Donate() {
                         </div>
                         {/* Phone */}
                         <div className="space-y-1.5">
-                          <label className="text-slate-500 uppercase tracking-wider">
+                          <label htmlFor="donor-phone" className="text-slate-500 uppercase tracking-wider">
                             {trans.phone} *
                           </label>
                           <input
+                            id="donor-phone"
+                            name="donor-phone"
+                            autoComplete="tel"
                             type="tel"
                             required
                             value={phone}
@@ -499,10 +510,13 @@ export function Donate() {
 
                       {/* Address */}
                       <div className="space-y-1.5">
-                        <label className="text-slate-500 uppercase tracking-wider">
+                        <label htmlFor="donor-address" className="text-slate-500 uppercase tracking-wider">
                           {trans.address} *
                         </label>
                         <textarea
+                          id="donor-address"
+                          name="donor-address"
+                          autoComplete="street-address"
                           required
                           rows={2}
                           value={address}
@@ -515,7 +529,7 @@ export function Donate() {
                       {/* PAN Card Field with Validation */}
                       <div className="space-y-1.5">
                         <div className="flex justify-between items-center">
-                          <label className="text-slate-500 uppercase tracking-wider">
+                          <label htmlFor="donor-pan" className="text-slate-500 uppercase tracking-wider">
                             {trans.pan} *
                           </label>
                           <span className="text-[10px] text-slate-400 font-bold">
@@ -523,6 +537,8 @@ export function Donate() {
                           </span>
                         </div>
                         <input
+                          id="donor-pan"
+                          name="donor-pan"
                           type="text"
                           required
                           maxLength={10}
@@ -654,10 +670,13 @@ export function Donate() {
                             {/* Inputs */}
                             <div className="space-y-3 text-xs font-semibold text-left">
                               <div className="space-y-1">
-                                <label className="text-slate-400 uppercase tracking-wider">
+                                <label htmlFor="card-name" className="text-slate-400 uppercase tracking-wider">
                                   Cardholder Name
                                 </label>
                                 <input
+                                  id="card-name"
+                                  name="card-name"
+                                  autoComplete="cc-name"
                                   type="text"
                                   value={cardName}
                                   onChange={(e) => setCardName(e.target.value.toUpperCase())}
@@ -666,10 +685,13 @@ export function Donate() {
                                 />
                               </div>
                               <div className="space-y-1">
-                                <label className="text-slate-400 uppercase tracking-wider">
+                                <label htmlFor="card-number" className="text-slate-400 uppercase tracking-wider">
                                   Card Number
                                 </label>
                                 <input
+                                  id="card-number"
+                                  name="card-number"
+                                  autoComplete="cc-number"
                                   type="text"
                                   maxLength={19}
                                   value={cardNumber}
@@ -684,10 +706,13 @@ export function Donate() {
                               </div>
                               <div className="grid grid-cols-2 gap-4">
                                 <div className="space-y-1">
-                                  <label className="text-slate-400 uppercase tracking-wider">
+                                  <label htmlFor="card-expiry" className="text-slate-400 uppercase tracking-wider">
                                     Expiry Date
                                   </label>
                                   <input
+                                    id="card-expiry"
+                                    name="card-expiry"
+                                    autoComplete="cc-exp"
                                     type="text"
                                     maxLength={5}
                                     value={cardExpiry}
@@ -703,10 +728,13 @@ export function Donate() {
                                   />
                                 </div>
                                 <div className="space-y-1">
-                                  <label className="text-slate-400 uppercase tracking-wider">
+                                  <label htmlFor="card-cvv" className="text-slate-400 uppercase tracking-wider">
                                     CVV
                                   </label>
                                   <input
+                                    id="card-cvv"
+                                    name="card-cvv"
+                                    autoComplete="cc-csc"
                                     type="password"
                                     maxLength={3}
                                     value={cardCvv}
@@ -748,7 +776,12 @@ export function Donate() {
                               or pay using UPI ID
                             </span>
                             <div className="w-full space-y-1.5 text-xs font-semibold text-left">
+                              <label htmlFor="upi-id" className="sr-only">
+                                UPI ID
+                              </label>
                               <input
+                                id="upi-id"
+                                name="upi-id"
                                 type="text"
                                 value={upiId}
                                 onChange={(e) => setUpiId(e.target.value.toLowerCase())}
@@ -786,10 +819,12 @@ export function Donate() {
                               ))}
                             </div>
                             <div className="space-y-1.5 text-xs font-semibold mt-3 text-left">
-                              <label className="text-slate-400 uppercase tracking-wider block">
+                              <label htmlFor="bank-select" className="text-slate-400 uppercase tracking-wider block">
                                 Other Banks
                               </label>
                               <select
+                                id="bank-select"
+                                name="bank-select"
                                 value={selectedBank}
                                 onChange={(e) => setSelectedBank(e.target.value)}
                                 className="w-full h-11 px-4 rounded-xl border border-border bg-slate-50 focus:outline-hidden focus:border-primary text-sm font-medium cursor-pointer"

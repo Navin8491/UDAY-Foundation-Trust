@@ -1302,10 +1302,13 @@ export function GetInvolved() {
 
                     {/* Name */}
                     <div>
-                      <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1.5">
+                      <label htmlFor="vol-name" className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1.5">
                         Full Name *
                       </label>
                       <input
+                        id="vol-name"
+                        name="vol-name"
+                        autoComplete="name"
                         type="text"
                         required
                         value={formName}
@@ -1318,10 +1321,13 @@ export function GetInvolved() {
                     {/* DOB & Gender */}
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       <div>
-                        <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1.5">
+                        <label htmlFor="vol-dob" className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1.5">
                           Date of Birth *
                         </label>
                         <input
+                          id="vol-dob"
+                          name="vol-dob"
+                          autoComplete="bday"
                           type="date"
                           required
                           value={formDob}
@@ -1330,10 +1336,13 @@ export function GetInvolved() {
                         />
                       </div>
                       <div>
-                        <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1.5">
+                        <label htmlFor="vol-gender" className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1.5">
                           Gender *
                         </label>
                         <select
+                          id="vol-gender"
+                          name="vol-gender"
+                          autoComplete="sex"
                           required
                           value={formGender}
                           onChange={(e) => setFormGender(e.target.value)}
@@ -1350,10 +1359,13 @@ export function GetInvolved() {
                     {/* Email & Phone */}
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       <div>
-                        <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1.5">
+                        <label htmlFor="vol-email" className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1.5">
                           Email Address *
                         </label>
                         <input
+                          id="vol-email"
+                          name="vol-email"
+                          autoComplete="email"
                           type="email"
                           required
                           value={formEmail}
@@ -1363,10 +1375,13 @@ export function GetInvolved() {
                         />
                       </div>
                       <div>
-                        <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1.5">
+                        <label htmlFor="vol-phone" className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1.5">
                           Mobile Number *
                         </label>
                         <input
+                          id="vol-phone"
+                          name="vol-phone"
+                          autoComplete="tel"
                           type="tel"
                           required
                           value={formPhone}
@@ -1379,10 +1394,13 @@ export function GetInvolved() {
 
                     {/* Address */}
                     <div>
-                      <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1.5">
+                      <label htmlFor="vol-address" className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1.5">
                         Address *
                       </label>
                       <input
+                        id="vol-address"
+                        name="vol-address"
+                        autoComplete="street-address"
                         type="text"
                         required
                         value={formAddress}
@@ -1395,10 +1413,13 @@ export function GetInvolved() {
                     {/* City, State & Pincode */}
                     <div className="grid grid-cols-3 gap-2">
                       <div className="col-span-1">
-                        <label className="block text-[10px] font-semibold text-slate-500 uppercase tracking-wider mb-1">
+                        <label htmlFor="vol-city" className="block text-[10px] font-semibold text-slate-500 uppercase tracking-wider mb-1">
                           City *
                         </label>
                         <input
+                          id="vol-city"
+                          name="vol-city"
+                          autoComplete="address-level2"
                           type="text"
                           required
                           value={formCity}
@@ -1408,10 +1429,13 @@ export function GetInvolved() {
                         />
                       </div>
                       <div className="col-span-1">
-                        <label className="block text-[10px] font-semibold text-slate-500 uppercase tracking-wider mb-1">
+                        <label htmlFor="vol-state" className="block text-[10px] font-semibold text-slate-500 uppercase tracking-wider mb-1">
                           State *
                         </label>
                         <input
+                          id="vol-state"
+                          name="vol-state"
+                          autoComplete="address-level1"
                           type="text"
                           required
                           value={formState}
@@ -1421,10 +1445,13 @@ export function GetInvolved() {
                         />
                       </div>
                       <div className="col-span-1">
-                        <label className="block text-[10px] font-semibold text-slate-500 uppercase tracking-wider mb-1">
+                        <label htmlFor="vol-pincode" className="block text-[10px] font-semibold text-slate-500 uppercase tracking-wider mb-1">
                           PIN Code *
                         </label>
                         <input
+                          id="vol-pincode"
+                          name="vol-pincode"
+                          autoComplete="postal-code"
                           type="text"
                           required
                           value={formPincode}
@@ -1438,10 +1465,13 @@ export function GetInvolved() {
                     {/* Occupation & Education */}
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       <div>
-                        <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1.5">
+                        <label htmlFor="vol-occupation" className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1.5">
                           Occupation *
                         </label>
                         <input
+                          id="vol-occupation"
+                          name="vol-occupation"
+                          autoComplete="organization-title"
                           type="text"
                           required
                           value={formOccupation}
@@ -1451,10 +1481,12 @@ export function GetInvolved() {
                         />
                       </div>
                       <div>
-                        <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1.5">
+                        <label htmlFor="vol-education" className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1.5">
                           Qualification / Education *
                         </label>
                         <input
+                          id="vol-education"
+                          name="vol-education"
                           type="text"
                           required
                           value={formEducation}
@@ -1468,10 +1500,12 @@ export function GetInvolved() {
                     {/* Skills & Languages */}
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       <div>
-                        <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1.5">
+                        <label htmlFor="vol-skills" className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1.5">
                           Skills *
                         </label>
                         <input
+                          id="vol-skills"
+                          name="vol-skills"
                           type="text"
                           required
                           value={formSkills}
@@ -1481,10 +1515,12 @@ export function GetInvolved() {
                         />
                       </div>
                       <div>
-                        <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1.5">
+                        <label htmlFor="vol-languages" className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1.5">
                           Languages Known *
                         </label>
                         <input
+                          id="vol-languages"
+                          name="vol-languages"
                           type="text"
                           required
                           value={formLanguages}
@@ -1497,10 +1533,12 @@ export function GetInvolved() {
 
                     {/* Role / Area of Interest Selection */}
                     <div>
-                      <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1.5">
+                      <label htmlFor="vol-role" className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1.5">
                         Selected Role / Area of Interest *
                       </label>
                       <select
+                        id="vol-role"
+                        name="vol-role"
                         required
                         value={modalRole}
                         onChange={(e) => setModalRole(e.target.value as VolunteerRole)}
@@ -1519,10 +1557,12 @@ export function GetInvolved() {
                     {/* Previous Experience & Availability */}
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       <div>
-                        <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1.5">
+                        <label htmlFor="vol-experience" className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1.5">
                           Previous Experience *
                         </label>
                         <input
+                          id="vol-experience"
+                          name="vol-experience"
                           type="text"
                           required
                           value={formExperience}
@@ -1532,10 +1572,12 @@ export function GetInvolved() {
                         />
                       </div>
                       <div>
-                        <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1.5">
+                        <label htmlFor="vol-availability" className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1.5">
                           Availability *
                         </label>
                         <select
+                          id="vol-availability"
+                          name="vol-availability"
                           required
                           value={formAvailability}
                           onChange={(e) => setFormAvailability(e.target.value)}
@@ -1554,10 +1596,12 @@ export function GetInvolved() {
                     {/* Emergency Contacts */}
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       <div>
-                        <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1.5">
+                        <label htmlFor="vol-emergency-name" className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1.5">
                           Emergency Contact Name *
                         </label>
                         <input
+                          id="vol-emergency-name"
+                          name="vol-emergency-name"
                           type="text"
                           required
                           value={formEmergencyName}
@@ -1567,10 +1611,12 @@ export function GetInvolved() {
                         />
                       </div>
                       <div>
-                        <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1.5">
+                        <label htmlFor="vol-emergency-phone" className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1.5">
                           Emergency Contact Phone *
                         </label>
                         <input
+                          id="vol-emergency-phone"
+                          name="vol-emergency-phone"
                           type="tel"
                           required
                           value={formEmergencyPhone}
@@ -1583,10 +1629,12 @@ export function GetInvolved() {
 
                     {/* Message / Why Join */}
                     <div>
-                      <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1.5">
+                      <label htmlFor="vol-why-join" className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1.5">
                         Why do you want to join? *
                       </label>
                       <textarea
+                        id="vol-why-join"
+                        name="vol-why-join"
                         rows={3}
                         required
                         value={formMessage}
@@ -1598,7 +1646,7 @@ export function GetInvolved() {
 
                     {/* Resume Upload (Optional) */}
                     <div>
-                      <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1.5">
+                      <label htmlFor="vol-resume" className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1.5">
                         Upload Resume (Optional)
                       </label>
                       <div className="border border-dashed border-slate-200 hover:border-primary/50 transition-colors rounded-xl p-3 bg-slate-50 flex items-center gap-3">
@@ -1607,6 +1655,8 @@ export function GetInvolved() {
                         </div>
                         <div className="flex-1 min-w-0">
                           <input
+                            id="vol-resume"
+                            name="vol-resume"
                             key={`resume-${formResetKey}`}
                             type="file"
                             accept=".pdf,.doc,.docx"
@@ -1619,7 +1669,7 @@ export function GetInvolved() {
 
                     {/* ID Document Upload (Required) */}
                     <div>
-                      <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1.5">
+                      <label htmlFor="vol-iddoc" className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1.5">
                         Upload Identity Document (Aadhaar / PAN Card) *
                       </label>
                       <div className="border border-dashed border-slate-200 hover:border-primary/50 transition-colors rounded-xl p-3 bg-slate-50 flex items-center gap-3">
@@ -1628,6 +1678,8 @@ export function GetInvolved() {
                         </div>
                         <div className="flex-1 min-w-0">
                           <input
+                            id="vol-iddoc"
+                            name="vol-iddoc"
                             key={`iddoc-vol-${formResetKey}`}
                             type="file"
                             required
