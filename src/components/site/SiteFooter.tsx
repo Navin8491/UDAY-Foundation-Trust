@@ -226,7 +226,13 @@ export function SiteFooter() {
 
             {/* Newsletter Subscription */}
             <form onSubmit={handleSubscribe} className="flex gap-1.5 pt-2">
+              <label htmlFor="footer-email" className="sr-only">
+                Email Address
+              </label>
               <input
+                id="footer-email"
+                name="footer-email"
+                autoComplete="email"
                 type="email"
                 placeholder={t("footer.emailPlaceholder")}
                 required
