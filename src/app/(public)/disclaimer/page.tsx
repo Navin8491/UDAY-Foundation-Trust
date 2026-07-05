@@ -3,7 +3,8 @@ import { Metadata } from "next";
 
 export const metadata: Metadata = {
   title: "Disclaimer | Uday Foundation Trust",
-  description: "Uday Foundation Trust is dedicated to serving rural communities through educational, health, and empowerment initiatives.",
+  description:
+    "Read the Disclaimer of Uday Foundation Trust regarding the accuracy of information on our website and limitation of liability for our programs and services.",
 };
 
 export default function DisclaimerPage() {

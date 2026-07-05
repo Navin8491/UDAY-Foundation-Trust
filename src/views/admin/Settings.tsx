@@ -161,10 +161,12 @@ export function Settings() {
                 </h3>
 
                 <div className="space-y-1.5">
-                  <label className="text-slate-500 uppercase tracking-wider">
+                  <label htmlFor="org-name" className="text-slate-500 uppercase tracking-wider">
                     Trust Corporate Name *
                   </label>
                   <input
+                    id="org-name"
+                    name="org-name"
                     type="text"
                     required
                     value={orgName}
@@ -175,11 +177,14 @@ export function Settings() {
 
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-1.5">
-                    <label className="text-slate-500 uppercase tracking-wider">
+                    <label htmlFor="org-phone" className="text-slate-500 uppercase tracking-wider">
                       Office Hotline *
                     </label>
                     <input
+                      id="org-phone"
+                      name="org-phone"
                       type="text"
+                      autoComplete="tel"
                       required
                       value={orgPhone}
                       onChange={(e) => setOrgPhone(e.target.value)}
@@ -187,11 +192,14 @@ export function Settings() {
                     />
                   </div>
                   <div className="space-y-1.5">
-                    <label className="text-slate-500 uppercase tracking-wider">
+                    <label htmlFor="org-email" className="text-slate-500 uppercase tracking-wider">
                       Public Support Email *
                     </label>
                     <input
+                      id="org-email"
+                      name="org-email"
                       type="email"
+                      autoComplete="email"
                       required
                       value={orgEmail}
                       onChange={(e) => setOrgEmail(e.target.value)}
@@ -201,11 +209,14 @@ export function Settings() {
                 </div>
 
                 <div className="space-y-1.5">
-                  <label className="text-slate-500 uppercase tracking-wider">
+                  <label htmlFor="org-address" className="text-slate-500 uppercase tracking-wider">
                     Office Headquarters *
                   </label>
                   <input
+                    id="org-address"
+                    name="org-address"
                     type="text"
+                    autoComplete="street-address"
                     required
                     value={orgAddress}
                     onChange={(e) => setOrgAddress(e.target.value)}
@@ -222,10 +233,12 @@ export function Settings() {
                 </h3>
 
                 <div className="space-y-1.5">
-                  <label className="text-slate-500 uppercase tracking-wider">
+                  <label htmlFor="seo-title" className="text-slate-500 uppercase tracking-wider">
                     Meta Page Title *
                   </label>
                   <input
+                    id="seo-title"
+                    name="seo-title"
                     type="text"
                     required
                     value={seoTitle}
@@ -235,8 +248,10 @@ export function Settings() {
                 </div>
 
                 <div className="space-y-1.5">
-                  <label className="text-slate-500 uppercase tracking-wider">Meta Keywords *</label>
+                  <label htmlFor="seo-keywords" className="text-slate-500 uppercase tracking-wider">Meta Keywords *</label>
                   <input
+                    id="seo-keywords"
+                    name="seo-keywords"
                     type="text"
                     required
                     value={seoKeywords}
@@ -246,10 +261,12 @@ export function Settings() {
                 </div>
 
                 <div className="space-y-1.5">
-                  <label className="text-slate-500 uppercase tracking-wider">
+                  <label htmlFor="seo-desc" className="text-slate-500 uppercase tracking-wider">
                     Meta SEO Description *
                   </label>
                   <textarea
+                    id="seo-desc"
+                    name="seo-desc"
                     required
                     rows={3}
                     value={seoDesc}
@@ -267,10 +284,12 @@ export function Settings() {
                 </h3>
 
                 <div className="space-y-1.5">
-                  <label className="text-slate-500 uppercase tracking-wider">
+                  <label htmlFor="social-fb" className="text-slate-500 uppercase tracking-wider">
                     Facebook Page Link
                   </label>
                   <input
+                    id="social-fb"
+                    name="social-fb"
                     type="url"
                     value={socialFb}
                     onChange={(e) => setSocialFb(e.target.value)}
@@ -279,8 +298,10 @@ export function Settings() {
                 </div>
 
                 <div className="space-y-1.5">
-                  <label className="text-slate-500 uppercase tracking-wider">Twitter URL</label>
+                  <label htmlFor="social-tw" className="text-slate-500 uppercase tracking-wider">Twitter URL</label>
                   <input
+                    id="social-tw"
+                    name="social-tw"
                     type="url"
                     value={socialTw}
                     onChange={(e) => setSocialTw(e.target.value)}
@@ -289,10 +310,12 @@ export function Settings() {
                 </div>
 
                 <div className="space-y-1.5">
-                  <label className="text-slate-500 uppercase tracking-wider">
+                  <label htmlFor="social-in" className="text-slate-500 uppercase tracking-wider">
                     Instagram Handle URL
                   </label>
                   <input
+                    id="social-in"
+                    name="social-in"
                     type="url"
                     value={socialIn}
                     onChange={(e) => setSocialIn(e.target.value)}
@@ -310,10 +333,12 @@ export function Settings() {
 
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-1.5">
-                    <label className="text-slate-500 uppercase tracking-wider">
+                    <label htmlFor="stat-families" className="text-slate-500 uppercase tracking-wider">
                       Families Served *
                     </label>
                     <input
+                      id="stat-families"
+                      name="stat-families"
                       type="number"
                       required
                       value={statsFamilies}
@@ -322,10 +347,12 @@ export function Settings() {
                     />
                   </div>
                   <div className="space-y-1.5">
-                    <label className="text-slate-500 uppercase tracking-wider">
+                    <label htmlFor="stat-students" className="text-slate-500 uppercase tracking-wider">
                       Students Impacted *
                     </label>
                     <input
+                      id="stat-students"
+                      name="stat-students"
                       type="number"
                       required
                       value={statsStudents}
@@ -337,10 +364,12 @@ export function Settings() {
 
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-1.5">
-                    <label className="text-slate-500 uppercase tracking-wider">
+                    <label htmlFor="stat-camps" className="text-slate-500 uppercase tracking-wider">
                       Camps Conducted *
                     </label>
                     <input
+                      id="stat-camps"
+                      name="stat-camps"
                       type="number"
                       required
                       value={statsCamps}
@@ -349,10 +378,12 @@ export function Settings() {
                     />
                   </div>
                   <div className="space-y-1.5">
-                    <label className="text-slate-500 uppercase tracking-wider">
+                    <label htmlFor="stat-trees" className="text-slate-500 uppercase tracking-wider">
                       Trees Planted *
                     </label>
                     <input
+                      id="stat-trees"
+                      name="stat-trees"
                       type="number"
                       required
                       value={statsTrees}
@@ -364,10 +395,12 @@ export function Settings() {
 
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-1.5">
-                    <label className="text-slate-500 uppercase tracking-wider">
+                    <label htmlFor="stat-volunteers" className="text-slate-500 uppercase tracking-wider">
                       Active Volunteers *
                     </label>
                     <input
+                      id="stat-volunteers"
+                      name="stat-volunteers"
                       type="number"
                       required
                       value={statsVolunteers}
@@ -376,10 +409,12 @@ export function Settings() {
                     />
                   </div>
                   <div className="space-y-1.5">
-                    <label className="text-slate-500 uppercase tracking-wider">
+                    <label htmlFor="stat-villages" className="text-slate-500 uppercase tracking-wider">
                       Villages Impacted *
                     </label>
                     <input
+                      id="stat-villages"
+                      name="stat-villages"
                       type="number"
                       required
                       value={statsVillages}

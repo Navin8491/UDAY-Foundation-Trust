@@ -2,8 +2,9 @@ import RefundPolicyView from "@/views/RefundPolicy";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "RefundPolicy | Uday Foundation Trust",
-  description: "Uday Foundation Trust is dedicated to serving rural communities through educational, health, and empowerment initiatives.",
+  title: "Refund Policy | Uday Foundation Trust",
+  description:
+    "Read the Refund Policy of Uday Foundation Trust. Understand the conditions under which donations and payments may be refunded.",
 };
 
 export default function RefundPolicyPage() {
