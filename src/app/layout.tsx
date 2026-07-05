@@ -24,7 +24,7 @@ export default function RootLayout({
   return (
     <html lang="en" data-scroll-behavior="smooth">
       <head>
-        <link rel="icon" type="image/png" href="/src/assets/uday-logo.png" />
+        <link rel="icon" type="image/png" href="/uday-logo.png" />
         <meta name="theme-color" content="#1e3a8a" />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />

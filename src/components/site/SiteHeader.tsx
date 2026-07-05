@@ -38,6 +38,8 @@ export function SiteHeader() {
         return t("nav.getInvolved");
       case "Contact":
         return t("nav.contact");
+      case "Transparency":
+        return t("nav.transparency");
       default:
         return label;
     }
