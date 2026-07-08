@@ -31,29 +31,13 @@ async function recoverTransaction(event) {
           // Gateway-specific status checks
           const provider = (process.env.PAYMENT_PROVIDER || "mock").toLowerCase();
 
-          if (provider === "stripe") {
-            const session = await gateway.stripe.checkout.sessions.retrieve(event.payment_id);
-            if (session.payment_status === "paid") {
+          if (["stripe", "cashfree"].includes(provider)) {
+            const verification = await gateway.verifyOrderPayment(event.payment_id);
+            if (verification.success && verification.status === "PAID") {
               isPaid = true;
-              transactionId = session.payment_intent;
-            }
-          } else if (provider === "razorpay") {
-            const order = await gateway.razorpay.orders.fetch(event.payment_id);
-            if (order.status === "paid") {
-              isPaid = true;
-              // Fetch payments associated with the order to get captured transaction ID
-              const payments = await gateway.razorpay.orders.fetchPayments(event.payment_id);
-              if (payments.items && payments.items.length > 0) {
-                const captured = payments.items.find((p) => p.status === "captured");
-                if (captured) {
-                  transactionId = captured.id;
-                }
-              }
+              transactionId = verification.gatewayTransactionId;
             }
           } else if (provider === "mock") {
-            // For mock, if it's pending for more than 5 minutes, we fail it
-            // Unless the mock checkout route marked it paid.
-            // We can query the database donations to see if a record already matches
             isPaid = false;
           }
 

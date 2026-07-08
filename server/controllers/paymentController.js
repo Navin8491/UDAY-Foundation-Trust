@@ -87,9 +87,9 @@ export async function createCheckoutSession(req, res, next) {
               e.message,
             );
           }
-        } else if (process.env.PAYMENT_PROVIDER?.toLowerCase() === "razorpay") {
+        } else if (process.env.PAYMENT_PROVIDER?.toLowerCase() === "cashfree") {
           try {
-            const orderResult = await gateway.createCheckoutSession({
+            const sessionResult = await gateway.createCheckoutSession({
               amount: existingEvent.amount,
               currency: existingEvent.currency,
               idempotencyKey: existingEvent.idempotency_key,
@@ -100,18 +100,20 @@ export async function createCheckoutSession(req, res, next) {
             });
             return res.status(200).json({
               status: "session_recovered",
-              orderId: orderResult.orderId,
-              amount: orderResult.amount,
-              currency: orderResult.currency,
+              sessionId: sessionResult.sessionId,
+              url: sessionResult.url,
+              orderId: sessionResult.orderId,
+              amount: sessionResult.amount,
+              currency: sessionResult.currency,
               idempotencyKey,
               eventId: existingEvent.id,
-              donorName: orderResult.donorName,
-              email: orderResult.email,
-              phone: orderResult.phone,
+              donorName: sessionResult.donorName,
+              email: sessionResult.email,
+              phone: sessionResult.phone,
             });
           } catch (e) {
             console.warn(
-              "[PaymentController] Failed to retrieve/recreate Razorpay order:",
+              "[PaymentController] Failed to retrieve/recreate Cashfree order:",
               e.message,
             );
           }
@@ -240,7 +242,7 @@ export async function createCheckoutSession(req, res, next) {
  * Direct callbacks from Stripe or Razorpay.
  */
 export async function handleWebhook(req, res, next) {
-  const signature = req.headers["stripe-signature"] || req.headers["x-razorpay-signature"] || "";
+  const signature = req.headers["stripe-signature"] || req.headers["x-razorpay-signature"] || req.headers["x-webhook-signature"] || "";
   const provider = (process.env.PAYMENT_PROVIDER || "mock").toLowerCase();
 
   console.log(`[PaymentController] Webhook received for provider: ${provider}`);
@@ -251,7 +253,7 @@ export async function handleWebhook(req, res, next) {
     // Stripe webhooks require the raw request body to verify signatures correctly
     const rawBody = req.rawBody || req.body;
 
-    const verification = await gateway.verifyWebhook(rawBody, signature);
+    const verification = await gateway.verifyWebhook(rawBody, signature, req.headers);
 
     if (!verification.success) {
       res.status(400);
@@ -514,10 +516,46 @@ export async function getPaymentStatus(req, res, next) {
       return next(new Error("Payment record not found"));
     }
 
+    let currentState = event.current_state;
+
+    // Check directly with payment gateway if pending to prevent delays
+    if (["INITIATED", "CHECKOUT_CREATED", "PAYMENT_PENDING"].includes(currentState)) {
+      try {
+        const gateway = getPaymentGateway();
+        const verification = await gateway.verifyOrderPayment(event.payment_id || event.idempotency_key);
+        if (verification.success && verification.status === "PAID") {
+          const { data: updatedEvent, error: updateError } = await supabase
+            .from("payment_events")
+            .update({
+              gateway_transaction_id: verification.gatewayTransactionId,
+              current_state: "CHARGED",
+              updated_at: new Date().toISOString(),
+            })
+            .eq("id", event.id)
+            .select()
+            .maybeSingle();
+
+          if (!updateError && updatedEvent) {
+            currentState = "CHARGED";
+            // Run Saga in background
+            setImmediate(async () => {
+              try {
+                await runSaga(updatedEvent.id);
+              } catch (sagaErr) {
+                console.error(`[PaymentController] Background Saga failed for ${updatedEvent.id}:`, sagaErr.message);
+              }
+            });
+          }
+        }
+      } catch (gatewayErr) {
+        console.warn("[PaymentController] Direct polling gateway status check failed:", gatewayErr.message);
+      }
+    }
+
     // Try to find the donation record if it was saved
     let donation = null;
     if (
-      ["DONATION_SAVED", "EMAIL_SENT", "ADMIN_NOTIFIED", "COMPLETED"].includes(event.current_state)
+      ["DONATION_SAVED", "EMAIL_SENT", "ADMIN_NOTIFIED", "COMPLETED"].includes(currentState)
     ) {
       const { data } = await supabase
         .from("donations")
@@ -530,7 +568,7 @@ export async function getPaymentStatus(req, res, next) {
     res.json({
       id: event.id,
       idempotencyKey: event.idempotency_key,
-      currentState: event.current_state,
+      currentState: currentState,
       amount: event.amount,
       donorName: event.donor_name,
       email: event.email,
@@ -547,85 +585,83 @@ export async function getPaymentStatus(req, res, next) {
 /**
  * Verifies standard checkout Razorpay signatures.
  */
-export async function verifyRazorpayPaymentSignature(req, res, next) {
+/**
+ * Verifies standard checkout Cashfree payment status.
+ */
+export async function verifyCashfreePaymentStatus(req, res, next) {
   try {
-    const { idempotencyKey, razorpay_payment_id, razorpay_order_id, razorpay_signature } = req.body;
+    const { idempotencyKey } = req.body;
 
-    if (!idempotencyKey || !razorpay_payment_id || !razorpay_order_id || !razorpay_signature) {
+    if (!idempotencyKey) {
       res.status(400);
-      return next(new Error("Missing signature verification payload parameters"));
+      return next(new Error("Missing idempotencyKey in request body"));
     }
 
-    // Verify signature signature
-    const secret = process.env.RAZORPAY_KEY_SECRET || "";
-    const body = razorpay_order_id + "|" + razorpay_payment_id;
-    const expectedSignature = crypto
-      .createHmac("sha256", secret)
-      .update(body.toString())
-      .digest("hex");
+    const gateway = getPaymentGateway();
+    const verification = await gateway.verifyOrderPayment(idempotencyKey);
 
-    if (expectedSignature !== razorpay_signature) {
-      res.status(400);
-      return next(new Error("Razorpay payment signature mismatch. Transaction not verified."));
-    }
+    if (verification.success && verification.status === "PAID") {
+      // Fetch the payment event
+      const { data: event, error: fetchError } = await supabase
+        .from("payment_events")
+        .select("*")
+        .eq("idempotency_key", idempotencyKey)
+        .maybeSingle();
 
-    // Fetch the payment event
-    const { data: event, error: fetchError } = await supabase
-      .from("payment_events")
-      .select("*")
-      .eq("idempotency_key", idempotencyKey)
-      .maybeSingle();
+      if (fetchError || !event) {
+        res.status(404);
+        return next(new Error("Payment session transaction record not found"));
+      }
 
-    if (fetchError || !event) {
-      res.status(404);
-      return next(new Error("Payment session transaction record not found"));
-    }
+      // If already fully completed, just return details
+      if (
+        ["COMPLETED", "DONATION_SAVED", "EMAIL_SENT", "ADMIN_NOTIFIED"].includes(event.current_state)
+      ) {
+        return res.json({
+          success: true,
+          eventId: event.id,
+          donationId: event.id,
+        });
+      }
 
-    // If already fully completed, just return details
-    if (
-      ["COMPLETED", "DONATION_SAVED", "EMAIL_SENT", "ADMIN_NOTIFIED"].includes(event.current_state)
-    ) {
-      return res.json({
+      // Update state to CHARGED with the verified transaction ID only if it is still pending
+      const { data: updatedEvent, error: updateError } = await supabase
+        .from("payment_events")
+        .update({
+          gateway_transaction_id: verification.gatewayTransactionId,
+          current_state: "CHARGED",
+          updated_at: new Date().toISOString(),
+        })
+        .eq("id", event.id)
+        .in("current_state", ["INITIATED", "CHECKOUT_CREATED"])
+        .select()
+        .maybeSingle();
+
+      if (updateError) throw updateError;
+
+      if (!updatedEvent) {
+        console.log(
+          `[PaymentController] verifyCashfreePaymentStatus: State has already transitioned. Skipping duplicate Saga execution.`,
+        );
+        return res.json({
+          success: true,
+          eventId: event.id,
+          donationId: event.id,
+        });
+      }
+
+      // Asynchronously trigger Saga Engine execution
+      await runSaga(updatedEvent.id);
+
+      res.json({
         success: true,
         eventId: event.id,
         donationId: event.id,
       });
+    } else {
+      res.status(400);
+      return next(new Error(`Cashfree payment verification unsuccessful. Status: ${verification.status || "UNPAID"}`));
     }
-
-    // Update state to CHARGED with the verified transaction ID only if it is still pending
-    const { data: updatedEvent, error: updateError } = await supabase
-      .from("payment_events")
-      .update({
-        gateway_transaction_id: razorpay_payment_id,
-        current_state: "CHARGED",
-        updated_at: new Date().toISOString(),
-      })
-      .eq("id", event.id)
-      .in("current_state", ["INITIATED", "CHECKOUT_CREATED"])
-      .select()
-      .maybeSingle();
-
-    if (updateError) throw updateError;
-
-    if (!updatedEvent) {
-      console.log(
-        `[PaymentController] verifySignature: State has already transitioned. Skipping duplicate Saga execution.`,
-      );
-      return res.json({
-        success: true,
-        eventId: event.id,
-        donationId: event.id,
-      });
-    }
-
-    // Asynchronously trigger Saga Engine execution
-    await runSaga(updatedEvent.id);
-
-    res.json({
-      success: true,
-      eventId: event.id,
-      donationId: event.id,
-    });
   } catch (err) {
     next(err);
   }

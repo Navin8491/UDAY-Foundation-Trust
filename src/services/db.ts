@@ -1060,21 +1060,25 @@ export function subscribePaymentEvents(
   };
 }
 
+export async function verifyCashfreePayment(idempotencyKey: string): Promise<any> {
+  const res = await apiRequest("/payments/verify-signature", {
+    method: "POST",
+    body: { idempotencyKey },
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.message || "Failed to verify Cashfree payment");
+  }
+  return res.json();
+}
+
 export async function verifyRazorpaySignature(payload: {
   idempotencyKey: string;
   razorpay_payment_id: string;
   razorpay_order_id: string;
   razorpay_signature: string;
 }): Promise<any> {
-  const res = await apiRequest("/payments/verify-signature", {
-    method: "POST",
-    body: payload,
-  });
-  if (!res.ok) {
-    const err = await res.json().catch(() => ({}));
-    throw new Error(err.message || "Failed to verify payment signature");
-  }
-  return res.json();
+  return verifyCashfreePayment(payload.idempotencyKey);
 }
 
 export async function fetchEmailStats(): Promise<any> {

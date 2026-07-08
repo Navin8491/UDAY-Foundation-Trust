@@ -27,10 +27,20 @@ class PaymentGateway {
    * Verifies the webhook signature or callback payload.
    * @param {Object|string} payload - raw body or callback parameters
    * @param {string} signature - gateway signature
+   * @param {Object} [headers] - request headers for timestamp/metadata verification
    * @returns {Promise<{ success: boolean, gatewayTransactionId: string, amount: number, currency: string, eventType: string }>}
    */
-  async verifyWebhook(payload, signature) {
+  async verifyWebhook(payload, signature, headers) {
     throw new Error("verifyWebhook not implemented");
+  }
+
+  /**
+   * Verifies an order payment by checking directly with the gateway.
+   * @param {string} orderId - the gateway order ID or session ID
+   * @returns {Promise<{ success: boolean, status: string, gatewayTransactionId: string, amount: number, currency: string }>}
+   */
+  async verifyOrderPayment(orderId) {
+    throw new Error("verifyOrderPayment not implemented");
   }
 
   /**
@@ -109,13 +119,32 @@ class StripeGateway extends PaymentGateway {
           gatewayTransactionId: session.payment_intent || session.id,
           amount: session.amount_total / 100,
           currency: session.currency.toUpperCase(),
-          eventType: "checkout.session.completed",
+          eventType: event.type,
           idempotencyKey: session.metadata?.idempotencyKey,
         };
       }
       return { success: false, eventType: event.type };
     } catch (err) {
       console.error("[StripeGateway] Webhook verification failed:", err.message);
+      return { success: false, error: err.message };
+    }
+  }
+
+  async verifyOrderPayment(orderId) {
+    try {
+      const session = await this.stripe.checkout.sessions.retrieve(orderId);
+      if (session.payment_status === "paid") {
+        return {
+          success: true,
+          status: "PAID",
+          gatewayTransactionId: session.payment_intent || session.id,
+          amount: session.amount_total / 100,
+          currency: session.currency.toUpperCase()
+        };
+      }
+      return { success: false, status: session.payment_status };
+    } catch (err) {
+      console.error("[StripeGateway] verifyOrderPayment failed:", err.message);
       return { success: false, error: err.message };
     }
   }
@@ -150,117 +179,218 @@ class StripeGateway extends PaymentGateway {
 }
 
 /**
- * Razorpay Gateway Implementation
+ * Cashfree Gateway Implementation
  */
-class RazorpayGateway extends PaymentGateway {
+class CashfreeGateway extends PaymentGateway {
   constructor() {
     super();
-    this.keyId = process.env.RAZORPAY_KEY_ID || "mock_key";
-    this.keySecret = process.env.RAZORPAY_KEY_SECRET || "mock_secret";
-    this.webhookSecret = process.env.RAZORPAY_WEBHOOK_SECRET || "";
-
-    this.razorpay = new Razorpay({
-      key_id: this.keyId,
-      key_secret: this.keySecret,
-    });
+    this.appId = process.env.CASHFREE_APP_ID || "mock_app_id";
+    this.secretKey = process.env.CASHFREE_SECRET_KEY || "mock_secret_key";
+    this.webhookSecret = process.env.CASHFREE_WEBHOOK_SECRET || this.secretKey;
+    this.env = (process.env.CASHFREE_ENV || "sandbox").toLowerCase();
+    this.baseUrl = this.env === "production"
+      ? "https://api.cashfree.com/pg"
+      : "https://sandbox.cashfree.com/pg";
   }
 
   async createCheckoutSession(params) {
-    const amountInPaise = Math.round(params.amount * 100);
-    if (amountInPaise < 100) {
-      throw new Error("Minimum donation amount is 100 paise (₹1)");
-    }
+    const successUrl = `${process.env.FRONTEND_URL?.split(",")[0] || "http://localhost:5173"}/donate?status=success&idempotency_key=${params.idempotencyKey}`;
 
-    const options = {
-      amount: amountInPaise,
-      currency: params.currency.toUpperCase(),
-      receipt: params.idempotencyKey,
-      notes: {
-        idempotencyKey: params.idempotencyKey,
-        donorName: params.donorName,
-        phone: params.phone,
-      },
+    const headers = {
+      "x-client-id": this.appId,
+      "x-client-secret": this.secretKey,
+      "x-api-version": "2023-08-01",
+      "Content-Type": "application/json"
     };
 
-    const order = await this.razorpay.orders.create(options);
+    // Customer ID must be alphanumeric and under 50 characters
+    const customerId = params.email.replace(/[^a-zA-Z0-9]/g, "_").substring(0, 50);
+
+    const body = {
+      order_amount: params.amount,
+      order_currency: params.currency.toUpperCase(),
+      order_id: params.idempotencyKey,
+      customer_details: {
+        customer_id: customerId,
+        customer_name: params.donorName || "Donor",
+        customer_email: params.email,
+        customer_phone: params.phone.replace(/[^0-9]/g, "").substring(0, 10) || "9999999999"
+      },
+      order_meta: {
+        return_url: successUrl
+      }
+    };
+
+    console.log(`[CashfreeGateway] Creating order for ID: ${params.idempotencyKey}, URL: ${this.baseUrl}/orders`);
+
+    const res = await fetch(`${this.baseUrl}/orders`, {
+      method: "POST",
+      headers,
+      body: JSON.stringify(body)
+    });
+
+    if (!res.ok) {
+      const errorText = await res.text();
+      console.error("[CashfreeGateway] Create Order Error:", errorText);
+      throw new Error(`Cashfree order creation failed: ${errorText}`);
+    }
+
+    const order = await res.json();
 
     return {
-      orderId: order.id,
-      amount: order.amount,
-      currency: order.currency,
+      sessionId: order.payment_session_id,
+      url: order.payments?.url || order.payment_link || null,
+      orderId: order.order_id,
+      amount: order.order_amount,
+      currency: order.order_currency,
       idempotencyKey: params.idempotencyKey,
       donorName: params.donorName,
       email: params.email,
-      phone: params.phone,
+      phone: params.phone
     };
   }
 
-  async verifyWebhook(payload, signature) {
+  async verifyWebhook(payload, signature, headers) {
     try {
-      const shasum = crypto.createHmac("sha256", this.webhookSecret);
-      shasum.update(typeof payload === "string" ? payload : JSON.stringify(payload));
-      const digest = shasum.digest("hex");
+      const ts = headers ? (headers["x-webhook-timestamp"] || "") : "";
+      const rawBody = typeof payload === "string" ? payload : JSON.stringify(payload);
 
-      if (digest !== signature) {
-        console.error("[RazorpayGateway] Webhook signature verification mismatch.");
+      const signStr = ts + rawBody;
+      const generatedSignature = crypto
+        .createHmac("sha256", this.webhookSecret)
+        .update(signStr)
+        .digest("base64");
+
+      if (generatedSignature !== signature) {
+        console.error("[CashfreeGateway] Webhook signature verification mismatch.");
         return { success: false, error: "Signature mismatch" };
       }
 
-      const body = typeof payload === "string" ? JSON.parse(payload) : payload;
-      const event = body.event;
+      const body = JSON.parse(rawBody);
+      const event = body.type;
 
-      if (event === "payment.captured" || event === "order.paid") {
-        const payment = body.payload.payment.entity;
+      if (event === "PAYMENT_SUCCESS_WEBHOOK") {
+        const payment = body.data.payment;
+        const order = body.data.order;
         return {
           success: true,
-          gatewayTransactionId: payment.id,
-          amount: payment.amount / 100,
-          currency: payment.currency.toUpperCase(),
+          gatewayTransactionId: payment.cf_payment_id,
+          amount: payment.payment_amount,
+          currency: payment.payment_currency.toUpperCase(),
           eventType: event,
-          idempotencyKey:
-            payment.notes?.idempotencyKey ||
-            body.payload.order?.entity?.notes?.idempotencyKey ||
-            body.payload.order?.entity?.receipt,
-        };
-      }
-
-      if (event === "payment_link.paid") {
-        const paymentLink = body.payload.payment_link.entity;
-        const payment = body.payload.payment?.entity || {};
-        return {
-          success: true,
-          gatewayTransactionId: payment.id || paymentLink.id,
-          amount: paymentLink.amount_paid / 100,
-          currency: paymentLink.currency.toUpperCase(),
-          eventType: event,
-          idempotencyKey: paymentLink.notes?.idempotencyKey,
+          idempotencyKey: order.order_id,
         };
       }
 
       return { success: false, eventType: event };
     } catch (err) {
-      console.error("[RazorpayGateway] Webhook verification exception:", err.message);
+      console.error("[CashfreeGateway] Webhook verification exception:", err.message);
+      return { success: false, error: err.message };
+    }
+  }
+
+  async verifyOrderPayment(orderId) {
+    try {
+      const headers = {
+        "x-client-id": this.appId,
+        "x-client-secret": this.secretKey,
+        "x-api-version": "2023-08-01",
+        "Content-Type": "application/json"
+      };
+
+      const res = await fetch(`${this.baseUrl}/orders/${orderId}`, {
+        headers
+      });
+
+      if (!res.ok) {
+        const errorText = await res.text();
+        console.error("[CashfreeGateway] Fetch Order Error:", errorText);
+        return { success: false, status: "ERROR" };
+      }
+
+      const order = await res.json();
+      if (order.order_status === "PAID") {
+        // Fetch payments associated with the order to get captured transaction ID
+        const paymentsRes = await fetch(`${this.baseUrl}/orders/${orderId}/payments`, {
+          headers
+        });
+        let transactionId = orderId;
+        if (paymentsRes.ok) {
+          const payments = await paymentsRes.json();
+          // Find first successful payment
+          const successPayment = payments.find(p => p.payment_status === "SUCCESS");
+          if (successPayment) {
+            transactionId = successPayment.cf_payment_id;
+          }
+        }
+        return {
+          success: true,
+          status: "PAID",
+          gatewayTransactionId: transactionId,
+          amount: order.order_amount,
+          currency: order.order_currency
+        };
+      }
+
+      return {
+        success: false,
+        status: order.order_status
+      };
+    } catch (err) {
+      console.error("[CashfreeGateway] verifyOrderPayment failed:", err.message);
       return { success: false, error: err.message };
     }
   }
 
   async refundPayment(transactionId, amount) {
     try {
-      const refund = await this.razorpay.payments.refund(transactionId, {
-        amount: Math.round(amount * 100),
+      // Find the order_id from database if transactionId is the payment ID
+      let orderId = transactionId;
+      const { supabase } = await import("../config/db.js");
+      const { data: event } = await supabase
+        .from("payment_events")
+        .select("idempotency_key")
+        .or(`gateway_transaction_id.eq.${transactionId},idempotency_key.eq.${transactionId}`)
+        .maybeSingle();
+
+      if (event) {
+        orderId = event.idempotency_key;
+      }
+
+      const headers = {
+        "x-client-id": this.appId,
+        "x-client-secret": this.secretKey,
+        "x-api-version": "2023-08-01",
+        "Content-Type": "application/json"
+      };
+
+      const body = {
+        refund_amount: amount,
+        refund_id: `ref_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`,
+        refund_note: "Manually initiated NGO refund",
+        refund_speed: "STANDARD"
+      };
+
+      const res = await fetch(`${this.baseUrl}/orders/${orderId}/refunds`, {
+        method: "POST",
+        headers,
+        body: JSON.stringify(body)
       });
+
+      if (!res.ok) {
+        const errorText = await res.text();
+        console.error("[CashfreeGateway] Refund failed:", errorText);
+        throw new Error(errorText);
+      }
+
+      const refund = await res.json();
       return {
         success: true,
-        refundId: refund.id,
+        refundId: refund.cf_refund_id || refund.refund_id
       };
     } catch (err) {
-      const errMsg =
-        err.description ||
-        err.error?.description ||
-        err.message ||
-        (typeof err === "string" ? err : JSON.stringify(err));
-      console.error("[RazorpayGateway] Refund failed:", errMsg);
-      throw new Error(errMsg);
+      console.error("[CashfreeGateway] Refund execution failed:", err.message);
+      throw err;
     }
   }
 }
@@ -271,11 +401,11 @@ export function getPaymentGateway() {
   switch (provider) {
     case "stripe":
       return new StripeGateway();
-    case "razorpay":
-      return new RazorpayGateway();
+    case "cashfree":
+      return new CashfreeGateway();
     default:
       throw new Error(
-        `Unsupported live payment provider: "${provider}". Only "stripe" or "razorpay" are allowed in production.`,
+        `Unsupported live payment provider: "${provider}". Only "stripe" or "cashfree" are allowed in production.`,
       );
   }
 }

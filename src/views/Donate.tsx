@@ -28,6 +28,7 @@ import {
   initiateDonationPayment,
   fetchPaymentStatus,
   verifyRazorpaySignature,
+  verifyCashfreePayment,
 } from "@/services/db";
 import { toast } from "sonner";
 import { SITE } from "@/constants/site";
@@ -130,81 +131,46 @@ export function Donate() {
   const [verificationError, setVerificationError] = useState("");
   const [donationId, setDonationId] = useState("");
 
-  const loadRazorpayScript = () => {
+  const loadCashfreeScript = () => {
     return new Promise((resolve) => {
+      if ((window as any).Cashfree) {
+        resolve(true);
+        return;
+      }
       const script = document.createElement("script");
-      script.src = "https://checkout.razorpay.com/v1/checkout.js";
+      script.src = "https://sdk.cashfree.com/js/v3/cashfree.js";
       script.onload = () => resolve(true);
       script.onerror = () => resolve(false);
       document.body.appendChild(script);
     });
   };
 
-  const openRazorpayCheckout = async (sessionData: any) => {
-    const loaded = await loadRazorpayScript();
+  const openCashfreeCheckout = async (sessionData: any) => {
+    const loaded = await loadCashfreeScript();
     if (!loaded) {
-      toast.error("Failed to load Razorpay payment script. Check your internet connection.");
+      toast.error("Failed to load Cashfree payment script. Check your internet connection.");
       setLoading(false);
       return;
     }
 
-    const options = {
-      key: sessionData.keyId || process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID || "",
-      amount: sessionData.amount,
-      currency: sessionData.currency,
-      name: "Uday Foundation Trust",
-      description: "General Donation Contribution",
-      order_id: sessionData.orderId,
-      handler: async function (response: any) {
-        setVerifying(true);
-        setStep(3);
-        setLoading(false);
-        try {
-          const verifyRes = await verifyRazorpaySignature({
-            idempotencyKey: sessionData.idempotencyKey,
-            razorpay_payment_id: response.razorpay_payment_id,
-            razorpay_order_id: response.razorpay_order_id,
-            razorpay_signature: response.razorpay_signature,
-          });
+    try {
+      // Load environment mode from NEXT_PUBLIC_CASHFREE_ENV (default to sandbox)
+      const mode = (process.env.NEXT_PUBLIC_CASHFREE_ENV || "sandbox").toLowerCase();
+      const cashfree = (window as any).Cashfree({
+        mode: mode === "production" ? "production" : "sandbox",
+      });
 
-          if (verifyRes.success) {
-            toast.success("Payment verified successfully!");
-            setDonationId(verifyRes.donationId || verifyRes.eventId);
-            // Fetch status to load receipt number
-            const status = await fetchPaymentStatus(sessionData.idempotencyKey);
-            if (status.receiptNumber) {
-              setReceiptNo(status.receiptNumber);
-            }
-          } else {
-            setVerificationError("Signature verification failed.");
-          }
-        } catch (err: any) {
-          setVerificationError(err.message || "Failed to verify transaction signature.");
-        } finally {
-          setVerifying(false);
-        }
-      },
-      prefill: {
-        name: sessionData.donorName,
-        email: sessionData.email,
-        contact: sessionData.phone,
-      },
-      theme: {
-        color: "#7A9D1C",
-      },
-      modal: {
-        ondismiss: function () {
-          toast.error("Payment modal dismissed by user.");
-          setLoading(false);
-        },
-      },
-    };
+      console.log("[Cashfree] Launching checkout for session:", sessionData.sessionId);
 
-    const rzp = new (window as any).Razorpay(options);
-    rzp.on("payment.failed", function (resp: any) {
-      toast.error(`Payment failed: ${resp.error.description}`);
-    });
-    rzp.open();
+      cashfree.checkout({
+        paymentSessionId: sessionData.sessionId,
+        redirectTarget: "_self", // Redirects current tab to Cashfree payment page
+      });
+    } catch (err: any) {
+      console.error("[Cashfree] Initialization error:", err);
+      toast.error("Failed to initialize Cashfree checkout.");
+      setLoading(false);
+    }
   };
 
   const { t, language } = useLanguage();
@@ -864,8 +830,8 @@ export function Donate() {
                               setLoading(false);
                             } else if (session.url) {
                               window.location.href = session.url;
-                            } else if (session.orderId) {
-                              await openRazorpayCheckout(session);
+                            } else if (session.sessionId) {
+                              await openCashfreeCheckout(session);
                             } else {
                               throw new Error("No payment session details returned.");
                             }
