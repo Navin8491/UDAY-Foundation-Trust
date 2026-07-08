@@ -293,12 +293,17 @@ export function PremiumPaymentCard({
           transition={{ type: "spring", stiffness: 260, damping: 25 }}
           whileHover={isFlipped ? {} : { y: -8, scale: 1.02 }}
           style={{ transformStyle: "preserve-3d" }}
-          className={`relative w-full h-[260px] rounded-[32px] overflow-hidden ${theme.shadow} transition-shadow duration-300`}
+          className={`relative w-full h-[260px] rounded-[32px] ${theme.shadow} transition-shadow duration-300`}
         >
           {/* CARD FRONT FACE */}
           <div 
-            style={{ transform: "translateZ(1px)" }}
-            className="absolute inset-0 w-full h-full rounded-[32px] bg-gradient-to-br from-[#1E3A8A] via-[#2546C8] to-[#0F172A] backface-hidden border border-white/20 p-6 flex flex-col justify-between overflow-hidden z-10 text-white"
+            style={{ 
+              transform: "rotateY(0deg) translateZ(1px)", 
+              backfaceVisibility: "hidden", 
+              WebkitBackfaceVisibility: "hidden",
+              zIndex: isFlipped ? 10 : 20 
+            }}
+            className="absolute inset-0 w-full h-full rounded-[32px] bg-gradient-to-br from-[#1E3A8A] via-[#2546C8] to-[#0F172A] border border-white/20 p-6 flex flex-col justify-between overflow-hidden text-white"
           >
             {/* Front Background Gradient & Blobs */}
             <div className={`absolute inset-0 ${theme.bg} z-0`} />
@@ -454,8 +459,13 @@ export function PremiumPaymentCard({
 
           {/* CARD BACK FACE */}
           <div 
-            style={{ transform: "rotateY(180deg)" }}
-            className="absolute inset-0 w-full h-full rounded-[32px] bg-gradient-to-br from-[#0F172A] via-[#1E293B] to-[#020617] backface-hidden border border-white/20 py-6 flex flex-col justify-between overflow-hidden z-10 text-white"
+            style={{ 
+              transform: "rotateY(180deg) translateZ(1px)", 
+              backfaceVisibility: "hidden", 
+              WebkitBackfaceVisibility: "hidden",
+              zIndex: isFlipped ? 20 : 10
+            }}
+            className="absolute inset-0 w-full h-full rounded-[32px] bg-gradient-to-br from-[#0F172A] via-[#1E293B] to-[#020617] py-6 flex flex-col justify-between overflow-hidden text-white"
           >
             {/* Back Background (always matching dark theme to ensure magnetic strip contrast) */}
             <div className={`absolute inset-0 ${theme.bg} z-0 opacity-95`} />
@@ -1039,6 +1049,7 @@ export function Donate() {
                                     type="text"
                                     maxLength={19}
                                     value={cardNumber}
+                                    onFocus={() => setIsFlipped(false)}
                                     onChange={(e) => {
                                       const val = e.target.value.replace(/\D/g, "");
                                       const formatted = val.match(/.{1,4}/g)?.join(" ") || val;
@@ -1061,6 +1072,7 @@ export function Donate() {
                                       maxLength={5}
                                       value={cardExpiry}
                                       placeholder="MM/YY"
+                                      onFocus={() => setIsFlipped(false)}
                                       onChange={(e) => {
                                         let val = e.target.value.replace(/\D/g, "");
                                         if (val.length > 2) {
