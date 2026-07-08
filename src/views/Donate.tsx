@@ -155,6 +155,8 @@ interface PremiumPaymentCardProps {
   cardNumber: string;
   cardName: string;
   cardExpiry: string;
+  cardCvv: string;
+  isFlipped: boolean;
   verifying: boolean;
   verificationError: string;
   step: number;
@@ -166,6 +168,8 @@ export function PremiumPaymentCard({
   cardNumber,
   cardName,
   cardExpiry,
+  cardCvv,
+  isFlipped,
   verifying,
   verificationError,
   step,
@@ -175,7 +179,7 @@ export function PremiumPaymentCard({
   const cardRef = useRef<HTMLDivElement>(null);
 
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
-    if (!cardRef.current) return;
+    if (isFlipped || !cardRef.current) return;
     const rect = cardRef.current.getBoundingClientRect();
     const x = e.clientX - rect.left;
     const y = e.clientY - rect.top;
@@ -270,6 +274,10 @@ export function PremiumPaymentCard({
           50% { transform: scale(1.15) translate(25px, -25px); opacity: 0.95; }
           100% { transform: scale(1) translate(0px, 0px); opacity: 0.8; }
         }
+        .backface-hidden {
+          backface-visibility: hidden;
+          -webkit-backface-visibility: hidden;
+        }
       `}} />
 
       {/* 3D perspective wrapper */}
@@ -282,27 +290,32 @@ export function PremiumPaymentCard({
           ref={cardRef}
           animate={{
             rotateX: tilt.x,
-            rotateY: tilt.y,
+            rotateY: isFlipped ? 180 : tilt.y,
           }}
-          transition={{ type: "spring", stiffness: 300, damping: 20 }}
-          whileHover={{ y: -8, scale: 1.02 }}
-          className={`relative w-full h-[260px] rounded-[32px] p-[1.5px] overflow-hidden ${theme.shadow} transition-all duration-300`}
+          transition={{ type: "spring", stiffness: 260, damping: 25 }}
+          whileHover={isFlipped ? {} : { y: -8, scale: 1.02 }}
+          style={{ transformStyle: "preserve-3d" }}
+          className={`relative w-full h-[260px] rounded-[32px] p-[1.5px] ${theme.shadow} transition-shadow duration-300`}
         >
           {/* Animated border rotating gradient */}
-          <div className={`absolute -inset-[100px] bg-gradient-to-r ${theme.borderGlow} animate-[spin_8s_linear_infinite] opacity-75 blur-xs z-0`} />
+          <div 
+            style={{ transform: "translateZ(-1px)" }}
+            className={`absolute -inset-[100px] bg-gradient-to-r ${theme.borderGlow} animate-[spin_8s_linear_infinite] opacity-75 blur-xs z-0`} 
+          />
 
-          {/* Actual Card Surface (Glassmorphic) */}
-          <div className={`relative w-full h-full rounded-[31px] ${theme.bg} backdrop-blur-xl border border-white/20 p-6 flex flex-col justify-between overflow-hidden z-10 text-white`}>
-            
-            {/* White Light Sweep */}
+          {/* CARD FRONT FACE */}
+          <div 
+            style={{ transform: "translateZ(1px)" }}
+            className="absolute inset-0 w-full h-full rounded-[31px] bg-gradient-to-br from-[#1E3A8A] via-[#2546C8] to-[#0F172A] backface-hidden border border-white/20 p-6 flex flex-col justify-between overflow-hidden z-10 text-white"
+          >
+            {/* Front Background Gradient & Blobs */}
+            <div className={`absolute inset-0 ${theme.bg} z-0`} />
             <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full animate-[card-sweep_6s_ease-in-out_infinite] pointer-events-none z-10" />
-
-            {/* Glowing Mesh blobs */}
-            <div className="absolute -left-10 -bottom-10 w-36 h-36 bg-white/5 rounded-full blur-2xl animate-[float-blob_10s_infinite_alternate] pointer-events-none" />
-            <div className="absolute -right-10 -top-10 w-40 h-40 bg-white/5 rounded-full blur-3xl animate-[float-blob_12s_infinite_alternate-reverse] pointer-events-none" />
+            <div className="absolute -left-10 -bottom-10 w-36 h-36 bg-white/5 rounded-full blur-2xl animate-[float-blob_10s_infinite_alternate] pointer-events-none z-10" />
+            <div className="absolute -right-10 -top-10 w-40 h-40 bg-white/5 rounded-full blur-3xl animate-[float-blob_12s_infinite_alternate-reverse] pointer-events-none z-10" />
 
             {/* Top row: Logo/Shield & Lock */}
-            <div className="flex justify-between items-start z-10">
+            <div className="flex justify-between items-start z-10 relative">
               <div className="flex items-center gap-2">
                 <div className="h-7 w-7 bg-white/10 backdrop-blur-md rounded-full flex items-center justify-center border border-white/25">
                   <ShieldCheck className="h-4.5 w-4.5 text-emerald-400" />
@@ -326,14 +339,11 @@ export function PremiumPaymentCard({
             </div>
 
             {/* Middle row: Payment method graphics */}
-            <div className="z-10 my-1">
+            <div className="z-10 my-1 relative">
               <AnimatePresence mode="wait">
                 {paymentMethod === "card" && (
                   <motion.div
                     key="card-graphics"
-                    initial={{ opacity: 0, scale: 0.95 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    exit={{ opacity: 0, scale: 0.95 }}
                     className="flex justify-between items-center"
                   >
                     {/* EMV 3D Metallic Chip */}
@@ -359,9 +369,6 @@ export function PremiumPaymentCard({
                 {paymentMethod === "upi" && (
                   <motion.div
                     key="upi-graphics"
-                    initial={{ opacity: 0, scale: 0.95 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    exit={{ opacity: 0, scale: 0.95 }}
                     className="flex justify-between items-center bg-white/5 backdrop-blur-md rounded-xl p-3 border border-white/10 w-full"
                   >
                     <div className="flex items-center gap-2">
@@ -385,9 +392,6 @@ export function PremiumPaymentCard({
                 {paymentMethod === "netbanking" && (
                   <motion.div
                     key="netbanking-graphics"
-                    initial={{ opacity: 0, scale: 0.95 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    exit={{ opacity: 0, scale: 0.95 }}
                     className="flex justify-between items-center bg-white/5 backdrop-blur-md rounded-xl p-3 border border-white/10 w-full"
                   >
                     <div className="flex items-center gap-2">
@@ -408,7 +412,7 @@ export function PremiumPaymentCard({
             </div>
 
             {/* Card Number display */}
-            <div className="z-10 font-mono text-lg tracking-[0.22em] text-center my-1 text-white font-bold select-all drop-shadow-[0_2px_4px_rgba(0,0,0,0.4)] uppercase">
+            <div className="z-10 relative font-mono text-lg tracking-[0.22em] text-center my-1 text-white font-bold select-all drop-shadow-[0_2px_4px_rgba(0,0,0,0.4)] uppercase">
               {paymentMethod === "card" ? (
                 cardNumber || "•••• •••• •••• ••••"
               ) : (
@@ -419,7 +423,7 @@ export function PremiumPaymentCard({
             </div>
 
             {/* Bottom Row: Holder Name & Expiry */}
-            <div className="flex justify-between items-end z-10">
+            <div className="flex justify-between items-end z-10 relative">
               <div className="text-left max-w-[70%]">
                 <span className="text-[7px] text-white/50 block uppercase tracking-wider font-bold mb-0.5">
                   Donor Name
@@ -457,6 +461,40 @@ export function PremiumPaymentCard({
               <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full animate-[shimmer-wave_1.5s_infinite] pointer-events-none z-30" />
             )}
           </div>
+
+          {/* CARD BACK FACE */}
+          <div 
+            style={{ transform: "rotateY(180deg)" }}
+            className="absolute inset-0 w-full h-full rounded-[31px] bg-gradient-to-br from-[#0F172A] via-[#1E293B] to-[#020617] backface-hidden border border-white/20 py-6 flex flex-col justify-between overflow-hidden z-10 text-white"
+          >
+            {/* Back Background (always matching dark theme to ensure magnetic strip contrast) */}
+            <div className={`absolute inset-0 ${theme.bg} z-0 opacity-95`} />
+
+            {/* Black Magnetic Strip */}
+            <div className="absolute top-6 left-0 right-0 h-10 bg-slate-950/90 z-10" />
+
+            {/* White Signature Strip & CVV Box */}
+            <div className="absolute top-20 left-6 right-6 h-9 flex items-center z-10">
+              <div className="flex-1 h-full bg-slate-200/90 rounded-l-md px-3 flex items-center justify-start text-[8px] text-slate-800 font-bold uppercase tracking-wider font-mono italic select-none">
+                Authorized Signature
+              </div>
+              <div className="w-12 h-full bg-white text-slate-900 font-bold font-mono text-xs flex items-center justify-center rounded-r-md border-l border-slate-300">
+                {cardCvv || "•••"}
+              </div>
+            </div>
+
+            {/* Regulatory Exclusions & Security Info */}
+            <div className="absolute bottom-6 left-6 right-6 text-left text-[7px] leading-relaxed text-white/40 font-bold z-10">
+              <p>This card is securely generated for processing donations to Uday Foundation Trust.</p>
+              <p className="mt-0.5 text-white/50 uppercase tracking-widest text-[6px]">
+                80G TAX EXEMPTION CERTIFICATE SENT ON TRANSACTION COMPLETION
+              </p>
+            </div>
+            
+            {verifying && (
+              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full animate-[shimmer-wave_1.5s_infinite] pointer-events-none z-30" />
+            )}
+          </div>
         </motion.div>
       </div>
     </div>
@@ -473,6 +511,7 @@ export function Donate() {
   const [cardName, setCardName] = useState("");
   const [upiId, setUpiId] = useState("");
   const [selectedBank, setSelectedBank] = useState("");
+  const [isFlipped, setIsFlipped] = useState(false);
 
   const [selected, setSelected] = useState(2500);
   const [custom, setCustom] = useState("");
@@ -921,39 +960,39 @@ export function Donate() {
                     </form>
                   ) : (
                     /* Redesigned Payment Selection (Step 2.5) */
-                    <div className="relative overflow-hidden bg-slate-950 border border-white/10 rounded-[32px] p-6 md:p-8 shadow-2xl space-y-6 animate-scale-up text-left text-white">
+                    <div className="relative overflow-hidden bg-white border border-slate-200/60 rounded-[32px] p-6 md:p-8 shadow-2xl space-y-6 animate-scale-up text-left text-slate-800">
                       
-                      {/* Animated Mesh Gradient background */}
-                      <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_30%,#1e293b,transparent_60%)] bg-slate-950 pointer-events-none z-0" />
+                      {/* Premium Soft Mesh Gradient background (Light theme) */}
+                      <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_30%,rgba(59,130,246,0.05),transparent_60%)] bg-slate-50 pointer-events-none z-0" />
                       
-                      {/* Floating background mesh blobs */}
-                      <div className="absolute top-1/4 left-1/4 w-64 h-64 bg-blue-500/10 rounded-full blur-3xl animate-[mesh-pulse_20s_infinite] pointer-events-none z-0" />
-                      <div className="absolute bottom-1/4 right-1/4 w-72 h-72 bg-purple-500/10 rounded-full blur-3xl animate-[mesh-pulse_25s_infinite_2s] pointer-events-none z-0" />
+                      {/* Floating background mesh blobs (Light theme, very subtle) */}
+                      <div className="absolute top-1/4 left-1/4 w-64 h-64 bg-blue-500/5 rounded-full blur-3xl animate-[mesh-pulse_20s_infinite] pointer-events-none z-0" />
+                      <div className="absolute bottom-1/4 right-1/4 w-72 h-72 bg-emerald-500/5 rounded-full blur-3xl animate-[mesh-pulse_25s_infinite_2s] pointer-events-none z-0" />
                       
                       <div className="relative z-10 space-y-6">
                         {/* Summary Card */}
-                        <div className="bg-white/5 backdrop-blur-md border border-white/10 rounded-3xl p-5 space-y-3.5 text-white">
-                          <h4 className="font-display font-black text-xs text-white/40 uppercase tracking-widest">
+                        <div className="bg-slate-50 border border-slate-200/50 rounded-3xl p-5 space-y-3.5 text-slate-800">
+                          <h4 className="font-display font-bold text-xs text-slate-400 uppercase tracking-widest">
                             Donation Summary
                           </h4>
                           <div className="flex justify-between items-center text-xs font-semibold">
-                            <span className="text-white/60">Total Contribution</span>
-                            <span className="text-emerald-400 font-black text-lg drop-shadow-[0_0_10px_rgba(52,211,153,0.3)] animate-pulse">
+                            <span className="text-slate-500">Total Contribution</span>
+                            <span className="text-primary font-black text-lg">
                               ₹{amount.toLocaleString("en-IN")}
                             </span>
                           </div>
-                          <div className="border-t border-white/10 pt-3 space-y-2 text-[11px] font-semibold text-white/80">
+                          <div className="border-t border-slate-100 pt-3 space-y-2 text-[11px] font-semibold text-slate-600">
                             <div className="flex justify-between">
-                              <span className="text-white/50">Donor Name:</span>
-                              <span className="text-white font-extrabold">{name}</span>
+                              <span className="text-slate-400">Donor Name:</span>
+                              <span className="text-slate-800 font-bold">{name}</span>
                             </div>
                             <div className="flex justify-between">
-                              <span className="text-white/50">Email Address:</span>
-                              <span className="text-white/90">{email}</span>
+                              <span className="text-slate-400">Email Address:</span>
+                              <span className="text-slate-800">{email}</span>
                             </div>
                             <div className="flex justify-between">
-                              <span className="text-white/50">PAN Card:</span>
-                              <span className="text-white/90 uppercase">{pan}</span>
+                              <span className="text-slate-400">PAN Card:</span>
+                              <span className="text-slate-800 uppercase">{pan}</span>
                             </div>
                           </div>
                         </div>
@@ -964,6 +1003,8 @@ export function Donate() {
                           cardNumber={cardNumber}
                           cardName={cardName || name}
                           cardExpiry={cardExpiry}
+                          cardCvv={cardCvv}
+                          isFlipped={isFlipped}
                           verifying={verifying}
                           verificationError={verificationError}
                           step={step}
@@ -971,7 +1012,7 @@ export function Donate() {
                         />
 
                         {/* Selector Tabs */}
-                        <div className="bg-white/5 border border-white/10 rounded-2xl p-1 flex font-bold text-xs select-none">
+                        <div className="bg-slate-100 border border-slate-200/50 rounded-2xl p-1 flex font-bold text-xs select-none">
                           {[
                             { id: "card", Icon: CreditCard, label: "Card" },
                             { id: "upi", Icon: QrCode, label: "UPI" },
@@ -983,8 +1024,8 @@ export function Donate() {
                               onClick={() => setPaymentMethod(m.id as any)}
                               className={`flex-1 py-3 rounded-xl flex items-center justify-center gap-2 cursor-pointer transition-all ${
                                 paymentMethod === m.id
-                                  ? "bg-white/10 text-emerald-400 border border-white/15 shadow-[0_0_15px_rgba(52,211,153,0.2)]"
-                                  : "text-white/50 hover:text-white/80 hover:bg-white/5"
+                                  ? "bg-white text-primary shadow-xs border border-slate-200/40"
+                                  : "text-slate-450 hover:text-slate-700 hover:bg-slate-200/30"
                               }`}
                             >
                               <m.Icon className="h-4 w-4" /> {m.label}
@@ -993,13 +1034,13 @@ export function Donate() {
                         </div>
 
                         {/* Tab Contents */}
-                        <div className="bg-white/5 backdrop-blur-md rounded-3xl p-5 border border-white/10 min-h-[220px] text-white">
+                        <div className="bg-white rounded-3xl p-5 border border-slate-200/60 min-h-[220px] text-slate-800">
                           {paymentMethod === "card" && (
                             <div className="space-y-4">
                               {/* Inputs */}
                               <div className="space-y-3 text-xs font-semibold text-left">
                                 <div className="space-y-1">
-                                  <label htmlFor="card-name" className="text-white/50 uppercase tracking-widest text-[9px] font-bold">
+                                  <label htmlFor="card-name" className="text-slate-450 uppercase tracking-widest text-[9px] font-bold">
                                     Cardholder Name
                                   </label>
                                   <input
@@ -1010,11 +1051,11 @@ export function Donate() {
                                     value={cardName}
                                     onChange={(e) => setCardName(e.target.value.toUpperCase())}
                                     placeholder="CARDHOLDER NAME"
-                                    className="w-full h-11 px-4 rounded-xl border border-white/10 bg-white/5 focus:outline-hidden focus:border-emerald-400 text-sm font-medium text-white placeholder-white/20 transition-colors"
+                                    className="w-full h-11 px-4 rounded-xl border border-slate-200 bg-slate-50 focus:outline-hidden focus:border-primary focus:bg-white text-sm font-semibold text-slate-800 placeholder-slate-400 transition-colors"
                                   />
                                 </div>
                                 <div className="space-y-1">
-                                  <label htmlFor="card-number" className="text-white/50 uppercase tracking-widest text-[9px] font-bold">
+                                  <label htmlFor="card-number" className="text-slate-450 uppercase tracking-widest text-[9px] font-bold">
                                     Card Number
                                   </label>
                                   <input
@@ -1030,12 +1071,12 @@ export function Donate() {
                                       setCardNumber(formatted);
                                     }}
                                     placeholder="4111 2222 3333 4444"
-                                    className="w-full h-11 px-4 rounded-xl border border-white/10 bg-white/5 focus:outline-hidden focus:border-emerald-400 text-sm font-medium font-mono text-white placeholder-white/20 transition-colors"
+                                    className="w-full h-11 px-4 rounded-xl border border-slate-200 bg-slate-50 focus:outline-hidden focus:border-primary focus:bg-white text-sm font-semibold font-mono text-slate-800 placeholder-slate-400 transition-colors"
                                   />
                                 </div>
                                 <div className="grid grid-cols-2 gap-4">
                                   <div className="space-y-1">
-                                    <label htmlFor="card-expiry" className="text-white/50 uppercase tracking-widest text-[9px] font-bold">
+                                    <label htmlFor="card-expiry" className="text-slate-450 uppercase tracking-widest text-[9px] font-bold">
                                       Expiry Date
                                     </label>
                                     <input
@@ -1053,11 +1094,11 @@ export function Donate() {
                                         }
                                         setCardExpiry(val);
                                       }}
-                                      className="w-full h-11 px-4 rounded-xl border border-white/10 bg-white/5 focus:outline-hidden focus:border-emerald-400 text-sm font-medium font-mono text-white placeholder-white/20 transition-colors"
+                                      className="w-full h-11 px-4 rounded-xl border border-slate-200 bg-slate-50 focus:outline-hidden focus:border-primary focus:bg-white text-sm font-semibold font-mono text-slate-800 placeholder-slate-400 transition-colors"
                                     />
                                   </div>
                                   <div className="space-y-1">
-                                    <label htmlFor="card-cvv" className="text-white/50 uppercase tracking-widest text-[9px] font-bold">
+                                    <label htmlFor="card-cvv" className="text-slate-450 uppercase tracking-widest text-[9px] font-bold">
                                       CVV
                                     </label>
                                     <input
@@ -1068,8 +1109,10 @@ export function Donate() {
                                       maxLength={3}
                                       value={cardCvv}
                                       placeholder="•••"
+                                      onFocus={() => setIsFlipped(true)}
+                                      onBlur={() => setIsFlipped(false)}
                                       onChange={(e) => setCardCvv(e.target.value.replace(/\D/g, ""))}
-                                      className="w-full h-11 px-4 rounded-xl border border-white/10 bg-white/5 focus:outline-hidden focus:border-emerald-400 text-sm font-medium font-mono text-white placeholder-white/20 transition-colors"
+                                      className="w-full h-11 px-4 rounded-xl border border-slate-200 bg-slate-50 focus:outline-hidden focus:border-primary focus:bg-white text-sm font-semibold font-mono text-slate-800 placeholder-slate-400 transition-colors"
                                     />
                                   </div>
                                 </div>
@@ -1079,14 +1122,14 @@ export function Donate() {
 
                           {paymentMethod === "upi" && (
                             <div className="space-y-5 text-center flex flex-col items-center py-2">
-                              <div className="p-3 border border-white/10 rounded-3xl bg-white/5 shadow-inner relative group select-none">
-                                <div className="absolute inset-0 bg-emerald-400/5 rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center pointer-events-none">
-                                  <span className="text-[10px] text-emerald-400 font-bold uppercase tracking-wider">
+                              <div className="p-3 border border-slate-200 rounded-3xl bg-slate-50 shadow-inner relative group select-none">
+                                <div className="absolute inset-0 bg-primary/5 rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center pointer-events-none">
+                                  <span className="text-[10px] text-primary font-bold uppercase tracking-wider">
                                     Scan with any UPI App
                                   </span>
                                 </div>
-                                <div className="h-28 w-28 bg-white border border-white/10 rounded-2xl flex items-center justify-center p-2">
-                                  <svg className="w-full h-full text-slate-900" viewBox="0 0 100 100">
+                                <div className="h-28 w-28 bg-white border border-slate-200 rounded-2xl flex items-center justify-center p-2">
+                                  <svg className="w-full h-full text-slate-800" viewBox="0 0 100 100">
                                     <rect x="0" y="0" width="30" height="30" fill="currentColor" />
                                     <rect x="5" y="5" width="20" height="20" fill="white" />
                                     <rect x="70" y="0" width="30" height="30" fill="currentColor" />
@@ -1101,7 +1144,7 @@ export function Donate() {
                                   </svg>
                                 </div>
                               </div>
-                              <span className="text-[9px] font-bold text-white/40 uppercase tracking-widest block">
+                              <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest block">
                                 or pay using UPI ID
                               </span>
                               <div className="w-full space-y-1 text-xs font-semibold text-left">
@@ -1115,7 +1158,7 @@ export function Donate() {
                                   value={upiId}
                                   onChange={(e) => setUpiId(e.target.value.toLowerCase())}
                                   placeholder="e.g., username@upi"
-                                  className="w-full h-11 px-4 rounded-xl border border-white/10 bg-white/5 focus:outline-hidden focus:border-emerald-400 text-sm font-medium font-mono text-center text-white placeholder-white/20 transition-colors"
+                                  className="w-full h-11 px-4 rounded-xl border border-slate-200 bg-slate-50 focus:outline-hidden focus:border-primary focus:bg-white text-sm font-semibold font-mono text-center text-slate-800 placeholder-slate-400 transition-colors"
                                 />
                               </div>
                             </div>
@@ -1123,7 +1166,7 @@ export function Donate() {
 
                           {paymentMethod === "netbanking" && (
                             <div className="space-y-4">
-                              <span className="text-[9px] font-bold text-white/40 uppercase tracking-widest block mb-1 text-left">
+                              <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest block mb-1 text-left">
                                 Popular Banks
                               </span>
                               <div className="grid grid-cols-2 gap-2 text-xs font-bold">
@@ -1139,8 +1182,8 @@ export function Donate() {
                                     onClick={() => setSelectedBank(bank.id)}
                                     className={`py-3 px-4 rounded-xl border text-center transition-all cursor-pointer truncate ${
                                       selectedBank === bank.id
-                                        ? "border-emerald-500 bg-emerald-500/10 text-emerald-400 shadow-[0_0_10px_rgba(52,211,153,0.15)]"
-                                        : "border-white/10 bg-white/5 hover:bg-white/10 text-white/80"
+                                        ? "border-primary bg-primary/5 text-primary shadow-[0_0_10px_rgba(37,70,200,0.15)]"
+                                        : "border-slate-200 bg-slate-50 hover:bg-slate-100 text-slate-700"
                                     }`}
                                   >
                                     {bank.label}
@@ -1148,7 +1191,7 @@ export function Donate() {
                                 ))}
                               </div>
                               <div className="space-y-1 text-xs font-semibold mt-3 text-left">
-                                <label htmlFor="bank-select" className="text-white/50 uppercase tracking-widest text-[9px] font-bold block">
+                                <label htmlFor="bank-select" className="text-slate-400 uppercase tracking-widest text-[9px] font-bold block">
                                   Other Banks
                                 </label>
                                 <select
@@ -1156,13 +1199,13 @@ export function Donate() {
                                   name="bank-select"
                                   value={selectedBank}
                                   onChange={(e) => setSelectedBank(e.target.value)}
-                                  className="w-full h-11 px-4 rounded-xl border border-white/10 bg-white/5 focus:outline-hidden focus:border-emerald-400 text-sm font-medium text-white transition-colors cursor-pointer"
+                                  className="w-full h-11 px-4 rounded-xl border border-slate-200 bg-slate-50 focus:outline-hidden focus:border-primary focus:bg-white text-sm font-semibold text-slate-800 transition-colors cursor-pointer"
                                 >
-                                  <option value="" className="bg-slate-900 text-white">-- Select Your Bank --</option>
-                                  <option value="kotak" className="bg-slate-900 text-white">Kotak Mahindra Bank</option>
-                                  <option value="pnb" className="bg-slate-900 text-white">Punjab National Bank</option>
-                                  <option value="bob" className="bg-slate-900 text-white">Bank of Baroda</option>
-                                  <option value="yes" className="bg-slate-900 text-white">Yes Bank</option>
+                                  <option value="">-- Select Your Bank --</option>
+                                  <option value="kotak">Kotak Mahindra Bank</option>
+                                  <option value="pnb">Punjab National Bank</option>
+                                  <option value="bob">Bank of Baroda</option>
+                                  <option value="yes">Yes Bank</option>
                                 </select>
                               </div>
                             </div>
@@ -1205,29 +1248,29 @@ export function Donate() {
                             }
                           }}
                           disabled={loading}
-                          className="w-full bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 text-white shadow-[0_0_20px_rgba(16,185,129,0.3)] hover:shadow-[0_0_25px_rgba(16,185,129,0.5)] transition-all duration-300 font-bold uppercase tracking-wider py-4 rounded-2xl flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                          className="w-full btn-saffron text-sm font-bold uppercase tracking-wider py-4 rounded-2xl flex items-center justify-center gap-2 cursor-pointer shadow-md hover:shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                         >
-                          <Lock className="h-4 w-4 text-emerald-100 animate-pulse" />
+                          <Lock className="h-4 w-4 text-white animate-pulse" />
                           {loading
                             ? "Processing..."
                             : `Pay Securely : ₹${amount.toLocaleString("en-IN")}`}
                         </button>
 
                         {/* Trust Indicators Section */}
-                        <div className="grid grid-cols-2 md:grid-cols-3 gap-2.5 pt-6 border-t border-white/10">
+                        <div className="grid grid-cols-2 md:grid-cols-3 gap-2.5 pt-6 border-t border-slate-200/60">
                           {TRUST_ITEMS.map((item, idx) => {
                             const IconComponent = item.icon;
                             return (
                               <motion.div
                                 key={idx}
-                                whileHover={{ y: -4, scale: 1.02, backgroundColor: "rgba(255,255,255,0.08)" }}
-                                className="bg-white/5 border border-white/5 rounded-2xl p-3 flex flex-col items-center text-center backdrop-blur-md cursor-pointer transition-all duration-300"
+                                whileHover={{ y: -4, scale: 1.02, backgroundColor: "rgba(0,0,0,0.02)" }}
+                                className="bg-slate-50 border border-slate-200/60 rounded-2xl p-3 flex flex-col items-center text-center cursor-pointer transition-all duration-300"
                               >
-                                <IconComponent className="h-4.5 w-4.5 text-emerald-400 mb-1 animate-pulse" />
-                                <span className="text-[10px] font-black text-white block tracking-wide">
+                                <IconComponent className="h-4.5 w-4.5 text-primary mb-1 animate-pulse" />
+                                <span className="text-[10px] font-black text-slate-800 block tracking-wide">
                                   {item.label}
                                 </span>
-                                <span className="text-[8px] text-white/40 block mt-0.5 leading-snug">
+                                <span className="text-[8px] text-slate-400 block mt-0.5 leading-snug">
                                   {item.desc}
                                 </span>
                               </motion.div>
