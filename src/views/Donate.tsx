@@ -157,6 +157,7 @@ interface PremiumPaymentCardProps {
   cardExpiry: string;
   cardCvv: string;
   isFlipped: boolean;
+  onFlipToggle?: () => void;
   verifying: boolean;
   verificationError: string;
   step: number;
@@ -170,6 +171,7 @@ export function PremiumPaymentCard({
   cardExpiry,
   cardCvv,
   isFlipped,
+  onFlipToggle,
   verifying,
   verificationError,
   step,
@@ -289,6 +291,7 @@ export function PremiumPaymentCard({
       >
         <motion.div
           ref={cardRef}
+          onClick={onFlipToggle}
           animate={{
             rotateX: tilt.x,
             rotateY: isFlipped ? 180 : tilt.y,
@@ -296,7 +299,7 @@ export function PremiumPaymentCard({
           transition={{ type: "spring", stiffness: 260, damping: 25 }}
           whileHover={isFlipped ? {} : { y: -8, scale: 1.02 }}
           style={{ transformStyle: "preserve-3d" }}
-          className={`relative w-full h-[260px] rounded-[32px] ${theme.shadow} transition-shadow duration-300`}
+          className={`relative w-full h-[260px] rounded-[32px] cursor-pointer ${theme.shadow} transition-shadow duration-300`}
         >
           {/* CARD FRONT FACE */}
           <div 
@@ -1026,6 +1029,7 @@ export function Donate() {
                           cardExpiry={cardExpiry}
                           cardCvv={cardCvv}
                           isFlipped={isFlipped}
+                          onFlipToggle={() => setIsFlipped(!isFlipped)}
                           verifying={verifying}
                           verificationError={verificationError}
                           step={step}
