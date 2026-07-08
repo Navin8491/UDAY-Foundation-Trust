@@ -1,7 +1,16 @@
 import { supabase } from "../config/db.js";
 import { getPaymentGateway } from "./paymentGateway.js";
 import { generateReceiptPdf } from "../utils/pdfGenerator.js";
-import { sendDonationReceived, sendDonationFailed, sendAdminAlert, queueEmail } from "../utils/emailService.js";
+import { 
+  sendDonationReceived, 
+  sendDonationFailed, 
+  sendAdminAlert, 
+  queueEmail,
+  getHtmlTemplate,
+  renderInfoRow,
+  renderInfoCard,
+  renderBadge
+} from "../utils/emailService.js";
 import { createNotification } from "../utils/notificationService.js";
 import { triggerUpdate } from "../utils/realtime.js";
 import { publishEvent, EVENTS } from "../utils/eventQueue.js";
@@ -121,23 +130,28 @@ async function sendFailureEmail(event) {
  * Sends a refund email to the donor.
  */
 async function sendRefundEmail(event, refundId) {
-  const emailBody = `
-    <h1 style="color:#dc2626; font-family:sans-serif;">Refund Processed Successfully</h1>
-    <p>Dear ${event.donor_name},</p>
-    <p>A refund of <strong>₹${Number(event.amount).toLocaleString("en-IN")}</strong> has been initiated and successfully processed for your donation attempt.</p>
-    <p><strong>Refund Details:</strong><br/>
-    • Refund Reference: ${refundId}<br/>
-    • Transaction ID: ${event.gateway_transaction_id}<br/>
-    • Refunded Amount: ₹${Number(event.amount).toLocaleString("en-IN")}<br/>
-    </p>
-    <p>The refunded amount should reflect in your source bank account within 5-7 business days.</p>
-    <p>If you have any questions, please contact our support desk.</p>
-    <p>Warm regards,<br/>Uday Foundation Trust Team</p>
+  const rows = 
+    renderInfoRow("Donor Name", event.donor_name) +
+    renderInfoRow("Refunded Amount", `₹${Number(event.amount).toLocaleString("en-IN")}`) +
+    renderInfoRow("Refund Reference", refundId) +
+    renderInfoRow("Transaction ID", event.gateway_transaction_id) +
+    renderInfoRow("Status", renderBadge("Refunded"));
+
+  const body = `
+    <p style="font-size: 15px; color: #334155; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-weight: 600; margin-top: 0;">Hello ${event.donor_name},</p>
+    <p style="font-size: 14px; color: #475569; line-height: 1.6; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">A refund has been initiated and successfully processed for your donation attempt.</p>
+    
+    ${renderInfoCard(rows)}
+    
+    <p style="font-size: 14px; color: #475569; line-height: 1.6; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">The refunded amount should reflect in your source bank account within 5-7 business days. If you have any questions or require further assistance, please contact our support desk.</p>
+    <p style="font-size: 14px; color: #475569; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; margin-bottom: 0; padding-top: 12px; border-top: 1px solid #f1f5f9; margin-top: 24px;">Warm regards,<br/><strong>Uday Foundation Trust Team</strong></p>
   `;
+  const subject = "Refund Confirmation - Uday Foundation Trust";
+  const html = getHtmlTemplate(subject, "Refund Processed Successfully", body, "🧾", "Refund Processed", "#ef4444");
   await queueEmail(
     event.email,
-    "Refund Confirmation - Uday Foundation Trust",
-    emailBody,
+    subject,
+    html,
     "donation_refund"
   );
 }

@@ -674,3 +674,229 @@ export const createDonation = async (req, res, next) => {
     next(error);
   }
 };
+
+// Helper to write database audit logs
+const createAuditLog = async (req, action, oldVal, newVal) => {
+  try {
+    const adminName = req.user?.email || "admin@udayfoundationstrust.org";
+    const ipAddress = req.ip || req.headers["x-forwarded-for"] || req.socket.remoteAddress || "";
+    await supabase.from("audit_logs").insert([
+      {
+        admin_name: adminName,
+        action,
+        ip_address: ipAddress,
+        old_value: oldVal,
+        new_value: newVal,
+      }
+    ]);
+  } catch (err) {
+    console.error("[AuditLog] Failed to insert log:", err.message);
+  }
+};
+
+// Update Volunteer profile details
+export const updateVolunteer = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const adminEmail = req.user?.email || "admin@udayfoundationstrust.org";
+
+    const { data: current, error: fetchErr } = await supabase
+      .from("volunteers")
+      .select("*")
+      .eq("id", id)
+      .single();
+
+    if (fetchErr || !current) {
+      res.status(404);
+      return next(new Error("Volunteer record not found"));
+    }
+
+    const {
+      name,
+      email,
+      phone,
+      address,
+      education,
+      photoUrl,
+      idProofUrl,
+      role,
+      dob,
+      gender,
+      city,
+      state,
+      country,
+      pincode,
+      occupation,
+      skills,
+      languages,
+      experience,
+      availability,
+      emergencyName,
+      emergencyPhone,
+      resumeUrl,
+      status,
+    } = req.body;
+
+    const parsedMsg = parseExtendedMessage(current.message);
+    if (!parsedMsg.timeline) parsedMsg.timeline = [];
+
+    // Log the edit action to timeline
+    parsedMsg.timeline.push({
+      action: "Edited",
+      admin: adminEmail,
+      date: new Date().toISOString(),
+      notes: "Volunteer profile details updated by admin.",
+    });
+
+    const updatePayload = {
+      name: name !== undefined ? name : current.name,
+      email: email !== undefined ? email : current.email,
+      phone: phone !== undefined ? phone : current.phone,
+      address: address !== undefined ? address : current.address,
+      education: education !== undefined ? education : current.education,
+      photoUrl: photoUrl !== undefined ? photoUrl : current.photoUrl,
+      idProofUrl: idProofUrl !== undefined ? idProofUrl : current.idProofUrl,
+      role: role !== undefined ? role : current.role,
+      dob: dob !== undefined ? dob : current.dob,
+      gender: gender !== undefined ? gender : current.gender,
+      city: city !== undefined ? city : current.city,
+      state: state !== undefined ? state : current.state,
+      country: country !== undefined ? country : current.country,
+      pincode: pincode !== undefined ? pincode : current.pincode,
+      occupation: occupation !== undefined ? occupation : current.occupation,
+      skills: skills !== undefined ? skills : current.skills,
+      languages: languages !== undefined ? languages : current.languages,
+      experience: experience !== undefined ? experience : current.experience,
+      availability: availability !== undefined ? availability : current.availability,
+      emergencyName: emergencyName !== undefined ? emergencyName : current.emergencyName,
+      emergencyPhone: emergencyPhone !== undefined ? emergencyPhone : current.emergencyPhone,
+      resumeUrl: resumeUrl !== undefined ? resumeUrl : current.resumeUrl,
+      status: status !== undefined ? status : current.status,
+      message: JSON.stringify({
+        ...parsedMsg,
+        isExtended: true,
+      }),
+    };
+
+    const { data: updated, error } = await supabase
+      .from("volunteers")
+      .update(updatePayload)
+      .eq("id", id)
+      .select()
+      .single();
+
+    if (error) throw error;
+
+    // Email trigger on status change
+    if (status && status !== current.status) {
+      if (status === "approved") {
+        sendVolunteerApproved(updated.email, updated.name).catch((err) =>
+          console.error("[EmailService] Approved status email failed:", err.message),
+        );
+      } else if (status === "rejected") {
+        sendVolunteerRejected(updated.email, updated.name, "Profile details updated by admin").catch((err) =>
+          console.error("[EmailService] Rejected status email failed:", err.message),
+        );
+      }
+    }
+
+    // Write to audit log
+    await createAuditLog(req, "UPDATE_VOLUNTEER", current, updated);
+
+    triggerUpdate("volunteers");
+    res.json(updated);
+  } catch (error) {
+    next(error);
+  }
+};
+
+// Update Partnership details
+export const updatePartnership = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const adminEmail = req.user?.email || "admin@udayfoundationstrust.org";
+
+    const { data: current, error: fetchErr } = await supabase
+      .from("partnerships")
+      .select("*")
+      .eq("id", id)
+      .single();
+
+    if (fetchErr || !current) {
+      res.status(404);
+      return next(new Error("Partnership record not found"));
+    }
+
+    const {
+      orgName,
+      contactName,
+      email,
+      phone,
+      type,
+      documentUrl,
+      status,
+      website,
+      address,
+      proposal,
+    } = req.body;
+
+    const parsedMsg = parseExtendedMessage(current.message);
+    if (!parsedMsg.timeline) parsedMsg.timeline = [];
+
+    // Log edit to timeline
+    parsedMsg.timeline.push({
+      action: "Edited",
+      admin: adminEmail,
+      date: new Date().toISOString(),
+      notes: "Partnership details updated by admin.",
+    });
+
+    const updatePayload = {
+      orgName: orgName !== undefined ? orgName : current.orgName,
+      contactName: contactName !== undefined ? contactName : current.contactName,
+      email: email !== undefined ? email : current.email,
+      phone: phone !== undefined ? phone : current.phone,
+      type: type !== undefined ? type : current.type,
+      documentUrl: documentUrl !== undefined ? documentUrl : current.documentUrl,
+      status: status !== undefined ? status : current.status,
+      message: JSON.stringify({
+        ...parsedMsg,
+        website: website !== undefined ? website : (parsedMsg.website || ""),
+        address: address !== undefined ? address : (parsedMsg.address || ""),
+        proposal: proposal !== undefined ? proposal : (parsedMsg.proposal || ""),
+        isExtended: true,
+      }),
+    };
+
+    const { data: updated, error } = await supabase
+      .from("partnerships")
+      .update(updatePayload)
+      .eq("id", id)
+      .select()
+      .single();
+
+    if (error) throw error;
+
+    // Email trigger on status change
+    if (status && status !== current.status) {
+      if (status === "approved") {
+        sendPartnershipApproved(updated.email, updated.contactName, updated.orgName).catch((err) =>
+          console.error("[EmailService] Approved status email failed:", err.message),
+        );
+      } else if (status === "rejected") {
+        sendPartnershipRejected(updated.email, updated.contactName, updated.orgName, "Profile details updated by admin").catch((err) =>
+          console.error("[EmailService] Rejected status email failed:", err.message),
+        );
+      }
+    }
+
+    // Write to audit log
+    await createAuditLog(req, "UPDATE_PARTNERSHIP", current, updated);
+
+    triggerUpdate("partnership_requests");
+    res.json(updated);
+  } catch (error) {
+    next(error);
+  }
+};
+

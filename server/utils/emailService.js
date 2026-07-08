@@ -6,9 +6,10 @@ dotenv.config();
 
 // Environment Variables binding with PRD specifications & legacy fallbacks
 const RESEND_API_KEY = process.env.RESEND_API_KEY;
-const RESEND_FROM_EMAIL = process.env.RESEND_FROM_EMAIL || process.env.EMAIL_FROM || "onboarding@resend.dev";
+const RESEND_FROM_EMAIL = process.env.RESEND_FROM_EMAIL || "onboarding@resend.dev";
 const RESEND_FROM_NAME = process.env.RESEND_FROM_NAME || "Uday Foundation Trust";
-const ADMIN_EMAIL = process.env.ADMIN_EMAIL || process.env.ADMIN_NOTIFICATION_EMAIL || "udayfts1024@gmail.com";
+// ADMIN_NOTIFICATION_EMAIL is the personal inbox (udayfts1024@gmail.com) — checked first
+const ADMIN_EMAIL = process.env.ADMIN_NOTIFICATION_EMAIL || process.env.ADMIN_EMAIL || "udayfts1024@gmail.com";
 
 let resend = null;
 
@@ -22,7 +23,10 @@ if (RESEND_API_KEY && RESEND_API_KEY !== "YOUR_RESEND_API_KEY_HERE" && RESEND_AP
 }
 
 // ── HTML Responsive Template Wrapper ──────────────────────────────────────────
-function getHtmlTemplate(title, preheader, bodyContent) {
+// ── HTML Responsive Template Wrapper ──────────────────────────────────────────
+export function getHtmlTemplate(title, preheader, bodyContent, heroIcon = "🤝", heroTitle = "", heroBg = "#1e3a8a") {
+  const currentYear = new Date().getFullYear();
+  const displayTitle = heroTitle || title;
   return `
     <!DOCTYPE html>
     <html>
@@ -30,142 +34,239 @@ function getHtmlTemplate(title, preheader, bodyContent) {
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>${title}</title>
+        <!--[if mso]>
+        <noscript>
+          <xml>
+            <o:OfficeDocumentSettings>
+              <o:AllowPNG/>
+              <o:PixelsPerInch>96</o:PixelsPerInch>
+            </o:OfficeDocumentSettings>
+          </xml>
+        </noscript>
+        <![endif]-->
         <style>
-          body {
-            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
-            background-color: #f8fafc;
-            color: #334155;
-            margin: 0;
-            padding: 0;
-            -webkit-font-smoothing: antialiased;
+          body, table, td, a { -webkit-text-size-adjust: 100%; -ms-text-size-adjust: 100%; }
+          table, td { mso-table-lspace: 0pt; mso-table-rspace: 0pt; }
+          img { -ms-interpolation-mode: bicubic; }
+          img { border: 0; height: auto; line-height: 100%; outline: none; text-decoration: none; }
+          table { border-collapse: collapse !important; }
+          body { height: 100% !important; margin: 0 !important; padding: 0 !important; width: 100% !important; background-color: #f7f9fc; }
+          a[x-apple-data-detectors] {
+            color: inherit !important;
+            text-decoration: none !important;
+            font-size: inherit !important;
+            font-family: inherit !important;
+            font-weight: inherit !important;
+            line-height: inherit !important;
           }
-          .container {
-            max-width: 600px;
-            margin: 40px auto;
-            background: #ffffff;
-            border-radius: 16px;
-            overflow: hidden;
-            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.05), 0 2px 4px -2px rgb(0 0 0 / 0.05);
-            border: 1px solid #e2e8f0;
-          }
-          .header {
-            background-color: #1e3a8a;
-            padding: 32px;
-            text-align: center;
-            border-bottom: 4px solid #7a9d1c;
-          }
-          .logo-text {
-            color: #ffffff;
-            font-size: 24px;
-            font-weight: 800;
-            letter-spacing: 0.05em;
-            margin: 0;
-          }
-          .logo-subtext {
-            color: #93c5fd;
-            font-size: 11px;
-            text-transform: uppercase;
-            letter-spacing: 0.15em;
-            margin-top: 4px;
-          }
-          .content {
-            padding: 40px;
-            line-height: 1.6;
-          }
-          .h1 {
-            color: #1e3a8a;
-            font-size: 20px;
-            font-weight: 700;
-            margin-top: 0;
-            margin-bottom: 20px;
-          }
-          p {
-            margin-top: 0;
-            margin-bottom: 16px;
-            font-size: 14px;
-            color: #475569;
-          }
-          .badge {
-            display: inline-block;
-            padding: 6px 16px;
-            font-size: 12px;
-            font-weight: 700;
-            border-radius: 9999px;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-            margin-bottom: 20px;
-          }
-          .badge-approved {
-            background-color: #d1fae5;
-            color: #065f46;
-          }
-          .badge-pending {
-            background-color: #fef3c7;
-            color: #92400e;
-          }
-          .badge-rejected {
-            background-color: #fee2e2;
-            color: #991b1b;
-          }
-          .field-box {
-            background-color: #f8fafc;
-            border: 1px solid #e2e8f0;
-            border-radius: 12px;
-            padding: 20px;
-            margin: 20px 0;
-          }
-          .field-row {
-            margin-bottom: 10px;
-            font-size: 13px;
-          }
-          .field-label {
-            font-weight: bold;
-            color: #64748b;
-            width: 150px;
-            display: inline-block;
-          }
-          .field-value {
-            color: #1e293b;
-          }
-          .footer {
-            background-color: #f1f5f9;
-            padding: 24px;
-            text-align: center;
-            font-size: 12px;
-            color: #64748b;
-            border-top: 1px solid #e2e8f0;
-          }
-          .social-links {
-            margin-top: 12px;
-          }
-          .social-links a {
-            color: #1e3a8a;
-            text-decoration: none;
-            margin: 0 10px;
-            font-weight: 700;
+          @media screen and (max-width: 600px) {
+            .container { width: 100% !important; max-width: 100% !important; }
+            .content-card { padding: 24px !important; }
           }
         </style>
       </head>
-      <body>
-        <div class="container">
-          <div class="header">
-            <div class="logo-text">UDAY FOUNDATION TRUST</div>
-            <div class="logo-subtext">Service is Culture · Service is True Dharma</div>
-          </div>
-          <div class="content">
-            ${bodyContent}
-          </div>
-          <div class="footer">
-            <p style="margin: 0 0 8px 0; font-size: 12px;">Uday Foundation Trust, Sanand, Ahmedabad, Gujarat</p>
-            <p style="margin: 0 0 12px 0; font-size: 11px;">Registered NGO (Reg No: Guj/23016/Ahmedabad) | Email: ${ADMIN_EMAIL}</p>
-            <div class="social-links">
-              <a href="https://www.udayfoundationstrust.org">Official Website</a> ·
-              <a href="https://www.udayfoundationstrust.org/contact">Support Desk</a>
-            </div>
-          </div>
+      <body style="background-color: #f7f9fc; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; margin: 0; padding: 0; -webkit-font-smoothing: antialiased; color: #334155;">
+        <div style="display: none; font-size: 1px; color: #f7f9fc; line-height: 1px; max-height: 0px; max-width: 0px; opacity: 0; overflow: hidden; mso-hide: all;">
+          ${preheader}
         </div>
+
+        <table border="0" cellpadding="0" cellspacing="0" width="100%">
+          <tr>
+            <td align="center" style="background-color: #f7f9fc; padding: 24px 16px 40px 16px;">
+              <table border="0" cellpadding="0" cellspacing="0" width="100%" class="container" style="max-width: 600px; text-align: left;">
+                
+                <!-- HEADER -->
+                <tr>
+                  <td align="center" style="padding: 16px 0 24px 0;">
+                    <table border="0" cellpadding="0" cellspacing="0" style="text-align: center;">
+                      <tr>
+                        <td align="center" style="padding-bottom: 8px;">
+                          <div style="display: inline-block; background-color: #1e3a8a; color: #ffffff; width: 44px; height: 44px; line-height: 44px; border-radius: 12px; font-weight: 800; font-size: 20px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; text-align: center;">U</div>
+                        </td>
+                      </tr>
+                      <tr>
+                        <td style="color: #1e3a8a; font-size: 18px; font-weight: 800; letter-spacing: 0.5px; text-transform: uppercase; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
+                          Uday Foundation Trust
+                        </td>
+                      </tr>
+                      <tr>
+                        <td style="color: #7a9d1c; font-size: 10px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; padding-top: 4px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
+                          Service is Culture &bull; Service is True Dharma
+                        </td>
+                      </tr>
+                    </table>
+                  </td>
+                </tr>
+
+                <!-- HERO BANNER -->
+                <tr>
+                  <td style="background-color: ${heroBg}; padding: 36px 24px; border-radius: 16px 16px 0 0; text-align: center;">
+                    <div style="font-size: 40px; margin-bottom: 12px; line-height: 1;">${heroIcon}</div>
+                    <h1 style="color: #ffffff; font-size: 22px; font-weight: 700; margin: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; letter-spacing: -0.5px;">
+                      ${displayTitle}
+                    </h1>
+                  </td>
+                </tr>
+
+                <!-- MAIN CARD -->
+                <tr>
+                  <td class="content-card" style="background-color: #ffffff; padding: 40px 32px; border-radius: 0 0 16px 16px; border-left: 1px solid #e2e8f0; border-right: 1px solid #e2e8f0; border-bottom: 1px solid #e2e8f0; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -2px rgba(0, 0, 0, 0.05);">
+                    ${bodyContent}
+                  </td>
+                </tr>
+
+                <!-- FOOTER -->
+                <tr>
+                  <td align="center" style="padding: 40px 24px 16px 24px;">
+                    <table border="0" cellpadding="0" cellspacing="0" width="100%" style="text-align: center; color: #64748b; font-size: 12px;">
+                      <tr>
+                        <td style="font-weight: 700; color: #1e3a8a; font-size: 13px; text-transform: uppercase; letter-spacing: 0.5px; padding-bottom: 4px;">
+                          Uday Foundation Trust
+                        </td>
+                      </tr>
+                      <tr>
+                        <td style="font-size: 10px; color: #94a3b8; text-transform: uppercase; padding-bottom: 16px;">
+                          Registered NGO (Reg No: Guj/23016/Ahmedabad)
+                        </td>
+                      </tr>
+                      <tr>
+                        <td style="line-height: 1.6; padding-bottom: 24px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; color: #64748b;">
+                          314, Ambedkar Nagar, Soyla, Sanand, Ahmedabad, Gujarat &ndash; 382110<br/>
+                          Email: <a href="mailto:${ADMIN_EMAIL}" style="color: #1e3a8a; text-decoration: none; font-weight: 600;">${ADMIN_EMAIL}</a> &bull; Phone: +91 96246 68484
+                        </td>
+                      </tr>
+
+                      <!-- SOCIAL BUTTONS -->
+                      <tr>
+                        <td align="center" style="padding-bottom: 24px;">
+                          <table border="0" cellpadding="0" cellspacing="0" style="margin: 0 auto;">
+                            <tr>
+                              <td style="padding: 0 4px;">
+                                <a href="https://www.facebook.com/udayfoundationstrust" target="_blank" style="display: inline-block; background-color: #1877F2; color: #ffffff; font-size: 10px; font-weight: 700; text-decoration: none; padding: 6px 12px; border-radius: 9999px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">Facebook</a>
+                              </td>
+                              <td style="padding: 0 4px;">
+                                <a href="https://www.instagram.com/udayfoundationstrust" target="_blank" style="display: inline-block; background-color: #E4405F; color: #ffffff; font-size: 10px; font-weight: 700; text-decoration: none; padding: 6px 12px; border-radius: 9999px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">Instagram</a>
+                              </td>
+                              <td style="padding: 0 4px;">
+                                <a href="https://www.linkedin.com/company/uday-foundation-trust" target="_blank" style="display: inline-block; background-color: #0A66C2; color: #ffffff; font-size: 10px; font-weight: 700; text-decoration: none; padding: 6px 12px; border-radius: 9999px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">LinkedIn</a>
+                              </td>
+                              <td style="padding: 0 4px;">
+                                <a href="https://www.youtube.com/@udayfoundationstrust" target="_blank" style="display: inline-block; background-color: #FF0000; color: #ffffff; font-size: 10px; font-weight: 700; text-decoration: none; padding: 6px 12px; border-radius: 9999px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">YouTube</a>
+                              </td>
+                            </tr>
+                          </table>
+                        </td>
+                      </tr>
+
+                      <!-- LEGAL LINKS -->
+                      <tr>
+                        <td style="border-top: 1px solid #e2e8f0; padding-top: 20px; font-size: 10px; color: #94a3b8; line-height: 1.6; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
+                          <a href="https://www.udayfoundationstrust.org/privacy-policy" style="color: #64748b; text-decoration: none; margin: 0 4px;">Privacy Policy</a> &bull;
+                          <a href="https://www.udayfoundationstrust.org/terms-and-conditions" style="color: #64748b; text-decoration: none; margin: 0 4px;">Terms & Conditions</a> &bull;
+                          <a href="https://www.udayfoundationstrust.org/refund-policy" style="color: #64748b; text-decoration: none; margin: 0 4px;">Refund Policy</a> &bull;
+                          <a href="https://www.udayfoundationstrust.org/disclaimer" style="color: #64748b; text-decoration: none; margin: 0 4px;">Disclaimer</a> &bull;
+                          <a href="https://www.udayfoundationstrust.org/contact" style="color: #64748b; text-decoration: none; margin: 0 4px;">Contact</a>
+                          <p style="margin-top: 16px; font-size: 9px; color: #cbd5e1;">&copy; ${currentYear} Uday Foundation Trust. All rights reserved.</p>
+                        </td>
+                      </tr>
+                    </table>
+                  </td>
+                </tr>
+
+              </table>
+            </td>
+          </tr>
+        </table>
       </body>
     </html>
+  `;
+}
+
+// Helper component to render key-value info rows
+export function renderInfoRow(label, value) {
+  return `
+    <tr>
+      <td style="padding: 12px 0; border-bottom: 1px solid #f1f5f9; font-size: 13px; color: #64748b; font-weight: 500; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; text-align: left;">${label}</td>
+      <td style="padding: 12px 0; border-bottom: 1px solid #f1f5f9; font-size: 13px; color: #1e293b; font-weight: 600; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; text-align: right;">${value}</td>
+    </tr>
+  `;
+}
+
+// Helper component to wrap info rows in a table card
+export function renderInfoCard(rowsHtml) {
+  return `
+    <table border="0" cellpadding="0" cellspacing="0" width="100%" style="background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 8px 16px; margin: 24px 0 16px 0;">
+      ${rowsHtml}
+    </table>
+  `;
+}
+
+// Helper component to render status badge
+export function renderBadge(status) {
+  let bg = "#ffedd5";
+  let color = "#c2410c";
+  const st = status.toLowerCase();
+  if (st.includes("approved") || st.includes("success") || st.includes("received")) {
+    bg = "#d1fae5";
+    color = "#047857";
+  } else if (st.includes("rejected") || st.includes("fail")) {
+    bg = "#fee2e2";
+    color = "#b91c1c";
+  } else if (st.includes("complete") || st.includes("active") || st.includes("sent")) {
+    bg = "#dbeafe";
+    color = "#1d4ed8";
+  }
+  return `<span style="background-color: ${bg}; color: ${color}; font-size: 10px; font-weight: 700; padding: 4px 8px; border-radius: 9999px; text-transform: uppercase; letter-spacing: 0.5px; display: inline-block; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">${status}</span>`;
+}
+
+// Helper component to render timeline widget
+export function renderTimeline(currentStep) {
+  const steps = ["Submitted", "Reviewing", "Approved", "Welcome"];
+  let stepsHtml = "";
+  for (let i = 0; i < steps.length; i++) {
+    const step = steps[i];
+    const isCompleted = i <= currentStep;
+    const isCurrent = i === currentStep;
+    let color = "#94a3b8";
+    if (isCurrent) {
+      color = "#d97706"; // orange current
+    } else if (isCompleted) {
+      color = "#10b981"; // green completed
+    }
+    const weight = isCurrent || isCompleted ? "700" : "500";
+    const line = i < steps.length - 1 
+      ? `<td style="padding: 0 8px; font-size: 14px; color: #cbd5e1; font-weight: bold; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">&rarr;</td>` 
+      : "";
+    stepsHtml += `
+      <td style="text-align: center; vertical-align: middle;">
+        <span style="font-size: 10px; font-weight: ${weight}; color: ${color}; text-transform: uppercase; letter-spacing: 0.5px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">${step}</span>
+      </td>
+      ${line}
+    `;
+  }
+  return `
+    <table border="0" cellpadding="0" cellspacing="0" style="margin: 24px auto; max-width: 100%; border: 1px solid #f1f5f9; padding: 12px 16px; border-radius: 8px;">
+      <tr>${stepsHtml}</tr>
+    </table>
+  `;
+}
+
+// Helper to render CTA button
+export function renderButton(text, url) {
+  return `
+    <table border="0" cellpadding="0" cellspacing="0" style="margin: 24px 0 8px 0; width: 100%;">
+      <tr>
+        <td align="left">
+          <table border="0" cellpadding="0" cellspacing="0">
+            <tr>
+              <td align="center" style="border-radius: 9999px;" bgcolor="#1e3a8a">
+                <a href="${url}" target="_blank" style="font-size: 13px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; color: #ffffff; text-decoration: none; border-radius: 9999px; padding: 10px 24px; border: 1px solid #1e3a8a; display: inline-block; font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase;">${text}</a>
+              </td>
+            </tr>
+          </table>
+        </td>
+      </tr>
+    </table>
   `;
 }
 
@@ -176,7 +277,7 @@ function getHtmlTemplate(title, preheader, bodyContent) {
  */
 export async function queueEmail(recipient, subject, htmlContent, template, attachments = []) {
   try {
-    // 1. Insert log record into PostgreSQL email_logs table
+    // 1. Try to insert log record into PostgreSQL email_logs table
     const { data: logRecord, error } = await supabase
       .from("email_logs")
       .insert([
@@ -192,9 +293,14 @@ export async function queueEmail(recipient, subject, htmlContent, template, atta
       .single();
 
     if (error) {
-      console.error("[EmailQueue] Database logging failed:", error.message);
-      // Even if DB fails, do not crash the app. Try to send email anyway.
-      processEmailDirect(null, recipient, subject, htmlContent, attachments).catch(() => {});
+      // DB logging failed (e.g. email_logs table doesn't exist yet) — send directly
+      console.warn("[EmailQueue] DB logging skipped, sending email directly:", error.message);
+      try {
+        await processEmailDirect(null, recipient, subject, htmlContent, attachments);
+        console.log(`✉️ [EmailQueue] Email sent directly (no DB log) to ${recipient} (${template})`);
+      } catch (sendErr) {
+        console.error(`❌ [EmailQueue] Direct send failed to ${recipient}:`, sendErr.message);
+      }
       return;
     }
 
@@ -211,10 +317,21 @@ export async function queueEmail(recipient, subject, htmlContent, template, atta
   }
 }
 
+
 /**
  * Sends mail directly via Resend or log to console in mock mode.
  */
 async function processEmailDirect(logId, recipient, subject, htmlContent, attachments) {
+  let finalRecipient = recipient;
+  let finalSubject = subject;
+
+  // Sandbox Mode Override: Resend free tier (onboarding@resend.dev) only allows sending to the registered account owner.
+  if (RESEND_FROM_EMAIL === "onboarding@resend.dev" && recipient.toLowerCase() !== ADMIN_EMAIL.toLowerCase()) {
+    console.log(`[Resend Sandbox] Redirecting email for ${recipient} to registered admin: ${ADMIN_EMAIL}`);
+    finalRecipient = ADMIN_EMAIL;
+    finalSubject = `[Sandbox for ${recipient}] ${subject}`;
+  }
+
   const fromHeader = `${RESEND_FROM_NAME} <${RESEND_FROM_EMAIL}>`;
 
   if (resend) {
@@ -225,8 +342,8 @@ async function processEmailDirect(logId, recipient, subject, htmlContent, attach
 
     const response = await resend.emails.send({
       from: fromHeader,
-      to: recipient,
-      subject,
+      to: finalRecipient,
+      subject: finalSubject,
       html: htmlContent,
       attachments: formattedAttachments,
     });
@@ -239,8 +356,8 @@ async function processEmailDirect(logId, recipient, subject, htmlContent, attach
   } else {
     // DRY-RUN / MOCK MODE: Immediately complete
     console.log(`\n--- [MOCK EMAIL DRY-RUN] ---`);
-    console.log(`To:         ${recipient}`);
-    console.log(`Subject:    ${subject}`);
+    console.log(`To:         ${finalRecipient}`);
+    console.log(`Subject:    ${finalSubject}`);
     console.log(`Attachments: ${attachments.length > 0 ? attachments.map((a) => a.filename).join(", ") : "none"}`);
     console.log(`-----------------------------\n`);
     return "mock-success-id";
@@ -351,124 +468,168 @@ export async function initEmailQueue() {
   }
 }
 
-// ── 10 Responsive HTML Email Templates ──────────────────────────────────────────
-
-/**
- * Helper to rebuild the body content for startup queue recovery when htmlContent is not in DB.
- */
+// Helper to rebuild the body content for startup queue recovery when htmlContent is not in DB.
 function getHtmlBodyForTemplate(templateName, recipient) {
   // Return standard placeholder text if recovered on reboot.
   return getHtmlTemplate(
     "Notification Update",
     "Notification Update from NGO Panel",
-    `<p>This is a recovered notification email regarding ${templateName} sent to ${recipient}. Please consult the NGO Admin Panel for details.</p>`
+    `<p style="font-size: 15px; color: #334155; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-weight: 600; margin-top: 0;">Hello,</p>
+     <p style="font-size: 14px; color: #475569; line-height: 1.6; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">This is a recovered notification email regarding <strong>${templateName}</strong> sent to ${recipient}. Please consult the NGO Admin Panel for details.</p>`,
+    "🔔",
+    "Notification Update",
+    "#1e3a8a"
   );
 }
 
 // Email 1 – Volunteer Application Submitted
 export async function sendVolunteerReceived(email, name) {
   const subject = "Volunteer Application Received";
+  const rows = 
+    renderInfoRow("Applicant", name) +
+    renderInfoRow("Email", email) +
+    renderInfoRow("Role", "Volunteer") +
+    renderInfoRow("Applied On", new Date().toLocaleDateString("en-IN")) +
+    renderInfoRow("Status", renderBadge("Received"));
+    
   const body = `
-    <h1 class="h1">Volunteer Application Received</h1>
-    <div class="badge badge-pending">Received</div>
-    <p>Dear ${name},</p>
-    <p>Thank you for applying to become a volunteer with <strong>Uday Foundation Trust</strong>.</p>
-    <p>We have successfully received your application.</p>
-    <p>Our team will carefully review your application.</p>
-    <p>You will receive another email once our review process is complete.</p>
-    <p>Thank you for supporting our mission.</p>
-    <p>Regards,<br>Uday Foundation Trust Team</p>
+    <p style="font-size: 15px; color: #334155; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-weight: 600; margin-top: 0;">Hello ${name},</p>
+    <p style="font-size: 14px; color: #475569; line-height: 1.6; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">Thank you for applying to become a volunteer with <strong>Uday Foundation Trust</strong>. We have received your application successfully!</p>
+    <p style="font-size: 14px; color: #475569; line-height: 1.6; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">Our team will carefully review your details to ensure alignment with our trust objectives. You will receive another email once our review process is complete.</p>
+    
+    ${renderTimeline(0)}
+    ${renderInfoCard(rows)}
+    
+    <p style="font-size: 13px; color: #64748b; line-height: 1.6; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; margin-top: 24px;">Thank you for your willingness to support our mission and serve the community.</p>
+    <p style="font-size: 14px; color: #475569; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; margin-bottom: 0; padding-top: 12px; border-top: 1px solid #f1f5f9;">Warm regards,<br><strong>Uday Foundation Trust Team</strong></p>
   `;
-  const html = getHtmlTemplate(subject, "Volunteer application received", body);
+  const html = getHtmlTemplate(subject, "Volunteer application received", body, "🤝", "Application Received", "#1e3a8a");
   await queueEmail(email, subject, html, "volunteer_received");
 }
 
 // Email 2 – Volunteer Approved
 export async function sendVolunteerApproved(email, name) {
   const subject = "Congratulations! Your Volunteer Application Has Been Approved";
+  const rows = 
+    renderInfoRow("Volunteer", name) +
+    renderInfoRow("Email", email) +
+    renderInfoRow("Status", renderBadge("Approved"));
+
   const body = `
-    <h1 class="h1">Volunteer Application Approved</h1>
-    <div class="badge badge-approved">Approved</div>
-    <p>Dear ${name},</p>
-    <p>Congratulations!</p>
-    <p>We are delighted to inform you that your volunteer application has been approved.</p>
-    <p>We are excited to welcome you to the Uday Foundation Trust family.</p>
-    <p>Our team will contact you shortly with further details.</p>
-    <p>Thank you for joining us.</p>
-    <p>Regards,<br>Uday Foundation Trust Team</p>
+    <p style="font-size: 15px; color: #334155; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-weight: 600; margin-top: 0;">Hello ${name},</p>
+    <p style="font-size: 14px; color: #475569; line-height: 1.6; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">Congratulations! We are absolutely delighted to inform you that your volunteer application has been approved.</p>
+    <p style="font-size: 14px; color: #475569; line-height: 1.6; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">We are thrilled to welcome you to the Uday Foundation Trust family. Our coordinator will contact you directly within 2 business days to share details about upcoming community programs and onboarding steps.</p>
+    
+    ${renderTimeline(2)}
+    ${renderInfoCard(rows)}
+
+    <h3 style="font-size: 14px; color: #1e3a8a; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; margin: 24px 0 12px 0;">Next Steps</h3>
+    <ul style="font-size: 13px; color: #475569; line-height: 1.6; padding-left: 20px; margin: 0 0 24px 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
+      <li style="margin-bottom: 8px;">Check your phone/email for coordinator updates.</li>
+      <li style="margin-bottom: 8px;">Review our current initiative objectives on our website.</li>
+      <li style="margin-bottom: 8px;">Get ready to make a meaningful difference!</li>
+    </ul>
+
+    ${renderButton("Visit Our Website", "https://www.udayfoundationstrust.org")}
+    
+    <p style="font-size: 14px; color: #475569; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; margin-bottom: 0; padding-top: 12px; border-top: 1px solid #f1f5f9; margin-top: 24px;">Warm regards,<br><strong>Uday Foundation Trust Team</strong></p>
   `;
-  const html = getHtmlTemplate(subject, "Volunteer application approved", body);
+  const html = getHtmlTemplate(subject, "Volunteer application approved", body, "🎉", "Welcome Aboard!", "#10b981");
   await queueEmail(email, subject, html, "volunteer_approved");
 }
 
 // Email 3 – Volunteer Rejected
 export async function sendVolunteerRejected(email, name, reason) {
   const subject = "Volunteer Application Update";
-  const cleanReason = reason ? `<div class="field-box"><strong>Feedback:</strong><br>${reason}</div>` : "";
+  const feedbackHtml = reason 
+    ? `<div style="background-color: #fffbeb; border: 1px solid #fef3c7; border-radius: 8px; padding: 16px; margin: 16px 0; font-size: 13px; color: #b45309; line-height: 1.5; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
+         <strong>Feedback:</strong><br/>
+         "${reason}"
+       </div>`
+    : "";
+
   const body = `
-    <h1 class="h1">Volunteer Application Update</h1>
-    <div class="badge badge-rejected">Application Update</div>
-    <p>Dear ${name},</p>
-    <p>Thank you for your interest in volunteering with Uday Foundation Trust.</p>
-    <p>After reviewing your application, we regret to inform you that we are unable to proceed at this time.</p>
-    ${cleanReason}
-    <p>We truly appreciate your willingness to serve the community.</p>
-    <p>We encourage you to apply again in the future.</p>
-    <p>Regards,<br>Uday Foundation Trust Team</p>
+    <p style="font-size: 15px; color: #334155; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-weight: 600; margin-top: 0;">Hello ${name},</p>
+    <p style="font-size: 14px; color: #475569; line-height: 1.6; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">Thank you for your interest in volunteering with Uday Foundation Trust.</p>
+    <p style="font-size: 14px; color: #475569; line-height: 1.6; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">After reviewing your details, we regret to inform you that we are unable to proceed with your application at this time.</p>
+    
+    ${feedbackHtml}
+    
+    <p style="font-size: 14px; color: #475569; line-height: 1.6; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">We sincerely appreciate your willingness to serve the community. We will keep your information on file and encourage you to apply again in the future as new opportunities arise.</p>
+    
+    <p style="font-size: 14px; color: #475569; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; margin-bottom: 0; padding-top: 12px; border-top: 1px solid #f1f5f9; margin-top: 24px;">Warm regards,<br><strong>Uday Foundation Trust Team</strong></p>
   `;
-  const html = getHtmlTemplate(subject, "Volunteer application update", body);
+  const html = getHtmlTemplate(subject, "Volunteer application update", body, "📄", "Application Update", "#ef4444");
   await queueEmail(email, subject, html, "volunteer_rejected");
 }
 
 // Email 4 – Partnership Application Submitted
 export async function sendPartnershipReceived(email, contactName, orgName) {
   const subject = "Partnership Application Received";
+  const rows = 
+    renderInfoRow("Organization", orgName) +
+    renderInfoRow("Contact Person", contactName) +
+    renderInfoRow("Email", email) +
+    renderInfoRow("Status", renderBadge("Received"));
+
   const body = `
-    <h1 class="h1">Partnership Application Received</h1>
-    <div class="badge badge-pending">Received</div>
-    <p>Dear ${contactName},</p>
-    <p>Thank you for submitting a partnership application on behalf of <strong>${orgName}</strong> to Uday Foundation Trust.</p>
-    <p>We have successfully received your proposal.</p>
-    <p>Our collaboration committee is reviewing your details to ensure alignment with our trust objectives.</p>
-    <p>We will reach out to you with updates shortly.</p>
-    <p>Regards,<br>Uday Foundation Trust Team</p>
+    <p style="font-size: 15px; color: #334155; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-weight: 600; margin-top: 0;">Hello ${contactName},</p>
+    <p style="font-size: 14px; color: #475569; line-height: 1.6; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">Thank you for submitting a partnership application on behalf of <strong>${orgName}</strong> to Uday Foundation Trust.</p>
+    <p style="font-size: 14px; color: #475569; line-height: 1.6; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">Our collaboration committee is reviewing your details to ensure alignment with our trust objectives. We will reach out to you with updates shortly.</p>
+    
+    ${renderInfoCard(rows)}
+    
+    <p style="font-size: 14px; color: #475569; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; margin-bottom: 0; padding-top: 12px; border-top: 1px solid #f1f5f9; margin-top: 24px;">Warm regards,<br><strong>Uday Foundation Trust Team</strong></p>
   `;
-  const html = getHtmlTemplate(subject, "Partnership inquiry received", body);
+  const html = getHtmlTemplate(subject, "Partnership inquiry received", body, "🏢", "Partnership Received", "#1e3a8a");
   await queueEmail(email, subject, html, "partnership_received");
 }
 
 // Email 5 – Partnership Approved
 export async function sendPartnershipApproved(email, contactName, orgName) {
   const subject = "Your Partnership Request Has Been Approved";
+  const rows = 
+    renderInfoRow("Organization", orgName) +
+    renderInfoRow("Contact Person", contactName) +
+    renderInfoRow("Status", renderBadge("Approved"));
+
   const body = `
-    <h1 class="h1">Partnership Request Approved</h1>
-    <div class="badge badge-approved">Approved</div>
-    <p>Dear ${contactName},</p>
-    <p>Congratulations!</p>
-    <p>We are pleased to inform you that the partnership request for <strong>${orgName}</strong> has been approved.</p>
-    <p>Next steps: Our coordinator will contact you directly within 2 business days to schedule a kickoff discussion and draft our Memorandum of Collaboration.</p>
-    <p>If you have any urgent queries, please email us at ${ADMIN_EMAIL}.</p>
-    <p>Regards,<br>Uday Foundation Trust Team</p>
+    <p style="font-size: 15px; color: #334155; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-weight: 600; margin-top: 0;">Hello ${contactName},</p>
+    <p style="font-size: 14px; color: #475569; line-height: 1.6; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">Congratulations! We are pleased to inform you that the partnership request for <strong>${orgName}</strong> has been approved.</p>
+    <p style="font-size: 14px; color: #475569; line-height: 1.6; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;"><strong>Next steps:</strong> Our coordinator will contact you directly within 2 business days to schedule a kickoff discussion and draft our Memorandum of Collaboration.</p>
+    
+    ${renderInfoCard(rows)}
+
+    ${renderButton("Contact Support", "https://www.udayfoundationstrust.org/contact")}
+    
+    <p style="font-size: 14px; color: #475569; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; margin-bottom: 0; padding-top: 12px; border-top: 1px solid #f1f5f9; margin-top: 24px;">Warm regards,<br><strong>Uday Foundation Trust Team</strong></p>
   `;
-  const html = getHtmlTemplate(subject, "Partnership request approved", body);
+  const html = getHtmlTemplate(subject, "Partnership request approved", body, "🎉", "Partnership Approved", "#10b981");
   await queueEmail(email, subject, html, "partnership_approved");
 }
 
 // Email 6 – Partnership Rejected
 export async function sendPartnershipRejected(email, contactName, orgName, reason) {
   const subject = "Partnership Application Update";
-  const cleanReason = reason ? `<div class="field-box"><strong>Feedback:</strong><br>${reason}</div>` : "";
+  const feedbackHtml = reason 
+    ? `<div style="background-color: #fffbeb; border: 1px solid #fef3c7; border-radius: 8px; padding: 16px; margin: 16px 0; font-size: 13px; color: #b45309; line-height: 1.5; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
+         <strong>Feedback:</strong><br/>
+         "${reason}"
+       </div>`
+    : "";
+
   const body = `
-    <h1 class="h1">Partnership Application Update</h1>
-    <div class="badge badge-rejected">Application Update</div>
-    <p>Dear ${contactName},</p>
-    <p>Thank you for your interest in collaborating with Uday Foundation Trust on behalf of <strong>${orgName}</strong>.</p>
-    <p>After reviewing your request, we regret to inform you that we are unable to approve this partnership at this time.</p>
-    ${cleanReason}
-    <p>We appreciate your willingness to support community welfare initiatives and invite your team to collaborate in future projects.</p>
-    <p>Regards,<br>Uday Foundation Trust Team</p>
+    <p style="font-size: 15px; color: #334155; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-weight: 600; margin-top: 0;">Hello ${contactName},</p>
+    <p style="font-size: 14px; color: #475569; line-height: 1.6; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">Thank you for your interest in collaborating with Uday Foundation Trust on behalf of <strong>${orgName}</strong>.</p>
+    <p style="font-size: 14px; color: #475569; line-height: 1.6; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">After reviewing your request, we regret to inform you that we are unable to approve this partnership at this time.</p>
+    
+    ${feedbackHtml}
+    
+    <p style="font-size: 14px; color: #475569; line-height: 1.6; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">We appreciate your team's willingness to support community welfare initiatives and invite you to collaborate in future projects.</p>
+    
+    <p style="font-size: 14px; color: #475569; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; margin-bottom: 0; padding-top: 12px; border-top: 1px solid #f1f5f9; margin-top: 24px;">Warm regards,<br><strong>Uday Foundation Trust Team</strong></p>
   `;
-  const html = getHtmlTemplate(subject, "Partnership request update", body);
+  const html = getHtmlTemplate(subject, "Partnership request update", body, "📄", "Partnership Update", "#ef4444");
   await queueEmail(email, subject, html, "partnership_rejected");
 }
 
@@ -482,45 +643,26 @@ export async function sendDonationReceived(email, donorName, amount, txId, panNu
     year: "numeric",
   });
 
+  const rows = 
+    renderInfoRow("Donor Name", donorName) +
+    renderInfoRow("Amount", `₹${formattedAmount}`) +
+    renderInfoRow("PAN Number", panNumber || "N/A") +
+    renderInfoRow("Receipt Number", receiptNumber) +
+    renderInfoRow("Transaction ID", txId) +
+    renderInfoRow("Date", dateStr) +
+    renderInfoRow("Status", renderBadge("Successful"));
+
   const body = `
-    <h1 class="h1">Thank You for Your Support!</h1>
-    <div class="badge badge-approved">Receipt Generated</div>
-    <p>Dear ${donorName},</p>
-    <p>Thank you for supporting Uday Foundation Trust.</p>
-    <p>Your generosity helps us continue our mission.</p>
-    <p>Please find your official 80G tax donation receipt attached as a PDF file.</p>
+    <p style="font-size: 15px; color: #334155; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-weight: 600; margin-top: 0;">Hello ${donorName},</p>
+    <p style="font-size: 14px; color: #475569; line-height: 1.6; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">Thank you for supporting Uday Foundation Trust! Your generosity helps us continue our mission to serve the underprivileged.</p>
+    <p style="font-size: 14px; color: #475569; line-height: 1.6; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">Please find your official 80G tax donation receipt attached to this email as a PDF file.</p>
     
-    <div class="field-box">
-      <div style="font-weight:bold; margin-bottom:12px; font-size:14px; color:#1e3a8a;">Donation Summary:</div>
-      <div class="field-row">
-        <span class="field-label">Donor Name:</span>
-        <span class="field-value">${donorName}</span>
-      </div>
-      <div class="field-row">
-        <span class="field-label">Amount:</span>
-        <span class="field-value">₹${formattedAmount}</span>
-      </div>
-      <div class="field-row">
-        <span class="field-label">PAN Number:</span>
-        <span class="field-value">${panNumber || "N/A"}</span>
-      </div>
-      <div class="field-row">
-        <span class="field-label">Receipt Number:</span>
-        <span class="field-value">${receiptNumber}</span>
-      </div>
-      <div class="field-row">
-        <span class="field-label">Transaction ID:</span>
-        <span class="field-value">${txId}</span>
-      </div>
-      <div class="field-row">
-        <span class="field-label">Date:</span>
-        <span class="field-value">${dateStr}</span>
-      </div>
-    </div>
-    <p>Regards,<br>Uday Foundation Trust Team</p>
+    ${renderInfoCard(rows)}
+    
+    <p style="font-size: 14px; color: #475569; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; margin-bottom: 0; padding-top: 12px; border-top: 1px solid #f1f5f9; margin-top: 24px;">Warm regards,<br><strong>Uday Foundation Trust Team</strong></p>
   `;
 
-  const html = getHtmlTemplate(subject, "Thank you for your donation", body);
+  const html = getHtmlTemplate(subject, "Thank you for your donation", body, "❤️", "Donation Received", "#10b981");
   const attachments = [];
   
   if (pdfBuffer) {
@@ -539,16 +681,25 @@ export async function sendDonationFailed(email, donorName, amount) {
   const subject = "Donation Payment Failed";
   const formattedAmount = Number(amount).toLocaleString("en-IN");
   
+  const rows = 
+    renderInfoRow("Donor Name", donorName) +
+    renderInfoRow("Attempted Amount", `₹${formattedAmount}`) +
+    renderInfoRow("Status", renderBadge("Failed"));
+
   const body = `
-    <h1 class="h1" style="color: #dc2626;">Donation Attempt Unsuccessful</h1>
-    <div class="badge badge-rejected">Failed</div>
-    <p>Dear ${donorName},</p>
-    <p>We noticed that your attempt to donate <strong>₹${formattedAmount}</strong> to Uday Foundation Trust could not be processed.</p>
-    <p>No funds were debited from your card or account. If any amount was debited temporarily, your bank will automatically refund it within 3-5 working days.</p>
-    <p>We encourage you to try again or reach out to our team if you need assistance completing your transaction.</p>
-    <p>Regards,<br>Uday Foundation Trust Team</p>
+    <p style="font-size: 15px; color: #334155; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-weight: 600; margin-top: 0;">Hello ${donorName},</p>
+    <p style="font-size: 14px; color: #475569; line-height: 1.6; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">We noticed that your attempt to donate <strong>₹${formattedAmount}</strong> to Uday Foundation Trust could not be completed.</p>
+    <p style="font-size: 14px; color: #475569; line-height: 1.6; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">No funds were debited from your account. If any amount was debited temporarily, your bank will automatically refund it within 3-5 working days.</p>
+    
+    ${renderInfoCard(rows)}
+    
+    <p style="font-size: 13px; color: #64748b; line-height: 1.6; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">We encourage you to try again or reach out to our team if you need assistance completing your transaction.</p>
+    
+    ${renderButton("Contact Support", "https://www.udayfoundationstrust.org/contact")}
+
+    <p style="font-size: 14px; color: #475569; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; margin-bottom: 0; padding-top: 12px; border-top: 1px solid #f1f5f9; margin-top: 24px;">Warm regards,<br><strong>Uday Foundation Trust Team</strong></p>
   `;
-  const html = getHtmlTemplate(subject, "Donation payment failed", body);
+  const html = getHtmlTemplate(subject, "Donation payment failed", body, "🧾", "Payment Unsuccessful", "#ef4444");
   await queueEmail(email, subject, html, "donation_failed");
 }
 
@@ -556,26 +707,21 @@ export async function sendDonationFailed(email, donorName, amount) {
 export async function sendAdminAlert(type, applicantName, details = {}) {
   const subject = `Alert: New ${type.toUpperCase()} Submission`;
   const fieldsHtml = Object.entries(details)
-    .map(
-      ([k, v]) => `
-      <div class="field-row">
-        <span class="field-label">${k}:</span>
-        <span class="field-value">${v}</span>
-      </div>
-    `
-    )
+    .map(([k, v]) => renderInfoRow(k, String(v)))
     .join("");
 
   const body = `
-    <h1 class="h1">New Submission Alert</h1>
-    <p>A new form has been submitted on the website by <strong>${applicantName}</strong>.</p>
-    <div class="field-box">
-      <div style="font-weight:bold; margin-bottom:12px; font-size:14px; color:#1e3a8a;">Submission Details [${type}]:</div>
-      ${fieldsHtml}
-    </div>
-    <p>Please log in to the admin panel dashboard to review and manage this submission.</p>
+    <p style="font-size: 15px; color: #334155; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-weight: 600; margin-top: 0;">Hello Admin,</p>
+    <p style="font-size: 14px; color: #475569; line-height: 1.6; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">A new form submission of type <strong>${type.toUpperCase()}</strong> has been completed by <strong>${applicantName}</strong> on the website.</p>
+    
+    ${renderInfoCard(fieldsHtml)}
+    
+    ${renderButton("Open NGO Admin Panel", "https://www.udayfoundationstrust.org/admin")}
+    
+    <p style="font-size: 12px; color: #94a3b8; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; margin-top: 24px; border-top: 1px solid #f1f5f9; padding-top: 12px;">This is an automated system alert. Do not reply to this email.</p>
   `;
   
-  const html = getHtmlTemplate(subject, "New Submission Alert for Admin", body);
+  const html = getHtmlTemplate(subject, "New Submission Alert for Admin", body, "🔔", "Admin System Alert", "#1e3a8a");
   await queueEmail(ADMIN_EMAIL, subject, html, "admin_notification");
 }
+

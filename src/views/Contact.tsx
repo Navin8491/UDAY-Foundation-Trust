@@ -127,7 +127,23 @@ export function Contact() {
                     const message = formData.get("message") as string;
 
                     try {
+                      // 1. Submit to database via Express API
                       await submitContactMessage({ name, email, phone, subject, message });
+
+                      // 2. Direct email dispatch via Resend Next.js API Route
+                      const emailRes = await fetch("/api/send-email", {
+                        method: "POST",
+                        headers: {
+                          "Content-Type": "application/json",
+                        },
+                        body: JSON.stringify({ name, email, phone, subject, message }),
+                      });
+
+                      if (!emailRes.ok) {
+                        const errData = await emailRes.json().catch(() => ({}));
+                        console.warn("Resend email route warning:", errData.error);
+                      }
+
                       setSent(true);
                     } catch (err) {
                       console.error(err);

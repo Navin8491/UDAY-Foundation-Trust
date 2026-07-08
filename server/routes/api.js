@@ -47,11 +47,13 @@ import {
   updateVolunteerStatus,
   deleteVolunteer,
   addVolunteerNote,
+  updateVolunteer,
   getPartnerships,
   createPartnership,
   updatePartnershipStatus,
   deletePartnership,
   addPartnershipNote,
+  updatePartnership,
   getContactMessages,
   createContactMessage,
   deleteContactMessage,
@@ -143,12 +145,14 @@ router.get("/volunteers", protectAdmin, getVolunteers);
 router.post("/volunteers", publicFormLimiter, validateBody(volunteerSchema), createVolunteer);
 router.put("/volunteers/:id/status", protectAdmin, updateVolunteerStatus);
 router.post("/volunteers/:id/notes", protectAdmin, addVolunteerNote);
+router.put("/volunteers/:id", protectAdmin, updateVolunteer);
 router.delete("/volunteers/:id", protectAdmin, deleteVolunteer);
 
 router.get("/partnerships", protectAdmin, getPartnerships);
 router.post("/partnerships", publicFormLimiter, validateBody(partnershipSchema), createPartnership);
 router.put("/partnerships/:id/status", protectAdmin, updatePartnershipStatus);
 router.post("/partnerships/:id/notes", protectAdmin, addPartnershipNote);
+router.put("/partnerships/:id", protectAdmin, updatePartnership);
 router.delete("/partnerships/:id", protectAdmin, deletePartnership);
 
 // Contact routes
@@ -184,5 +188,19 @@ router.delete("/notifications/:id", protectAdmin, deleteNotification);
 // Email Logs routes
 router.get("/email-logs/stats", protectAdmin, getEmailStats);
 router.post("/email-logs/retry/:id", protectAdmin, retryEmailLogs);
+
+// ── Test Email Route (Dev/Debug) ──────────────────────────────────────────────
+router.get("/test-email", async (req, res) => {
+  try {
+    const { sendAdminAlert } = await import("../utils/emailService.js");
+    await sendAdminAlert("test", "Test User", {
+      "Test At": new Date().toLocaleString(),
+      Status: "Email system is working correctly!",
+    });
+    res.json({ success: true, message: "Test email queued! Check udayfts1024@gmail.com" });
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
 
 export default router;

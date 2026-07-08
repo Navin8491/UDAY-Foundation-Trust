@@ -1,10 +1,21 @@
 import { supabase } from "../config/db.js";
+import { 
+  getHtmlTemplate, 
+  renderInfoRow, 
+  renderInfoCard, 
+  renderBadge, 
+  renderTimeline, 
+  renderButton 
+} from "../utils/emailService.js";
 
 // Rebuild helper for retries / recovery lookup
 async function getRebuiltHtml(templateName, recipient) {
   // Default fallback text
-  let body = `<p>This is a notification update regarding your submission for ${templateName}. Please log in to your NGO panel for details.</p>`;
+  let body = `<p style="font-size: 14px; color: #475569; line-height: 1.6; font-family: sans-serif;">This is a notification update regarding your submission for ${templateName}. Please log in to your NGO panel for details.</p>`;
   let title = "Notification Update";
+  let heroIcon = "🔔";
+  let heroTitle = "Notification Update";
+  let heroBg = "#1e3a8a";
 
   try {
     if (templateName.startsWith("volunteer_")) {
@@ -19,41 +30,66 @@ async function getRebuiltHtml(templateName, recipient) {
 
       if (templateName === "volunteer_received") {
         title = "Volunteer Application Received";
+        heroTitle = "Application Received";
+        heroIcon = "🤝";
+        heroBg = "#1e3a8a";
+        const rows = 
+          renderInfoRow("Applicant", name) +
+          renderInfoRow("Email", recipient) +
+          renderInfoRow("Role", "Volunteer") +
+          renderInfoRow("Applied On", new Date().toLocaleDateString("en-IN")) +
+          renderInfoRow("Status", renderBadge("Received"));
         body = `
-          <h1 class="h1">Volunteer Application Received</h1>
-          <div class="badge badge-pending">Received</div>
-          <p>Dear ${name},</p>
-          <p>Thank you for applying to become a volunteer with <strong>Uday Foundation Trust</strong>.</p>
-          <p>We have successfully received your application.</p>
-          <p>Our team will carefully review your application.</p>
-          <p>You will receive another email once our review process is complete.</p>
-          <p>Thank you for supporting our mission.</p>
-          <p>Regards,<br>Uday Foundation Trust Team</p>
+          <p style="font-size: 15px; color: #334155; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-weight: 600; margin-top: 0;">Hello ${name},</p>
+          <p style="font-size: 14px; color: #475569; line-height: 1.6; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">Thank you for applying to become a volunteer with <strong>Uday Foundation Trust</strong>. We have received your application successfully!</p>
+          <p style="font-size: 14px; color: #475569; line-height: 1.6; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">Our team will carefully review your details to ensure alignment with our trust objectives. You will receive another email once our review process is complete.</p>
+          
+          ${renderTimeline(0)}
+          ${renderInfoCard(rows)}
+          
+          <p style="font-size: 13px; color: #64748b; line-height: 1.6; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; margin-top: 24px;">Thank you for your willingness to support our mission and serve the community.</p>
+          <p style="font-size: 14px; color: #475569; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; margin-bottom: 0; padding-top: 12px; border-top: 1px solid #f1f5f9;">Warm regards,<br><strong>Uday Foundation Trust Team</strong></p>
         `;
       } else if (templateName === "volunteer_approved") {
         title = "Congratulations! Your Volunteer Application Has Been Approved";
+        heroTitle = "Welcome Aboard!";
+        heroIcon = "🎉";
+        heroBg = "#10b981";
+        const rows = 
+          renderInfoRow("Volunteer", name) +
+          renderInfoRow("Email", recipient) +
+          renderInfoRow("Status", renderBadge("Approved"));
         body = `
-          <h1 class="h1">Volunteer Application Approved</h1>
-          <div class="badge badge-approved">Approved</div>
-          <p>Dear ${name},</p>
-          <p>Congratulations!</p>
-          <p>We are delighted to inform you that your volunteer application has been approved.</p>
-          <p>We are excited to welcome you to the Uday Foundation Trust family.</p>
-          <p>Our team will contact you shortly with further details.</p>
-          <p>Thank you for joining us.</p>
-          <p>Regards,<br>Uday Foundation Trust Team</p>
+          <p style="font-size: 15px; color: #334155; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-weight: 600; margin-top: 0;">Hello ${name},</p>
+          <p style="font-size: 14px; color: #475569; line-height: 1.6; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">Congratulations! We are absolutely delighted to inform you that your volunteer application has been approved.</p>
+          <p style="font-size: 14px; color: #475569; line-height: 1.6; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">We are thrilled to welcome you to the Uday Foundation Trust family. Our coordinator will contact you directly within 2 business days to share details about upcoming community programs and onboarding steps.</p>
+          
+          ${renderTimeline(2)}
+          ${renderInfoCard(rows)}
+
+          <h3 style="font-size: 14px; color: #1e3a8a; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; margin: 24px 0 12px 0;">Next Steps</h3>
+          <ul style="font-size: 13px; color: #475569; line-height: 1.6; padding-left: 20px; margin: 0 0 24px 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
+            <li style="margin-bottom: 8px;">Check your phone/email for coordinator updates.</li>
+            <li style="margin-bottom: 8px;">Review our current initiative objectives on our website.</li>
+            <li style="margin-bottom: 8px;">Get ready to make a meaningful difference!</li>
+          </ul>
+
+          ${renderButton("Visit Our Website", "https://www.udayfoundationstrust.org")}
+          
+          <p style="font-size: 14px; color: #475569; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; margin-bottom: 0; padding-top: 12px; border-top: 1px solid #f1f5f9; margin-top: 24px;">Warm regards,<br><strong>Uday Foundation Trust Team</strong></p>
         `;
       } else if (templateName === "volunteer_rejected") {
         title = "Volunteer Application Update";
+        heroTitle = "Application Update";
+        heroIcon = "📄";
+        heroBg = "#ef4444";
         body = `
-          <h1 class="h1">Volunteer Application Update</h1>
-          <div class="badge badge-rejected">Application Update</div>
-          <p>Dear ${name},</p>
-          <p>Thank you for your interest in volunteering with Uday Foundation Trust.</p>
-          <p>After reviewing your application, we regret to inform you that we are unable to proceed at this time.</p>
-          <p>We truly appreciate your willingness to serve the community.</p>
-          <p>We encourage you to apply again in the future.</p>
-          <p>Regards,<br>Uday Foundation Trust Team</p>
+          <p style="font-size: 15px; color: #334155; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-weight: 600; margin-top: 0;">Hello ${name},</p>
+          <p style="font-size: 14px; color: #475569; line-height: 1.6; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">Thank you for your interest in volunteering with Uday Foundation Trust.</p>
+          <p style="font-size: 14px; color: #475569; line-height: 1.6; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">After reviewing your details, we regret to inform you that we are unable to proceed with your application at this time.</p>
+          <p style="font-size: 14px; color: #475569; line-height: 1.6; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">We sincerely appreciate your willingness to serve the community. We will keep your information on file and encourage you to apply again in the future as new opportunities arise.</p>
+          
+          <p style="font-size: 14px; color: #475569; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; margin-bottom: 0; padding-top: 12px; border-top: 1px solid #f1f5f9; margin-top: 24px;">Warm regards,<br><strong>Uday Foundation Trust Team</strong></p>
         `;
       }
     } else if (templateName.startsWith("partnership_")) {
@@ -69,37 +105,55 @@ async function getRebuiltHtml(templateName, recipient) {
 
       if (templateName === "partnership_received") {
         title = "Partnership Application Received";
+        heroTitle = "Partnership Received";
+        heroIcon = "🏢";
+        heroBg = "#1e3a8a";
+        const rows = 
+          renderInfoRow("Organization", orgName) +
+          renderInfoRow("Contact Person", contactName) +
+          renderInfoRow("Email", recipient) +
+          renderInfoRow("Status", renderBadge("Received"));
         body = `
-          <h1 class="h1">Partnership Application Received</h1>
-          <div class="badge badge-pending">Received</div>
-          <p>Dear ${contactName},</p>
-          <p>Thank you for submitting a partnership application on behalf of <strong>${orgName}</strong> to Uday Foundation Trust.</p>
-          <p>We have successfully received your proposal.</p>
-          <p>Our collaboration committee is reviewing your details to ensure alignment with our trust objectives.</p>
-          <p>We will reach out to you with updates shortly.</p>
-          <p>Regards,<br>Uday Foundation Trust Team</p>
+          <p style="font-size: 15px; color: #334155; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-weight: 600; margin-top: 0;">Hello ${contactName},</p>
+          <p style="font-size: 14px; color: #475569; line-height: 1.6; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">Thank you for submitting a partnership application on behalf of <strong>${orgName}</strong> to Uday Foundation Trust.</p>
+          <p style="font-size: 14px; color: #475569; line-height: 1.6; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">Our collaboration committee is reviewing your details to ensure alignment with our trust objectives. We will reach out to you with updates shortly.</p>
+          
+          ${renderInfoCard(rows)}
+          
+          <p style="font-size: 14px; color: #475569; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; margin-bottom: 0; padding-top: 12px; border-top: 1px solid #f1f5f9; margin-top: 24px;">Warm regards,<br><strong>Uday Foundation Trust Team</strong></p>
         `;
       } else if (templateName === "partnership_approved") {
         title = "Your Partnership Request Has Been Approved";
+        heroTitle = "Partnership Approved";
+        heroIcon = "🎉";
+        heroBg = "#10b981";
+        const rows = 
+          renderInfoRow("Organization", orgName) +
+          renderInfoRow("Contact Person", contactName) +
+          renderInfoRow("Status", renderBadge("Approved"));
         body = `
-          <h1 class="h1">Partnership Request Approved</h1>
-          <div class="badge badge-approved">Approved</div>
-          <p>Dear ${contactName},</p>
-          <p>Congratulations!</p>
-          <p>We are pleased to inform you that the partnership request for <strong>${orgName}</strong> has been approved.</p>
-          <p>Next steps: Our coordinator will contact you directly within 2 business days to schedule a kickoff discussion and draft our Memorandum of Collaboration.</p>
-          <p>Regards,<br>Uday Foundation Trust Team</p>
+          <p style="font-size: 15px; color: #334155; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-weight: 600; margin-top: 0;">Hello ${contactName},</p>
+          <p style="font-size: 14px; color: #475569; line-height: 1.6; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">Congratulations! We are pleased to inform you that the partnership request for <strong>${orgName}</strong> has been approved.</p>
+          <p style="font-size: 14px; color: #475569; line-height: 1.6; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;"><strong>Next steps:</strong> Our coordinator will contact you directly within 2 business days to schedule a kickoff discussion and draft our Memorandum of Collaboration.</p>
+          
+          ${renderInfoCard(rows)}
+
+          ${renderButton("Contact Support", "https://www.udayfoundationstrust.org/contact")}
+          
+          <p style="font-size: 14px; color: #475569; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; margin-bottom: 0; padding-top: 12px; border-top: 1px solid #f1f5f9; margin-top: 24px;">Warm regards,<br><strong>Uday Foundation Trust Team</strong></p>
         `;
       } else if (templateName === "partnership_rejected") {
         title = "Partnership Application Update";
+        heroTitle = "Partnership Update";
+        heroIcon = "📄";
+        heroBg = "#ef4444";
         body = `
-          <h1 class="h1">Partnership Application Update</h1>
-          <div class="badge badge-rejected">Application Update</div>
-          <p>Dear ${contactName},</p>
-          <p>Thank you for your interest in collaborating with Uday Foundation Trust on behalf of <strong>${orgName}</strong>.</p>
-          <p>After reviewing your request, we regret to inform you that we are unable to approve this partnership at this time.</p>
-          <p>We appreciate your willingness to support community welfare initiatives and invite your team to collaborate in future projects.</p>
-          <p>Regards,<br>Uday Foundation Trust Team</p>
+          <p style="font-size: 15px; color: #334155; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-weight: 600; margin-top: 0;">Hello ${contactName},</p>
+          <p style="font-size: 14px; color: #475569; line-height: 1.6; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">Thank you for your interest in collaborating with Uday Foundation Trust on behalf of <strong>${orgName}</strong>.</p>
+          <p style="font-size: 14px; color: #475569; line-height: 1.6; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">After reviewing your request, we regret to inform you that we are unable to approve this partnership at this time.</p>
+          <p style="font-size: 14px; color: #475569; line-height: 1.6; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">We appreciate your team's willingness to support community welfare initiatives and invite you to collaborate in future projects.</p>
+          
+          <p style="font-size: 14px; color: #475569; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; margin-bottom: 0; padding-top: 12px; border-top: 1px solid #f1f5f9; margin-top: 24px;">Warm regards,<br><strong>Uday Foundation Trust Team</strong></p>
         `;
       }
     } else if (templateName.startsWith("donation_")) {
@@ -120,45 +174,45 @@ async function getRebuiltHtml(templateName, recipient) {
 
       if (templateName === "donation_success") {
         title = "Thank You for Your Donation ❤️";
+        heroTitle = "Donation Received";
+        heroIcon = "❤️";
+        heroBg = "#10b981";
+        const rows = 
+          renderInfoRow("Donor Name", donorName) +
+          renderInfoRow("Amount", `₹${formattedAmount}`) +
+          renderInfoRow("PAN Number", panNumber) +
+          renderInfoRow("Receipt Number", receiptNumber) +
+          renderInfoRow("Status", renderBadge("Successful"));
         body = `
-          <h1 class="h1">Thank You for Your Support!</h1>
-          <div class="badge badge-approved">Receipt Generated</div>
-          <p>Dear ${donorName},</p>
-          <p>Thank you for supporting Uday Foundation Trust.</p>
-          <p>Your generosity helps us continue our mission.</p>
-          <p>Please find your official 80G tax donation receipt attached as a PDF file.</p>
+          <p style="font-size: 15px; color: #334155; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-weight: 600; margin-top: 0;">Hello ${donorName},</p>
+          <p style="font-size: 14px; color: #475569; line-height: 1.6; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">Thank you for supporting Uday Foundation Trust! Your generosity helps us continue our mission to serve the underprivileged.</p>
+          <p style="font-size: 14px; color: #475569; line-height: 1.6; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">Please find your official 80G tax donation receipt attached to this email as a PDF file.</p>
           
-          <div class="field-box">
-            <div style="font-weight:bold; margin-bottom:12px; font-size:14px; color:#1e3a8a;">Donation Summary:</div>
-            <div class="field-row">
-              <span class="field-label">Donor Name:</span>
-              <span class="field-value">${donorName}</span>
-            </div>
-            <div class="field-row">
-              <span class="field-label">Amount:</span>
-              <span class="field-value">₹${formattedAmount}</span>
-            </div>
-            <div class="field-row">
-              <span class="field-label">PAN Number:</span>
-              <span class="field-value">${panNumber}</span>
-            </div>
-            <div class="field-row">
-              <span class="field-label">Receipt Number:</span>
-              <span class="field-value">${receiptNumber}</span>
-            </div>
-          </div>
-          <p>Regards,<br>Uday Foundation Trust Team</p>
+          ${renderInfoCard(rows)}
+          
+          <p style="font-size: 14px; color: #475569; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; margin-bottom: 0; padding-top: 12px; border-top: 1px solid #f1f5f9; margin-top: 24px;">Warm regards,<br><strong>Uday Foundation Trust Team</strong></p>
         `;
       } else if (templateName === "donation_failed") {
         title = "Donation Payment Failed";
+        heroTitle = "Payment Unsuccessful";
+        heroIcon = "🧾";
+        heroBg = "#ef4444";
+        const rows = 
+          renderInfoRow("Donor Name", donorName) +
+          renderInfoRow("Attempted Amount", `₹${formattedAmount}`) +
+          renderInfoRow("Status", renderBadge("Failed"));
         body = `
-          <h1 class="h1" style="color: #dc2626;">Donation Attempt Unsuccessful</h1>
-          <div class="badge badge-rejected">Failed</div>
-          <p>Dear ${donorName},</p>
-          <p>We noticed that your attempt to donate <strong>₹${formattedAmount}</strong> to Uday Foundation Trust could not be processed.</p>
-          <p>No funds were debited from your card or account. If any amount was debited temporarily, your bank will automatically refund it within 3-5 working days.</p>
-          <p>We encourage you to try again or reach out to our team if you need assistance completing your transaction.</p>
-          <p>Regards,<br>Uday Foundation Trust Team</p>
+          <p style="font-size: 15px; color: #334155; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-weight: 600; margin-top: 0;">Hello ${donorName},</p>
+          <p style="font-size: 14px; color: #475569; line-height: 1.6; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">We noticed that your attempt to donate <strong>₹${formattedAmount}</strong> to Uday Foundation Trust could not be completed.</p>
+          <p style="font-size: 14px; color: #475569; line-height: 1.6; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">No funds were debited from your account. If any amount was debited temporarily, your bank will automatically refund it within 3-5 working days.</p>
+          
+          ${renderInfoCard(rows)}
+          
+          <p style="font-size: 13px; color: #64748b; line-height: 1.6; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">We encourage you to try again or reach out to our team if you need assistance completing your transaction.</p>
+          
+          ${renderButton("Contact Support", "https://www.udayfoundationstrust.org/contact")}
+
+          <p style="font-size: 14px; color: #475569; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; margin-bottom: 0; padding-top: 12px; border-top: 1px solid #f1f5f9; margin-top: 24px;">Warm regards,<br><strong>Uday Foundation Trust Team</strong></p>
         `;
       }
     }
@@ -166,79 +220,7 @@ async function getRebuiltHtml(templateName, recipient) {
     console.warn("[EmailController] Lookups failed during rebuild:", lookupErr.message);
   }
 
-  // Inject into default responsive wrapper
-  const ADMIN_EMAIL = process.env.ADMIN_EMAIL || process.env.ADMIN_NOTIFICATION_EMAIL || "udayfts1024@gmail.com";
-  return `
-    <!DOCTYPE html>
-    <html>
-      <head>
-        <meta charset="utf-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>${title}</title>
-        <style>
-          body {
-            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
-            background-color: #f8fafc;
-            color: #334155;
-            margin: 0;
-            padding: 0;
-          }
-          .container {
-            max-width: 600px;
-            margin: 40px auto;
-            background: #ffffff;
-            border-radius: 16px;
-            overflow: hidden;
-            border: 1px solid #e2e8f0;
-          }
-          .header {
-            background-color: #1e3a8a;
-            padding: 32px;
-            text-align: center;
-            border-bottom: 4px solid #7a9d1c;
-          }
-          .logo-text {
-            color: #ffffff;
-            font-size: 24px;
-            font-weight: 800;
-          }
-          .content {
-            padding: 40px;
-            line-height: 1.6;
-          }
-          .badge {
-            display: inline-block;
-            padding: 6px 16px;
-            font-size: 12px;
-            font-weight: 700;
-            border-radius: 9999px;
-          }
-          .badge-approved { background-color: #d1fae5; color: #065f46; }
-          .badge-pending { background-color: #fef3c7; color: #92400e; }
-          .badge-rejected { background-color: #fee2e2; color: #991b1b; }
-          .footer {
-            background-color: #f1f5f9;
-            padding: 24px;
-            text-align: center;
-            font-size: 12px;
-            color: #64748b;
-          }
-        </style>
-      </head>
-      <body>
-        <div class="container">
-          <div class="header">
-            <div class="logo-text">UDAY FOUNDATION TRUST</div>
-          </div>
-          <div class="content">${body}</div>
-          <div class="footer">
-            <p>Uday Foundation Trust, Sanand, Ahmedabad, Gujarat</p>
-            <p>Registered NGO | Email: ${ADMIN_EMAIL}</p>
-          </div>
-        </div>
-      </body>
-    </html>
-  `;
+  return getHtmlTemplate(title, title, body, heroIcon, heroTitle, heroBg);
 }
 
 export async function getEmailStats(req, res, next) {

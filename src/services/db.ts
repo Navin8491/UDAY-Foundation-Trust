@@ -630,6 +630,17 @@ export async function addVolunteerNote(id: string, text: string): Promise<void> 
   }
 }
 
+export async function updateVolunteerDetails(id: string, data: any): Promise<void> {
+  const res = await apiRequest(`/volunteers/${id}`, {
+    method: "PUT",
+    body: data,
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.message || "Failed to update volunteer details");
+  }
+}
+
 export async function submitPartnershipRequest(data: any): Promise<string> {
   const res = await apiRequest("/partnerships", {
     method: "POST",
@@ -677,6 +688,17 @@ export async function addPartnershipNote(id: string, text: string): Promise<void
   if (!res.ok) {
     const err = await res.json().catch(() => ({}));
     throw new Error(err.message || "Failed to add partnership note");
+  }
+}
+
+export async function updatePartnershipDetails(id: string, data: any): Promise<void> {
+  const res = await apiRequest(`/partnerships/${id}`, {
+    method: "PUT",
+    body: data,
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.message || "Failed to update partnership details");
   }
 }
 
@@ -941,7 +963,7 @@ export function subscribeDonations(callback: (items: any[]) => void, onError?: (
 
 export interface NotificationItem {
   id: string;
-  type: "volunteer" | "partnership" | "donation" | "contact" | "event" | "program";
+  type: "volunteer" | "partnership" | "donation" | "contact" | "event" | "program" | "system";
   title: string;
   message: string;
   related_record_id?: string;
@@ -1052,5 +1074,19 @@ export async function verifyRazorpaySignature(payload: {
     const err = await res.json().catch(() => ({}));
     throw new Error(err.message || "Failed to verify payment signature");
   }
+  return res.json();
+}
+
+export async function fetchEmailStats(): Promise<any> {
+  const res = await apiRequest("/email-logs/stats");
+  if (!res.ok) throw new Error("Failed to fetch email stats");
+  return res.json();
+}
+
+export async function retryEmailLog(id: string): Promise<any> {
+  const res = await apiRequest(`/email-logs/retry/${id}`, {
+    method: "POST",
+  });
+  if (!res.ok) throw new Error("Failed to retry email log");
   return res.json();
 }
