@@ -515,6 +515,24 @@ export function Donate() {
   const [upiId, setUpiId] = useState("");
   const [selectedBank, setSelectedBank] = useState("");
   const [isFlipped, setIsFlipped] = useState(false);
+  const cardNumberInputRef = useRef<HTMLInputElement>(null);
+
+  const handlePaymentMethodSelect = (method: "card" | "upi" | "netbanking") => {
+    setPaymentMethod(method);
+    if (method === "card") {
+      // Smooth auto-flip Front -> Back -> Front Y-axis animation sequence
+      setIsFlipped(true);
+      setTimeout(() => {
+        setIsFlipped(false);
+        // Autofocus card-number input after reverse flip finishes Y rotation
+        setTimeout(() => {
+          if (cardNumberInputRef.current) {
+            cardNumberInputRef.current.focus();
+          }
+        }, 500);
+      }, 700);
+    }
+  };
 
   const [selected, setSelected] = useState(2500);
   const [custom, setCustom] = useState("");
@@ -1024,7 +1042,7 @@ export function Donate() {
                             <button
                               key={m.id}
                               type="button"
-                              onClick={() => setPaymentMethod(m.id as any)}
+                              onClick={() => handlePaymentMethodSelect(m.id as any)}
                               className={`flex-1 py-3 rounded-xl flex items-center justify-center gap-2 cursor-pointer transition-all ${
                                 paymentMethod === m.id
                                   ? "bg-white text-primary shadow-xs border border-slate-200/40"
@@ -1063,6 +1081,7 @@ export function Donate() {
                                     Card Number
                                   </label>
                                   <input
+                                    ref={cardNumberInputRef}
                                     id="card-number"
                                     name="card-number"
                                     autoComplete="cc-number"
