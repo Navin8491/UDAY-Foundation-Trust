@@ -153,7 +153,6 @@ function Confetti() {
 interface PremiumPaymentCardProps {
   paymentMethod: "card" | "upi" | "netbanking";
   cardNumber: string;
-  cardName: string;
   cardExpiry: string;
   cardCvv: string;
   isFlipped: boolean;
@@ -166,7 +165,6 @@ interface PremiumPaymentCardProps {
 export function PremiumPaymentCard({
   paymentMethod,
   cardNumber,
-  cardName,
   cardExpiry,
   cardCvv,
   isFlipped,
@@ -416,19 +414,10 @@ export function PremiumPaymentCard({
               )}
             </div>
 
-            {/* Bottom Row: Holder Name & Expiry */}
+            {/* Bottom Row: Expiry / Certified & Secure Badge */}
             <div className="flex justify-between items-end z-10 relative">
-              <div className="text-left max-w-[70%]">
-                <span className="text-[7px] text-white/50 block uppercase tracking-wider font-bold mb-0.5">
-                  Donor Name
-                </span>
-                <span className="font-display font-extrabold text-[11px] uppercase tracking-widest block truncate text-white">
-                  {cardName || "YOUR NAME"}
-                </span>
-              </div>
-
-              {paymentMethod === "card" && (
-                <div className="text-right font-mono">
+              {paymentMethod === "card" ? (
+                <div className="text-left font-mono">
                   <span className="text-[7px] text-white/50 block uppercase tracking-wider font-bold mb-0.5">
                     Expires
                   </span>
@@ -436,10 +425,8 @@ export function PremiumPaymentCard({
                     {cardExpiry || "MM/YY"}
                   </span>
                 </div>
-              )}
-
-              {paymentMethod !== "card" && (
-                <div className="text-right animate-pulse">
+              ) : (
+                <div className="text-left animate-pulse">
                   <span className="text-[7px] text-white/50 block uppercase tracking-wider font-bold mb-0.5">
                     Certified
                   </span>
@@ -448,6 +435,15 @@ export function PremiumPaymentCard({
                   </span>
                 </div>
               )}
+
+              <div className="text-right">
+                <span className="text-[7px] text-white/50 block uppercase tracking-wider font-bold mb-0.5">
+                  Secure Code
+                </span>
+                <span className="text-[9px] font-extrabold text-white/80 tracking-wider uppercase block">
+                  CVV ENABLED
+                </span>
+              </div>
             </div>
 
             {/* Loading Shimmer Overlay */}
@@ -995,7 +991,6 @@ export function Donate() {
                         <PremiumPaymentCard
                           paymentMethod={paymentMethod}
                           cardNumber={cardNumber}
-                          cardName={cardName || name}
                           cardExpiry={cardExpiry}
                           cardCvv={cardCvv}
                           isFlipped={isFlipped}
@@ -1033,21 +1028,6 @@ export function Donate() {
                             <div className="space-y-4">
                               {/* Inputs */}
                               <div className="space-y-3 text-xs font-semibold text-left">
-                                <div className="space-y-1">
-                                  <label htmlFor="card-name" className="text-slate-450 uppercase tracking-widest text-[9px] font-bold">
-                                    Cardholder Name
-                                  </label>
-                                  <input
-                                    id="card-name"
-                                    name="card-name"
-                                    autoComplete="cc-name"
-                                    type="text"
-                                    value={cardName}
-                                    onChange={(e) => setCardName(e.target.value.toUpperCase())}
-                                    placeholder="CARDHOLDER NAME"
-                                    className="w-full h-11 px-4 rounded-xl border border-slate-200 bg-slate-50 focus:outline-hidden focus:border-primary focus:bg-white text-sm font-semibold text-slate-800 placeholder-slate-400 transition-colors"
-                                  />
-                                </div>
                                 <div className="space-y-1">
                                   <label htmlFor="card-number" className="text-slate-450 uppercase tracking-widest text-[9px] font-bold">
                                     Card Number
