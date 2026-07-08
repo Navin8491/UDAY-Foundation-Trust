@@ -153,6 +153,7 @@ function Confetti() {
 interface PremiumPaymentCardProps {
   paymentMethod: "card" | "upi" | "netbanking";
   cardNumber: string;
+  cardName: string;
   cardExpiry: string;
   cardCvv: string;
   isFlipped: boolean;
@@ -165,6 +166,7 @@ interface PremiumPaymentCardProps {
 export function PremiumPaymentCard({
   paymentMethod,
   cardNumber,
+  cardName,
   cardExpiry,
   cardCvv,
   isFlipped,
@@ -280,7 +282,8 @@ export function PremiumPaymentCard({
 
       {/* 3D perspective wrapper */}
       <div 
-        className="perspective-[1000px] w-full max-w-[420px]"
+        className="w-full max-w-[420px]"
+        style={{ perspective: "1000px", transformStyle: "preserve-3d" }}
         onMouseMove={handleMouseMove}
         onMouseLeave={handleMouseLeave}
       >
@@ -298,12 +301,11 @@ export function PremiumPaymentCard({
           {/* CARD FRONT FACE */}
           <div 
             style={{ 
-              transform: "rotateY(0deg) translateZ(1px)", 
-              backfaceVisibility: "hidden", 
-              WebkitBackfaceVisibility: "hidden",
-              zIndex: isFlipped ? 10 : 20 
+              transform: "translateZ(1px)",
+              backfaceVisibility: "hidden",
+              WebkitBackfaceVisibility: "hidden"
             }}
-            className="absolute inset-0 w-full h-full rounded-[32px] bg-gradient-to-br from-[#1E3A8A] via-[#2546C8] to-[#0F172A] border border-white/20 p-6 flex flex-col justify-between overflow-hidden text-white"
+            className="absolute inset-0 w-full h-full rounded-[32px] bg-gradient-to-br from-[#1E3A8A] via-[#2546C8] to-[#0F172A] border border-white/20 p-6 flex flex-col justify-between overflow-hidden z-10 text-white"
           >
             {/* Front Background Gradient & Blobs */}
             <div className={`absolute inset-0 ${theme.bg} z-0`} />
@@ -419,10 +421,19 @@ export function PremiumPaymentCard({
               )}
             </div>
 
-            {/* Bottom Row: Expiry / Certified & Secure Badge */}
+            {/* Bottom Row: Holder Name & Expiry */}
             <div className="flex justify-between items-end z-10 relative">
-              {paymentMethod === "card" ? (
-                <div className="text-left font-mono">
+              <div className="text-left max-w-[70%]">
+                <span className="text-[7px] text-white/50 block uppercase tracking-wider font-bold mb-0.5">
+                  Donor Name
+                </span>
+                <span className="font-display font-extrabold text-[11px] uppercase tracking-widest block truncate text-white">
+                  {cardName || "YOUR NAME"}
+                </span>
+              </div>
+
+              {paymentMethod === "card" && (
+                <div className="text-right font-mono">
                   <span className="text-[7px] text-white/50 block uppercase tracking-wider font-bold mb-0.5">
                     Expires
                   </span>
@@ -430,8 +441,10 @@ export function PremiumPaymentCard({
                     {cardExpiry || "MM/YY"}
                   </span>
                 </div>
-              ) : (
-                <div className="text-left animate-pulse">
+              )}
+
+              {paymentMethod !== "card" && (
+                <div className="text-right animate-pulse">
                   <span className="text-[7px] text-white/50 block uppercase tracking-wider font-bold mb-0.5">
                     Certified
                   </span>
@@ -440,15 +453,6 @@ export function PremiumPaymentCard({
                   </span>
                 </div>
               )}
-
-              <div className="text-right">
-                <span className="text-[7px] text-white/50 block uppercase tracking-wider font-bold mb-0.5">
-                  Secure Code
-                </span>
-                <span className="text-[9px] font-extrabold text-white/80 tracking-wider uppercase block">
-                  CVV ENABLED
-                </span>
-              </div>
             </div>
 
             {/* Loading Shimmer Overlay */}
@@ -460,12 +464,11 @@ export function PremiumPaymentCard({
           {/* CARD BACK FACE */}
           <div 
             style={{ 
-              transform: "rotateY(180deg) translateZ(1px)", 
-              backfaceVisibility: "hidden", 
-              WebkitBackfaceVisibility: "hidden",
-              zIndex: isFlipped ? 20 : 10
+              transform: "rotateY(180deg) translateZ(1px)",
+              backfaceVisibility: "hidden",
+              WebkitBackfaceVisibility: "hidden"
             }}
-            className="absolute inset-0 w-full h-full rounded-[32px] bg-gradient-to-br from-[#0F172A] via-[#1E293B] to-[#020617] py-6 flex flex-col justify-between overflow-hidden text-white"
+            className="absolute inset-0 w-full h-full rounded-[32px] bg-gradient-to-br from-[#0F172A] via-[#1E293B] to-[#020617] border border-white/20 py-6 flex flex-col justify-between overflow-hidden z-10 text-white"
           >
             {/* Back Background (always matching dark theme to ensure magnetic strip contrast) */}
             <div className={`absolute inset-0 ${theme.bg} z-0 opacity-95`} />
@@ -1001,6 +1004,7 @@ export function Donate() {
                         <PremiumPaymentCard
                           paymentMethod={paymentMethod}
                           cardNumber={cardNumber}
+                          cardName={cardName || name}
                           cardExpiry={cardExpiry}
                           cardCvv={cardCvv}
                           isFlipped={isFlipped}
@@ -1039,6 +1043,22 @@ export function Donate() {
                               {/* Inputs */}
                               <div className="space-y-3 text-xs font-semibold text-left">
                                 <div className="space-y-1">
+                                  <label htmlFor="card-name" className="text-slate-450 uppercase tracking-widest text-[9px] font-bold">
+                                    Cardholder Name
+                                  </label>
+                                  <input
+                                    id="card-name"
+                                    name="card-name"
+                                    autoComplete="cc-name"
+                                    type="text"
+                                    value={cardName}
+                                    onFocus={() => setIsFlipped(false)}
+                                    onChange={(e) => setCardName(e.target.value.toUpperCase())}
+                                    placeholder="CARDHOLDER NAME"
+                                    className="w-full h-11 px-4 rounded-xl border border-slate-200 bg-slate-50 focus:outline-hidden focus:border-primary focus:bg-white text-sm font-semibold text-slate-800 placeholder-slate-400 transition-colors"
+                                  />
+                                </div>
+                                <div className="space-y-1">
                                   <label htmlFor="card-number" className="text-slate-450 uppercase tracking-widest text-[9px] font-bold">
                                     Card Number
                                   </label>
@@ -1071,8 +1091,8 @@ export function Donate() {
                                       type="text"
                                       maxLength={5}
                                       value={cardExpiry}
-                                      placeholder="MM/YY"
                                       onFocus={() => setIsFlipped(false)}
+                                      placeholder="MM/YY"
                                       onChange={(e) => {
                                         let val = e.target.value.replace(/\D/g, "");
                                         if (val.length > 2) {
