@@ -245,8 +245,8 @@ export function PremiumPaymentCard({
   const theme = getCardTheme();
 
   return (
-    <div className="flex justify-center items-center py-4 select-none">
-      {/* Custom CSS animations */}
+    <div className="flex justify-center items-center py-4 select-none w-full">
+      {/* Custom CSS animations and responsive typography */}
       <style dangerouslySetInnerHTML={{__html: `
         @keyframes rotate-border {
           from { transform: rotate(0deg); }
@@ -280,11 +280,51 @@ export function PremiumPaymentCard({
           backface-visibility: hidden;
           -webkit-backface-visibility: hidden;
         }
+        @media (max-width: 480px) {
+          .premium-card-num {
+            font-size: 13.5px !important;
+            letter-spacing: 0.16em !important;
+          }
+          .premium-card-holder, .premium-card-val {
+            font-size: 9.5px !important;
+          }
+          .premium-card-label {
+            font-size: 6px !important;
+          }
+          .premium-card-heading {
+            font-size: 8px !important;
+          }
+          .premium-card-sub {
+            font-size: 5px !important;
+          }
+          .premium-card-chip {
+            width: 32px !important;
+            height: 24px !important;
+          }
+          .premium-card-contactless {
+            height: 18px !important;
+          }
+          .premium-card-contactless span:nth-child(1) { height: 8px !important; }
+          .premium-card-contactless span:nth-child(2) { height: 12px !important; }
+          .premium-card-contactless span:nth-child(3) { height: 16px !important; }
+        }
+        @media (max-width: 360px) {
+          .premium-card-num {
+            font-size: 11px !important;
+            letter-spacing: 0.11em !important;
+          }
+          .premium-card-holder, .premium-card-val {
+            font-size: 8px !important;
+          }
+          .premium-card-label {
+            font-size: 5.5px !important;
+          }
+        }
       `}} />
 
       {/* 3D perspective wrapper */}
       <div 
-        className="w-full max-w-[420px]"
+        className="w-full max-w-[420px] px-1 xs:px-2"
         style={{ perspective: "1000px", transformStyle: "preserve-3d" }}
         onMouseMove={handleMouseMove}
         onMouseLeave={handleMouseLeave}
@@ -299,7 +339,7 @@ export function PremiumPaymentCard({
           transition={{ type: "spring", stiffness: 260, damping: 25 }}
           whileHover={isFlipped ? {} : { y: -8, scale: 1.02 }}
           style={{ transformStyle: "preserve-3d" }}
-          className={`relative w-full h-[260px] rounded-[32px] cursor-pointer ${theme.shadow} transition-shadow duration-300`}
+          className={`relative w-full h-[175px] min-[360px]:h-[200px] min-[375px]:h-[220px] min-[425px]:h-[240px] sm:h-[260px] rounded-[20px] min-[375px]:rounded-[26px] sm:rounded-[32px] cursor-pointer ${theme.shadow} transition-shadow duration-300`}
         >
           {/* CARD FRONT FACE */}
           <div 
@@ -308,7 +348,7 @@ export function PremiumPaymentCard({
               backfaceVisibility: "hidden",
               WebkitBackfaceVisibility: "hidden"
             }}
-            className="absolute inset-0 w-full h-full rounded-[32px] bg-gradient-to-br from-[#1E3A8A] via-[#2546C8] to-[#0F172A] border border-white/20 p-6 flex flex-col justify-between overflow-hidden z-10 text-white"
+            className="absolute inset-0 w-full h-full rounded-[20px] min-[375px]:rounded-[26px] sm:rounded-[32px] bg-gradient-to-br from-[#1E3A8A] via-[#2546C8] to-[#0F172A] border border-white/20 p-4 min-[375px]:p-6 flex flex-col justify-between overflow-hidden z-10 text-white"
           >
             {/* Front Background Gradient & Blobs */}
             <div className={`absolute inset-0 ${theme.bg} z-0`} />
@@ -318,15 +358,15 @@ export function PremiumPaymentCard({
 
             {/* Top row: Logo/Shield & Lock */}
             <div className="flex justify-between items-start z-10 relative">
-              <div className="flex items-center gap-2">
-                <div className="h-7 w-7 bg-white/10 backdrop-blur-md rounded-full flex items-center justify-center border border-white/25">
-                  <ShieldCheck className="h-4.5 w-4.5 text-emerald-400" />
+              <div className="flex items-center gap-1.5 min-[375px]:gap-2">
+                <div className="h-6 w-6 min-[375px]:h-7 min-[375px]:w-7 bg-white/10 backdrop-blur-md rounded-full flex items-center justify-center border border-white/25">
+                  <ShieldCheck className="h-4 w-4 min-[375px]:h-4.5 min-[375px]:w-4.5 text-emerald-400" />
                 </div>
-                <div>
-                  <span className="font-display font-black text-[10px] tracking-widest block uppercase text-white/90">
+                <div className="text-left">
+                  <span className="font-display font-black text-[9px] min-[375px]:text-[10px] tracking-widest block uppercase text-white/90 premium-card-heading">
                     {theme.title}
                   </span>
-                  <span className="text-[7px] text-white/50 block font-bold uppercase tracking-wider -mt-0.5">
+                  <span className="text-[6px] min-[375px]:text-[7px] text-white/50 block font-bold uppercase tracking-wider -mt-0.5 premium-card-sub">
                     Secure • Trusted • Verified
                   </span>
                 </div>
@@ -334,14 +374,14 @@ export function PremiumPaymentCard({
 
               <motion.div
                 whileHover={{ scale: 1.2, rotate: 15, filter: "drop-shadow(0 0 8px rgba(255,255,255,0.6))" }}
-                className="h-7 w-7 bg-white/10 rounded-full flex items-center justify-center border border-white/20"
+                className="h-6 w-6 min-[375px]:h-7 min-[375px]:w-7 bg-white/10 rounded-full flex items-center justify-center border border-white/20"
               >
-                <Lock className="h-3.5 w-3.5 text-white/80" />
+                <Lock className="h-3 w-3 min-[375px]:h-3.5 min-[375px]:w-3.5 text-white/80" />
               </motion.div>
             </div>
 
             {/* Middle row: Payment method graphics */}
-            <div className="z-10 my-1 relative">
+            <div className="z-10 my-0.5 min-[375px]:my-1 relative">
               <AnimatePresence mode="wait">
                 {paymentMethod === "card" && (
                   <motion.div
@@ -349,7 +389,7 @@ export function PremiumPaymentCard({
                     className="flex justify-between items-center"
                   >
                     {/* EMV 3D Metallic Chip */}
-                    <div className="relative w-11 h-8 rounded-lg bg-gradient-to-br from-yellow-200 via-amber-400 to-yellow-600 border border-amber-600/30 overflow-hidden shadow-inner flex flex-wrap p-0.5">
+                    <div className="relative w-9 h-6.5 min-[375px]:w-11 min-[375px]:h-8 rounded-md min-[375px]:rounded-lg bg-gradient-to-br from-yellow-200 via-amber-400 to-yellow-600 border border-amber-600/30 overflow-hidden shadow-inner flex flex-wrap p-0.5 premium-card-chip">
                       <div className="w-full h-full absolute inset-0 flex flex-wrap opacity-30">
                         <div className="w-1/2 h-1/2 border-r border-b border-amber-950/40" />
                         <div className="w-1/2 h-1/2 border-b border-amber-950/40" />
@@ -360,10 +400,10 @@ export function PremiumPaymentCard({
                     </div>
 
                     {/* Contactless waves */}
-                    <div className="flex gap-1 items-center justify-center opacity-85 h-6">
-                      <span className="w-0.5 h-3 bg-white rounded-full animate-pulse" />
-                      <span className="w-0.5 h-4 bg-white rounded-full animate-pulse [animation-delay:0.2s]" />
-                      <span className="w-0.5 h-5 bg-white rounded-full animate-pulse [animation-delay:0.4s]" />
+                    <div className="flex gap-0.5 min-[375px]:gap-1 items-center justify-center opacity-85 h-5 min-[375px]:h-6 premium-card-contactless">
+                      <span className="w-0.5 h-2.5 min-[375px]:h-3 bg-white rounded-full animate-pulse" />
+                      <span className="w-0.5 h-3.5 min-[375px]:h-4 bg-white rounded-full animate-pulse [animation-delay:0.2s]" />
+                      <span className="w-0.5 h-4.5 min-[375px]:h-5 bg-white rounded-full animate-pulse [animation-delay:0.4s]" />
                     </div>
                   </motion.div>
                 )}
@@ -371,22 +411,22 @@ export function PremiumPaymentCard({
                 {paymentMethod === "upi" && (
                   <motion.div
                     key="upi-graphics"
-                    className="flex justify-between items-center bg-white/5 backdrop-blur-md rounded-xl p-3 border border-white/10 w-full"
+                    className="flex justify-between items-center bg-white/5 backdrop-blur-md rounded-xl p-2 min-[375px]:p-3 border border-white/10 w-full"
                   >
-                    <div className="flex items-center gap-2">
-                      <QrCode className="h-7 w-7 text-white/95 animate-pulse" />
+                    <div className="flex items-center gap-1.5 min-[375px]:gap-2">
+                      <QrCode className="h-6 w-6 min-[375px]:h-7 min-[375px]:w-7 text-white/95 animate-pulse" />
                       <div className="text-left">
-                        <span className="text-[8px] uppercase tracking-wider text-white/50 block font-bold">
+                        <span className="text-[7px] min-[375px]:text-[8px] uppercase tracking-wider text-white/50 block font-bold premium-card-label">
                           Scan & Pay Instantly
                         </span>
-                        <span className="text-[10px] text-white/90 font-bold tracking-wide">
+                        <span className="text-[8px] min-[375px]:text-[10px] text-white/90 font-bold tracking-wide premium-card-holder">
                           UPI Quick Checkout
                         </span>
                       </div>
                     </div>
-                    <div className="relative flex h-2.5 w-2.5">
+                    <div className="relative flex h-2 w-2 min-[375px]:h-2.5 min-[375px]:w-2.5">
                       <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                      <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500"></span>
+                      <span className="relative inline-flex rounded-full h-2 w-2 min-[375px]:h-2.5 min-[375px]:w-2.5 bg-emerald-500"></span>
                     </div>
                   </motion.div>
                 )}
@@ -394,31 +434,31 @@ export function PremiumPaymentCard({
                 {paymentMethod === "netbanking" && (
                   <motion.div
                     key="netbanking-graphics"
-                    className="flex justify-between items-center bg-white/5 backdrop-blur-md rounded-xl p-3 border border-white/10 w-full"
+                    className="flex justify-between items-center bg-white/5 backdrop-blur-md rounded-xl p-2 min-[375px]:p-3 border border-white/10 w-full"
                   >
-                    <div className="flex items-center gap-2">
-                      <Landmark className="h-7 w-7 text-white/95 animate-bounce" />
+                    <div className="flex items-center gap-1.5 min-[375px]:gap-2">
+                      <Landmark className="h-6 w-6 min-[375px]:h-7 min-[375px]:w-7 text-white/95 animate-bounce" />
                       <div className="text-left">
-                        <span className="text-[8px] uppercase tracking-wider text-white/50 block font-bold">
+                        <span className="text-[7px] min-[375px]:text-[8px] uppercase tracking-wider text-white/50 block font-bold premium-card-label">
                           Direct Bank Transfer
                         </span>
-                        <span className="text-[10px] text-white/90 font-bold tracking-wide">
+                        <span className="text-[8px] min-[375px]:text-[10px] text-white/90 font-bold tracking-wide premium-card-holder">
                           128-bit Bank Encryption
                         </span>
                       </div>
                     </div>
-                    <ShieldCheck className="h-5 w-5 text-emerald-400 animate-pulse" />
+                    <ShieldCheck className="h-4.5 w-4.5 min-[375px]:h-5 min-[375px]:w-5 text-emerald-400 animate-pulse" />
                   </motion.div>
                 )}
               </AnimatePresence>
             </div>
 
             {/* Card Number display */}
-            <div className="z-10 relative font-mono text-lg tracking-[0.22em] text-center my-1 text-white font-bold select-all drop-shadow-[0_2px_4px_rgba(0,0,0,0.4)] uppercase">
+            <div className="z-10 relative font-mono text-sm min-[360px]:text-base min-[375px]:text-lg tracking-[0.16em] min-[375px]:tracking-[0.22em] text-center my-0.5 min-[375px]:my-1 text-white font-bold select-all drop-shadow-[0_2px_4px_rgba(0,0,0,0.4)] uppercase premium-card-num">
               {paymentMethod === "card" ? (
                 cardNumber || "•••• •••• •••• ••••"
               ) : (
-                <span className="text-[10px] uppercase font-sans tracking-[0.15em] text-white/60">
+                <span className="text-[9px] min-[375px]:text-[10px] uppercase font-sans tracking-[0.12em] min-[375px]:tracking-[0.15em] text-white/60">
                   ORDER ID: {idempotencyKey.substring(0, 18).toUpperCase()}...
                 </span>
               )}
@@ -427,20 +467,20 @@ export function PremiumPaymentCard({
             {/* Bottom Row: Holder Name & Expiry */}
             <div className="flex justify-between items-end z-10 relative">
               <div className="text-left max-w-[70%]">
-                <span className="text-[7px] text-white/50 block uppercase tracking-wider font-bold mb-0.5">
+                <span className="text-[6px] min-[375px]:text-[7px] text-white/50 block uppercase tracking-wider font-bold mb-0.5 premium-card-label">
                   Donor Name
                 </span>
-                <span className="font-display font-extrabold text-[11px] uppercase tracking-widest block truncate text-white">
+                <span className="font-display font-extrabold text-[9.5px] min-[375px]:text-[11px] uppercase tracking-widest block truncate text-white premium-card-holder">
                   {cardName || "YOUR NAME"}
                 </span>
               </div>
 
               {paymentMethod === "card" && (
                 <div className="text-right font-mono">
-                  <span className="text-[7px] text-white/50 block uppercase tracking-wider font-bold mb-0.5">
+                  <span className="text-[6px] min-[375px]:text-[7px] text-white/50 block uppercase tracking-wider font-bold mb-0.5 premium-card-label">
                     Expires
                   </span>
-                  <span className="text-[11px] font-bold tracking-wider text-white">
+                  <span className="text-[9.5px] min-[375px]:text-[11px] font-bold tracking-wider text-white premium-card-val">
                     {cardExpiry || "MM/YY"}
                   </span>
                 </div>
@@ -448,10 +488,10 @@ export function PremiumPaymentCard({
 
               {paymentMethod !== "card" && (
                 <div className="text-right animate-pulse">
-                  <span className="text-[7px] text-white/50 block uppercase tracking-wider font-bold mb-0.5">
+                  <span className="text-[6px] min-[375px]:text-[7px] text-white/50 block uppercase tracking-wider font-bold mb-0.5 premium-card-label">
                     Certified
                   </span>
-                  <span className="text-[9px] font-extrabold text-emerald-400 tracking-wider uppercase block">
+                  <span className="text-[8px] min-[375px]:text-[9px] font-extrabold text-emerald-400 tracking-wider uppercase block premium-card-val">
                     80G BENEFIT
                   </span>
                 </div>
@@ -471,32 +511,31 @@ export function PremiumPaymentCard({
               backfaceVisibility: "hidden",
               WebkitBackfaceVisibility: "hidden"
             }}
-            className="absolute inset-0 w-full h-full rounded-[32px] bg-gradient-to-br from-[#0F172A] via-[#1E293B] to-[#020617] border border-white/20 py-6 flex flex-col justify-between overflow-hidden z-10 text-white"
+            className="absolute inset-0 w-full h-full rounded-[20px] min-[375px]:rounded-[26px] sm:rounded-[32px] bg-gradient-to-br from-[#0F172A] via-[#1E293B] to-[#020617] border border-white/20 py-4 min-[375px]:p-6 flex flex-col justify-between overflow-hidden z-10 text-white"
           >
-            {/* Back Background (always matching dark theme to ensure magnetic strip contrast) */}
+            {/* Back Background */}
             <div className={`absolute inset-0 ${theme.bg} z-0 opacity-95`} />
 
             {/* Black Magnetic Strip */}
-            <div className="absolute top-6 left-0 right-0 h-10 bg-slate-950/90 z-10" />
+            <div className="absolute top-4 min-[375px]:top-6 left-0 right-0 h-8 min-[375px]:h-10 bg-slate-950/90 z-10" />
 
             {/* White Signature Strip & CVV Box */}
-            <div className="absolute top-20 left-6 right-6 h-9 flex items-center z-10">
-              <div className="flex-1 h-full bg-slate-200/90 rounded-l-md px-3 flex items-center justify-start text-[8px] text-slate-800 font-bold uppercase tracking-wider font-mono italic select-none">
+            <div className="absolute top-[32%] min-[375px]:top-[35%] left-4 min-[375px]:left-6 right-4 min-[375px]:right-6 h-7 min-[375px]:h-9 flex items-center z-10">
+              <div className="flex-1 h-full bg-slate-200/90 rounded-l-md px-2.5 flex items-center justify-start text-[7px] min-[375px]:text-[8px] text-slate-800 font-bold uppercase tracking-wider font-mono italic select-none premium-card-holder">
                 Authorized Signature
               </div>
-              <div className="w-12 h-full bg-white text-slate-900 font-bold font-mono text-xs flex items-center justify-center rounded-r-md border-l border-slate-300">
+              <div className="w-10 min-[375px]:w-12 h-full bg-white text-slate-900 font-bold font-mono text-xs flex items-center justify-center rounded-r-md border-l border-slate-300 premium-card-val">
                 {cardCvv || "•••"}
               </div>
             </div>
 
             {/* Regulatory Exclusions & Security Info */}
-            <div className="absolute bottom-6 left-6 right-6 text-left text-[7px] leading-relaxed text-white/40 font-bold z-10">
+            <div className="absolute bottom-4 min-[375px]:bottom-6 left-4 min-[375px]:left-6 right-4 min-[375px]:right-6 text-left text-[5.5px] min-[375px]:text-[7px] leading-relaxed text-white/40 font-bold z-10 premium-card-label">
               <p>This card is securely generated for processing donations to Uday Foundation Trust.</p>
-              <p className="mt-0.5 text-white/50 uppercase tracking-widest text-[6px]">
+              <p className="mt-0.5 text-white/50 uppercase tracking-widest text-[5px] min-[375px]:text-[6px]">
                 80G TAX EXEMPTION CERTIFICATE SENT ON TRANSACTION COMPLETION
               </p>
             </div>
-            
             {verifying && (
               <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full animate-[shimmer-wave_1.5s_infinite] pointer-events-none z-30" />
             )}
@@ -984,7 +1023,7 @@ export function Donate() {
                     </form>
                   ) : (
                     /* Redesigned Payment Selection (Step 2.5) */
-                    <div className="relative overflow-hidden bg-white border border-slate-200/60 rounded-[32px] p-6 md:p-8 shadow-2xl space-y-6 animate-scale-up text-left text-slate-800">
+                    <div className="relative overflow-hidden bg-white border border-slate-200/60 rounded-[24px] sm:rounded-[32px] p-4 sm:p-6 md:p-8 shadow-2xl space-y-4 sm:space-y-6 animate-scale-up text-left text-slate-800">
                       
                       {/* Premium Soft Mesh Gradient background (Light theme) */}
                       <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_30%,rgba(59,130,246,0.05),transparent_60%)] bg-slate-50 pointer-events-none z-0" />
@@ -993,9 +1032,9 @@ export function Donate() {
                       <div className="absolute top-1/4 left-1/4 w-64 h-64 bg-blue-500/5 rounded-full blur-3xl animate-[mesh-pulse_20s_infinite] pointer-events-none z-0" />
                       <div className="absolute bottom-1/4 right-1/4 w-72 h-72 bg-emerald-500/5 rounded-full blur-3xl animate-[mesh-pulse_25s_infinite_2s] pointer-events-none z-0" />
                       
-                      <div className="relative z-10 space-y-6">
+                      <div className="relative z-10 space-y-4 sm:space-y-6">
                         {/* Summary Card */}
-                        <div className="bg-slate-50 border border-slate-200/50 rounded-3xl p-5 space-y-3.5 text-slate-800">
+                        <div className="bg-slate-50 border border-slate-200/50 rounded-2xl sm:rounded-3xl p-4 sm:p-5 space-y-3 text-slate-800">
                           <h4 className="font-display font-bold text-xs text-slate-400 uppercase tracking-widest">
                             Donation Summary
                           </h4>
@@ -1037,7 +1076,7 @@ export function Donate() {
                         />
 
                         {/* Selector Tabs */}
-                        <div className="bg-slate-100 border border-slate-200/50 rounded-2xl p-1 flex font-bold text-xs select-none">
+                        <div className="bg-slate-100 border border-slate-200/50 rounded-2xl p-1 flex font-bold text-[10px] min-[360px]:text-xs select-none gap-0.5 sm:gap-1">
                           {[
                             { id: "card", Icon: CreditCard, label: "Card" },
                             { id: "upi", Icon: QrCode, label: "UPI" },
@@ -1047,19 +1086,19 @@ export function Donate() {
                               key={m.id}
                               type="button"
                               onClick={() => handlePaymentMethodSelect(m.id as any)}
-                              className={`flex-1 py-3 rounded-xl flex items-center justify-center gap-2 cursor-pointer transition-all ${
+                              className={`flex-1 py-2.5 sm:py-3 rounded-xl flex items-center justify-center gap-1.5 sm:gap-2 cursor-pointer transition-all ${
                                 paymentMethod === m.id
                                   ? "bg-white text-primary shadow-xs border border-slate-200/40"
                                   : "text-slate-450 hover:text-slate-700 hover:bg-slate-200/30"
                               }`}
                             >
-                              <m.Icon className="h-4 w-4" /> {m.label}
+                              <m.Icon className="h-3.5 w-3.5 sm:h-4 sm:w-4" /> {m.label}
                             </button>
                           ))}
                         </div>
 
                         {/* Tab Contents */}
-                        <div className="bg-white rounded-3xl p-5 border border-slate-200/60 min-h-[220px] text-slate-800">
+                        <div className="bg-white rounded-2xl sm:rounded-3xl p-4 sm:p-5 border border-slate-200/60 min-h-[220px] text-slate-800">
                           {paymentMethod === "card" && (
                             <div className="space-y-4">
                               {/* Inputs */}
@@ -1102,7 +1141,7 @@ export function Donate() {
                                     className="w-full h-11 px-4 rounded-xl border border-slate-200 bg-slate-50 focus:outline-hidden focus:border-primary focus:bg-white text-sm font-semibold font-mono text-slate-800 placeholder-slate-400 transition-colors"
                                   />
                                 </div>
-                                <div className="grid grid-cols-2 gap-4">
+                                <div className="grid grid-cols-2 gap-3 sm:gap-4">
                                   <div className="space-y-1">
                                     <label htmlFor="card-expiry" className="text-slate-450 uppercase tracking-widest text-[9px] font-bold">
                                       Expiry Date
@@ -1286,20 +1325,20 @@ export function Donate() {
                         </button>
 
                         {/* Trust Indicators Section */}
-                        <div className="grid grid-cols-2 md:grid-cols-3 gap-2.5 pt-6 border-t border-slate-200/60">
+                        <div className="grid grid-cols-2 md:grid-cols-3 gap-2 sm:gap-2.5 pt-6 border-t border-slate-200/60">
                           {TRUST_ITEMS.map((item, idx) => {
                             const IconComponent = item.icon;
                             return (
                               <motion.div
                                 key={idx}
                                 whileHover={{ y: -4, scale: 1.02, backgroundColor: "rgba(0,0,0,0.02)" }}
-                                className="bg-slate-50 border border-slate-200/60 rounded-2xl p-3 flex flex-col items-center text-center cursor-pointer transition-all duration-300"
+                                className="bg-slate-50 border border-slate-200/60 rounded-xl sm:rounded-2xl p-2 sm:p-3 flex flex-col items-center text-center cursor-pointer transition-all duration-300"
                               >
-                                <IconComponent className="h-4.5 w-4.5 text-primary mb-1 animate-pulse" />
-                                <span className="text-[10px] font-black text-slate-800 block tracking-wide">
+                                <IconComponent className="h-4 w-4 sm:h-4.5 sm:w-4.5 text-primary mb-1 animate-pulse" />
+                                <span className="text-[8px] sm:text-[10px] font-black text-slate-800 block tracking-wide">
                                   {item.label}
                                 </span>
-                                <span className="text-[8px] text-slate-400 block mt-0.5 leading-snug">
+                                <span className="text-[7px] sm:text-[8px] text-slate-400 block mt-0.5 leading-snug">
                                   {item.desc}
                                 </span>
                               </motion.div>
