@@ -233,6 +233,7 @@ export async function createCheckoutSession(req, res, next) {
         donorName: sessionResult.donorName || null,
         email: sessionResult.email || null,
         phone: sessionResult.phone || null,
+        environment: sessionResult.environment || null,
       });
     } catch (gatewayErr) {
       const errorMsg =
