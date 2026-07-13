@@ -248,6 +248,71 @@ export function Donate() {
     address.trim().length > 0 &&
     isPanValid;
 
+  const triggerSdkCheckout = (targetWindow: Window, session: any) => {
+    const sdkEnv = (session.environment || process.env.NEXT_PUBLIC_CASHFREE_ENV || "sandbox").toLowerCase();
+    targetWindow.document.write(`
+      <!DOCTYPE html>
+      <html>
+        <head>
+          <title>Connecting to Secure Payment Gateway...</title>
+          <meta name="viewport" content="width=device-width, initial-scale=1.0">
+          <script src="https://sdk.cashfree.com/js/v3/cashfree.js"></script>
+          <style>
+            body {
+              display: flex;
+              flex-direction: column;
+              align-items: center;
+              justify-content: center;
+              height: 100vh;
+              margin: 0;
+              font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+              background-color: #f8fafc;
+              color: #475569;
+            }
+            .spinner {
+              border: 4px solid #e2e8f0;
+              border-top: 4px solid #f5a623;
+              border-radius: 50%;
+              width: 40px;
+              height: 40px;
+              animation: spin 1s linear infinite;
+              margin-bottom: 20px;
+            }
+            @keyframes spin {
+              0% { transform: rotate(0deg); }
+              100% { transform: rotate(360deg); }
+            }
+            p {
+              font-size: 16px;
+              font-weight: 500;
+            }
+          </style>
+        </head>
+        <body>
+          <div class="spinner"></div>
+          <p>Redirecting you to secure payment gateway...</p>
+          <script>
+            window.onload = function() {
+              try {
+                const cashfree = Cashfree({
+                  mode: "${sdkEnv}"
+                });
+                cashfree.checkout({
+                  paymentSessionId: "${session.sessionId}",
+                  redirectTarget: "_self"
+                });
+              } catch (err) {
+                console.error(err);
+                document.body.innerHTML = "<p style='color:#ef4444;font-weight:bold;margin:10px;'>Failed to load payment gateway. Please close this tab and try again.</p>";
+              }
+            };
+          </script>
+        </body>
+      </html>
+    `);
+    targetWindow.document.close();
+  };
+
   const handleDonateNow = async (e: React.FormEvent) => {
     e.preventDefault();
     setTouched(true);
@@ -279,17 +344,14 @@ export function Donate() {
 
       setPaymentSession(session);
 
-      if (session.url) {
+      if (session.sessionId) {
         if (checkoutWindow) {
-          // Redirect the pre-opened blank window to the Cashfree hosted page URL
-          checkoutWindow.location.href = session.url;
+          // Initialize official SDK runner inside the pre-opened blank window
+          triggerSdkCheckout(checkoutWindow, session);
         } else {
           // Fallback if the tab pre-opening failed
-          const fallbackWindow = window.open(session.url, "_blank");
-          if (!fallbackWindow || fallbackWindow.closed) {
-            setPopupBlockerActive(true);
-            toast.warning("Popup blocker detected! Please allow popups or click the button to continue.");
-          }
+          setPopupBlockerActive(true);
+          toast.warning("Popup blocker detected! Please allow popups or click the button to continue.");
         }
         
         setPaymentState("waiting");
@@ -643,9 +705,12 @@ export function Donate() {
                         </div>
                         <button
                           onClick={() => {
-                            if (paymentSession?.url) {
-                              const w = window.open(paymentSession.url, "_blank");
-                              if (w) setPopupBlockerActive(false);
+                            if (paymentSession?.sessionId) {
+                              const w = window.open("about:blank", "_blank");
+                              if (w) {
+                                triggerSdkCheckout(w, paymentSession);
+                                setPopupBlockerActive(false);
+                              }
                             }
                           }}
                           className="btn-saffron py-2.5 px-4 font-bold text-xs uppercase tracking-wider flex items-center gap-1.5 cursor-pointer"

@@ -257,7 +257,8 @@ class CashfreeGateway extends PaymentGateway {
       idempotencyKey: params.idempotencyKey,
       donorName: params.donorName,
       email: params.email,
-      phone: params.phone
+      phone: params.phone,
+      environment: this.env
     };
   }
 
