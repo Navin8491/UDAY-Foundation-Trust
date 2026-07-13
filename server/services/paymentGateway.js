@@ -187,14 +187,26 @@ class CashfreeGateway extends PaymentGateway {
     this.appId = process.env.CASHFREE_APP_ID || "mock_app_id";
     this.secretKey = process.env.CASHFREE_SECRET_KEY || "mock_secret_key";
     this.webhookSecret = process.env.CASHFREE_WEBHOOK_SECRET || this.secretKey;
-    this.env = (process.env.CASHFREE_ENV || "sandbox").toLowerCase();
+    this.env = (process.env.CASHFREE_ENVIRONMENT || process.env.CASHFREE_ENV || "sandbox").toLowerCase();
     this.baseUrl = this.env === "production"
       ? "https://api.cashfree.com/pg"
       : "https://sandbox.cashfree.com/pg";
   }
 
   async createCheckoutSession(params) {
-    const successUrl = `${process.env.FRONTEND_URL?.split(",")[0] || "http://localhost:5173"}/donate?status=success&idempotency_key=${params.idempotencyKey}`;
+    let successUrl;
+    if (this.env === "production") {
+      // Cashfree Production requires an HTTPS return URL.
+      // We look for the first HTTPS origin listed in FRONTEND_URL, or fall back to the live site.
+      const httpsOrigin = (process.env.FRONTEND_URL || "")
+        .split(",")
+        .map((origin) => origin.trim())
+        .find((origin) => origin.startsWith("https://")) || "https://www.udayfoundationstrust.org";
+      
+      successUrl = `${httpsOrigin}/donation/payment-status?order_id=${params.idempotencyKey}`;
+    } else {
+      successUrl = `${process.env.FRONTEND_URL?.split(",")[0] || "http://localhost:5173"}/donation/payment-status?order_id=${params.idempotencyKey}`;
+    }
 
     const headers = {
       "x-client-id": this.appId,
@@ -239,7 +251,7 @@ class CashfreeGateway extends PaymentGateway {
 
     return {
       sessionId: order.payment_session_id,
-      url: order.payments?.url || order.payment_link || null,
+      url: `https://${this.env === "production" ? "payments" : "payments-test"}.cashfree.com/order/#token=${order.payment_session_id}`,
       orderId: order.order_id,
       amount: order.order_amount,
       currency: order.order_currency,
@@ -253,7 +265,14 @@ class CashfreeGateway extends PaymentGateway {
   async verifyWebhook(payload, signature, headers) {
     try {
       const ts = headers ? (headers["x-webhook-timestamp"] || "") : "";
-      const rawBody = typeof payload === "string" ? payload : JSON.stringify(payload);
+      let rawBody;
+      if (typeof payload === "string") {
+        rawBody = payload;
+      } else if (Buffer.isBuffer(payload)) {
+        rawBody = payload.toString("utf8");
+      } else {
+        rawBody = JSON.stringify(payload);
+      }
 
       const signStr = ts + rawBody;
       const generatedSignature = crypto
@@ -267,22 +286,51 @@ class CashfreeGateway extends PaymentGateway {
       }
 
       const body = JSON.parse(rawBody);
-      const event = body.type;
+      const eventType = body.type;
 
-      if (event === "PAYMENT_SUCCESS_WEBHOOK") {
+      if (eventType === "PAYMENT_SUCCESS") {
         const payment = body.data.payment;
         const order = body.data.order;
         return {
           success: true,
+          status: "SUCCESS",
           gatewayTransactionId: payment.cf_payment_id,
           amount: payment.payment_amount,
           currency: payment.payment_currency.toUpperCase(),
-          eventType: event,
+          eventType,
           idempotencyKey: order.order_id,
+          paymentMethod: payment.payment_group || (payment.payment_method ? Object.keys(payment.payment_method)[0] : null),
+          gatewayResponse: body
+        };
+      } else if (eventType === "PAYMENT_FAILED" || eventType === "PAYMENT_USER_DROPPED") {
+        const payment = body.data.payment;
+        const order = body.data.order;
+        return {
+          success: true,
+          status: "FAILED",
+          gatewayTransactionId: payment?.cf_payment_id || null,
+          amount: payment?.payment_amount || order.order_amount,
+          currency: order.order_currency.toUpperCase(),
+          eventType,
+          idempotencyKey: order.order_id,
+          error: payment?.payment_message || "Payment failed or abandoned",
+          gatewayResponse: body
+        };
+      } else if (eventType === "REFUND_STATUS_WEBHOOK") {
+        const refund = body.data.refund;
+        const order = body.data.order;
+        return {
+          success: true,
+          status: "REFUNDED",
+          refundId: refund?.cf_refund_id || refund?.refund_id,
+          amount: refund?.refund_amount,
+          eventType,
+          idempotencyKey: order.order_id,
+          gatewayResponse: body
         };
       }
 
-      return { success: false, eventType: event };
+      return { success: true, status: "OTHER", eventType, idempotencyKey: body.data?.order?.order_id, gatewayResponse: body };
     } catch (err) {
       console.error("[CashfreeGateway] Webhook verification exception:", err.message);
       return { success: false, error: err.message };
@@ -315,12 +363,16 @@ class CashfreeGateway extends PaymentGateway {
           headers
         });
         let transactionId = orderId;
+        let paymentMethod = null;
+        let rawPaymentResponse = null;
         if (paymentsRes.ok) {
           const payments = await paymentsRes.json();
           // Find first successful payment
           const successPayment = payments.find(p => p.payment_status === "SUCCESS");
           if (successPayment) {
             transactionId = successPayment.cf_payment_id;
+            paymentMethod = successPayment.payment_group || (successPayment.payment_method ? Object.keys(successPayment.payment_method)[0] : null);
+            rawPaymentResponse = successPayment;
           }
         }
         return {
@@ -328,13 +380,16 @@ class CashfreeGateway extends PaymentGateway {
           status: "PAID",
           gatewayTransactionId: transactionId,
           amount: order.order_amount,
-          currency: order.order_currency
+          currency: order.order_currency,
+          paymentMethod,
+          gatewayResponse: rawPaymentResponse || order
         };
       }
 
       return {
         success: false,
-        status: order.order_status
+        status: order.order_status,
+        error: order.order_status === "ACTIVE" ? "Payment pending/active" : `Payment state: ${order.order_status}`
       };
     } catch (err) {
       console.error("[CashfreeGateway] verifyOrderPayment failed:", err.message);

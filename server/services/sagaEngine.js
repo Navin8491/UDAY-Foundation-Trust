@@ -23,6 +23,15 @@ import { publishEvent, EVENTS } from "../utils/eventQueue.js";
  * @returns {Promise<Object>} updated payment event record
  */
 export async function transitionToState(eventId, targetState, errorMsg = null) {
+  // Get previous state first
+  const { data: previousRecord } = await supabase
+    .from("payment_events")
+    .select("current_state")
+    .eq("id", eventId)
+    .maybeSingle();
+
+  const fromState = previousRecord ? previousRecord.current_state : null;
+
   const updateData = {
     current_state: targetState,
     updated_at: new Date().toISOString(),
@@ -47,7 +56,19 @@ export async function transitionToState(eventId, targetState, errorMsg = null) {
     throw error;
   }
 
-  console.log(`🔄 [Saga State Transition] Event ${eventId}: -> ${targetState}`);
+  // Log transition history
+  await supabase
+    .from("payment_status_history")
+    .insert([{
+      payment_event_id: eventId,
+      from_state: fromState,
+      to_state: targetState,
+      description: errorMsg || `State transitioned from ${fromState} to ${targetState}`
+    }]).catch((histErr) => {
+      console.error("[SagaEngine] Failed to log state transition to history:", histErr.message);
+    });
+
+  console.log(`🔄 [Saga State Transition] Event ${eventId}: ${fromState} -> ${targetState}`);
 
   // Notify admin clients of real-time state change
   triggerUpdate("payment_events");

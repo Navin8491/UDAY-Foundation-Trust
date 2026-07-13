@@ -55,6 +55,12 @@ export function Donations() {
                 ? "Mock Gateway"
                 : "Online Gateway"
               : "Direct UPI",
+            paymentMethod: item.payment_method || (item.payment_id
+              ? item.payment_id.startsWith("mock_")
+                ? "Mock Card"
+                : "Cashfree Hosted"
+              : "N/A"),
+            gatewayResponse: item.gateway_response,
             status: getStatusLabel(item.current_state),
             rawStatus: item.current_state,
             project: item.purpose || "General Donation",
@@ -514,11 +520,24 @@ export function Donations() {
                 </div>
                 <div>
                   <span className="text-[10px] text-slate-400 uppercase tracking-wider block">
-                    Payment Mode
+                    Payment Method
                   </span>
-                  <span className="text-slate-900 text-sm">{selectedDonation.type}</span>
+                  <span className="text-slate-900 text-sm capitalize">
+                    {selectedDonation.paymentMethod}
+                  </span>
                 </div>
               </div>
+
+              {selectedDonation.gatewayResponse && (
+                <div className="space-y-1">
+                  <span className="text-[10px] text-slate-400 uppercase tracking-wider block">
+                    Gateway Metadata (JSON)
+                  </span>
+                  <pre className="bg-slate-50 border border-slate-100 rounded-xl p-3 text-[9px] font-mono leading-relaxed overflow-x-auto text-slate-700 max-h-40">
+                    {JSON.stringify(selectedDonation.gatewayResponse, null, 2)}
+                  </pre>
+                </div>
+              )}
 
               {/* State Transition Timeline */}
               <div className="border-t border-slate-100 pt-3">

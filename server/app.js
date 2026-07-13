@@ -44,11 +44,15 @@ app.use(
     contentSecurityPolicy: {
       directives: {
         defaultSrc: ["'self'"],
-        scriptSrc: ["'self'", "'unsafe-inline'", "'unsafe-eval'"],
+        scriptSrc: process.env.NODE_ENV === "production"
+          ? ["'self'", "'unsafe-inline'"]
+          : ["'self'", "'unsafe-inline'", "'unsafe-eval'"],
         styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
         fontSrc: ["'self'", "https://fonts.gstatic.com"],
         imgSrc: ["'self'", "data:", "https://*.supabase.co"], // Allow loading images from Supabase Storage
-        connectSrc: ["'self'", "http://localhost:*", "http://127.0.0.1:*", ...allowedOrigins],
+        connectSrc: process.env.NODE_ENV === "production"
+          ? ["'self'", ...allowedOrigins]
+          : ["'self'", "http://localhost:*", "http://127.0.0.1:*", ...allowedOrigins],
       },
     },
   }),
@@ -70,7 +74,9 @@ app.use(
         return callback(null, true);
       }
       const isLocalhost = /^http:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(origin);
-      const isVercel = /^https:\/\/.*\.vercel\.app$/.test(origin);
+      const isVercel = process.env.NODE_ENV === "production"
+        ? /^https:\/\/uday-foundation-trust\.vercel\.app$/.test(origin)
+        : /^https:\/\/.*\.vercel\.app$/.test(origin);
       const isUdayTrust = /^https:\/\/(.*\.)?udayfoundation(s)?trust\.org$/.test(origin);
 
       // Development only support for localhost/127.0.0.1

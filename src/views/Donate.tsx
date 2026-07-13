@@ -1,7 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { useState, useEffect } from "react";
 import { PageHero } from "@/components/site/PageHero";
 import { useDocumentMetadata } from "@/hooks/useDocumentMetadata";
 import {
@@ -14,23 +13,17 @@ import {
   Sprout,
   Users,
   ArrowLeft,
-  CheckCircle2,
-  Printer,
-  Download,
   Loader2,
+  CheckCircle2,
   XCircle,
-  CreditCard,
-  Landmark,
-  Lock,
-  QrCode,
+  AlertCircle,
+  ExternalLink,
+  FileDown,
+  Home,
+  RefreshCw,
 } from "lucide-react";
 import { useLanguage } from "@/context/LanguageContext";
-import {
-  initiateDonationPayment,
-  fetchPaymentStatus,
-  verifyRazorpaySignature,
-  verifyCashfreePayment,
-} from "@/services/db";
+import { initiateDonationPayment, fetchPaymentStatus } from "@/services/db";
 import { toast } from "sonner";
 import { SITE } from "@/constants/site";
 
@@ -92,491 +85,14 @@ const LOCAL_DONATE_TRANS = {
   },
 };
 
-// Trust badges list
-const TRUST_ITEMS = [
-  { label: "100% Secure", desc: "PCI-DSS Compliant Gateway", icon: ShieldCheck },
-  { label: "SSL Protected", desc: "256-bit Bank Grade Security", icon: Lock },
-  { label: "Trusted NGO", desc: "Registered charity since 2012", icon: BadgeCheck },
-  { label: "80G Benefit", desc: "Tax exemption certificate sent", icon: FileCheck2 },
-  { label: "Transparent", desc: "Live reports & audits", icon: Users },
-  { label: "Encrypted Pay", desc: "End-to-end tokenization", icon: CreditCard },
-];
-
-function Confetti() {
-  const [pieces, setPieces] = useState<any[]>([]);
-  useEffect(() => {
-    const colors = ["#F59E0B", "#10B981", "#3B82F6", "#EC4899", "#8B5CF6", "#EF4444"];
-    const newPieces = Array.from({ length: 80 }).map((_, i) => ({
-      id: i,
-      x: Math.random() * 100,
-      y: -20 - Math.random() * 100,
-      size: 5 + Math.random() * 8,
-      color: colors[Math.floor(Math.random() * colors.length)],
-      delay: Math.random() * 2,
-      duration: 3 + Math.random() * 3,
-      rotation: Math.random() * 360,
-      shape: Math.random() > 0.5 ? "circle" : "rect",
-    }));
-    setPieces(newPieces);
-  }, []);
-
-  return (
-    <div className="absolute inset-0 pointer-events-none overflow-hidden z-50 rounded-[32px]">
-      {pieces.map((p) => (
-        <motion.div
-          key={p.id}
-          initial={{ y: p.y + "%", x: p.x + "%", rotate: p.rotation, opacity: 1 }}
-          animate={{
-            y: "120%",
-            rotate: p.rotation + 360 * (Math.random() > 0.5 ? 1 : -1),
-            x: `calc(${p.x}% + ${(Math.random() - 0.5) * 150}px)`,
-          }}
-          transition={{
-            duration: p.duration,
-            delay: p.delay,
-            ease: "easeOut",
-            repeat: Infinity,
-          }}
-          style={{
-            position: "absolute",
-            width: p.size,
-            height: p.size,
-            backgroundColor: p.color,
-            borderRadius: p.shape === "circle" ? "50%" : "2px",
-          }}
-        />
-      ))}
-    </div>
-  );
-}
-
-interface PremiumPaymentCardProps {
-  paymentMethod: "card" | "upi" | "netbanking";
-  cardNumber: string;
-  cardName: string;
-  cardExpiry: string;
-  cardCvv: string;
-  isFlipped: boolean;
-  onFlipToggle?: () => void;
-  verifying: boolean;
-  verificationError: string;
-  step: number;
-  idempotencyKey: string;
-}
-
-export function PremiumPaymentCard({
-  paymentMethod,
-  cardNumber,
-  cardName,
-  cardExpiry,
-  cardCvv,
-  isFlipped,
-  onFlipToggle,
-  verifying,
-  verificationError,
-  step,
-  idempotencyKey,
-}: PremiumPaymentCardProps) {
-  const [tilt, setTilt] = useState({ x: 0, y: 0 });
-  const cardRef = useRef<HTMLDivElement>(null);
-
-  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
-    if (isFlipped || !cardRef.current) return;
-    const rect = cardRef.current.getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    const y = e.clientY - rect.top;
-    const xc = rect.width / 2;
-    const yc = rect.height / 2;
-    
-    // Rotate max 6 degrees for smooth interactive tilt
-    const rotateX = -(y - yc) / (yc / 6);
-    const rotateY = (x - xc) / (xc / 6);
-    setTilt({ x: rotateX, y: rotateY });
-  };
-
-  const handleMouseLeave = () => {
-    setTilt({ x: 0, y: 0 });
-  };
-
-  const getCardTheme = () => {
-    if (step === 3 && !verificationError && !verifying) {
-      return {
-        bg: "bg-gradient-to-br from-[#064E3B] via-[#059669] to-[#022C22]",
-        borderGlow: "from-emerald-400 via-green-500 to-teal-500",
-        shadow: "shadow-[0_20px_50px_rgba(5,150,105,0.45)]",
-        title: "DONATION SUCCESSFUL",
-      };
-    }
-    if (verificationError) {
-      return {
-        bg: "bg-gradient-to-br from-[#7F1D1D] via-[#DC2626] to-[#450A0A]",
-        borderGlow: "from-red-400 via-rose-500 to-orange-500",
-        shadow: "shadow-[0_20px_50px_rgba(220,38,38,0.45)]",
-        title: "PAYMENT VERIFICATION FAILED",
-      };
-    }
-
-    switch (paymentMethod) {
-      case "upi":
-        return {
-          bg: "bg-gradient-to-br from-[#3B0764] via-[#6D28D9] to-[#1E0047]",
-          borderGlow: "from-purple-400 via-fuchsia-500 to-indigo-500",
-          shadow: "shadow-[0_20px_50px_rgba(109,40,217,0.35)]",
-          title: "SECURED UPI DONATION",
-        };
-      case "netbanking":
-        return {
-          bg: "bg-gradient-to-br from-[#064E3B] via-[#0D9488] to-[#013220]",
-          borderGlow: "from-teal-400 via-emerald-500 to-cyan-500",
-          shadow: "shadow-[0_20px_50px_rgba(13,148,136,0.35)]",
-          title: "SECURED INTERNET BANKING",
-        };
-      case "card":
-      default:
-        return {
-          bg: "bg-gradient-to-br from-[#1E3A8A] via-[#2546C8] to-[#0F172A]",
-          borderGlow: "from-cyan-400 via-purple-500 to-blue-600",
-          shadow: "shadow-[0_20px_50px_rgba(37,70,200,0.35)]",
-          title: "SECURED DONATION CARD",
-        };
-    }
-  };
-
-  const theme = getCardTheme();
-
-  return (
-    <div className="flex justify-center items-center py-4 select-none w-full">
-      {/* Custom CSS animations and responsive typography */}
-      <style dangerouslySetInnerHTML={{__html: `
-        @keyframes rotate-border {
-          from { transform: rotate(0deg); }
-          to { transform: rotate(360deg); }
-        }
-        @keyframes float-blob {
-          0% { transform: translateY(0px) scale(1); }
-          50% { transform: translateY(-12px) scale(1.04); }
-          100% { transform: translateY(0px) scale(1); }
-        }
-        @keyframes card-sweep {
-          0% { transform: translateX(-150%) skewX(-30deg); }
-          40% { transform: translateX(150%) skewX(-30deg); }
-          100% { transform: translateX(150%) skewX(-30deg); }
-        }
-        @keyframes chip-shine {
-          0% { transform: translateX(-100%); }
-          45% { transform: translateX(100%); }
-          100% { transform: translateX(100%); }
-        }
-        @keyframes shimmer-wave {
-          0% { transform: translateX(-100%); }
-          100% { transform: translateX(100%); }
-        }
-        @keyframes mesh-pulse {
-          0% { transform: scale(1) translate(0px, 0px); opacity: 0.8; }
-          50% { transform: scale(1.15) translate(25px, -25px); opacity: 0.95; }
-          100% { transform: scale(1) translate(0px, 0px); opacity: 0.8; }
-        }
-        .backface-hidden {
-          backface-visibility: hidden;
-          -webkit-backface-visibility: hidden;
-        }
-        @media (max-width: 480px) {
-          .premium-card-num {
-            font-size: 13.5px !important;
-            letter-spacing: 0.16em !important;
-          }
-          .premium-card-holder, .premium-card-val {
-            font-size: 9.5px !important;
-          }
-          .premium-card-label {
-            font-size: 6px !important;
-          }
-          .premium-card-heading {
-            font-size: 8px !important;
-          }
-          .premium-card-sub {
-            font-size: 5px !important;
-          }
-          .premium-card-chip {
-            width: 32px !important;
-            height: 24px !important;
-          }
-          .premium-card-contactless {
-            height: 18px !important;
-          }
-          .premium-card-contactless span:nth-child(1) { height: 8px !important; }
-          .premium-card-contactless span:nth-child(2) { height: 12px !important; }
-          .premium-card-contactless span:nth-child(3) { height: 16px !important; }
-        }
-        @media (max-width: 360px) {
-          .premium-card-num {
-            font-size: 11px !important;
-            letter-spacing: 0.11em !important;
-          }
-          .premium-card-holder, .premium-card-val {
-            font-size: 8px !important;
-          }
-          .premium-card-label {
-            font-size: 5.5px !important;
-          }
-        }
-      `}} />
-
-      {/* 3D perspective wrapper */}
-      <div 
-        className="w-full max-w-[420px] px-1 xs:px-2"
-        style={{ perspective: "1000px", transformStyle: "preserve-3d" }}
-        onMouseMove={handleMouseMove}
-        onMouseLeave={handleMouseLeave}
-      >
-        <motion.div
-          ref={cardRef}
-          onClick={onFlipToggle}
-          animate={{
-            rotateX: tilt.x,
-            rotateY: isFlipped ? 180 : tilt.y,
-          }}
-          transition={{ type: "spring", stiffness: 260, damping: 25 }}
-          whileHover={isFlipped ? {} : { y: -8, scale: 1.02 }}
-          style={{ transformStyle: "preserve-3d" }}
-          className={`relative w-full h-[175px] min-[360px]:h-[200px] min-[375px]:h-[220px] min-[425px]:h-[240px] sm:h-[260px] rounded-[20px] min-[375px]:rounded-[26px] sm:rounded-[32px] cursor-pointer ${theme.shadow} transition-shadow duration-300`}
-        >
-          {/* CARD FRONT FACE */}
-          <div 
-            style={{ 
-              transform: "translateZ(1px)",
-              backfaceVisibility: "hidden",
-              WebkitBackfaceVisibility: "hidden"
-            }}
-            className="absolute inset-0 w-full h-full rounded-[20px] min-[375px]:rounded-[26px] sm:rounded-[32px] bg-gradient-to-br from-[#1E3A8A] via-[#2546C8] to-[#0F172A] border border-white/20 p-4 min-[375px]:p-6 flex flex-col justify-between overflow-hidden z-10 text-white"
-          >
-            {/* Front Background Gradient & Blobs */}
-            <div className={`absolute inset-0 ${theme.bg} z-0`} />
-            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full animate-[card-sweep_6s_ease-in-out_infinite] pointer-events-none z-10" />
-            <div className="absolute -left-10 -bottom-10 w-36 h-36 bg-white/5 rounded-full blur-2xl animate-[float-blob_10s_infinite_alternate] pointer-events-none z-10" />
-            <div className="absolute -right-10 -top-10 w-40 h-40 bg-white/5 rounded-full blur-3xl animate-[float-blob_12s_infinite_alternate-reverse] pointer-events-none z-10" />
-
-            {/* Top row: Logo/Shield & Lock */}
-            <div className="flex justify-between items-start z-10 relative">
-              <div className="flex items-center gap-1.5 min-[375px]:gap-2">
-                <div className="h-6 w-6 min-[375px]:h-7 min-[375px]:w-7 bg-white/10 backdrop-blur-md rounded-full flex items-center justify-center border border-white/25">
-                  <ShieldCheck className="h-4 w-4 min-[375px]:h-4.5 min-[375px]:w-4.5 text-emerald-400" />
-                </div>
-                <div className="text-left">
-                  <span className="font-display font-black text-[9px] min-[375px]:text-[10px] tracking-widest block uppercase text-white/90 premium-card-heading">
-                    {theme.title}
-                  </span>
-                  <span className="text-[6px] min-[375px]:text-[7px] text-white/50 block font-bold uppercase tracking-wider -mt-0.5 premium-card-sub">
-                    Secure • Trusted • Verified
-                  </span>
-                </div>
-              </div>
-
-              <motion.div
-                whileHover={{ scale: 1.2, rotate: 15, filter: "drop-shadow(0 0 8px rgba(255,255,255,0.6))" }}
-                className="h-6 w-6 min-[375px]:h-7 min-[375px]:w-7 bg-white/10 rounded-full flex items-center justify-center border border-white/20"
-              >
-                <Lock className="h-3 w-3 min-[375px]:h-3.5 min-[375px]:w-3.5 text-white/80" />
-              </motion.div>
-            </div>
-
-            {/* Middle row: Payment method graphics */}
-            <div className="z-10 my-0.5 min-[375px]:my-1 relative">
-              <AnimatePresence mode="wait">
-                {paymentMethod === "card" && (
-                  <motion.div
-                    key="card-graphics"
-                    className="flex justify-between items-center"
-                  >
-                    {/* EMV 3D Metallic Chip */}
-                    <div className="relative w-9 h-6.5 min-[375px]:w-11 min-[375px]:h-8 rounded-md min-[375px]:rounded-lg bg-gradient-to-br from-yellow-200 via-amber-400 to-yellow-600 border border-amber-600/30 overflow-hidden shadow-inner flex flex-wrap p-0.5 premium-card-chip">
-                      <div className="w-full h-full absolute inset-0 flex flex-wrap opacity-30">
-                        <div className="w-1/2 h-1/2 border-r border-b border-amber-950/40" />
-                        <div className="w-1/2 h-1/2 border-b border-amber-950/40" />
-                        <div className="w-1/2 h-1/2 border-r border-amber-950/40" />
-                        <div className="w-1/2 h-1/2" />
-                      </div>
-                      <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/50 to-transparent -translate-x-full animate-[chip-shine_3s_infinite]" />
-                    </div>
-
-                    {/* Contactless waves */}
-                    <div className="flex gap-0.5 min-[375px]:gap-1 items-center justify-center opacity-85 h-5 min-[375px]:h-6 premium-card-contactless">
-                      <span className="w-0.5 h-2.5 min-[375px]:h-3 bg-white rounded-full animate-pulse" />
-                      <span className="w-0.5 h-3.5 min-[375px]:h-4 bg-white rounded-full animate-pulse [animation-delay:0.2s]" />
-                      <span className="w-0.5 h-4.5 min-[375px]:h-5 bg-white rounded-full animate-pulse [animation-delay:0.4s]" />
-                    </div>
-                  </motion.div>
-                )}
-
-                {paymentMethod === "upi" && (
-                  <motion.div
-                    key="upi-graphics"
-                    className="flex justify-between items-center bg-white/5 backdrop-blur-md rounded-xl p-2 min-[375px]:p-3 border border-white/10 w-full"
-                  >
-                    <div className="flex items-center gap-1.5 min-[375px]:gap-2">
-                      <QrCode className="h-6 w-6 min-[375px]:h-7 min-[375px]:w-7 text-white/95 animate-pulse" />
-                      <div className="text-left">
-                        <span className="text-[7px] min-[375px]:text-[8px] uppercase tracking-wider text-white/50 block font-bold premium-card-label">
-                          Scan & Pay Instantly
-                        </span>
-                        <span className="text-[8px] min-[375px]:text-[10px] text-white/90 font-bold tracking-wide premium-card-holder">
-                          UPI Quick Checkout
-                        </span>
-                      </div>
-                    </div>
-                    <div className="relative flex h-2 w-2 min-[375px]:h-2.5 min-[375px]:w-2.5">
-                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                      <span className="relative inline-flex rounded-full h-2 w-2 min-[375px]:h-2.5 min-[375px]:w-2.5 bg-emerald-500"></span>
-                    </div>
-                  </motion.div>
-                )}
-
-                {paymentMethod === "netbanking" && (
-                  <motion.div
-                    key="netbanking-graphics"
-                    className="flex justify-between items-center bg-white/5 backdrop-blur-md rounded-xl p-2 min-[375px]:p-3 border border-white/10 w-full"
-                  >
-                    <div className="flex items-center gap-1.5 min-[375px]:gap-2">
-                      <Landmark className="h-6 w-6 min-[375px]:h-7 min-[375px]:w-7 text-white/95 animate-bounce" />
-                      <div className="text-left">
-                        <span className="text-[7px] min-[375px]:text-[8px] uppercase tracking-wider text-white/50 block font-bold premium-card-label">
-                          Direct Bank Transfer
-                        </span>
-                        <span className="text-[8px] min-[375px]:text-[10px] text-white/90 font-bold tracking-wide premium-card-holder">
-                          128-bit Bank Encryption
-                        </span>
-                      </div>
-                    </div>
-                    <ShieldCheck className="h-4.5 w-4.5 min-[375px]:h-5 min-[375px]:w-5 text-emerald-400 animate-pulse" />
-                  </motion.div>
-                )}
-              </AnimatePresence>
-            </div>
-
-            {/* Card Number display */}
-            <div className="z-10 relative font-mono text-sm min-[360px]:text-base min-[375px]:text-lg tracking-[0.16em] min-[375px]:tracking-[0.22em] text-center my-0.5 min-[375px]:my-1 text-white font-bold select-all drop-shadow-[0_2px_4px_rgba(0,0,0,0.4)] uppercase premium-card-num">
-              {paymentMethod === "card" ? (
-                cardNumber || "•••• •••• •••• ••••"
-              ) : (
-                <span className="text-[9px] min-[375px]:text-[10px] uppercase font-sans tracking-[0.12em] min-[375px]:tracking-[0.15em] text-white/60">
-                  ORDER ID: {idempotencyKey.substring(0, 18).toUpperCase()}...
-                </span>
-              )}
-            </div>
-
-            {/* Bottom Row: Holder Name & Expiry */}
-            <div className="flex justify-between items-end z-10 relative">
-              <div className="text-left max-w-[70%]">
-                <span className="text-[6px] min-[375px]:text-[7px] text-white/50 block uppercase tracking-wider font-bold mb-0.5 premium-card-label">
-                  Donor Name
-                </span>
-                <span className="font-display font-extrabold text-[9.5px] min-[375px]:text-[11px] uppercase tracking-widest block truncate text-white premium-card-holder">
-                  {cardName || "YOUR NAME"}
-                </span>
-              </div>
-
-              {paymentMethod === "card" && (
-                <div className="text-right font-mono">
-                  <span className="text-[6px] min-[375px]:text-[7px] text-white/50 block uppercase tracking-wider font-bold mb-0.5 premium-card-label">
-                    Expires
-                  </span>
-                  <span className="text-[9.5px] min-[375px]:text-[11px] font-bold tracking-wider text-white premium-card-val">
-                    {cardExpiry || "MM/YY"}
-                  </span>
-                </div>
-              )}
-
-              {paymentMethod !== "card" && (
-                <div className="text-right animate-pulse">
-                  <span className="text-[6px] min-[375px]:text-[7px] text-white/50 block uppercase tracking-wider font-bold mb-0.5 premium-card-label">
-                    Certified
-                  </span>
-                  <span className="text-[8px] min-[375px]:text-[9px] font-extrabold text-emerald-400 tracking-wider uppercase block premium-card-val">
-                    80G BENEFIT
-                  </span>
-                </div>
-              )}
-            </div>
-
-            {/* Loading Shimmer Overlay */}
-            {verifying && (
-              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full animate-[shimmer-wave_1.5s_infinite] pointer-events-none z-30" />
-            )}
-          </div>
-
-          {/* CARD BACK FACE */}
-          <div 
-            style={{ 
-              transform: "rotateY(180deg) translateZ(1px)",
-              backfaceVisibility: "hidden",
-              WebkitBackfaceVisibility: "hidden"
-            }}
-            className="absolute inset-0 w-full h-full rounded-[20px] min-[375px]:rounded-[26px] sm:rounded-[32px] bg-gradient-to-br from-[#0F172A] via-[#1E293B] to-[#020617] border border-white/20 py-4 min-[375px]:p-6 flex flex-col justify-between overflow-hidden z-10 text-white"
-          >
-            {/* Back Background */}
-            <div className={`absolute inset-0 ${theme.bg} z-0 opacity-95`} />
-
-            {/* Black Magnetic Strip */}
-            <div className="absolute top-4 min-[375px]:top-6 left-0 right-0 h-8 min-[375px]:h-10 bg-slate-950/90 z-10" />
-
-            {/* White Signature Strip & CVV Box */}
-            <div className="absolute top-[32%] min-[375px]:top-[35%] left-4 min-[375px]:left-6 right-4 min-[375px]:right-6 h-7 min-[375px]:h-9 flex items-center z-10">
-              <div className="flex-1 h-full bg-slate-200/90 rounded-l-md px-2.5 flex items-center justify-start text-[7px] min-[375px]:text-[8px] text-slate-800 font-bold uppercase tracking-wider font-mono italic select-none premium-card-holder">
-                Authorized Signature
-              </div>
-              <div className="w-10 min-[375px]:w-12 h-full bg-white text-slate-900 font-bold font-mono text-xs flex items-center justify-center rounded-r-md border-l border-slate-300 premium-card-val">
-                {cardCvv || "•••"}
-              </div>
-            </div>
-
-            {/* Regulatory Exclusions & Security Info */}
-            <div className="absolute bottom-4 min-[375px]:bottom-6 left-4 min-[375px]:left-6 right-4 min-[375px]:right-6 text-left text-[5.5px] min-[375px]:text-[7px] leading-relaxed text-white/40 font-bold z-10 premium-card-label">
-              <p>This card is securely generated for processing donations to Uday Foundation Trust.</p>
-              <p className="mt-0.5 text-white/50 uppercase tracking-widest text-[5px] min-[375px]:text-[6px]">
-                80G TAX EXEMPTION CERTIFICATE SENT ON TRANSACTION COMPLETION
-              </p>
-            </div>
-            {verifying && (
-              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full animate-[shimmer-wave_1.5s_infinite] pointer-events-none z-30" />
-            )}
-          </div>
-        </motion.div>
-      </div>
-    </div>
-  );
-}
-
 export function Donate() {
-  const [step, setStep] = useState(1); // 1 = select amount, 2 = fill details, 3 = success screen
-  const [showPaymentSelection, setShowPaymentSelection] = useState(false);
-  const [paymentMethod, setPaymentMethod] = useState<"card" | "upi" | "netbanking">("card");
-  const [cardNumber, setCardNumber] = useState("");
-  const [cardExpiry, setCardExpiry] = useState("");
-  const [cardCvv, setCardCvv] = useState("");
-  const [cardName, setCardName] = useState("");
-  const [upiId, setUpiId] = useState("");
-  const [selectedBank, setSelectedBank] = useState("");
-  const [isFlipped, setIsFlipped] = useState(false);
-  const cardNumberInputRef = useRef<HTMLInputElement>(null);
-
-  const handlePaymentMethodSelect = (method: "card" | "upi" | "netbanking") => {
-    setPaymentMethod(method);
-    if (method === "card") {
-      // Smooth auto-flip Front -> Back -> Front Y-axis animation sequence
-      setIsFlipped(true);
-      setTimeout(() => {
-        setIsFlipped(false);
-        // Autofocus card-number input after reverse flip finishes Y rotation
-        setTimeout(() => {
-          if (cardNumberInputRef.current) {
-            cardNumberInputRef.current.focus();
-          }
-        }, 500);
-      }, 700);
-    }
-  };
-
+  const [step, setStep] = useState(1); // 1 = select amount, 2 = fill details
   const [selected, setSelected] = useState(2500);
+  const [paymentState, setPaymentState] = useState<"form" | "waiting" | "success" | "failed" | "pending">("form");
+  const [paymentSession, setPaymentSession] = useState<any>(null);
+  const [paymentStatusData, setPaymentStatusData] = useState<any>(null);
+  const [popupBlockerActive, setPopupBlockerActive] = useState<boolean>(false);
+  const [pollingIntervalId, setPollingIntervalId] = useState<any>(null);
   const [custom, setCustom] = useState("");
 
   // Donor details fields
@@ -587,7 +103,6 @@ export function Donate() {
   const [pan, setPan] = useState("");
   const [touched, setTouched] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [receiptNo, setReceiptNo] = useState("");
 
   const [idempotencyKey, setIdempotencyKey] = useState(() => {
     const uuidFallback = () =>
@@ -601,9 +116,6 @@ export function Donate() {
     }
     return uuidFallback();
   });
-  const [verifying, setVerifying] = useState(false);
-  const [verificationError, setVerificationError] = useState("");
-  const [donationId, setDonationId] = useState("");
 
   const loadCashfreeScript = () => {
     return new Promise((resolve) => {
@@ -628,7 +140,6 @@ export function Donate() {
     }
 
     try {
-      // Load environment mode from NEXT_PUBLIC_CASHFREE_ENV (default to sandbox)
       const mode = (process.env.NEXT_PUBLIC_CASHFREE_ENV || "sandbox").toLowerCase();
       const cashfree = (window as any).Cashfree({
         mode: mode === "production" ? "production" : "sandbox",
@@ -638,7 +149,7 @@ export function Donate() {
 
       cashfree.checkout({
         paymentSessionId: sessionData.sessionId,
-        redirectTarget: "_self", // Redirects current tab to Cashfree payment page
+        redirectTarget: "_self",
       });
     } catch (err: any) {
       console.error("[Cashfree] Initialization error:", err);
@@ -647,58 +158,54 @@ export function Donate() {
     }
   };
 
+  const startPolling = (key: string) => {
+    if (pollingIntervalId) {
+      clearInterval(pollingIntervalId);
+    }
+
+    const interval = setInterval(async () => {
+      try {
+        const data = await fetchPaymentStatus(key);
+        setPaymentStatusData(data);
+
+        const currentState = data.currentState;
+
+        if (["CHARGED", "PAYMENT_VERIFIED", "DONATION_SAVED", "EMAIL_SENT", "ADMIN_NOTIFIED", "COMPLETED"].includes(currentState)) {
+          clearInterval(interval);
+          setPaymentState("success");
+          toast.success("Donation completed successfully!");
+        } else if (currentState === "FAILED") {
+          clearInterval(interval);
+          setPaymentState("failed");
+          toast.error("Payment failed.");
+        } else if (currentState === "PAYMENT_PENDING") {
+          setPaymentState("pending");
+        }
+      } catch (err) {
+        console.error("Polling error:", err);
+      }
+    }, 3000);
+
+    setPollingIntervalId(interval);
+  };
+
+  useEffect(() => {
+    return () => {
+      if (pollingIntervalId) {
+        clearInterval(pollingIntervalId);
+      }
+    };
+  }, [pollingIntervalId]);
+
   const { t, language } = useLanguage();
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const status = params.get("status");
-    const key = params.get("idempotency_key");
+    const key = params.get("idempotency_key") || params.get("order_id");
 
     if (status === "success" && key) {
-      setStep(3);
-      setVerifying(true);
-      setVerificationError("");
-
-      // Poll backend status for transaction completion
-      let pollCount = 0;
-      const interval = setInterval(async () => {
-        pollCount++;
-        try {
-          const res = await fetchPaymentStatus(key);
-
-          if (
-            ["COMPLETED", "DONATION_SAVED", "EMAIL_SENT", "ADMIN_NOTIFIED"].includes(
-              res.currentState,
-            )
-          ) {
-            clearInterval(interval);
-            setName(res.donorName || "");
-            setEmail(res.email || "");
-            setPhone(res.phone || "");
-            if (res.donationId) {
-              setDonationId(res.donationId);
-            }
-            if (res.receiptNumber) {
-              setReceiptNo(res.receiptNumber);
-            }
-            setVerifying(false);
-          } else if (res.currentState === "FAILED") {
-            clearInterval(interval);
-            setVerificationError(res.lastError || "Payment failed at gateway.");
-            setVerifying(false);
-          }
-        } catch (e: any) {
-          console.error("Error polling payment status:", e.message);
-        }
-
-        if (pollCount >= 20) {
-          clearInterval(interval);
-          setVerificationError("Verification timeout. Please check your email or contact support.");
-          setVerifying(false);
-        }
-      }, 1000);
-
-      return () => clearInterval(interval);
+      window.location.href = `/donation/payment-status?order_id=${key}`;
     } else if (status === "cancel") {
       toast.error("Donation checkout cancelled.");
       setStep(1);
@@ -729,7 +236,6 @@ export function Donate() {
     { Icon: Users, label: t("prog.human") },
   ];
 
-  // PAN card verification: 5 Letters, 4 Digits, 1 Letter
   const formattedPan = pan.toUpperCase().trim();
   const isPanValid = /^[A-Z]{5}[0-9]{4}[A-Z]{1}$/.test(formattedPan);
   const showPanError = touched && formattedPan.length > 0 && !isPanValid;
@@ -742,36 +248,50 @@ export function Donate() {
     address.trim().length > 0 &&
     isPanValid;
 
-  const handleReset = () => {
-    setSelected(2500);
-    setCustom("");
-    setName("");
-    setEmail("");
-    setPhone("");
-    setAddress("");
-    setPan("");
-    setTouched(false);
-    setStep(1);
-    setShowPaymentSelection(false);
-    setCardNumber("");
-    setCardExpiry("");
-    setCardCvv("");
-    setCardName("");
-    setUpiId("");
-    setSelectedBank("");
-    setVerificationError("");
-    setVerifying(false);
-    // Clear URL search params
-    window.history.replaceState({}, document.title, window.location.pathname);
-    // Generate new key
-    setIdempotencyKey(
-      window.crypto?.randomUUID?.() ||
-        "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, function (c) {
-          const r = (Math.random() * 16) | 0;
-          const v = c == "x" ? r : (r & 0x3) | 0x8;
-          return v.toString(16);
-        }),
-    );
+  const handleDonateNow = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setTouched(true);
+    if (!isFormValid || loading) return;
+    setLoading(true);
+    setPopupBlockerActive(false);
+    try {
+      const session = await initiateDonationPayment({
+        donorName: name,
+        email,
+        phone,
+        address,
+        panNumber: pan,
+        amount,
+        purpose: "General Donation",
+        idempotencyKey,
+      });
+
+      if (session.status === "already_completed") {
+        toast.success("This donation has already been processed!");
+        window.location.href = `/donation/payment-status?order_id=${idempotencyKey}`;
+        return;
+      }
+
+      setPaymentSession(session);
+
+      if (session.url) {
+        // Try opening in new tab
+        const newWindow = window.open(session.url, "_blank");
+        if (!newWindow || newWindow.closed || typeof newWindow.closed === "undefined") {
+          setPopupBlockerActive(true);
+          toast.warning("Popup blocker detected! Please allow popups or click the button to continue.");
+        }
+        
+        setPaymentState("waiting");
+        startPolling(idempotencyKey);
+      } else {
+        throw new Error("No payment session details returned.");
+      }
+    } catch (err: any) {
+      console.error(err);
+      toast.error(err.message || "Failed to initiate payment session.");
+      setLoading(false);
+    }
   };
 
   return (
@@ -790,7 +310,7 @@ export function Donate() {
           <div className="lg:col-span-7">
             <div className="rounded-3xl bg-surface border border-border p-7 md:p-10 shadow-sm transition-all duration-300">
               {/* STEP 1: Amount Selection */}
-              {step === 1 && (
+              {paymentState === "form" && step === 1 && (
                 <div className="space-y-6">
                   <h2 className="text-2xl md:text-3xl font-display font-semibold">
                     {t("donate.card.title")}
@@ -853,26 +373,22 @@ export function Donate() {
               )}
 
               {/* STEP 2: Donor Details Form */}
-              {step === 2 && (
+              {paymentState === "form" && step === 2 && (
                 <div className="space-y-6">
                   {/* Back button */}
                   <button
                     onClick={() => {
-                      if (showPaymentSelection) {
-                        setShowPaymentSelection(false);
-                      } else {
-                        setStep(1);
-                      }
+                      setStep(1);
                     }}
                     className="inline-flex items-center gap-1.5 text-xs font-bold text-slate-500 hover:text-slate-800 transition-colors mb-6 cursor-pointer"
                   >
                     <ArrowLeft className="h-4 w-4" />{" "}
-                    {showPaymentSelection ? "Back to Donor Details" : trans.back}
+                    {trans.back}
                   </button>
 
                   <div className="border-b border-slate-100 pb-3">
                     <h2 className="text-2xl font-display font-semibold">
-                      {showPaymentSelection ? "Choose Payment Method" : trans.donorDetails}
+                      {trans.donorDetails}
                     </h2>
                     <p className="text-xs text-muted-foreground mt-1 font-semibold">
                       Selected Donation:{" "}
@@ -882,674 +398,420 @@ export function Donate() {
                     </p>
                   </div>
 
-                  {!showPaymentSelection ? (
-                    <form
-                      onSubmit={(e) => {
-                        e.preventDefault();
-                        setTouched(true);
-                        if (!isFormValid) return;
-                        setShowPaymentSelection(true);
-                      }}
-                      className="space-y-4 text-xs font-semibold"
-                    >
-                      {/* Name */}
+                  <form
+                    onSubmit={handleDonateNow}
+                    className="space-y-4 text-xs font-semibold"
+                  >
+                    {/* Name */}
+                    <div className="space-y-1.5">
+                      <label htmlFor="donor-name" className="text-slate-500 uppercase tracking-wider">
+                        {trans.name} *
+                      </label>
+                      <input
+                        id="donor-name"
+                        name="donor-name"
+                        autoComplete="name"
+                        type="text"
+                        required
+                        value={name}
+                        onChange={(e) => setName(e.target.value)}
+                        placeholder="Your full name"
+                        className="w-full h-11 px-4 rounded-xl border border-border bg-surface-warm focus:outline-hidden focus:border-primary text-sm font-medium"
+                      />
+                    </div>
+
+                    {/* Email & Phone grid */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      {/* Email */}
                       <div className="space-y-1.5">
-                        <label htmlFor="donor-name" className="text-slate-500 uppercase tracking-wider">
-                          {trans.name} *
+                        <label htmlFor="donor-email" className="text-slate-500 uppercase tracking-wider">
+                          {trans.email} *
                         </label>
                         <input
-                          id="donor-name"
-                          name="donor-name"
-                          autoComplete="name"
-                          type="text"
+                          id="donor-email"
+                          name="donor-email"
+                          autoComplete="email"
+                          type="email"
                           required
-                          value={name}
-                          onChange={(e) => setName(e.target.value)}
-                          placeholder="Your full name"
+                          value={email}
+                          onChange={(e) => setEmail(e.target.value)}
+                          placeholder="name@example.com"
                           className="w-full h-11 px-4 rounded-xl border border-border bg-surface-warm focus:outline-hidden focus:border-primary text-sm font-medium"
                         />
                       </div>
-
-                      {/* Email & Phone grid */}
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        {/* Email */}
-                        <div className="space-y-1.5">
-                          <label htmlFor="donor-email" className="text-slate-500 uppercase tracking-wider">
-                            {trans.email} *
-                          </label>
-                          <input
-                            id="donor-email"
-                            name="donor-email"
-                            autoComplete="email"
-                            type="email"
-                            required
-                            value={email}
-                            onChange={(e) => setEmail(e.target.value)}
-                            placeholder="name@example.com"
-                            className="w-full h-11 px-4 rounded-xl border border-border bg-surface-warm focus:outline-hidden focus:border-primary text-sm font-medium"
-                          />
-                        </div>
-                        {/* Phone */}
-                        <div className="space-y-1.5">
-                          <label htmlFor="donor-phone" className="text-slate-500 uppercase tracking-wider">
-                            {trans.phone} *
-                          </label>
-                          <input
-                            id="donor-phone"
-                            name="donor-phone"
-                            autoComplete="tel"
-                            type="tel"
-                            required
-                            value={phone}
-                            onChange={(e) => setPhone(e.target.value)}
-                            placeholder="e.g., +91 98765 43210"
-                            className="w-full h-11 px-4 rounded-xl border border-border bg-surface-warm focus:outline-hidden focus:border-primary text-sm font-medium"
-                          />
-                        </div>
-                      </div>
-
-                      {/* Address */}
+                      {/* Phone */}
                       <div className="space-y-1.5">
-                        <label htmlFor="donor-address" className="text-slate-500 uppercase tracking-wider">
-                          {trans.address} *
+                        <label htmlFor="donor-phone" className="text-slate-500 uppercase tracking-wider">
+                          {trans.phone} *
                         </label>
-                        <textarea
-                          id="donor-address"
-                          name="donor-address"
-                          autoComplete="street-address"
-                          required
-                          rows={2}
-                          value={address}
-                          onChange={(e) => setAddress(e.target.value)}
-                          placeholder="House no., Street, City, State & Pincode"
-                          className="w-full p-4 rounded-xl border border-border bg-surface-warm focus:outline-hidden focus:border-primary text-sm font-medium"
-                        />
-                      </div>
-
-                      {/* PAN Card Field with Validation */}
-                      <div className="space-y-1.5">
-                        <div className="flex justify-between items-center">
-                          <label htmlFor="donor-pan" className="text-slate-500 uppercase tracking-wider">
-                            {trans.pan} *
-                          </label>
-                          <span className="text-[10px] text-slate-400 font-bold">
-                            10-characters
-                          </span>
-                        </div>
                         <input
-                          id="donor-pan"
-                          name="donor-pan"
-                          type="text"
+                          id="donor-phone"
+                          name="donor-phone"
+                          autoComplete="tel"
+                          type="tel"
                           required
-                          maxLength={10}
-                          value={pan}
-                          onBlur={() => setTouched(true)}
-                          onChange={(e) => {
-                            setPan(e.target.value.toUpperCase());
-                          }}
-                          placeholder={trans.panPlaceholder}
-                          className={`w-full h-11 px-4 rounded-xl border ${
-                            showPanError
-                              ? "border-rose-500 focus:border-rose-500"
-                              : "border-border focus:border-primary"
-                          } bg-surface-warm focus:outline-hidden text-sm font-medium uppercase`}
+                          value={phone}
+                          onChange={(e) => setPhone(e.target.value)}
+                          placeholder="e.g., +91 98765 43210"
+                          className="w-full h-11 px-4 rounded-xl border border-border bg-surface-warm focus:outline-hidden focus:border-primary text-sm font-medium"
                         />
-                        {showPanError && (
-                          <p className="text-[10px] font-bold text-rose-500 leading-snug mt-1">
-                            {trans.panError}
-                          </p>
-                        )}
-                      </div>
-
-                      {/* Tax notice */}
-                      <div className="bg-primary/5 border border-primary/10 rounded-2xl p-4 text-[10px] leading-relaxed text-slate-500">
-                        <span className="font-bold text-primary uppercase tracking-wider block mb-0.5">
-                          80G Tax Rebate Benefit
-                        </span>
-                        {trans.legalNote}
-                      </div>
-
-                      {/* Submit Button */}
-                      <button
-                        type="submit"
-                        disabled={!isFormValid || loading}
-                        className="w-full btn-saffron text-sm font-bold uppercase tracking-wider py-4 cursor-pointer flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
-                      >
-                        <Heart className="h-4.5 w-4.5 animate-pulse" />{" "}
-                        {loading
-                          ? "Processing..."
-                          : `${trans.complete} : ₹${amount.toLocaleString("en-IN")}`}
-                      </button>
-                    </form>
-                  ) : (
-                    /* Redesigned Payment Selection (Step 2.5) */
-                    <div className="relative overflow-hidden bg-white border border-slate-200/60 rounded-[24px] sm:rounded-[32px] p-4 sm:p-6 md:p-8 shadow-2xl space-y-4 sm:space-y-6 animate-scale-up text-left text-slate-800">
-                      
-                      {/* Premium Soft Mesh Gradient background (Light theme) */}
-                      <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_30%,rgba(59,130,246,0.05),transparent_60%)] bg-slate-50 pointer-events-none z-0" />
-                      
-                      {/* Floating background mesh blobs (Light theme, very subtle) */}
-                      <div className="absolute top-1/4 left-1/4 w-64 h-64 bg-blue-500/5 rounded-full blur-3xl animate-[mesh-pulse_20s_infinite] pointer-events-none z-0" />
-                      <div className="absolute bottom-1/4 right-1/4 w-72 h-72 bg-emerald-500/5 rounded-full blur-3xl animate-[mesh-pulse_25s_infinite_2s] pointer-events-none z-0" />
-                      
-                      <div className="relative z-10 space-y-4 sm:space-y-6">
-                        {/* Summary Card */}
-                        <div className="bg-slate-50 border border-slate-200/50 rounded-2xl sm:rounded-3xl p-4 sm:p-5 space-y-3 text-slate-800">
-                          <h4 className="font-display font-bold text-xs text-slate-400 uppercase tracking-widest">
-                            Donation Summary
-                          </h4>
-                          <div className="flex justify-between items-center text-xs font-semibold">
-                            <span className="text-slate-500">Total Contribution</span>
-                            <span className="text-primary font-black text-lg">
-                              ₹{amount.toLocaleString("en-IN")}
-                            </span>
-                          </div>
-                          <div className="border-t border-slate-100 pt-3 space-y-2 text-[11px] font-semibold text-slate-600">
-                            <div className="flex justify-between">
-                              <span className="text-slate-400">Donor Name:</span>
-                              <span className="text-slate-800 font-bold">{name}</span>
-                            </div>
-                            <div className="flex justify-between">
-                              <span className="text-slate-400">Email Address:</span>
-                              <span className="text-slate-800">{email}</span>
-                            </div>
-                            <div className="flex justify-between">
-                              <span className="text-slate-400">PAN Card:</span>
-                              <span className="text-slate-800 uppercase">{pan}</span>
-                            </div>
-                          </div>
-                        </div>
-
-                        {/* Premium Payment Card Graphic */}
-                        <PremiumPaymentCard
-                          paymentMethod={paymentMethod}
-                          cardNumber={cardNumber}
-                          cardName={cardName || name}
-                          cardExpiry={cardExpiry}
-                          cardCvv={cardCvv}
-                          isFlipped={isFlipped}
-                          onFlipToggle={() => setIsFlipped(!isFlipped)}
-                          verifying={verifying}
-                          verificationError={verificationError}
-                          step={step}
-                          idempotencyKey={idempotencyKey}
-                        />
-
-                        {/* Selector Tabs */}
-                        <div className="bg-slate-100 border border-slate-200/50 rounded-2xl p-1 flex font-bold text-[10px] min-[360px]:text-xs select-none gap-0.5 sm:gap-1">
-                          {[
-                            { id: "card", Icon: CreditCard, label: "Card" },
-                            { id: "upi", Icon: QrCode, label: "UPI" },
-                            { id: "netbanking", Icon: Landmark, label: "Net Bank" },
-                          ].map((m) => (
-                            <button
-                              key={m.id}
-                              type="button"
-                              onClick={() => handlePaymentMethodSelect(m.id as any)}
-                              className={`flex-1 py-2.5 sm:py-3 rounded-xl flex items-center justify-center gap-1.5 sm:gap-2 cursor-pointer transition-all ${
-                                paymentMethod === m.id
-                                  ? "bg-white text-primary shadow-xs border border-slate-200/40"
-                                  : "text-slate-450 hover:text-slate-700 hover:bg-slate-200/30"
-                              }`}
-                            >
-                              <m.Icon className="h-3.5 w-3.5 sm:h-4 sm:w-4" /> {m.label}
-                            </button>
-                          ))}
-                        </div>
-
-                        {/* Tab Contents */}
-                        <div className="bg-white rounded-2xl sm:rounded-3xl p-4 sm:p-5 border border-slate-200/60 min-h-[220px] text-slate-800">
-                          {paymentMethod === "card" && (
-                            <div className="space-y-4">
-                              {/* Inputs */}
-                              <div className="space-y-3 text-xs font-semibold text-left">
-                                <div className="space-y-1">
-                                  <label htmlFor="card-name" className="text-slate-450 uppercase tracking-widest text-[9px] font-bold">
-                                    Cardholder Name
-                                  </label>
-                                  <input
-                                    id="card-name"
-                                    name="card-name"
-                                    autoComplete="cc-name"
-                                    type="text"
-                                    value={cardName}
-                                    onFocus={() => setIsFlipped(false)}
-                                    onChange={(e) => setCardName(e.target.value.toUpperCase())}
-                                    placeholder="CARDHOLDER NAME"
-                                    className="w-full h-11 px-4 rounded-xl border border-slate-200 bg-slate-50 focus:outline-hidden focus:border-primary focus:bg-white text-sm font-semibold text-slate-800 placeholder-slate-400 transition-colors"
-                                  />
-                                </div>
-                                <div className="space-y-1">
-                                  <label htmlFor="card-number" className="text-slate-450 uppercase tracking-widest text-[9px] font-bold">
-                                    Card Number
-                                  </label>
-                                  <input
-                                    ref={cardNumberInputRef}
-                                    id="card-number"
-                                    name="card-number"
-                                    autoComplete="cc-number"
-                                    type="text"
-                                    maxLength={19}
-                                    value={cardNumber}
-                                    onFocus={() => setIsFlipped(false)}
-                                    onChange={(e) => {
-                                      const val = e.target.value.replace(/\D/g, "");
-                                      const formatted = val.match(/.{1,4}/g)?.join(" ") || val;
-                                      setCardNumber(formatted);
-                                    }}
-                                    placeholder="4111 2222 3333 4444"
-                                    className="w-full h-11 px-4 rounded-xl border border-slate-200 bg-slate-50 focus:outline-hidden focus:border-primary focus:bg-white text-sm font-semibold font-mono text-slate-800 placeholder-slate-400 transition-colors"
-                                  />
-                                </div>
-                                <div className="grid grid-cols-2 gap-3 sm:gap-4">
-                                  <div className="space-y-1">
-                                    <label htmlFor="card-expiry" className="text-slate-450 uppercase tracking-widest text-[9px] font-bold">
-                                      Expiry Date
-                                    </label>
-                                    <input
-                                      id="card-expiry"
-                                      name="card-expiry"
-                                      autoComplete="cc-exp"
-                                      type="text"
-                                      maxLength={5}
-                                      value={cardExpiry}
-                                      onFocus={() => setIsFlipped(false)}
-                                      placeholder="MM/YY"
-                                      onChange={(e) => {
-                                        let val = e.target.value.replace(/\D/g, "");
-                                        if (val.length > 2) {
-                                          val = val.substring(0, 2) + "/" + val.substring(2);
-                                        }
-                                        setCardExpiry(val);
-                                      }}
-                                      className="w-full h-11 px-4 rounded-xl border border-slate-200 bg-slate-50 focus:outline-hidden focus:border-primary focus:bg-white text-sm font-semibold font-mono text-slate-800 placeholder-slate-400 transition-colors"
-                                    />
-                                  </div>
-                                  <div className="space-y-1">
-                                    <label htmlFor="card-cvv" className="text-slate-450 uppercase tracking-widest text-[9px] font-bold">
-                                      CVV
-                                    </label>
-                                    <input
-                                      id="card-cvv"
-                                      name="card-cvv"
-                                      autoComplete="cc-csc"
-                                      type="password"
-                                      maxLength={3}
-                                      value={cardCvv}
-                                      placeholder="•••"
-                                      onFocus={() => setIsFlipped(true)}
-                                      onBlur={() => setIsFlipped(false)}
-                                      onChange={(e) => setCardCvv(e.target.value.replace(/\D/g, ""))}
-                                      className="w-full h-11 px-4 rounded-xl border border-slate-200 bg-slate-50 focus:outline-hidden focus:border-primary focus:bg-white text-sm font-semibold font-mono text-slate-800 placeholder-slate-400 transition-colors"
-                                    />
-                                  </div>
-                                </div>
-                              </div>
-                            </div>
-                          )}
-
-                          {paymentMethod === "upi" && (
-                            <div className="space-y-5 text-center flex flex-col items-center py-2">
-                              <div className="p-3 border border-slate-200 rounded-3xl bg-slate-50 shadow-inner relative group select-none">
-                                <div className="absolute inset-0 bg-primary/5 rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center pointer-events-none">
-                                  <span className="text-[10px] text-primary font-bold uppercase tracking-wider">
-                                    Scan with any UPI App
-                                  </span>
-                                </div>
-                                <div className="h-28 w-28 bg-white border border-slate-200 rounded-2xl flex items-center justify-center p-2">
-                                  <svg className="w-full h-full text-slate-800" viewBox="0 0 100 100">
-                                    <rect x="0" y="0" width="30" height="30" fill="currentColor" />
-                                    <rect x="5" y="5" width="20" height="20" fill="white" />
-                                    <rect x="70" y="0" width="30" height="30" fill="currentColor" />
-                                    <rect x="75" y="5" width="20" height="20" fill="white" />
-                                    <rect x="0" y="70" width="30" height="30" fill="currentColor" />
-                                    <rect x="5" y="75" width="20" height="20" fill="white" />
-                                    <rect x="40" y="40" width="20" height="20" fill="currentColor" />
-                                    <path
-                                      d="M40,0 h10 v10 h-10 z M50,20 h10 v10 h-10 z M80,40 h10 v20 h-10 z M0,40 h10 v10 h-10 z M20,50 h15 v10 h-15 z M60,70 h20 v10 h-20 z M80,80 h10 v10 h-10 z M50,80 h10 v10 h-10 z"
-                                      fill="currentColor"
-                                    />
-                                  </svg>
-                                </div>
-                              </div>
-                              <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest block">
-                                or pay using UPI ID
-                              </span>
-                              <div className="w-full space-y-1 text-xs font-semibold text-left">
-                                <label htmlFor="upi-id" className="sr-only">
-                                  UPI ID
-                                </label>
-                                <input
-                                  id="upi-id"
-                                  name="upi-id"
-                                  type="text"
-                                  value={upiId}
-                                  onChange={(e) => setUpiId(e.target.value.toLowerCase())}
-                                  placeholder="e.g., username@upi"
-                                  className="w-full h-11 px-4 rounded-xl border border-slate-200 bg-slate-50 focus:outline-hidden focus:border-primary focus:bg-white text-sm font-semibold font-mono text-center text-slate-800 placeholder-slate-400 transition-colors"
-                                />
-                              </div>
-                            </div>
-                          )}
-
-                          {paymentMethod === "netbanking" && (
-                            <div className="space-y-4">
-                              <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest block mb-1 text-left">
-                                Popular Banks
-                              </span>
-                              <div className="grid grid-cols-2 gap-2 text-xs font-bold">
-                                {[
-                                  { id: "sbi", label: "State Bank of India" },
-                                  { id: "hdfc", label: "HDFC Bank" },
-                                  { id: "icici", label: "ICICI Bank" },
-                                  { id: "axis", label: "Axis Bank" },
-                                ].map((bank) => (
-                                  <button
-                                    key={bank.id}
-                                    type="button"
-                                    onClick={() => setSelectedBank(bank.id)}
-                                    className={`py-3 px-4 rounded-xl border text-center transition-all cursor-pointer truncate ${
-                                      selectedBank === bank.id
-                                        ? "border-primary bg-primary/5 text-primary shadow-[0_0_10px_rgba(37,70,200,0.15)]"
-                                        : "border-slate-200 bg-slate-50 hover:bg-slate-100 text-slate-700"
-                                    }`}
-                                  >
-                                    {bank.label}
-                                  </button>
-                                ))}
-                              </div>
-                              <div className="space-y-1 text-xs font-semibold mt-3 text-left">
-                                <label htmlFor="bank-select" className="text-slate-400 uppercase tracking-widest text-[9px] font-bold block">
-                                  Other Banks
-                                </label>
-                                <select
-                                  id="bank-select"
-                                  name="bank-select"
-                                  value={selectedBank}
-                                  onChange={(e) => setSelectedBank(e.target.value)}
-                                  className="w-full h-11 px-4 rounded-xl border border-slate-200 bg-slate-50 focus:outline-hidden focus:border-primary focus:bg-white text-sm font-semibold text-slate-800 transition-colors cursor-pointer"
-                                >
-                                  <option value="">-- Select Your Bank --</option>
-                                  <option value="kotak">Kotak Mahindra Bank</option>
-                                  <option value="pnb">Punjab National Bank</option>
-                                  <option value="bob">Bank of Baroda</option>
-                                  <option value="yes">Yes Bank</option>
-                                </select>
-                              </div>
-                            </div>
-                          )}
-                        </div>
-
-                        {/* Pay CTA Button */}
-                        <button
-                          type="button"
-                          onClick={async () => {
-                            setLoading(true);
-                            try {
-                              const session = await initiateDonationPayment({
-                                donorName: name,
-                                email,
-                                phone,
-                                address,
-                                panNumber: pan,
-                                amount,
-                                purpose: "General Donation",
-                                idempotencyKey,
-                              });
-
-                              if (session.status === "already_completed") {
-                                toast.success("This donation has already been processed!");
-                                if (session.eventId) setDonationId(session.eventId);
-                                setStep(3);
-                                setLoading(false);
-                              } else if (session.url) {
-                                window.location.href = session.url;
-                              } else if (session.sessionId) {
-                                await openCashfreeCheckout(session);
-                              } else {
-                                throw new Error("No payment session details returned.");
-                              }
-                            } catch (err: any) {
-                              console.error(err);
-                              toast.error(err.message || "Failed to initiate payment session.");
-                              setLoading(false);
-                            }
-                          }}
-                          disabled={loading}
-                          className="w-full btn-saffron text-sm font-bold uppercase tracking-wider py-4 rounded-2xl flex items-center justify-center gap-2 cursor-pointer shadow-md hover:shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-                        >
-                          <Lock className="h-4 w-4 text-white animate-pulse" />
-                          {loading
-                            ? "Processing..."
-                            : `Pay Securely : ₹${amount.toLocaleString("en-IN")}`}
-                        </button>
-
-                        {/* Trust Indicators Section */}
-                        <div className="grid grid-cols-2 md:grid-cols-3 gap-2 sm:gap-2.5 pt-6 border-t border-slate-200/60">
-                          {TRUST_ITEMS.map((item, idx) => {
-                            const IconComponent = item.icon;
-                            return (
-                              <motion.div
-                                key={idx}
-                                whileHover={{ y: -4, scale: 1.02, backgroundColor: "rgba(0,0,0,0.02)" }}
-                                className="bg-slate-50 border border-slate-200/60 rounded-xl sm:rounded-2xl p-2 sm:p-3 flex flex-col items-center text-center cursor-pointer transition-all duration-300"
-                              >
-                                <IconComponent className="h-4 w-4 sm:h-4.5 sm:w-4.5 text-primary mb-1 animate-pulse" />
-                                <span className="text-[8px] sm:text-[10px] font-black text-slate-800 block tracking-wide">
-                                  {item.label}
-                                </span>
-                                <span className="text-[7px] sm:text-[8px] text-slate-400 block mt-0.5 leading-snug">
-                                  {item.desc}
-                                </span>
-                              </motion.div>
-                            );
-                          })}
-                        </div>
                       </div>
                     </div>
-                  )}
+
+                    {/* Address */}
+                    <div className="space-y-1.5">
+                      <label htmlFor="donor-address" className="text-slate-500 uppercase tracking-wider">
+                        {trans.address} *
+                      </label>
+                      <textarea
+                        id="donor-address"
+                        name="donor-address"
+                        autoComplete="street-address"
+                        required
+                        rows={2}
+                        value={address}
+                        onChange={(e) => setAddress(e.target.value)}
+                        placeholder="House no., Street, City, State & Pincode"
+                        className="w-full p-4 rounded-xl border border-border bg-surface-warm focus:outline-hidden focus:border-primary text-sm font-medium"
+                      />
+                    </div>
+
+                    {/* PAN Card Field with Validation */}
+                    <div className="space-y-1.5">
+                      <div className="flex justify-between items-center">
+                        <label htmlFor="donor-pan" className="text-slate-500 uppercase tracking-wider">
+                          {trans.pan} *
+                        </label>
+                        <span className="text-[10px] text-slate-400 font-bold">
+                          10-characters
+                        </span>
+                      </div>
+                      <input
+                        id="donor-pan"
+                        name="donor-pan"
+                        type="text"
+                        required
+                        maxLength={10}
+                        value={pan}
+                        onBlur={() => setTouched(true)}
+                        onChange={(e) => {
+                          setPan(e.target.value.toUpperCase());
+                        }}
+                        placeholder={trans.panPlaceholder}
+                        className={`w-full h-11 px-4 rounded-xl border ${
+                          showPanError
+                            ? "border-rose-500 focus:border-rose-500"
+                            : "border-border focus:border-primary"
+                        } bg-surface-warm focus:outline-hidden text-sm font-medium uppercase`}
+                      />
+                      {showPanError && (
+                        <p className="text-[10px] font-bold text-rose-500 leading-snug mt-1">
+                          {trans.panError}
+                        </p>
+                      )}
+                    </div>
+
+                    {/* Tax notice */}
+                    <div className="bg-primary/5 border border-primary/10 rounded-2xl p-4 text-[10px] leading-relaxed text-slate-500">
+                      <span className="font-bold text-primary uppercase tracking-wider block mb-0.5">
+                        80G Tax Rebate Benefit
+                      </span>
+                      {trans.legalNote}
+                    </div>
+
+                    {/* Submit Button */}
+                    <button
+                      type="submit"
+                      disabled={!isFormValid || loading}
+                      className="w-full btn-saffron text-sm font-bold uppercase tracking-wider py-4 cursor-pointer flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      <Heart className="h-4.5 w-4.5 animate-pulse" />{" "}
+                      {loading
+                        ? "Processing..."
+                        : `Donate Now : ₹${amount.toLocaleString("en-IN")}`}
+                    </button>
+                  </form>
                 </div>
               )}
 
-              {/* STEP 3: Success Confirmation */}
-              {step === 3 && (
-                <div className="text-center py-6 space-y-6 relative">
-                  {step === 3 && !verificationError && !verifying && <Confetti />}
-                  {verifying ? (
-                    <div className="py-12 flex flex-col items-center justify-center space-y-4">
-                      <Loader2 className="h-10 w-10 text-primary animate-spin" />
-                      <h3 className="font-display text-lg font-bold text-slate-800">
-                        Verifying Payment Status...
-                      </h3>
-                      <p className="text-xs text-slate-400 font-semibold max-w-xs leading-relaxed">
-                        Please do not refresh the page. We are securely validating your contribution
-                        with the bank.
-                      </p>
-                    </div>
-                  ) : verificationError ? (
-                    <div className="py-8 space-y-4 text-center">
-                      <div className="h-14 w-14 bg-rose-50 text-rose-500 rounded-full flex items-center justify-center mx-auto">
-                        <XCircle className="h-8 w-8" />
-                      </div>
-                      <h3 className="font-display text-lg font-bold text-slate-800">
-                        Verification Failed
-                      </h3>
-                      <p className="text-xs text-rose-500 font-bold max-w-sm mx-auto leading-relaxed">
-                        {verificationError}
-                      </p>
-                      <button
-                        onClick={handleReset}
-                        className="btn-ghost text-xs font-bold uppercase tracking-wider py-2.5 px-6 border border-slate-200"
-                      >
-                        Try Again
-                      </button>
-                    </div>
-                  ) : (
-                    <div className="space-y-6 animate-scale-up">
-                      {/* Success Badge & Headline (hidden during print) */}
-                      <div className="print:hidden">
-                        <div className="h-16 w-16 bg-emerald-50 text-emerald-500 rounded-full flex items-center justify-center mx-auto shadow-xs mb-4">
-                          <CheckCircle2 className="h-10 w-10" />
-                        </div>
-                        <h2 className="text-2xl md:text-3xl font-display font-bold text-slate-900">
-                          {trans.successMsg}
-                        </h2>
-                        <p className="text-sm text-slate-500 mt-2 font-medium">
-                          Thank you, <span className="font-bold text-slate-800">{name}</span>! Your
-                          contribution makes a real difference.
-                        </p>
-                      </div>
+              {/* PAYMENT STATUS TRACKING VIEW (waiting or pending) */}
+              {(paymentState === "waiting" || paymentState === "pending") && (() => {
+                const currentState = paymentStatusData?.currentState || "INITIATED";
+                const steps = [
+                  {
+                    label: "Donation Details Submitted",
+                    status: "completed",
+                  },
+                  {
+                    label: "Payment Session Created",
+                    status: "completed",
+                  },
+                  {
+                    label: "Cashfree Checkout Opened",
+                    status: popupBlockerActive ? "warning" : "completed",
+                  },
+                  {
+                    label: "Waiting for Payment",
+                    status: ["CHARGED", "PAYMENT_VERIFIED", "DONATION_SAVED", "EMAIL_SENT", "ADMIN_NOTIFIED", "COMPLETED"].includes(currentState)
+                      ? "completed"
+                      : ["INITIATED", "CHECKOUT_CREATED", "PAYMENT_PENDING"].includes(currentState)
+                      ? "active"
+                      : "future",
+                  },
+                  {
+                    label: "Verifying Payment",
+                    status: ["PAYMENT_VERIFIED", "DONATION_SAVED", "EMAIL_SENT", "ADMIN_NOTIFIED", "COMPLETED"].includes(currentState)
+                      ? "completed"
+                      : currentState === "CHARGED"
+                      ? "active"
+                      : "future",
+                  },
+                  {
+                    label: "Saving Donation",
+                    status: ["DONATION_SAVED", "EMAIL_SENT", "ADMIN_NOTIFIED", "COMPLETED"].includes(currentState)
+                      ? "completed"
+                      : currentState === "PAYMENT_VERIFIED"
+                      ? "active"
+                      : "future",
+                  },
+                  {
+                    label: "Generating Receipt",
+                    status: ["EMAIL_SENT", "ADMIN_NOTIFIED", "COMPLETED"].includes(currentState) || (paymentStatusData?.receiptNumber)
+                      ? "completed"
+                      : currentState === "DONATION_SAVED"
+                      ? "active"
+                      : "future",
+                  },
+                  {
+                    label: "Sending Confirmation Email",
+                    status: ["EMAIL_SENT", "ADMIN_NOTIFIED", "COMPLETED"].includes(currentState)
+                      ? "completed"
+                      : (currentState === "DONATION_SAVED" && paymentStatusData?.receiptNumber)
+                      ? "active"
+                      : "future",
+                  },
+                  {
+                    label: "Notifying Admin",
+                    status: ["ADMIN_NOTIFIED", "COMPLETED"].includes(currentState)
+                      ? "completed"
+                      : currentState === "EMAIL_SENT"
+                      ? "active"
+                      : "future",
+                  },
+                ];
 
-                      {/* REDESIGNED PAPER RECEIPT CARD */}
-                      <div className="max-w-lg mx-auto bg-white border border-slate-200 rounded-3xl shadow-sm p-6 md:p-8 space-y-6 relative overflow-hidden text-left text-xs font-semibold text-slate-600 print:border-none print:shadow-none print:p-0 print:m-0">
-                        {/* Receipt Header */}
-                        <div className="flex items-center justify-between pb-4 border-b border-slate-100">
-                          <div className="flex items-center gap-3">
-                            <img
-                              src={SITE.logo}
-                              alt="NGO Logo"
-                              className="h-12 w-12 object-contain"
-                            />
-                            <div>
-                              <h3 className="font-display font-bold text-sm text-slate-900">
-                                Uday Foundation Trust
-                              </h3>
-                              <span className="text-[9px] text-slate-400 block uppercase tracking-wider">
-                                Reg No: Guj/23016/Ahmedabad
-                              </span>
+                return (
+                  <div className="space-y-6">
+                    <div className="border-b border-slate-100 pb-4">
+                      <h2 className="text-2xl font-display font-semibold flex items-center gap-2 text-slate-800">
+                        <Loader2 className="h-5 w-5 animate-spin text-primary" />
+                        Payment Status
+                      </h2>
+                      <p className="text-sm text-muted-foreground mt-1 font-medium">
+                        Waiting for payment completion...
+                      </p>
+                    </div>
+
+                    {popupBlockerActive && (
+                      <div className="bg-amber-50 border border-amber-200 rounded-2xl p-4 text-xs space-y-3">
+                        <div className="flex gap-2 text-amber-800 font-bold items-start">
+                          <AlertCircle className="h-5 w-5 text-amber-600 flex-shrink-0 mt-0.5" />
+                          <div>
+                            <p>Popup Blocker Active</p>
+                            <p className="font-medium text-amber-700 mt-1">
+                              Your browser blocked opening the Cashfree payment tab. Please allow pop-ups for this site or click the button below to open checkout.
+                            </p>
+                          </div>
+                        </div>
+                        <button
+                          onClick={() => {
+                            if (paymentSession?.url) {
+                              const w = window.open(paymentSession.url, "_blank");
+                              if (w) setPopupBlockerActive(false);
+                            }
+                          }}
+                          className="btn-saffron py-2.5 px-4 font-bold text-xs uppercase tracking-wider flex items-center gap-1.5 cursor-pointer"
+                        >
+                          <ExternalLink className="h-3.5 w-3.5" />
+                          Open Cashfree Checkout
+                        </button>
+                      </div>
+                    )}
+
+                    <div className="relative pl-8 space-y-6 mt-6">
+                      {/* Vertical line connector */}
+                      <div className="absolute left-[10px] top-2 bottom-2 w-0.5 bg-slate-100" />
+
+                      {steps.map((s, idx) => {
+                        let iconEl = null;
+                        let textClass = "text-slate-400 font-semibold";
+
+                        if (s.status === "completed") {
+                          iconEl = <CheckCircle2 className="h-5 w-5 text-emerald-500 bg-surface" />;
+                          textClass = "text-slate-700 font-bold";
+                        } else if (s.status === "active") {
+                          iconEl = <Loader2 className="h-5 w-5 text-amber-500 animate-spin bg-surface" />;
+                          textClass = "text-amber-600 font-bold animate-pulse";
+                        } else if (s.status === "warning") {
+                          iconEl = <AlertCircle className="h-5 w-5 text-amber-500 bg-surface" />;
+                          textClass = "text-amber-700 font-bold";
+                        } else {
+                          iconEl = (
+                            <div className="h-5 w-5 rounded-full border-2 border-slate-200 bg-surface flex items-center justify-center">
+                              <span className="h-1.5 w-1.5 rounded-full bg-slate-200" />
                             </div>
-                          </div>
-                          <div className="text-right">
-                            <span className="px-2 py-0.5 rounded bg-emerald-50 text-emerald-600 font-bold text-[9px] uppercase tracking-wider inline-block mb-1">
-                              Payment Successful
-                            </span>
-                            <span className="text-[10px] text-slate-400 block font-mono">
-                              Date: {new Date().toLocaleDateString("en-IN")}
-                            </span>
-                          </div>
-                        </div>
+                          );
+                        }
 
-                        {/* Dashed Line separator */}
-                        <div className="border-t-2 border-dashed border-slate-200/80 my-4 relative">
-                          <div className="absolute left-[-29px] top-[-6px] h-3 w-3 rounded-full bg-surface border border-slate-200 border-l-0 print:hidden" />
-                          <div className="absolute right-[-29px] top-[-6px] h-3 w-3 rounded-full bg-surface border border-slate-200 border-r-0 print:hidden" />
-                        </div>
-
-                        {/* Receipt Main Details */}
-                        <div className="grid grid-cols-2 gap-x-4 gap-y-3.5 pt-1 text-slate-700">
-                          <div>
-                            <span className="text-slate-400 uppercase tracking-wider text-[8px] block mb-0.5">
-                              Receipt Number
-                            </span>
-                            <span className="font-mono text-slate-900 font-bold text-[11px]">
-                              {receiptNo ||
-                                `UFT-REC-${(donationId || idempotencyKey).substring(0, 8).toUpperCase()}`}
-                            </span>
+                        return (
+                          <div key={idx} className="relative flex items-center gap-4 text-sm leading-relaxed">
+                            <div className="absolute -left-[29px] flex items-center justify-center bg-surface w-6 h-6">
+                              {iconEl}
+                            </div>
+                            <span className={textClass}>{s.label}</span>
                           </div>
-                          <div>
-                            <span className="text-slate-400 uppercase tracking-wider text-[8px] block mb-0.5">
-                              PAN Number (80G Tax Exempt)
-                            </span>
-                            <span className="text-slate-900 font-bold uppercase">
-                              {pan || "N/A"}
-                            </span>
-                          </div>
-                          <div>
-                            <span className="text-slate-400 uppercase tracking-wider text-[8px] block mb-0.5">
-                              Donor Name
-                            </span>
-                            <span className="text-slate-900 font-bold">{name}</span>
-                          </div>
-                          <div>
-                            <span className="text-slate-400 uppercase tracking-wider text-[8px] block mb-0.5">
-                              Email Address
-                            </span>
-                            <span className="text-slate-900 font-bold truncate block max-w-[180px]">
-                              {email}
-                            </span>
-                          </div>
-                          <div>
-                            <span className="text-slate-400 uppercase tracking-wider text-[8px] block mb-0.5">
-                              Phone Number
-                            </span>
-                            <span className="text-slate-900 font-bold">{phone || "N/A"}</span>
-                          </div>
-                          <div>
-                            <span className="text-slate-400 uppercase tracking-wider text-[8px] block mb-0.5">
-                              Payment Method
-                            </span>
-                            <span className="text-slate-900 font-bold capitalize">
-                              {paymentMethod === "netbanking"
-                                ? "Net Banking"
-                                : paymentMethod.toUpperCase()}
-                            </span>
-                          </div>
-                        </div>
-
-                        <div className="pt-2">
-                          <span className="text-slate-400 uppercase tracking-wider text-[8px] block mb-1">
-                            Donor Address
-                          </span>
-                          <span className="text-slate-900 font-bold text-[10px] leading-relaxed block bg-slate-50 border border-slate-100 rounded-xl p-3">
-                            {address || "N/A"}
-                          </span>
-                        </div>
-
-                        {/* Amount Box */}
-                        <div className="bg-primary/5 border border-primary/10 rounded-2xl p-4 flex items-center justify-between mt-2 print:bg-slate-50">
-                          <div>
-                            <span className="text-primary font-bold text-[9px] uppercase tracking-wider block mb-0.5">
-                              Donated Amount
-                            </span>
-                            <span className="text-slate-400 text-[10px] block font-medium">
-                              INR {Number(amount).toLocaleString("en-IN")} Rupees Only
-                            </span>
-                          </div>
-                          <span className="text-primary font-bold text-xl md:text-2xl">
-                            ₹{amount.toLocaleString("en-IN")}
-                          </span>
-                        </div>
-
-                        {/* Tax Slab Notice */}
-                        <div className="border-t border-slate-100 pt-4 text-[9px] text-slate-400 font-medium leading-relaxed">
-                          <p>
-                            * This is a computer-generated tax receipt eligible for tax deduction
-                            under Section 80G of the Income Tax Act, 1961. A copy of this receipt
-                            has been emailed to you.
-                          </p>
-                        </div>
-                      </div>
-
-                      {/* Interactive Receipt Actions */}
-                      <div className="flex flex-wrap items-center justify-center gap-3 pt-2">
-                        {donationId && (
-                          <a
-                            href={`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api"}/payments/receipt/${donationId}`}
-                            target="_blank"
-                            rel="noreferrer"
-                            className="inline-flex items-center gap-1.5 bg-[#7A9D1C]/15 hover:bg-[#7A9D1C]/20 text-[#7A9D1C] text-xs font-bold py-2.5 px-4 rounded-xl transition-all cursor-pointer"
-                          >
-                            <Download className="h-4 w-4" /> Download PDF Receipt
-                          </a>
-                        )}
-                        <button
-                          onClick={() => window.print()}
-                          className="inline-flex items-center gap-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold py-2.5 px-4 rounded-xl transition-all cursor-pointer"
-                        >
-                          <Printer className="h-4 w-4" /> Print Page
-                        </button>
-                      </div>
-
-                      <div className="pt-4">
-                        <button
-                          onClick={handleReset}
-                          className="btn-primary text-xs font-bold uppercase tracking-wider py-3 px-6 cursor-pointer"
-                        >
-                          {trans.donateAgain}
-                        </button>
-                      </div>
+                        );
+                      })}
                     </div>
-                  )}
+                  </div>
+                );
+              })()}
+
+              {/* PAYMENT SUCCESS VIEW */}
+              {paymentState === "success" && (
+                <div className="space-y-6 text-center py-4">
+                  <div className="inline-flex items-center justify-center h-16 w-16 rounded-full bg-emerald-50 text-emerald-500 animate-bounce mb-2">
+                    <CheckCircle2 className="h-10 w-10" />
+                  </div>
+                  <h2 className="text-2xl md:text-3xl font-display font-semibold text-slate-800">
+                    Donation Successful
+                  </h2>
+                  <p className="text-slate-500 text-sm font-medium">
+                    Thank you for your contribution. Your donation is saved and receipt generated successfully.
+                  </p>
+
+                  <div className="bg-slate-50 border border-slate-100 rounded-2xl p-6 text-left space-y-4 text-xs font-semibold text-slate-600 max-w-md mx-auto">
+                    <div className="flex justify-between py-1.5 border-b border-slate-100">
+                      <span className="text-slate-400">Donor Name</span>
+                      <span className="text-slate-800">{paymentStatusData?.donorName || name}</span>
+                    </div>
+                    <div className="flex justify-between py-1.5 border-b border-slate-100">
+                      <span className="text-slate-400">Donation Amount</span>
+                      <span className="text-slate-800 font-bold text-primary">
+                        ₹{(paymentStatusData?.amount || amount).toLocaleString("en-IN")}
+                      </span>
+                    </div>
+                    <div className="flex justify-between py-1.5 border-b border-slate-100">
+                      <span className="text-slate-400">Transaction ID</span>
+                      <span className="text-slate-800 truncate max-w-[180px]" title={paymentStatusData?.id}>
+                        {paymentStatusData?.id}
+                      </span>
+                    </div>
+                    <div className="flex justify-between py-1.5 border-b border-slate-100">
+                      <span className="text-slate-400">Order ID</span>
+                      <span className="text-slate-800 truncate max-w-[180px]" title={paymentStatusData?.idempotencyKey}>
+                        {paymentStatusData?.idempotencyKey}
+                      </span>
+                    </div>
+                    <div className="flex justify-between py-1.5 border-b border-slate-100">
+                      <span className="text-slate-400">Payment Date</span>
+                      <span className="text-slate-800">{new Date().toLocaleDateString("en-IN")}</span>
+                    </div>
+                    <div className="flex justify-between py-1.5">
+                      <span className="text-slate-400">Receipt Number</span>
+                      <span className="text-slate-800 font-bold">{paymentStatusData?.receiptNumber || "Pending"}</span>
+                    </div>
+                  </div>
+
+                  <div className="flex flex-col sm:flex-row gap-3 items-center justify-center pt-4">
+                    <button
+                      onClick={() => {
+                        const donationId = paymentStatusData?.donationId || paymentStatusData?.id;
+                        if (donationId) {
+                          window.open(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api"}/payments/receipt/${donationId}`, "_blank");
+                        } else {
+                          toast.error("Receipt still generating, please wait a moment.");
+                        }
+                      }}
+                      className="btn-saffron w-full sm:w-auto py-3 px-6 font-bold uppercase tracking-wider text-xs flex items-center justify-center gap-1.5 cursor-pointer"
+                    >
+                      <FileDown className="h-4 w-4" />
+                      Download Receipt
+                    </button>
+                    
+                    <button
+                      onClick={() => {
+                        setPaymentState("form");
+                        setPaymentStatusData(null);
+                        setPaymentSession(null);
+                        setStep(1);
+                        setCustom("");
+                        setName("");
+                        setEmail("");
+                        setPhone("");
+                        setAddress("");
+                        setPan("");
+                        setTouched(false);
+                        setLoading(false);
+                      }}
+                      className="w-full sm:w-auto border-2 border-slate-200 hover:border-slate-300 text-slate-600 py-3 px-6 rounded-xl font-bold uppercase tracking-wider text-xs flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
+                    >
+                      <RefreshCw className="h-4 w-4" />
+                      Make Another Donation
+                    </button>
+
+                    <button
+                      onClick={() => {
+                        window.location.href = "/";
+                      }}
+                      className="w-full sm:w-auto border-2 border-slate-200 hover:border-slate-300 text-slate-600 py-3 px-6 rounded-xl font-bold uppercase tracking-wider text-xs flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
+                    >
+                      <Home className="h-4 w-4" />
+                      Return Home
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              {/* PAYMENT FAILED VIEW */}
+              {paymentState === "failed" && (
+                <div className="space-y-6 text-center py-6">
+                  <div className="inline-flex items-center justify-center h-16 w-16 rounded-full bg-rose-50 text-rose-500 animate-pulse mb-2">
+                    <XCircle className="h-10 w-10" />
+                  </div>
+                  <h2 className="text-2xl md:text-3xl font-display font-semibold text-slate-800">
+                    Payment Failed
+                  </h2>
+                  <p className="text-slate-500 text-sm font-medium max-w-md mx-auto">
+                    {paymentStatusData?.lastError || "The transaction was declined by the bank or payment gateway. Please check your credentials and try again."}
+                  </p>
+
+                  <div className="flex flex-col sm:flex-row gap-3 items-center justify-center pt-6">
+                    <button
+                      onClick={() => {
+                        setIdempotencyKey(window.crypto?.randomUUID?.() || "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, c => {
+                          const r = (Math.random() * 16) | 0;
+                          return (c == "x" ? r : (r & 0x3) | 0x8).toString(16);
+                        }));
+                        setPaymentState("form");
+                        setPaymentStatusData(null);
+                        setLoading(false);
+                      }}
+                      className="btn-saffron w-full sm:w-auto py-3.5 px-6 font-bold uppercase tracking-wider text-xs flex items-center justify-center gap-1.5 cursor-pointer"
+                    >
+                      <RefreshCw className="h-4 w-4 animate-spin-reverse" />
+                      Retry Payment
+                    </button>
+
+                    <button
+                      onClick={() => {
+                        window.location.href = "/contact";
+                      }}
+                      className="w-full sm:w-auto border-2 border-slate-200 hover:border-slate-300 text-slate-600 py-3.5 px-6 rounded-xl font-bold uppercase tracking-wider text-xs flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
+                    >
+                      Contact Support
+                    </button>
+                  </div>
                 </div>
               )}
             </div>

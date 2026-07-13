@@ -122,6 +122,21 @@ export async function createCheckoutSession(req, res, next) {
 
       // If it failed previously, we can transition it back to INITIATED and try again
       if (existingEvent.current_state === "FAILED") {
+        const newRetryCount = (existingEvent.retry_count || 0) + 1;
+        await supabase
+          .from("payment_events")
+          .update({ retry_count: newRetryCount })
+          .eq("id", existingEvent.id);
+
+        await supabase
+          .from("payment_retries")
+          .insert([{
+            payment_event_id: existingEvent.id,
+            retry_count: newRetryCount,
+            previous_state: "FAILED",
+            reason: "Retrying failed transaction attempt."
+          }]);
+
         await transitionToState(
           existingEvent.id,
           "INITIATED",
@@ -188,6 +203,8 @@ export async function createCheckoutSession(req, res, next) {
         phone: eventRecord.phone,
         description: eventRecord.purpose,
       });
+      
+      console.log("[PaymentController] sessionResult:", sessionResult);
 
       // 4. Update event record: State: CHECKOUT_CREATED, payment_id: gateway session id or order id
       const { data: updatedRecord, error: updateError } = await supabase
@@ -224,6 +241,17 @@ export async function createCheckoutSession(req, res, next) {
         gatewayErr.message ||
         (typeof gatewayErr === "string" ? gatewayErr : JSON.stringify(gatewayErr));
       console.error("[PaymentController] Payment Gateway Checkout Creation failed:", gatewayErr);
+      
+      await supabase
+        .from("failed_payments")
+        .insert([{
+          payment_event_id: eventRecord.id,
+          order_id: eventRecord.payment_id || null,
+          error_code: gatewayErr.code || gatewayErr.error?.code || "GATEWAY_ERROR",
+          error_description: errorMsg,
+          amount: eventRecord.amount
+        }]).catch(err => console.error("[PaymentController] Failed to log checkout failure:", err.message));
+
       await transitionToState(
         eventRecord.id,
         "FAILED",
@@ -247,6 +275,8 @@ export async function handleWebhook(req, res, next) {
 
   console.log(`[PaymentController] Webhook received for provider: ${provider}`);
 
+  let webhookLog = null;
+
   try {
     const gateway = getPaymentGateway();
 
@@ -268,6 +298,27 @@ export async function handleWebhook(req, res, next) {
       `[PaymentController] Webhook signature verified. Transaction ID: ${verification.gatewayTransactionId}, Event Type: ${verification.eventType}`,
     );
 
+    const payloadObject = typeof rawBody === "string" ? JSON.parse(rawBody) : rawBody;
+    const webhookEventId = payloadObject?.event_id || payloadObject?.data?.event_id || `wh_${verification.gatewayTransactionId || crypto.randomUUID()}_${Date.now()}`;
+
+    // 1. Log webhook receipt and prevent duplicates
+    const { data: logRecord, error: logError } = await supabase
+      .from("webhook_logs")
+      .insert([{
+        event_id: webhookEventId,
+        event_type: verification.eventType || "UNKNOWN",
+        raw_payload: payloadObject,
+        processed: false
+      }])
+      .select()
+      .maybeSingle();
+
+    if (logError && logError.code === "23505") {
+      console.log(`[PaymentController] Duplicate webhook ignored: ${webhookEventId}`);
+      return res.status(200).json({ received: true, status: "duplicate_webhook" });
+    }
+    webhookLog = logRecord;
+
     // If it's a success payment event, find the record and trigger the Saga state machine
     if (verification.idempotencyKey) {
       const { data: event, error } = await supabase
@@ -282,6 +333,9 @@ export async function handleWebhook(req, res, next) {
         console.warn(
           `[PaymentController] Webhook received for unknown idempotency key: ${verification.idempotencyKey}`,
         );
+        if (webhookLog) {
+          await supabase.from("webhook_logs").update({ processed: true }).eq("id", webhookLog.id).catch(() => {});
+        }
         return res.status(200).json({ received: true, warning: "unknown idempotency key" });
       }
 
@@ -299,19 +353,25 @@ export async function handleWebhook(req, res, next) {
         console.log(
           `[PaymentController] Transaction ${event.id} already completed or processing. Webhook ignored.`,
         );
+        if (webhookLog) {
+          await supabase.from("webhook_logs").update({ processed: true }).eq("id", webhookLog.id).catch(() => {});
+        }
         return res.status(200).json({ received: true, status: "already_processed" });
       }
 
-      // Update state to CHARGED and transaction ID only if it is in a pending checkout state
+      // Update state to CHARGED/FAILED and transaction ID only if it is in a pending checkout state
       const { data: updatedEvent, error: updateError } = await supabase
         .from("payment_events")
         .update({
           gateway_transaction_id: verification.gatewayTransactionId,
-          current_state: "CHARGED",
+          current_state: verification.status === "FAILED" ? "FAILED" : "CHARGED",
+          payment_method: verification.paymentMethod || null,
+          gateway_response: verification.gatewayResponse || null,
+          last_error: verification.status === "FAILED" ? (verification.error || "Payment failed webhook") : null,
           updated_at: new Date().toISOString(),
         })
         .eq("id", event.id)
-        .in("current_state", ["INITIATED", "CHECKOUT_CREATED"])
+        .in("current_state", ["INITIATED", "CHECKOUT_CREATED", "PAYMENT_PENDING"])
         .select()
         .maybeSingle();
 
@@ -321,7 +381,31 @@ export async function handleWebhook(req, res, next) {
         console.log(
           `[PaymentController] Webhook: State has already transitioned. Skipping duplicate Saga execution.`,
         );
+        if (webhookLog) {
+          await supabase.from("webhook_logs").update({ processed: true }).eq("id", webhookLog.id).catch(() => {});
+        }
         return res.status(200).json({ received: true, status: "already_processed" });
+      }
+
+      if (updatedEvent.current_state === "FAILED") {
+        await supabase
+          .from("failed_payments")
+          .insert([{
+            payment_event_id: updatedEvent.id,
+            order_id: updatedEvent.payment_id || null,
+            error_code: verification.errorCode || "WEBHOOK_PAYMENT_FAILED",
+            error_description: verification.error || "Payment failed webhook event",
+            amount: updatedEvent.amount
+          }]).catch(err => console.error("[PaymentController] Failed to log failed webhook payment:", err.message));
+
+        const { sendDonationFailed } = await import("../utils/emailService.js");
+        sendDonationFailed(updatedEvent.email, updatedEvent.donor_name, updatedEvent.amount)
+          .catch(err => console.error("[PaymentController] Failed to send payment failure email:", err.message));
+        
+        if (webhookLog) {
+          await supabase.from("webhook_logs").update({ processed: true }).eq("id", webhookLog.id).catch(() => {});
+        }
+        return res.status(200).json({ received: true, status: "payment_failed" });
       }
 
       // Run Saga orchestrator asynchronously in the background so the webhook response returns immediately
@@ -337,8 +421,14 @@ export async function handleWebhook(req, res, next) {
       });
     }
 
+    if (webhookLog) {
+      await supabase.from("webhook_logs").update({ processed: true }).eq("id", webhookLog.id).catch(() => {});
+    }
     res.status(200).json({ received: true });
   } catch (err) {
+    if (webhookLog) {
+      await supabase.from("webhook_logs").update({ processed: false, error: err.message }).eq("id", webhookLog.id).catch(() => {});
+    }
     next(err);
   }
 }
@@ -529,6 +619,8 @@ export async function getPaymentStatus(req, res, next) {
             .update({
               gateway_transaction_id: verification.gatewayTransactionId,
               current_state: "CHARGED",
+              payment_method: verification.paymentMethod || null,
+              gateway_response: verification.gatewayResponse || null,
               updated_at: new Date().toISOString(),
             })
             .eq("id", event.id)
@@ -545,6 +637,23 @@ export async function getPaymentStatus(req, res, next) {
                 console.error(`[PaymentController] Background Saga failed for ${updatedEvent.id}:`, sagaErr.message);
               }
             });
+          }
+        } else if (verification.status && ["FAILED", "USER_DROPPED", "CANCELLED", "TERMINATED"].includes(verification.status)) {
+          const { data: updatedEvent } = await supabase
+            .from("payment_events")
+            .update({
+              current_state: "FAILED",
+              last_error: verification.error || `Payment gateway returned status: ${verification.status}`,
+              updated_at: new Date().toISOString(),
+            })
+            .eq("id", event.id)
+            .select()
+            .maybeSingle();
+          if (updatedEvent) {
+            currentState = "FAILED";
+            const { sendDonationFailed } = await import("../utils/emailService.js");
+            sendDonationFailed(updatedEvent.email, updatedEvent.donor_name, updatedEvent.amount)
+              .catch(err => console.error("[PaymentController] Failed to send payment failure email:", err.message));
           }
         }
       } catch (gatewayErr) {
@@ -576,6 +685,7 @@ export async function getPaymentStatus(req, res, next) {
       receiptNumber: donation?.receiptNumber || null,
       donationId: donation?.id || null,
       lastError: event.last_error,
+      paymentMethod: event.payment_method || null,
     });
   } catch (err) {
     next(err);
@@ -630,10 +740,12 @@ export async function verifyCashfreePaymentStatus(req, res, next) {
         .update({
           gateway_transaction_id: verification.gatewayTransactionId,
           current_state: "CHARGED",
+          payment_method: verification.paymentMethod || null,
+          gateway_response: verification.gatewayResponse || null,
           updated_at: new Date().toISOString(),
         })
         .eq("id", event.id)
-        .in("current_state", ["INITIATED", "CHECKOUT_CREATED"])
+        .in("current_state", ["INITIATED", "CHECKOUT_CREATED", "PAYMENT_PENDING"])
         .select()
         .maybeSingle();
 
