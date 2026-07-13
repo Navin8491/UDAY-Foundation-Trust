@@ -32,7 +32,11 @@ async function recoverTransaction(event) {
           const provider = (process.env.PAYMENT_PROVIDER || "mock").toLowerCase();
 
           if (["stripe", "cashfree"].includes(provider)) {
-            const verification = await gateway.verifyOrderPayment(event.payment_id);
+            let lookupId = event.payment_id;
+            if (provider === "cashfree" && lookupId && lookupId.startsWith("session_")) {
+              lookupId = event.idempotency_key;
+            }
+            const verification = await gateway.verifyOrderPayment(lookupId);
             if (verification.success && verification.status === "PAID") {
               isPaid = true;
               transactionId = verification.gatewayTransactionId;

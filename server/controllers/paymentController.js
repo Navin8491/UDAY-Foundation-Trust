@@ -612,8 +612,11 @@ export async function getPaymentStatus(req, res, next) {
     // Check directly with payment gateway if pending to prevent delays
     if (["INITIATED", "CHECKOUT_CREATED", "PAYMENT_PENDING"].includes(currentState)) {
       try {
-        const gateway = getPaymentGateway();
-        const verification = await gateway.verifyOrderPayment(event.payment_id || event.idempotency_key);
+        let lookupId = event.payment_id || event.idempotency_key;
+        if (process.env.PAYMENT_PROVIDER === "cashfree" && lookupId && lookupId.startsWith("session_")) {
+          lookupId = event.idempotency_key;
+        }
+        const verification = await gateway.verifyOrderPayment(lookupId);
         if (verification.success && verification.status === "PAID") {
           const { data: updatedEvent, error: updateError } = await supabase
             .from("payment_events")
