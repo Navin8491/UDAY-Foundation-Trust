@@ -250,7 +250,7 @@ class CashfreeGateway extends PaymentGateway {
 
     return {
       sessionId: order.payment_session_id,
-      url: `https://${this.env === "production" ? "payments" : "payments-test"}.cashfree.com/order/#token=${order.payment_session_id}`,
+      url: `https://${this.env === "production" ? "payments" : "payments-test"}.cashfree.com/order/?token=${order.payment_session_id}`,
       orderId: order.order_id,
       amount: order.order_amount,
       currency: order.order_currency,

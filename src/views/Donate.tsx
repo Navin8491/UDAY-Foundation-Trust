@@ -254,6 +254,10 @@ export function Donate() {
     if (!isFormValid || loading) return;
     setLoading(true);
     setPopupBlockerActive(false);
+
+    // Pre-open a blank tab synchronously to bypass the browser's popup blocker
+    const checkoutWindow = window.open("about:blank", "_blank");
+
     try {
       const session = await initiateDonationPayment({
         donorName: name,
@@ -267,6 +271,7 @@ export function Donate() {
       });
 
       if (session.status === "already_completed") {
+        if (checkoutWindow) checkoutWindow.close();
         toast.success("This donation has already been processed!");
         window.location.href = `/donation/payment-status?order_id=${idempotencyKey}`;
         return;
@@ -275,21 +280,34 @@ export function Donate() {
       setPaymentSession(session);
 
       if (session.url) {
-        // Try opening in new tab
-        const newWindow = window.open(session.url, "_blank");
-        if (!newWindow || newWindow.closed || typeof newWindow.closed === "undefined") {
-          setPopupBlockerActive(true);
-          toast.warning("Popup blocker detected! Please allow popups or click the button to continue.");
+        if (checkoutWindow) {
+          // Redirect the pre-opened blank window to the Cashfree hosted page URL
+          checkoutWindow.location.href = session.url;
+        } else {
+          // Fallback if the tab pre-opening failed
+          const fallbackWindow = window.open(session.url, "_blank");
+          if (!fallbackWindow || fallbackWindow.closed) {
+            setPopupBlockerActive(true);
+            toast.warning("Popup blocker detected! Please allow popups or click the button to continue.");
+          }
         }
         
         setPaymentState("waiting");
         startPolling(idempotencyKey);
       } else {
+        if (checkoutWindow) checkoutWindow.close();
         throw new Error("No payment session details returned.");
       }
     } catch (err: any) {
+      if (checkoutWindow) checkoutWindow.close();
       console.error(err);
       toast.error(err.message || "Failed to initiate payment session.");
+      
+      // Regenerate key so retry starts fresh
+      setIdempotencyKey(window.crypto?.randomUUID?.() || "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, c => {
+        const r = (Math.random() * 16) | 0;
+        return (c == "x" ? r : (r & 0x3) | 0x8).toString(16);
+      }));
       setLoading(false);
     }
   };
@@ -672,6 +690,29 @@ export function Donate() {
                           </div>
                         );
                       })}
+                    </div>
+
+                    <div className="pt-6 border-t border-slate-100 flex flex-col sm:flex-row gap-3">
+                      <button
+                        onClick={() => {
+                          if (pollingIntervalId) {
+                            clearInterval(pollingIntervalId);
+                          }
+                          // Regenerate idempotency key to prevent session reuse
+                          setIdempotencyKey(window.crypto?.randomUUID?.() || "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, c => {
+                            const r = (Math.random() * 16) | 0;
+                            return (c == "x" ? r : (r & 0x3) | 0x8).toString(16);
+                          }));
+                          setPaymentState("form");
+                          setPaymentStatusData(null);
+                          setPaymentSession(null);
+                          setLoading(false);
+                        }}
+                        className="w-full sm:w-auto border-2 border-slate-200 hover:border-slate-300 text-slate-600 py-2.5 px-5 rounded-xl font-bold uppercase tracking-wider text-xs flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
+                      >
+                        <ArrowLeft className="h-4 w-4" />
+                        Modify Details / Cancel
+                      </button>
                     </div>
                   </div>
                 );
