@@ -167,6 +167,12 @@ router.post("/donations", publicFormLimiter, validateBody(donationSchema), creat
 
 // Payment Gateway routes
 router.post("/payments/create-session", publicFormLimiter, createCheckoutSession);
+router.get("/payments/webhook", (req, res) => {
+  res.json({
+    status: "active",
+    message: "UDAY Foundation Trust Cashfree Webhook receiver is active and ready to receive POST events.",
+  });
+});
 router.post("/payments/webhook", handleWebhook);
 router.post("/payments/verify-signature", verifyCashfreePaymentStatus);
 router.get("/payments/receipt/:id", downloadReceipt);
