@@ -165,19 +165,6 @@ router.delete("/contact/:id", protectAdmin, deleteContactMessage);
 router.get("/donations", protectAdmin, getDonations);
 router.post("/donations", publicFormLimiter, validateBody(donationSchema), createDonation);
 
-router.get("/payments/diagnostic-config", (req, res) => {
-  res.json({
-    PAYMENT_PROVIDER: process.env.PAYMENT_PROVIDER || null,
-    CASHFREE_APP_ID_EXISTS: !!process.env.CASHFREE_APP_ID,
-    CASHFREE_APP_ID_LENGTH: process.env.CASHFREE_APP_ID ? process.env.CASHFREE_APP_ID.length : 0,
-    CASHFREE_SECRET_KEY_EXISTS: !!process.env.CASHFREE_SECRET_KEY,
-    CASHFREE_SECRET_KEY_LENGTH: process.env.CASHFREE_SECRET_KEY ? process.env.CASHFREE_SECRET_KEY.length : 0,
-    CASHFREE_ENVIRONMENT: process.env.CASHFREE_ENVIRONMENT || null,
-    CASHFREE_ENV: process.env.CASHFREE_ENV || null,
-    NODE_ENV: process.env.NODE_ENV || null,
-  });
-});
-
 // Payment Gateway routes
 router.post("/payments/create-session", publicFormLimiter, createCheckoutSession);
 router.post("/payments/webhook", handleWebhook);
