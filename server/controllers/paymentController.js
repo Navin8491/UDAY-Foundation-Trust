@@ -210,7 +210,7 @@ export async function createCheckoutSession(req, res, next) {
       const { data: updatedRecord, error: updateError } = await supabase
         .from("payment_events")
         .update({
-          payment_id: sessionResult.sessionId || sessionResult.orderId,
+          payment_id: sessionResult.orderId || sessionResult.sessionId,
           current_state: "CHECKOUT_CREATED",
           updated_at: new Date().toISOString(),
         })
