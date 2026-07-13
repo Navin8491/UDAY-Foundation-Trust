@@ -173,6 +173,14 @@ router.get("/payments/webhook", (req, res) => {
     message: "UDAY Foundation Trust Cashfree Webhook receiver is active and ready to receive POST events.",
   });
 });
+router.get("/payments/diagnostic-config", (req, res) => {
+  res.json({
+    appId: process.env.CASHFREE_APP_ID ? `${process.env.CASHFREE_APP_ID.substring(0, 6)}...` : "missing",
+    secretKey: process.env.CASHFREE_SECRET_KEY ? `${process.env.CASHFREE_SECRET_KEY.substring(0, 12)}...` : "missing",
+    environment: process.env.CASHFREE_ENVIRONMENT,
+    paymentProvider: process.env.PAYMENT_PROVIDER
+  });
+});
 router.post("/payments/webhook", handleWebhook);
 router.post("/payments/verify-signature", verifyCashfreePaymentStatus);
 router.get("/payments/receipt/:id", downloadReceipt);
