@@ -1,5 +1,10 @@
-import HomeView from "@/views/Home";
+import dynamic from "next/dynamic";
+import { PageSkeleton } from "@/components/site/Skeleton";
 import { Metadata } from "next";
+
+const HomeView = dynamic(() => import("@/views/Home"), {
+  loading: () => <PageSkeleton />,
+});
 
 export const metadata: Metadata = {
   title: "Uday Foundation Trust — NGO in Sanand, Gujarat | Service is True Dharma",

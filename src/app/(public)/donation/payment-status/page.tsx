@@ -1,5 +1,10 @@
-import PaymentStatusView from "../../../../views/PaymentStatus";
+import dynamic from "next/dynamic";
+import { PageSkeleton } from "@/components/site/Skeleton";
 import { Metadata } from "next";
+
+const PaymentStatusView = dynamic(() => import("../../../../views/PaymentStatus"), {
+  loading: () => <PageSkeleton />,
+});
 
 export const metadata: Metadata = {
   title: "Payment Status | Uday Foundation Trust",

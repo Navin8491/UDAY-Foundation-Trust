@@ -1,5 +1,10 @@
-import GalleryView from "@/views/Gallery";
+import dynamic from "next/dynamic";
+import { PageSkeleton } from "@/components/site/Skeleton";
 import { Metadata } from "next";
+
+const GalleryView = dynamic(() => import("@/views/Gallery"), {
+  loading: () => <PageSkeleton />,
+});
 
 export const metadata: Metadata = {
   title: "Photo Gallery | Uday Foundation Trust — Community Impact in Gujarat",

@@ -1,5 +1,10 @@
-import DonateView from "@/views/Donate";
+import dynamic from "next/dynamic";
+import { PageSkeleton } from "@/components/site/Skeleton";
 import { Metadata } from "next";
+
+const DonateView = dynamic(() => import("@/views/Donate"), {
+  loading: () => <PageSkeleton />,
+});
 
 export const metadata: Metadata = {
   title: "Donate | Support Rural Gujarat — Uday Foundation Trust",

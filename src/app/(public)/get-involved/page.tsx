@@ -1,5 +1,10 @@
-import GetInvolvedView from "@/views/GetInvolved";
+import dynamic from "next/dynamic";
+import { PageSkeleton } from "@/components/site/Skeleton";
 import { Metadata } from "next";
+
+const GetInvolvedView = dynamic(() => import("@/views/GetInvolved"), {
+  loading: () => <PageSkeleton />,
+});
 
 export const metadata: Metadata = {
   title: "Get Involved | Volunteer with Uday Foundation Trust — Gujarat",

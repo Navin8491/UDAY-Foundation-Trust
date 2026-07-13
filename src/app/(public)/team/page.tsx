@@ -1,5 +1,10 @@
-import TeamView from "@/views/Team";
+import dynamic from "next/dynamic";
+import { PageSkeleton } from "@/components/site/Skeleton";
 import { Metadata } from "next";
+
+const TeamView = dynamic(() => import("@/views/Team"), {
+  loading: () => <PageSkeleton />,
+});
 
 export const metadata: Metadata = {
   title: "Our Team | Uday Foundation Trust — Dedicated Volunteers & Leaders",

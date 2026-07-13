@@ -1,5 +1,10 @@
-import EventsView from "@/views/Events";
+import dynamic from "next/dynamic";
+import { PageSkeleton } from "@/components/site/Skeleton";
 import { Metadata } from "next";
+
+const EventsView = dynamic(() => import("@/views/Events"), {
+  loading: () => <PageSkeleton />,
+});
 
 export const metadata: Metadata = {
   title: "Events | Uday Foundation Trust — Community Programs in Gujarat",

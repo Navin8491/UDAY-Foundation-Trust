@@ -1,5 +1,10 @@
-import ProgramsView from "@/views/Programs";
+import dynamic from "next/dynamic";
+import { PageSkeleton } from "@/components/site/Skeleton";
 import { Metadata } from "next";
+
+const ProgramsView = dynamic(() => import("@/views/Programs"), {
+  loading: () => <PageSkeleton />,
+});
 
 export const metadata: Metadata = {
   title: "Our Programs | Education, Healthcare & More — Uday Foundation Trust",

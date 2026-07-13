@@ -1,5 +1,10 @@
-import ContactView from "@/views/Contact";
+import dynamic from "next/dynamic";
+import { PageSkeleton } from "@/components/site/Skeleton";
 import { Metadata } from "next";
+
+const ContactView = dynamic(() => import("@/views/Contact"), {
+  loading: () => <PageSkeleton />,
+});
 
 export const metadata: Metadata = {
   title: "Contact Us | Uday Foundation Trust — Sanand, Gujarat",

@@ -1,5 +1,10 @@
-import TransparencyView from "@/views/Transparency";
+import dynamic from "next/dynamic";
+import { PageSkeleton } from "@/components/site/Skeleton";
 import { Metadata } from "next";
+
+const TransparencyView = dynamic(() => import("@/views/Transparency"), {
+  loading: () => <PageSkeleton />,
+});
 
 export const metadata: Metadata = {
   title: "Transparency | Uday Foundation Trust — Financial Reports & Certifications",
