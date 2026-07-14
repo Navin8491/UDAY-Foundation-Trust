@@ -271,10 +271,13 @@ export async function createCheckoutSession(req, res, next) {
  * Direct callbacks from Stripe or Razorpay.
  */
 export async function handleWebhook(req, res, next) {
+  const timestamp = new Date().toISOString();
   const signature = req.headers["stripe-signature"] || req.headers["x-razorpay-signature"] || req.headers["x-webhook-signature"] || "";
   const provider = (process.env.PAYMENT_PROVIDER || "mock").toLowerCase();
 
-  console.log(`[PaymentController] Webhook received for provider: ${provider}`);
+  console.log(`[${timestamp}] [Webhook] Received from provider: ${provider}`);
+  console.log(`[${timestamp}] [Webhook] Headers:`, JSON.stringify(req.headers));
+  console.log(`[${timestamp}] [Webhook] Signature: ${signature}`);
 
   let webhookLog = null;
 
@@ -283,10 +286,17 @@ export async function handleWebhook(req, res, next) {
 
     // Stripe webhooks require the raw request body to verify signatures correctly
     const rawBody = req.rawBody || req.body;
+    
+    let logPayload = rawBody;
+    if (Buffer.isBuffer(rawBody)) {
+      logPayload = rawBody.toString("utf8");
+    }
+    console.log(`[${timestamp}] [Webhook] Raw Payload:`, typeof logPayload === "string" ? logPayload : JSON.stringify(logPayload));
 
     const verification = await gateway.verifyWebhook(rawBody, signature, req.headers);
 
     if (!verification.success) {
+      console.error(`[${timestamp}] [Webhook] Signature verification failed. Error: ${verification.error || "unknown"}`);
       res.status(400);
       return next(
         new Error(
@@ -296,10 +306,10 @@ export async function handleWebhook(req, res, next) {
     }
 
     console.log(
-      `[PaymentController] Webhook signature verified. Transaction ID: ${verification.gatewayTransactionId}, Event Type: ${verification.eventType}`,
+      `[${timestamp}] [Webhook] Signature verified. Transaction ID: ${verification.gatewayTransactionId}, Event Type: ${verification.eventType}`,
     );
 
-    const payloadObject = typeof rawBody === "string" ? JSON.parse(rawBody) : rawBody;
+    const payloadObject = typeof logPayload === "string" ? JSON.parse(logPayload) : logPayload;
     const webhookEventId = payloadObject?.event_id || payloadObject?.data?.event_id || `wh_${verification.gatewayTransactionId || crypto.randomUUID()}_${Date.now()}`;
 
     // 1. Log webhook receipt and prevent duplicates
@@ -616,7 +626,10 @@ export async function getPaymentStatus(req, res, next) {
         if (process.env.PAYMENT_PROVIDER === "cashfree" && lookupId && lookupId.startsWith("session_")) {
           lookupId = event.idempotency_key;
         }
+        console.log(`[${new Date().toISOString()}] [StatusQuery] Querying status for idempotencyKey: ${idempotencyKey}, lookupId: ${lookupId}`);
+        const gateway = getPaymentGateway();
         const verification = await gateway.verifyOrderPayment(lookupId);
+        console.log(`[${new Date().toISOString()}] [StatusQuery] Gateway response:`, JSON.stringify(verification));
         if (verification.success && verification.status === "PAID") {
           const { data: updatedEvent, error: updateError } = await supabase
             .from("payment_events")

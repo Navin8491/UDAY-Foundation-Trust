@@ -112,23 +112,24 @@ export function PaymentStatus() {
       if (successStates.includes(res.currentState)) {
         setVerifying(false);
         setVerificationError("");
-        return true; // Stop polling
+        return { shouldStop: true, state: res.currentState };
       } else if (res.currentState === "FAILED") {
         setVerifying(false);
         setVerificationError(res.lastError || "Payment failed or was cancelled at checkout.");
-        return true; // Stop polling
+        return { shouldStop: true, state: res.currentState };
       }
+      return { shouldStop: false, state: res.currentState };
     } catch (e: any) {
       console.error("[PaymentStatus] Polling error:", e);
     }
-    return false; // Continue polling
+    return { shouldStop: false, state: "ERROR" };
   };
 
   useEffect(() => {
     if (!orderId) return;
 
     let pollCount = 0;
-    const maxPolls = 30; // 30 seconds max polling
+    const maxPolls = 100; // 5 minutes max polling (100 polls * 3s)
 
     // Initial immediate check
     pollStatus(orderId);
@@ -136,15 +137,18 @@ export function PaymentStatus() {
     const interval = setInterval(async () => {
       pollCount++;
       setRetryCount(pollCount);
-      const shouldStop = await pollStatus(orderId);
-      if (shouldStop || pollCount >= maxPolls) {
+      const result = await pollStatus(orderId);
+      
+      const isStillPending = ["INITIATED", "CHECKOUT_CREATED", "PAYMENT_PENDING", "ERROR"].includes(result.state);
+
+      if (result.shouldStop || (pollCount >= maxPolls && isStillPending)) {
         clearInterval(interval);
         if (pollCount >= maxPolls && verifying) {
           setVerifying(false);
           setVerificationError("Verification timeout. The payment status check is taking longer than expected. Please wait or contact support.");
         }
       }
-    }, 1000);
+    }, 3000);
 
     return () => clearInterval(interval);
   }, [orderId]);
