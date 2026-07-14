@@ -962,6 +962,25 @@ export function subscribeDonations(callback: (items: any[]) => void, onError?: (
   };
 }
 
+export function subscribeVolunteers(callback: (items: any[]) => void, onError?: (err: any) => void) {
+  fetchVolunteerApplications()
+    .then(callback)
+    .catch((err: any) => {
+      if (onError) onError(err);
+    });
+
+  const channel = supabase
+    .channel("public-volunteers-changes-" + Math.random().toString(36).slice(2))
+    .on("postgres_changes", { event: "*", schema: "public", table: "volunteers" }, () => {
+      fetchVolunteerApplications().then(callback).catch(onError);
+    })
+    .subscribe();
+
+  return () => {
+    supabase.removeChannel(channel);
+  };
+}
+
 export interface NotificationItem {
   id: string;
   type: "volunteer" | "partnership" | "donation" | "contact" | "event" | "program" | "system";

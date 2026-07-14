@@ -4,10 +4,10 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import {
   fetchEvents,
-  fetchVolunteers,
   fetchPartnerships,
-  subscribeDonations,
   subscribeNotifications,
+  subscribePaymentEvents,
+  subscribeVolunteers,
   NotificationItem,
 } from "@/services/db";
 import {
@@ -16,31 +16,10 @@ import {
   DollarSign,
   Plus,
   Building2,
-  ArrowUpRight,
   Bell,
   Activity,
+  ArrowUpRight,
 } from "lucide-react";
-
-// Projected/estimated trend data for chart illustration — not live database figures
-const DONATIONS_DATA = [
-  { month: "Jan", amount: 120000, display: "₹1,20,000" },
-  { month: "Feb", amount: 180000, display: "₹1,80,000" },
-  { month: "Mar", amount: 150000, display: "₹1,50,000" },
-  { month: "Apr", amount: 220000, display: "₹2,20,000" },
-  { month: "May", amount: 340000, display: "₹3,40,000" },
-  { month: "Jun", amount: 290000, display: "₹2,90,000" },
-  { month: "Jul", amount: 410000, display: "₹4,10,000" },
-];
-
-const VOLUNTEER_GROWTH = [
-  { month: "Jan", count: 420 },
-  { month: "Feb", count: 460 },
-  { month: "Mar", count: 510 },
-  { month: "Apr", count: 530 },
-  { month: "May", count: 580 },
-  { month: "Jun", count: 620 },
-  { month: "Jul", count: 650 },
-];
 
 const VISITORS_DATA = [
   { day: "Mon", visitors: 1200 },
@@ -63,8 +42,11 @@ export function Dashboard() {
   const [selectedChart, setSelectedChart] = useState<"donations" | "volunteers">("donations");
   const [hoveredDonIndex, setHoveredDonIndex] = useState<number | null>(null);
 
+  const [paymentEvents, setPaymentEvents] = useState<any[]>([]);
+  const [volunteersList, setVolunteersList] = useState<any[]>([]);
+
   const [donorsCount, setDonorsCount] = useState(0);
-  const [totalDonationsAmount, setTotalDonationsAmount] = useState(166500);
+  const [totalDonationsAmount, setTotalDonationsAmount] = useState(0);
   const [volunteersCount, setVolunteersCount] = useState(0);
   const [partnersCount, setPartnersCount] = useState(0);
   const [eventsCount, setEventsCount] = useState(0);
@@ -87,6 +69,15 @@ export function Dashboard() {
   const [recentPartners, setRecentPartners] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
+  const getStatusLabel = (status: string) => {
+    if (["COMPLETED", "DONATION_SAVED", "EMAIL_SENT", "ADMIN_NOTIFIED"].includes(status))
+      return "Success";
+    if (status === "FAILED") return "Failed";
+    if (status === "REFUNDED" || status === "REFUND_INITIATED" || status === "REFUND_FAILED")
+      return "Refunded";
+    return "Pending";
+  };
+
   useEffect(() => {
     async function loadStats() {
       try {
@@ -94,20 +85,11 @@ export function Dashboard() {
         const events = await fetchEvents();
         setEventsCount(events.length);
 
-        const volunteers = await fetchVolunteers();
-        setVolunteersCount(volunteers.length);
-        setVolPending(volunteers.filter((v) => v.status === "pending").length);
-        setVolApproved(volunteers.filter((v) => v.status === "approved").length);
-        setVolRejected(volunteers.filter((v) => v.status === "rejected").length);
-        // Take latest 4 for list
-        setRecentVolunteers([...volunteers].reverse().slice(0, 4));
-
         const partnerships = await fetchPartnerships();
         setPartnersCount(partnerships.length);
         setPartPending(partnerships.filter((p) => p.status === "pending").length);
         setPartApproved(partnerships.filter((p) => p.status === "approved").length);
         setPartRejected(partnerships.filter((p) => p.status === "rejected").length);
-        // Take latest 4 for list
         setRecentPartners([...partnerships].reverse().slice(0, 4));
       } catch (e) {
         console.error("Dashboard stats query failed:", e);
@@ -117,36 +99,51 @@ export function Dashboard() {
     }
     loadStats();
 
-    // Subscribe to donations changes in real-time
-    const unsubscribeDonations = subscribeDonations(
-      (donations) => {
-        setDonorsCount(donations.length);
-        const sum = donations.reduce((acc, curr) => acc + (Number(curr.amount) || 0), 0);
-        setTotalDonationsAmount(166500 + sum);
+    // Subscribe to payment events in real-time
+    const unsubscribePaymentEvents = subscribePaymentEvents(
+      (events) => {
+        setPaymentEvents(events || []);
+        
+        const successEvents = (events || []).filter(e => 
+          ["COMPLETED", "DONATION_SAVED", "EMAIL_SENT", "ADMIN_NOTIFIED"].includes(e.current_state)
+        );
+
+        setDonorsCount(successEvents.length);
+        const sum = successEvents.reduce((acc, curr) => acc + (Number(curr.amount) || 0), 0);
+        setTotalDonationsAmount(sum);
 
         const todayStr = new Date().toISOString().split("T")[0];
         const currentMonthStr = new Date().toISOString().substring(0, 7);
 
-        const todaySum = donations
-          .filter((d) => {
-            const dDate = d.createdAt || d.created_at;
-            return dDate && dDate.split("T")[0] === todayStr;
-          })
+        const todaySum = successEvents
+          .filter((d) => d.created_at && d.created_at.split("T")[0] === todayStr)
           .reduce((acc, curr) => acc + (Number(curr.amount) || 0), 0);
 
-        const monthSum = donations
-          .filter((d) => {
-            const dDate = d.createdAt || d.created_at;
-            return dDate && dDate.substring(0, 7) === currentMonthStr;
-          })
+        const monthSum = successEvents
+          .filter((d) => d.created_at && d.created_at.substring(0, 7) === currentMonthStr)
           .reduce((acc, curr) => acc + (Number(curr.amount) || 0), 0);
 
         setDonationsToday(todaySum);
         setDonationsThisMonth(monthSum);
       },
       (err) => {
-        console.error("Realtime donations subscription failed:", err);
+        console.error("Realtime payment events subscription failed in Dashboard:", err);
+      }
+    );
+
+    // Subscribe to volunteers list in real-time
+    const unsubscribeVolunteers = subscribeVolunteers(
+      (volunteers) => {
+        setVolunteersList(volunteers || []);
+        setVolunteersCount((volunteers || []).length);
+        setVolPending((volunteers || []).filter((v) => v.status === "pending").length);
+        setVolApproved((volunteers || []).filter((v) => v.status === "approved").length);
+        setVolRejected((volunteers || []).filter((v) => v.status === "rejected").length);
+        setRecentVolunteers([...(volunteers || [])].reverse().slice(0, 4));
       },
+      (err) => {
+        console.error("Realtime volunteers subscription failed in Dashboard:", err);
+      }
     );
 
     // Subscribe to notifications changes in real-time
@@ -161,7 +158,8 @@ export function Dashboard() {
     );
 
     return () => {
-      unsubscribeDonations();
+      unsubscribePaymentEvents();
+      unsubscribeVolunteers();
       unsubscribeNotifications();
     };
   }, []);
@@ -169,8 +167,8 @@ export function Dashboard() {
   const cards = [
     {
       title: "Total Donations",
-      value: `₹${totalDonationsAmount.toLocaleString()}`,
-      change: `Today: ₹${donationsToday.toLocaleString()} | Month: ₹${donationsThisMonth.toLocaleString()}`,
+      value: `₹${totalDonationsAmount.toLocaleString("en-IN")}`,
+      change: `Today: ₹${donationsToday.toLocaleString("en-IN")} | Month: ₹${donationsThisMonth.toLocaleString("en-IN")}`,
       icon: DollarSign,
       color: "text-[#7A9D1C] bg-[#7A9D1C]/10",
     },
@@ -203,6 +201,72 @@ export function Dashboard() {
       color: "text-rose-600 bg-rose-50 animate-pulse",
     },
   ];
+
+  // Dynamic Chart Trend Calculation from real database values
+  const MONTHS_LIST = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul"];
+  const currentYear = new Date().getFullYear();
+
+  const monthlyDonationsData = MONTHS_LIST.map((monthName, monthIdx) => {
+    const total = paymentEvents
+      .filter((e) => {
+        if (!e.created_at) return false;
+        const status = getStatusLabel(e.current_state);
+        if (status !== "Success") return false;
+        const date = new Date(e.created_at);
+        return date.getFullYear() === currentYear && date.getMonth() === monthIdx;
+      })
+      .reduce((sum, e) => sum + (Number(e.amount) || 0), 0);
+
+    return {
+      month: monthName,
+      amount: total,
+      display: `₹${total.toLocaleString("en-IN")}`,
+    };
+  });
+
+  const monthlyVolunteersData = MONTHS_LIST.map((monthName, monthIdx) => {
+    const count = volunteersList
+      .filter((v) => {
+        if (!v.created_at) return false;
+        const date = new Date(v.created_at);
+        return date.getFullYear() === currentYear && date.getMonth() === monthIdx;
+      })
+      .length;
+
+    return {
+      month: monthName,
+      count,
+    };
+  });
+
+  // Calculate SVG plot coordinates dynamically
+  const maxDonation = Math.max(...monthlyDonationsData.map((d) => d.amount), 100);
+  const donationPoints = monthlyDonationsData.map((d, i) => {
+    const x = (i / 6) * 600;
+    const y = 170 - (d.amount / maxDonation) * 130;
+    return { x, y };
+  });
+
+  let donPathD = "";
+  if (donationPoints.length > 0) {
+    donPathD = `M ${donationPoints[0].x},${donationPoints[0].y} ` +
+      donationPoints.slice(1).map((p) => `L ${p.x},${p.y}`).join(" ");
+  }
+  const donAreaD = donPathD ? `${donPathD} L 600,200 L 0,200 Z` : "";
+
+  const maxVolunteer = Math.max(...monthlyVolunteersData.map((v) => v.count), 5);
+  const volunteerPoints = monthlyVolunteersData.map((v, i) => {
+    const x = (i / 6) * 600;
+    const y = 170 - (v.count / maxVolunteer) * 130;
+    return { x, y };
+  });
+
+  let volPathD = "";
+  if (volunteerPoints.length > 0) {
+    volPathD = `M ${volunteerPoints[0].x},${volunteerPoints[0].y} ` +
+      volunteerPoints.slice(1).map((p) => `L ${p.x},${p.y}`).join(" ");
+  }
+  const volAreaD = volPathD ? `${volPathD} L 600,200 L 0,200 Z` : "";
 
   if (loading) {
     return (
@@ -280,8 +344,8 @@ export function Dashboard() {
             <div>
               <h3 className="font-bold text-base">Analytical Overview</h3>
               <p className="text-xs text-slate-400">Monthly donation and volunteer trends</p>
-              <span className="inline-block mt-1 text-[10px] font-bold text-amber-500 bg-amber-50 border border-amber-200 rounded-full px-2 py-0.5">
-                Projected Trends
+              <span className="inline-block mt-1 text-[10px] font-bold text-emerald-600 bg-emerald-50 border border-emerald-200 rounded-full px-2 py-0.5">
+                ● Live Database Data
               </span>
             </div>
             <div className="flex bg-slate-50 border border-slate-200 rounded-xl p-1 text-xs font-bold">
@@ -315,40 +379,29 @@ export function Dashboard() {
                         <stop offset="100%" stopColor="#7A9D1C" stopOpacity="0" />
                       </linearGradient>
                     </defs>
-                    <path
-                      d="M0,150 Q100,110 200,130 T400,80 T600,40"
-                      fill="none"
-                      stroke="#7A9D1C"
-                      strokeWidth="3.5"
-                      strokeLinecap="round"
-                    />
-                    <path
-                      d="M0,150 Q100,110 200,130 T400,80 T600,40 L600,200 L0,200 Z"
-                      fill="url(#donGrad)"
-                    />
-                    {DONATIONS_DATA.map((d, i) => {
-                      const x = (i / 6) * 600;
-                      const y =
-                        i === 0
-                          ? 150
-                          : i === 1
-                            ? 120
-                            : i === 2
-                              ? 135
-                              : i === 3
-                                ? 90
-                                : i === 4
-                                  ? 60
-                                  : i === 5
-                                    ? 75
-                                    : 40;
+                    {donPathD && (
+                      <path
+                        d={donPathD}
+                        fill="none"
+                        stroke="#7A9D1C"
+                        strokeWidth="3.5"
+                        strokeLinecap="round"
+                      />
+                    )}
+                    {donAreaD && (
+                      <path
+                        d={donAreaD}
+                        fill="url(#donGrad)"
+                      />
+                    )}
+                    {donationPoints.map((pt, i) => {
                       return (
                         <circle
-                          key={d.month}
-                          cx={x}
-                          cy={y}
+                          key={i}
+                          cx={pt.x}
+                          cy={pt.y}
                           r="5.5"
-                          fill="#white"
+                          fill="white"
                           stroke="#7A9D1C"
                           strokeWidth="3"
                           className="cursor-pointer hover:r-[7.5] transition-all"
@@ -366,16 +419,16 @@ export function Dashboard() {
                         bottom: "60px",
                       }}
                     >
-                      <p className="font-bold">{DONATIONS_DATA[hoveredDonIndex].month}</p>
-                      <p className="text-secondary font-bold mt-0.5">
-                        {DONATIONS_DATA[hoveredDonIndex].display}
+                      <p className="font-bold">{monthlyDonationsData[hoveredDonIndex].month}</p>
+                      <p className="text-[#7A9D1C] font-bold mt-0.5">
+                        {monthlyDonationsData[hoveredDonIndex].display}
                       </p>
                     </div>
                   )}
                 </div>
 
                 <div className="flex justify-between text-[10px] font-bold text-slate-400 mt-2 uppercase tracking-wider">
-                  {DONATIONS_DATA.map((d) => (
+                  {monthlyDonationsData.map((d) => (
                     <span key={d.month}>{d.month}</span>
                   ))}
                 </div>
@@ -394,40 +447,29 @@ export function Dashboard() {
                         <stop offset="100%" stopColor="#4040A1" stopOpacity="0" />
                       </linearGradient>
                     </defs>
-                    <path
-                      d="M0,160 Q100,140 200,110 T400,100 T600,60"
-                      fill="none"
-                      stroke="#4040A1"
-                      strokeWidth="3.5"
-                      strokeLinecap="round"
-                    />
-                    <path
-                      d="M0,160 Q100,140 200,110 T400,100 T600,60 L600,200 L0,200 Z"
-                      fill="url(#volGrad)"
-                    />
-                    {VOLUNTEER_GROWTH.map((v, i) => {
-                      const x = (i / 6) * 600;
-                      const y =
-                        i === 0
-                          ? 160
-                          : i === 1
-                            ? 145
-                            : i === 2
-                              ? 115
-                              : i === 3
-                                ? 120
-                                : i === 4
-                                  ? 100
-                                  : i === 5
-                                    ? 80
-                                    : 60;
+                    {volPathD && (
+                      <path
+                        d={volPathD}
+                        fill="none"
+                        stroke="#4040A1"
+                        strokeWidth="3.5"
+                        strokeLinecap="round"
+                      />
+                    )}
+                    {volAreaD && (
+                      <path
+                        d={volAreaD}
+                        fill="url(#volGrad)"
+                      />
+                    )}
+                    {volunteerPoints.map((pt, i) => {
                       return (
                         <circle
-                          key={v.month}
-                          cx={x}
-                          cy={y}
+                          key={i}
+                          cx={pt.x}
+                          cy={pt.y}
                           r="5.5"
-                          fill="#white"
+                          fill="white"
                           stroke="#4040A1"
                           strokeWidth="3"
                           className="cursor-pointer hover:r-[7.5] transition-all"
@@ -445,16 +487,16 @@ export function Dashboard() {
                         bottom: "60px",
                       }}
                     >
-                      <p className="font-bold">{VOLUNTEER_GROWTH[hoveredDonIndex].month}</p>
-                      <p className="text-secondary font-bold mt-0.5">
-                        {VOLUNTEER_GROWTH[hoveredDonIndex].count} Volunteers
+                      <p className="font-bold">{monthlyVolunteersData[hoveredDonIndex].month}</p>
+                      <p className="text-[#4040A1] font-bold mt-0.5">
+                        {monthlyVolunteersData[hoveredDonIndex].count} Volunteers
                       </p>
                     </div>
                   )}
                 </div>
 
                 <div className="flex justify-between text-[10px] font-bold text-slate-400 mt-2 uppercase tracking-wider">
-                  {VOLUNTEER_GROWTH.map((v) => (
+                  {monthlyVolunteersData.map((v) => (
                     <span key={v.month}>{v.month}</span>
                   ))}
                 </div>
