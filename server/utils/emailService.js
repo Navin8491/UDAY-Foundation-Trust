@@ -782,3 +782,74 @@ export async function sendAdminDonationAlert(donation, event, pdfBuffer) {
   await queueEmail(ADMIN_EMAIL, subject, html, "admin_donation_alert", attachments);
 }
 
+export async function sendVolunteerUpdated(email, name, applicationId, updatedStatus, changedFields, adminNotes) {
+  const subject = "Your Volunteer Application Has Been Updated";
+  
+  const fieldsHtml = changedFields.map(f => `
+    <div style="border-bottom: 1px solid #f1f5f9; padding: 10px 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
+      <span style="font-weight: 700; color: #475569; text-transform: capitalize; font-size: 13px;">${f.field.replace(/([A-Z])/g, ' $1')}:</span>
+      <div style="margin-top: 4px; display: flex; gap: 8px; font-size: 12px;">
+        <span style="color: #ef4444; text-decoration: line-through;">${f.oldValue}</span>
+        <span style="color: #64748b;">&rarr;</span>
+        <span style="color: #10b981; font-weight: 600;">${f.newValue}</span>
+      </div>
+    </div>
+  `).join("");
+
+  const notesHtml = adminNotes 
+    ? `<div style="background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 16px; margin: 16px 0; font-size: 13px; color: #334155; line-height: 1.5; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
+         <strong>Admin Notes:</strong><br/>
+         "${adminNotes}"
+       </div>`
+    : "";
+
+  const rows = 
+    renderInfoRow("Volunteer Name", name) +
+    renderInfoRow("Application ID", applicationId) +
+    renderInfoRow("Current Status", renderBadge(updatedStatus)) +
+    renderInfoRow("Update Time", new Date().toLocaleString("en-IN"));
+
+  const body = `
+    <p style="font-size: 15px; color: #334155; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-weight: 600; margin-top: 0;">Hello ${name},</p>
+    <p style="font-size: 14px; color: #475569; line-height: 1.6; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">Your volunteer application profile details have been updated by the administrator. Here are the updated details:</p>
+    
+    ${renderInfoCard(rows)}
+    
+    <h3 style="font-size: 14px; color: #1e3a8a; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; margin: 24px 0 12px 0;">Changed Fields</h3>
+    <div style="background-color: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 8px 16px; margin-bottom: 24px;">
+      ${fieldsHtml}
+    </div>
+
+    ${notesHtml}
+    
+    <p style="font-size: 13px; color: #64748b; line-height: 1.6; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; margin-top: 24px;">If you have any questions or did not authorize these changes, please reply to this email or contact us at <a href="mailto:support@udayfoundationstrust.org" style="color: #1e3a8a; text-decoration: underline;">support@udayfoundationstrust.org</a>.</p>
+    
+    <p style="font-size: 14px; color: #475569; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; margin-bottom: 0; padding-top: 12px; border-top: 1px solid #f1f5f9; margin-top: 24px;">Warm regards,<br><strong>Uday Foundation Trust Team</strong></p>
+  `;
+  const html = getHtmlTemplate(subject, "Volunteer application updated", body, "📝", "Profile Updated", "#1e3a8a");
+  await queueEmail(email, subject, html, "volunteer_updated");
+}
+
+export async function sendVolunteerReopened(email, name, applicationId) {
+  const subject = "Your Volunteer Application Has Been Reopened";
+  const rows = 
+    renderInfoRow("Volunteer Name", name) +
+    renderInfoRow("Application ID", applicationId) +
+    renderInfoRow("Status", renderBadge("Pending Review")) +
+    renderInfoRow("Action Date", new Date().toLocaleString("en-IN"));
+
+  const body = `
+    <p style="font-size: 15px; color: #334155; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-weight: 600; margin-top: 0;">Hello ${name},</p>
+    <p style="font-size: 14px; color: #475569; line-height: 1.6; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">Your volunteer application with Uday Foundation Trust has been reopened by the administrator for further evaluation.</p>
+    <p style="font-size: 14px; color: #475569; line-height: 1.6; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">We will review your profile again shortly. Our coordinator will contact you directly if any additional details or documents are required.</p>
+    
+    ${renderInfoCard(rows)}
+    
+    <p style="font-size: 13px; color: #64748b; line-height: 1.6; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; margin-top: 24px;">Thank you for your patience and support.</p>
+    <p style="font-size: 14px; color: #475569; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; margin-bottom: 0; padding-top: 12px; border-top: 1px solid #f1f5f9;">Warm regards,<br><strong>Uday Foundation Trust Team</strong></p>
+  `;
+  const html = getHtmlTemplate(subject, "Volunteer application reopened", body, "♻️", "Application Reopened", "#eab308");
+  await queueEmail(email, subject, html, "volunteer_reopened");
+}
+
+

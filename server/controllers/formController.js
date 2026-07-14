@@ -735,18 +735,74 @@ export const updateVolunteer = async (req, res, next) => {
       emergencyPhone,
       resumeUrl,
       status,
+      notes,
     } = req.body;
 
     const parsedMsg = parseExtendedMessage(current.message);
     if (!parsedMsg.timeline) parsedMsg.timeline = [];
+    if (!parsedMsg.notes) parsedMsg.notes = [];
 
-    // Log the edit action to timeline
+    // Calculate changed fields
+    const changedFields = [];
+    const fieldsToTrack = [
+      { key: "name", label: "Full Name" },
+      { key: "email", label: "Email Address" },
+      { key: "phone", label: "Phone Number" },
+      { key: "address", label: "Address" },
+      { key: "education", label: "Education / Qualification" },
+      { key: "photoUrl", label: "Profile Photo" },
+      { key: "idProofUrl", label: "ID Proof Document" },
+      { key: "role", label: "Role Preference" },
+      { key: "dob", label: "Date of Birth" },
+      { key: "gender", label: "Gender" },
+      { key: "city", label: "City" },
+      { key: "state", label: "State" },
+      { key: "country", label: "Country" },
+      { key: "pincode", label: "Pincode" },
+      { key: "occupation", label: "Occupation" },
+      { key: "skills", label: "Skills" },
+      { key: "languages", label: "Languages" },
+      { key: "experience", label: "Experience" },
+      { key: "availability", label: "Availability" },
+      { key: "emergencyName", label: "Emergency Contact Name" },
+      { key: "emergencyPhone", label: "Emergency Contact Phone" },
+      { key: "resumeUrl", label: "Resume Document" },
+      { key: "status", label: "Application Status" },
+    ];
+
+    for (const f of fieldsToTrack) {
+      const newVal = req.body[f.key];
+      const oldVal = current[f.key] !== undefined && current[f.key] !== null 
+        ? current[f.key] 
+        : (parseExtendedMessage(current.message)[f.key] || "");
+      if (newVal !== undefined && String(newVal) !== String(oldVal)) {
+        changedFields.push({
+          field: f.label,
+          key: f.key,
+          oldValue: oldVal || "Not Provided",
+          newValue: newVal || "Not Provided",
+        });
+      }
+    }
+
+    // Append to timeline
     parsedMsg.timeline.push({
       action: "Edited",
       admin: adminEmail,
       date: new Date().toISOString(),
-      notes: "Volunteer profile details updated by admin.",
+      notes: changedFields.length > 0 
+        ? `Fields updated: ${changedFields.map(cf => cf.field).join(", ")}.`
+        : "Volunteer profile details updated by admin.",
     });
+
+    // If notes are supplied, add them
+    if (notes && notes.trim()) {
+      parsedMsg.notes.push({
+        admin: adminEmail,
+        text: notes.trim(),
+        date: new Date().toISOString(),
+      });
+    }
 
     const updatePayload = {
       name: name !== undefined ? name : current.name,
@@ -774,6 +830,20 @@ export const updateVolunteer = async (req, res, next) => {
       status: status !== undefined ? status : current.status,
       message: JSON.stringify({
         ...parsedMsg,
+        dob: dob !== undefined ? dob : (parsedMsg.dob || current.dob || ""),
+        gender: gender !== undefined ? gender : (parsedMsg.gender || current.gender || ""),
+        city: city !== undefined ? city : (parsedMsg.city || current.city || ""),
+        state: state !== undefined ? state : (parsedMsg.state || current.state || ""),
+        country: country !== undefined ? country : (parsedMsg.country || current.country || ""),
+        pincode: pincode !== undefined ? pincode : (parsedMsg.pincode || current.pincode || ""),
+        occupation: occupation !== undefined ? occupation : (parsedMsg.occupation || current.occupation || ""),
+        skills: skills !== undefined ? skills : (parsedMsg.skills || current.skills || ""),
+        languages: languages !== undefined ? languages : (parsedMsg.languages || current.languages || ""),
+        experience: experience !== undefined ? experience : (parsedMsg.experience || current.experience || ""),
+        availability: availability !== undefined ? availability : (parsedMsg.availability || current.availability || ""),
+        emergencyName: emergencyName !== undefined ? emergencyName : (parsedMsg.emergencyName || current.emergencyName || ""),
+        emergencyPhone: emergencyPhone !== undefined ? emergencyPhone : (parsedMsg.emergencyPhone || current.emergencyPhone || ""),
+        resumeUrl: resumeUrl !== undefined ? resumeUrl : (parsedMsg.resumeUrl || current.resumeUrl || ""),
         isExtended: true,
       }),
     };
@@ -787,15 +857,46 @@ export const updateVolunteer = async (req, res, next) => {
 
     if (error) throw error;
 
-    // Email trigger on status change
-    if (status && status !== current.status) {
+    // Send emails based on changed fields and rules
+    const hasStatusChanged = status && status !== current.status;
+    const onlyStatusChanged = hasStatusChanged && changedFields.length === 1;
+
+    const { 
+      sendVolunteerApproved, 
+      sendVolunteerRejected, 
+      sendVolunteerUpdated, 
+      sendVolunteerReopened 
+    } = await import("../utils/emailService.js");
+
+    if (hasStatusChanged) {
       if (status === "approved") {
-        sendVolunteerApproved(updated.email, updated.name).catch((err) =>
+        await sendVolunteerApproved(updated.email, updated.name).catch((err) =>
           console.error("[EmailService] Approved status email failed:", err.message),
         );
       } else if (status === "rejected") {
-        sendVolunteerRejected(updated.email, updated.name, "Profile details updated by admin").catch((err) =>
+        await sendVolunteerRejected(updated.email, updated.name, notes || "Profile details updated by admin").catch((err) =>
           console.error("[EmailService] Rejected status email failed:", err.message),
+        );
+      } else if (status === "pending" && (current.status === "approved" || current.status === "rejected")) {
+        await sendVolunteerReopened(updated.email, updated.name, updated.id).catch((err) =>
+          console.error("[EmailService] Reopened status email failed:", err.message),
+        );
+      }
+    }
+
+    // Send general update email if fields other than (or in addition to) status were modified
+    if (changedFields.length > 0 && (!onlyStatusChanged)) {
+      const profileChanges = changedFields.filter(cf => cf.key !== "status");
+      if (profileChanges.length > 0) {
+        await sendVolunteerUpdated(
+          updated.email,
+          updated.name,
+          updated.id,
+          updated.status,
+          profileChanges,
+          notes || ""
+        ).catch((err) =>
+          console.error("[EmailService] Update notification email failed:", err.message)
         );
       }
     }

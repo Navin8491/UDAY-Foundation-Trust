@@ -109,21 +109,21 @@ export function Volunteers() {
     if (!vol) return {};
 
     const fromColumns = {
-      dob: vol.dob || "",
-      gender: vol.gender || "",
-      city: vol.city || "",
-      state: vol.state || "",
-      country: vol.country || "India",
-      pincode: vol.pincode || "",
-      occupation: vol.occupation || "",
-      skills: vol.skills || "",
-      languages: vol.languages || "",
-      experience: vol.experience || "",
-      availability: vol.availability || "",
-      emergencyName: vol.emergencyName || "",
-      emergencyPhone: vol.emergencyPhone || "",
-      resumeUrl: vol.resumeUrl || "",
-      whyJoin: vol.whyJoin || vol.message || "",
+      dob: vol.dob || "Not Provided",
+      gender: vol.gender || "Not Provided",
+      city: vol.city || "Not Provided",
+      state: vol.state || "Not Provided",
+      country: vol.country || "Not Provided",
+      pincode: vol.pincode || "Not Provided",
+      occupation: vol.occupation || "Not Provided",
+      skills: vol.skills || "Not Provided",
+      languages: vol.languages || "Not Provided",
+      experience: vol.experience || "Not Provided",
+      availability: vol.availability || "Not Provided",
+      emergencyName: vol.emergencyName || "Not Provided",
+      emergencyPhone: vol.emergencyPhone || "Not Provided",
+      resumeUrl: vol.resumeUrl || "Not Provided",
+      whyJoin: vol.whyJoin || vol.message || "Not Provided",
       notes: [],
       timeline: [],
     };
@@ -135,13 +135,45 @@ export function Volunteers() {
         return {
           ...fromColumns,
           ...parsed,
-          whyJoin: parsed.whyJoin || parsed.message || vol.message || "",
+          dob: parsed.dob || fromColumns.dob,
+          gender: parsed.gender || fromColumns.gender,
+          city: parsed.city || fromColumns.city,
+          state: parsed.state || fromColumns.state,
+          country: parsed.country || fromColumns.country,
+          pincode: parsed.pincode || fromColumns.pincode,
+          occupation: parsed.occupation || fromColumns.occupation,
+          skills: parsed.skills || fromColumns.skills,
+          languages: parsed.languages || fromColumns.languages,
+          experience: parsed.experience || fromColumns.experience,
+          availability: parsed.availability || fromColumns.availability,
+          emergencyName: parsed.emergencyName || fromColumns.emergencyName,
+          emergencyPhone: parsed.emergencyPhone || fromColumns.emergencyPhone,
+          resumeUrl: parsed.resumeUrl || fromColumns.resumeUrl,
+          whyJoin: parsed.whyJoin || parsed.message || vol.message || "Not Provided",
           notes: parsed.notes || [],
           timeline: parsed.timeline || [],
         };
       }
     } catch (e) {}
     return fromColumns;
+  };
+
+  // Helper to dynamically calculate volunteer age
+  const calculateAge = (dobString: string) => {
+    if (!dobString || dobString === "Not Provided") return "Not Provided";
+    try {
+      const birthDate = new Date(dobString);
+      if (isNaN(birthDate.getTime())) return "Not Provided";
+      const today = new Date();
+      let age = today.getFullYear() - birthDate.getFullYear();
+      const monthDiff = today.getMonth() - birthDate.getMonth();
+      if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+        age--;
+      }
+      return age > 0 ? `${age} years` : "Not Provided";
+    } catch (e) {
+      return "Not Provided";
+    }
   };
 
   // Status handlers
@@ -235,16 +267,27 @@ export function Volunteers() {
       name: vol.name || "",
       email: vol.email || "",
       phone: vol.phone || "",
-      city: ext.city || "",
-      state: ext.state || "",
-      pincode: ext.pincode || "",
-      skills: ext.skills || "",
-      availability: ext.availability || "",
+      address: vol.address || "",
+      dob: ext.dob !== "Not Provided" ? ext.dob : "",
+      gender: ext.gender !== "Not Provided" ? ext.gender : "",
+      city: ext.city !== "Not Provided" ? ext.city : "",
+      state: ext.state !== "Not Provided" ? ext.state : "",
+      country: ext.country !== "Not Provided" ? ext.country : "India",
+      pincode: ext.pincode !== "Not Provided" ? ext.pincode : "",
+      occupation: ext.occupation !== "Not Provided" ? ext.occupation : "",
+      skills: ext.skills !== "Not Provided" ? ext.skills : "",
+      availability: ext.availability !== "Not Provided" ? ext.availability : "",
       education: vol.education || "",
-      languages: ext.languages || "",
+      languages: ext.languages !== "Not Provided" ? ext.languages : "",
       role: vol.role || "",
-      experience: ext.experience || "",
+      experience: ext.experience !== "Not Provided" ? ext.experience : "",
+      emergencyName: ext.emergencyName !== "Not Provided" ? ext.emergencyName : "",
+      emergencyPhone: ext.emergencyPhone !== "Not Provided" ? ext.emergencyPhone : "",
+      photoUrl: vol.photoUrl || "",
+      idProofUrl: vol.idProofUrl || "",
+      resumeUrl: ext.resumeUrl !== "Not Provided" ? ext.resumeUrl : "",
       status: vol.status || "pending",
+      notes: "", // Admin can enter edit notes here
     });
     setIsEditing(true);
   };
@@ -770,7 +813,7 @@ export function Volunteers() {
               <div className="pb-4 border-b border-slate-100 flex items-start justify-between">
                 <div className="flex items-center gap-3">
                   <div className="h-14 w-14 rounded-full bg-slate-100 border border-slate-200 flex items-center justify-center overflow-hidden flex-none">
-                    {selectedVol.photoUrl ? (
+                    {selectedVol.photoUrl && selectedVol.photoUrl !== "Not Provided" ? (
                       <img
                         src={selectedVol.photoUrl}
                         alt=""
@@ -863,17 +906,23 @@ export function Volunteers() {
                     Personal Information
                   </h4>
                   <div className="bg-slate-50/75 border border-slate-100 rounded-xl p-3 space-y-2">
-                    <div className="grid grid-cols-2 gap-2 border-b border-slate-100 pb-1.5">
+                    <div className="grid grid-cols-3 gap-2 border-b border-slate-100 pb-1.5">
                       <div>
                         <span className="text-[9px] text-slate-400 block uppercase">DOB</span>
                         <span className="text-slate-800">
-                          {getExtendedData(selectedVol).dob || "N/A"}
+                          {getExtendedData(selectedVol).dob || "Not Provided"}
+                        </span>
+                      </div>
+                      <div>
+                        <span className="text-[9px] text-slate-400 block uppercase">Age</span>
+                        <span className="text-slate-800 font-bold text-primary">
+                          {calculateAge(getExtendedData(selectedVol).dob)}
                         </span>
                       </div>
                       <div>
                         <span className="text-[9px] text-slate-400 block uppercase">Gender</span>
                         <span className="text-slate-800">
-                          {getExtendedData(selectedVol).gender || "N/A"}
+                          {getExtendedData(selectedVol).gender || "Not Provided"}
                         </span>
                       </div>
                     </div>
@@ -883,7 +932,7 @@ export function Volunteers() {
                           Occupation
                         </span>
                         <span className="text-slate-800">
-                          {getExtendedData(selectedVol).occupation || "N/A"}
+                          {getExtendedData(selectedVol).occupation || "Not Provided"}
                         </span>
                       </div>
                       <div>
@@ -891,20 +940,20 @@ export function Volunteers() {
                           Qualification
                         </span>
                         <span className="text-slate-800">
-                          {selectedVol.education || "Graduate"}
+                          {selectedVol.education || "Not Provided"}
                         </span>
                       </div>
                     </div>
                     <div>
                       <span className="text-[9px] text-slate-400 block uppercase">Skills</span>
                       <span className="text-slate-800">
-                        {getExtendedData(selectedVol).skills || "N/A"}
+                        {getExtendedData(selectedVol).skills || "Not Provided"}
                       </span>
                     </div>
                     <div>
                       <span className="text-[9px] text-slate-400 block uppercase">Languages</span>
                       <span className="text-slate-800">
-                        {getExtendedData(selectedVol).languages || "N/A"}
+                        {getExtendedData(selectedVol).languages || "Not Provided"}
                       </span>
                     </div>
                   </div>
@@ -1104,7 +1153,7 @@ export function Volunteers() {
                   <h4 className="text-[10px] text-primary uppercase tracking-widest font-bold">
                     Uploaded Attachments
                   </h4>
-                  {selectedVol.idProofUrl && (
+                  {selectedVol.idProofUrl && selectedVol.idProofUrl !== "Not Provided" && (
                     <div className="bg-slate-50 border border-slate-200/80 rounded-xl p-2.5 flex items-center justify-between text-[11px] font-bold">
                       <div className="flex items-center gap-2 text-slate-700 min-w-0">
                         <FileText className="h-4 w-4 text-[#4040A1]" />
@@ -1120,7 +1169,7 @@ export function Volunteers() {
                       </a>
                     </div>
                   )}
-                  {getExtendedData(selectedVol).resumeUrl && (
+                  {getExtendedData(selectedVol).resumeUrl && getExtendedData(selectedVol).resumeUrl !== "Not Provided" && (
                     <div className="bg-slate-50 border border-slate-200/80 rounded-xl p-2.5 flex items-center justify-between text-[11px] font-bold">
                       <div className="flex items-center gap-2 text-slate-700 min-w-0">
                         <FileText className="h-4 w-4 text-primary" />
@@ -1245,125 +1294,310 @@ export function Volunteers() {
             </div>
 
             <form onSubmit={handleSaveProfileEdit} className="space-y-4 text-xs font-semibold">
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="block text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1">Name</label>
-                  <input
-                    type="text"
-                    required
-                    value={editFields.name}
-                    onChange={(e) => setEditFields({ ...editFields, name: e.target.value })}
-                    className="w-full px-3 py-2 border border-slate-200 rounded-xl bg-slate-50 focus:bg-white focus:outline-none"
-                  />
+              {/* Section 1: Core Information */}
+              <div className="border-b border-slate-100 pb-2 mb-2">
+                <span className="text-[10px] text-primary uppercase font-bold tracking-widest block mb-2">Core Contact Details</span>
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1">Name</label>
+                    <input
+                      type="text"
+                      required
+                      value={editFields.name}
+                      onChange={(e) => setEditFields({ ...editFields, name: e.target.value })}
+                      className="w-full px-3 py-2 border border-slate-200 rounded-xl bg-slate-50 focus:bg-white focus:outline-none"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1">Email</label>
+                    <input
+                      type="email"
+                      required
+                      value={editFields.email}
+                      onChange={(e) => setEditFields({ ...editFields, email: e.target.value })}
+                      className="w-full px-3 py-2 border border-slate-200 rounded-xl bg-slate-50 focus:bg-white focus:outline-none"
+                    />
+                  </div>
                 </div>
-                <div>
-                  <label className="block text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1">Email</label>
-                  <input
-                    type="email"
-                    required
-                    value={editFields.email}
-                    onChange={(e) => setEditFields({ ...editFields, email: e.target.value })}
-                    className="w-full px-3 py-2 border border-slate-200 rounded-xl bg-slate-50 focus:bg-white focus:outline-none"
-                  />
+
+                <div className="grid grid-cols-2 gap-3 mt-3">
+                  <div>
+                    <label className="block text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1">Phone</label>
+                    <input
+                      type="text"
+                      required
+                      value={editFields.phone}
+                      onChange={(e) => setEditFields({ ...editFields, phone: e.target.value })}
+                      className="w-full px-3 py-2 border border-slate-200 rounded-xl bg-slate-50 focus:bg-white focus:outline-none"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1">Address</label>
+                    <input
+                      type="text"
+                      required
+                      value={editFields.address}
+                      onChange={(e) => setEditFields({ ...editFields, address: e.target.value })}
+                      className="w-full px-3 py-2 border border-slate-200 rounded-xl bg-slate-50 focus:bg-white focus:outline-none"
+                    />
+                  </div>
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="block text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1">Phone</label>
-                  <input
-                    type="text"
-                    required
-                    value={editFields.phone}
-                    onChange={(e) => setEditFields({ ...editFields, phone: e.target.value })}
-                    className="w-full px-3 py-2 border border-slate-200 rounded-xl bg-slate-50 focus:bg-white focus:outline-none"
-                  />
+              {/* Section 2: Personal Details */}
+              <div className="border-b border-slate-100 pb-2 mb-2">
+                <span className="text-[10px] text-primary uppercase font-bold tracking-widest block mb-2">Personal & Demographics</span>
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1">Date of Birth</label>
+                    <input
+                      type="date"
+                      required
+                      value={editFields.dob}
+                      onChange={(e) => setEditFields({ ...editFields, dob: e.target.value })}
+                      className="w-full px-3 py-2 border border-slate-200 rounded-xl bg-slate-50 focus:bg-white focus:outline-none text-xs"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1">Gender</label>
+                    <select
+                      value={editFields.gender}
+                      onChange={(e) => setEditFields({ ...editFields, gender: e.target.value })}
+                      className="w-full px-3 py-2 border border-slate-200 rounded-xl bg-slate-50 focus:bg-white focus:outline-none cursor-pointer text-xs"
+                    >
+                      <option value="">Select Gender</option>
+                      <option value="Male">Male</option>
+                      <option value="Female">Female</option>
+                      <option value="Other">Other</option>
+                    </select>
+                  </div>
                 </div>
-                <div>
-                  <label className="block text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1">City</label>
-                  <input
-                    type="text"
-                    value={editFields.city}
-                    onChange={(e) => setEditFields({ ...editFields, city: e.target.value })}
-                    className="w-full px-3 py-2 border border-slate-200 rounded-xl bg-slate-50 focus:bg-white focus:outline-none"
-                  />
+
+                <div className="grid grid-cols-2 gap-3 mt-3">
+                  <div>
+                    <label className="block text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1">Occupation</label>
+                    <input
+                      type="text"
+                      required
+                      value={editFields.occupation}
+                      onChange={(e) => setEditFields({ ...editFields, occupation: e.target.value })}
+                      className="w-full px-3 py-2 border border-slate-200 rounded-xl bg-slate-50 focus:bg-white focus:outline-none"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1">Qualification</label>
+                    <input
+                      type="text"
+                      required
+                      value={editFields.education}
+                      onChange={(e) => setEditFields({ ...editFields, education: e.target.value })}
+                      className="w-full px-3 py-2 border border-slate-200 rounded-xl bg-slate-50 focus:bg-white focus:outline-none"
+                    />
+                  </div>
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="block text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1">Qualification</label>
-                  <input
-                    type="text"
-                    value={editFields.education}
-                    onChange={(e) => setEditFields({ ...editFields, education: e.target.value })}
-                    className="w-full px-3 py-2 border border-slate-200 rounded-xl bg-slate-50 focus:bg-white focus:outline-none"
-                  />
+              {/* Section 3: Skills & Availability */}
+              <div className="border-b border-slate-100 pb-2 mb-2">
+                <span className="text-[10px] text-primary uppercase font-bold tracking-widest block mb-2">Capabilities & Preferences</span>
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1">Skills</label>
+                    <input
+                      type="text"
+                      required
+                      value={editFields.skills}
+                      onChange={(e) => setEditFields({ ...editFields, skills: e.target.value })}
+                      className="w-full px-3 py-2 border border-slate-200 rounded-xl bg-slate-50 focus:bg-white focus:outline-none"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1">Availability</label>
+                    <input
+                      type="text"
+                      required
+                      value={editFields.availability}
+                      onChange={(e) => setEditFields({ ...editFields, availability: e.target.value })}
+                      className="w-full px-3 py-2 border border-slate-200 rounded-xl bg-slate-50 focus:bg-white focus:outline-none"
+                    />
+                  </div>
                 </div>
-                <div>
-                  <label className="block text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1">Languages</label>
-                  <input
-                    type="text"
-                    value={editFields.languages}
-                    onChange={(e) => setEditFields({ ...editFields, languages: e.target.value })}
-                    className="w-full px-3 py-2 border border-slate-200 rounded-xl bg-slate-50 focus:bg-white focus:outline-none"
-                  />
+
+                <div className="grid grid-cols-2 gap-3 mt-3">
+                  <div>
+                    <label className="block text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1">Languages</label>
+                    <input
+                      type="text"
+                      required
+                      value={editFields.languages}
+                      onChange={(e) => setEditFields({ ...editFields, languages: e.target.value })}
+                      className="w-full px-3 py-2 border border-slate-200 rounded-xl bg-slate-50 focus:bg-white focus:outline-none"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1">Experience</label>
+                    <input
+                      type="text"
+                      required
+                      value={editFields.experience}
+                      onChange={(e) => setEditFields({ ...editFields, experience: e.target.value })}
+                      className="w-full px-3 py-2 border border-slate-200 rounded-xl bg-slate-50 focus:bg-white focus:outline-none"
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 mt-3">
+                  <div>
+                    <label className="block text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1">Role Preference</label>
+                    <input
+                      type="text"
+                      required
+                      value={editFields.role}
+                      onChange={(e) => setEditFields({ ...editFields, role: e.target.value })}
+                      className="w-full px-3 py-2 border border-slate-200 rounded-xl bg-slate-50 focus:bg-white focus:outline-none"
+                    />
+                  </div>
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="block text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1">Role Preference</label>
-                  <input
-                    type="text"
-                    value={editFields.role}
-                    onChange={(e) => setEditFields({ ...editFields, role: e.target.value })}
-                    className="w-full px-3 py-2 border border-slate-200 rounded-xl bg-slate-50 focus:bg-white focus:outline-none"
-                  />
+              {/* Section 4: Address Details */}
+              <div className="border-b border-slate-100 pb-2 mb-2">
+                <span className="text-[10px] text-primary uppercase font-bold tracking-widest block mb-2">Geography & Location</span>
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1">City</label>
+                    <input
+                      type="text"
+                      required
+                      value={editFields.city}
+                      onChange={(e) => setEditFields({ ...editFields, city: e.target.value })}
+                      className="w-full px-3 py-2 border border-slate-200 rounded-xl bg-slate-50 focus:bg-white focus:outline-none"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1">State</label>
+                    <input
+                      type="text"
+                      required
+                      value={editFields.state}
+                      onChange={(e) => setEditFields({ ...editFields, state: e.target.value })}
+                      className="w-full px-3 py-2 border border-slate-200 rounded-xl bg-slate-50 focus:bg-white focus:outline-none"
+                    />
+                  </div>
                 </div>
-                <div>
-                  <label className="block text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1">Availability</label>
-                  <input
-                    type="text"
-                    value={editFields.availability}
-                    onChange={(e) => setEditFields({ ...editFields, availability: e.target.value })}
-                    className="w-full px-3 py-2 border border-slate-200 rounded-xl bg-slate-50 focus:bg-white focus:outline-none"
-                  />
+
+                <div className="grid grid-cols-2 gap-3 mt-3">
+                  <div>
+                    <label className="block text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1">Country</label>
+                    <input
+                      type="text"
+                      required
+                      value={editFields.country}
+                      onChange={(e) => setEditFields({ ...editFields, country: e.target.value })}
+                      className="w-full px-3 py-2 border border-slate-200 rounded-xl bg-slate-50 focus:bg-white focus:outline-none"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1">Pincode</label>
+                    <input
+                      type="text"
+                      required
+                      value={editFields.pincode}
+                      onChange={(e) => setEditFields({ ...editFields, pincode: e.target.value })}
+                      className="w-full px-3 py-2 border border-slate-200 rounded-xl bg-slate-50 focus:bg-white focus:outline-none"
+                    />
+                  </div>
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="block text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1">Skills</label>
-                  <input
-                    type="text"
-                    value={editFields.skills}
-                    onChange={(e) => setEditFields({ ...editFields, skills: e.target.value })}
-                    className="w-full px-3 py-2 border border-slate-200 rounded-xl bg-slate-50 focus:bg-white focus:outline-none"
-                  />
-                </div>
-                <div>
-                  <label className="block text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1">Experience</label>
-                  <input
-                    type="text"
-                    value={editFields.experience}
-                    onChange={(e) => setEditFields({ ...editFields, experience: e.target.value })}
-                    className="w-full px-3 py-2 border border-slate-200 rounded-xl bg-slate-50 focus:bg-white focus:outline-none"
-                  />
+              {/* Section 5: Emergency Contact */}
+              <div className="border-b border-slate-100 pb-2 mb-2">
+                <span className="text-[10px] text-primary uppercase font-bold tracking-widest block mb-2">Emergency Contact Information</span>
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1">Contact Name</label>
+                    <input
+                      type="text"
+                      required
+                      value={editFields.emergencyName}
+                      onChange={(e) => setEditFields({ ...editFields, emergencyName: e.target.value })}
+                      className="w-full px-3 py-2 border border-slate-200 rounded-xl bg-slate-50 focus:bg-white focus:outline-none"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1">Contact Phone</label>
+                    <input
+                      type="text"
+                      required
+                      value={editFields.emergencyPhone}
+                      onChange={(e) => setEditFields({ ...editFields, emergencyPhone: e.target.value })}
+                      className="w-full px-3 py-2 border border-slate-200 rounded-xl bg-slate-50 focus:bg-white focus:outline-none"
+                    />
+                  </div>
                 </div>
               </div>
 
+              {/* Section 6: Documents URLs */}
+              <div className="border-b border-slate-100 pb-2 mb-2">
+                <span className="text-[10px] text-primary uppercase font-bold tracking-widest block mb-2">Uploaded Document Assets</span>
+                <div className="grid grid-cols-1 gap-3">
+                  <div>
+                    <label className="block text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1">Profile Photo (Selfie) URL</label>
+                    <input
+                      type="text"
+                      value={editFields.photoUrl}
+                      onChange={(e) => setEditFields({ ...editFields, photoUrl: e.target.value })}
+                      className="w-full px-3 py-2 border border-slate-200 rounded-xl bg-slate-50 focus:bg-white focus:outline-none"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1">ID Proof URL</label>
+                    <input
+                      type="text"
+                      value={editFields.idProofUrl}
+                      onChange={(e) => setEditFields({ ...editFields, idProofUrl: e.target.value })}
+                      className="w-full px-3 py-2 border border-slate-200 rounded-xl bg-slate-50 focus:bg-white focus:outline-none"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1">Resume / CV Document URL</label>
+                    <input
+                      type="text"
+                      value={editFields.resumeUrl}
+                      onChange={(e) => setEditFields({ ...editFields, resumeUrl: e.target.value })}
+                      className="w-full px-3 py-2 border border-slate-200 rounded-xl bg-slate-50 focus:bg-white focus:outline-none"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Section 7: Status & Admin Change Notes */}
               <div>
-                <label className="block text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1">Status</label>
-                <select
-                  value={editFields.status}
-                  onChange={(e) => setEditFields({ ...editFields, status: e.target.value })}
-                  className="w-full px-3 py-2 border border-slate-200 rounded-xl bg-slate-50 focus:bg-white focus:outline-none cursor-pointer text-xs"
-                >
-                  <option value="pending">Pending</option>
-                  <option value="approved">Approved</option>
-                  <option value="rejected">Rejected</option>
-                </select>
+                <span className="text-[10px] text-primary uppercase font-bold tracking-widest block mb-2">Administrative Status & Auditing</span>
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1">Status</label>
+                    <select
+                      value={editFields.status}
+                      onChange={(e) => setEditFields({ ...editFields, status: e.target.value })}
+                      className="w-full px-3 py-2 border border-slate-200 rounded-xl bg-slate-50 focus:bg-white focus:outline-none cursor-pointer text-xs"
+                    >
+                      <option value="pending">Pending</option>
+                      <option value="approved">Approved</option>
+                      <option value="rejected">Rejected</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1">Notes / Change Reason (Emailed to User)</label>
+                    <input
+                      type="text"
+                      placeholder="e.g., Updated DOB coordinates"
+                      value={editFields.notes}
+                      onChange={(e) => setEditFields({ ...editFields, notes: e.target.value })}
+                      className="w-full px-3 py-2 border border-slate-200 rounded-xl bg-slate-50 focus:bg-white focus:outline-none placeholder-slate-400 font-normal"
+                    />
+                  </div>
+                </div>
               </div>
 
               <div className="flex justify-end gap-3 mt-6 border-t border-slate-100 pt-4">
