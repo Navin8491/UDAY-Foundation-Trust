@@ -1039,6 +1039,17 @@ export async function refundPaymentEvent(id: string): Promise<any> {
   return res.json();
 }
 
+export async function resendDonationReceipt(id: string): Promise<any> {
+  const res = await apiRequest(`/payments/resend-receipt/${id}`, {
+    method: "POST",
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.message || "Failed to resend donation receipt");
+  }
+  return res.json();
+}
+
 export function subscribePaymentEvents(
   callback: (items: any[]) => void,
   onError?: (err: any) => void,

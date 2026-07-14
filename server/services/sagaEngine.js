@@ -5,6 +5,7 @@ import {
   sendDonationReceived, 
   sendDonationFailed, 
   sendAdminAlert, 
+  sendAdminDonationAlert,
   queueEmail,
   getHtmlTemplate,
   renderInfoRow,
@@ -132,14 +133,9 @@ async function sendPdfReceiptEmail(event, donation) {
     pdfBuffer
   );
 
-  // Send email notification alert to admin
-  await sendAdminAlert("donation", event.donor_name, {
-    Email: event.email,
-    Amount: `₹${Number(event.amount).toLocaleString("en-IN")}`,
-    "Receipt Number": donation.receiptNumber || `UFT/REC-${donation.id.substring(0, 8).toUpperCase()}`,
-    "Transaction ID": event.gateway_transaction_id || event.id,
-    "Completed At": new Date().toLocaleString(),
-  }).catch((err) => console.error("[SagaEngine] Failed to send admin alert:", err.message));
+  // Send detailed email notification alert to admin with receipt attachment
+  await sendAdminDonationAlert(donation, event, pdfBuffer)
+    .catch((err) => console.error("[SagaEngine] Failed to send admin alert:", err.message));
 }
 
 /**
@@ -271,10 +267,30 @@ export async function runSaga(eventId) {
     if (currentState === "EMAIL_SENT" && currentDonation) {
       try {
         console.log("[SagaEngine] Triggering admin system notifications...");
+        const dateStr = event.updated_at 
+          ? new Date(event.updated_at).toLocaleString("en-IN", {
+              day: "numeric",
+              month: "short",
+              year: "numeric",
+              hour: "numeric",
+              minute: "numeric",
+              hour12: true
+            })
+          : new Date().toLocaleString("en-IN", {
+              day: "numeric",
+              month: "short",
+              year: "numeric",
+              hour: "numeric",
+              minute: "numeric",
+              hour12: true
+            });
+
+        const notifMessage = `Donor:\n${event.donor_name}\n\nAmount:\n₹${Number(event.amount).toLocaleString("en-IN")}\n\nPayment:\nSUCCESS\n\nTime:\n${dateStr}`;
+
         await createNotification(
           "donation",
-          "New Donation Received",
-          `₹${Number(event.amount).toLocaleString("en-IN")} donated by ${event.donor_name} (80G Tax Receipt: ${currentDonation.receiptNumber}).`,
+          "🎉 New Donation Received",
+          notifMessage,
           currentDonation.id,
         );
         currentState = "ADMIN_NOTIFIED";

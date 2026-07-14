@@ -78,6 +78,7 @@ import {
   getPaymentStatus,
   getPaymentEvents,
   verifyCashfreePaymentStatus,
+  resendReceipt,
 } from "../controllers/paymentController.js";
 
 // Import Security Middleware (Rate Limiters & Validators)
@@ -178,6 +179,7 @@ router.post("/payments/verify-signature", verifyCashfreePaymentStatus);
 router.get("/payments/receipt/:id", downloadReceipt);
 router.get("/payments/status/:idempotencyKey", getPaymentStatus);
 router.post("/payments/refund/:id", protectAdmin, refundDonation);
+router.post("/payments/resend-receipt/:id", protectAdmin, resendReceipt);
 router.get("/payments/timeline/:id", protectAdmin, getPaymentTimeline);
 router.get("/payments", protectAdmin, getPaymentEvents);
 

@@ -805,3 +805,57 @@ export async function verifyCashfreePaymentStatus(req, res, next) {
     next(err);
   }
 }
+
+/**
+ * Admin: Resends a donation receipt to the donor.
+ */
+export async function resendReceipt(req, res, next) {
+  try {
+    const donationId = req.params.id;
+
+    // 1. Fetch donation record
+    const { data: donation, error: donationError } = await supabase
+      .from("donations")
+      .select("*")
+      .eq("id", donationId)
+      .single();
+
+    if (donationError || !donation) {
+      res.status(404);
+      return next(new Error("Donation record not found"));
+    }
+
+    // 2. Fetch payment event to get gateway transaction ID
+    const { data: event, error: eventError } = await supabase
+      .from("payment_events")
+      .select("*")
+      .eq("id", donation.id)
+      .single();
+
+    if (eventError || !event) {
+      res.status(404);
+      return next(new Error("Related payment transaction record not found"));
+    }
+
+    // 3. Generate receipt PDF buffer
+    const pdfBuffer = await generateReceiptPdf(donation);
+
+    // 4. Send email receipt to donor
+    const { sendDonationReceived } = await import("../utils/emailService.js");
+    await sendDonationReceived(
+      donation.email,
+      donation.donorName,
+      donation.amount,
+      event.gateway_transaction_id || event.id,
+      donation.panNumber,
+      donation.receiptNumber || `UFT/REC-${donation.id.substring(0, 8).toUpperCase()}`,
+      pdfBuffer
+    );
+
+    console.log(`[PaymentController] Manually re-sent donation receipt to ${donation.email} for donation ${donationId}`);
+
+    res.json({ success: true, message: `Receipt successfully sent to ${donation.email}.` });
+  } catch (err) {
+    next(err);
+  }
+}

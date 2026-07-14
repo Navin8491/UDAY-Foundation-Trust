@@ -725,3 +725,60 @@ export async function sendAdminAlert(type, applicantName, details = {}) {
   await queueEmail(ADMIN_EMAIL, subject, html, "admin_notification");
 }
 
+export async function sendAdminDonationAlert(donation, event, pdfBuffer) {
+  const amount = donation.amount || event.amount;
+  const formattedAmount = Number(amount).toLocaleString("en-IN");
+  const subject = `New Donation Received – ₹${formattedAmount}`;
+  
+  const paymentTimeStr = event.updated_at 
+    ? new Date(event.updated_at).toLocaleString("en-IN")
+    : new Date().toLocaleString("en-IN");
+
+  const rows = 
+    renderInfoRow("Donor Name", donation.donorName || event.donor_name) +
+    renderInfoRow("Email Address", donation.email || event.email) +
+    renderInfoRow("Phone Number", donation.phone || event.phone || "N/A") +
+    renderInfoRow("PAN Number", donation.panNumber || event.pan_number || "N/A") +
+    renderInfoRow("Address", donation.address || event.address || "N/A") +
+    renderInfoRow("Donation Amount", `₹${formattedAmount}`) +
+    renderInfoRow("Transaction ID", event.id) +
+    renderInfoRow("Order ID", event.idempotency_key) +
+    renderInfoRow("Cashfree Payment ID", event.gateway_transaction_id || "N/A") +
+    renderInfoRow("Payment Method", event.payment_method || "Online Gateway") +
+    renderInfoRow("Payment Time", paymentTimeStr) +
+    renderInfoRow("Receipt Number", donation.receiptNumber) +
+    renderInfoRow("Donation Purpose", donation.purpose || event.purpose || "General Donation") +
+    renderInfoRow("Payment Status", renderBadge("Successful"));
+
+  const adminBaseUrl = process.env.ADMIN_URL || "https://uday-foundation-trust.onrender.com/admin";
+  const viewDonationUrl = `${adminBaseUrl}/donations?search=${donation.id}`;
+  const downloadReceiptUrl = `${process.env.NEXT_PUBLIC_API_URL || "https://uday-foundation-trust.onrender.com/api"}/payments/receipt/${donation.id}`;
+
+  const body = `
+    <p style="font-size: 15px; color: #334155; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-weight: 600; margin-top: 0;">Hello Admin,</p>
+    <p style="font-size: 14px; color: #475569; line-height: 1.6; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">A new donation has been successfully processed on the website. Here are the transaction and donor details:</p>
+    
+    ${renderInfoCard(rows)}
+    
+    <p style="margin-top: 24px; text-align: center;">
+      <a href="${downloadReceiptUrl}" target="_blank" style="display: inline-block; background-color: #10b981; color: white; padding: 10px 20px; font-weight: bold; text-decoration: none; border-radius: 8px; margin-right: 12px; font-size: 13px;">Download Receipt</a>
+      <a href="${viewDonationUrl}" style="display: inline-block; background-color: #1e3a8a; color: white; padding: 10px 20px; font-weight: bold; text-decoration: none; border-radius: 8px; font-size: 13px;">View Donation in Admin Panel</a>
+    </p>
+    
+    <p style="font-size: 12px; color: #94a3b8; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; margin-top: 24px; border-top: 1px solid #f1f5f9; padding-top: 12px;">This is an automated system alert. Do not reply to this email.</p>
+  `;
+
+  const html = getHtmlTemplate(subject, `New Donation Alert – ₹${formattedAmount}`, body, "🎉", "Admin Donation Alert", "#1e3a8a");
+  const attachments = [];
+  
+  if (pdfBuffer) {
+    const filename = `Donation_Receipt_${donation.receiptNumber.replace(/\//g, "_")}.pdf`;
+    attachments.push({
+      filename,
+      content: pdfBuffer,
+    });
+  }
+
+  await queueEmail(ADMIN_EMAIL, subject, html, "admin_donation_alert", attachments);
+}
+

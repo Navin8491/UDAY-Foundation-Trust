@@ -34,7 +34,7 @@ import {
 } from "lucide-react";
 import { SITE } from "@/constants/site";
 import { signOutAdmin, onAuthStateChanged } from "@/services/auth";
-import { Loader2, Trash2, CheckCircle2 } from "lucide-react";
+import { Loader2, Trash2, CheckCircle2, Download } from "lucide-react";
 import { toast } from "sonner";
 import {
   subscribeNotifications,
@@ -758,7 +758,7 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
                   </p>
                 </div>
 
-                <div className="bg-slate-50 rounded-xl p-4 border border-slate-100 text-xs text-slate-600 leading-relaxed font-medium">
+                <div className="bg-slate-50 rounded-xl p-4 border border-slate-100 text-xs text-slate-600 leading-relaxed font-medium whitespace-pre-wrap">
                   {selectedNotif.message}
                 </div>
 
@@ -774,27 +774,50 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
               </div>
             </div>
 
-            <div className="border-t border-slate-100 pt-4 mt-6 flex gap-3">
-              {selectedNotif.related_record_id && (
+            <div className="border-t border-slate-100 pt-4 mt-6 flex flex-col gap-3">
+              {selectedNotif.related_record_id && selectedNotif.type === "donation" && (
+                <div className="flex gap-2.5 w-full">
+                  <button
+                    onClick={() => {
+                      router.push(`/admin/donations?search=${selectedNotif.related_record_id}`);
+                      setSelectedNotif(null);
+                    }}
+                    className="flex-1 py-2 px-3 bg-primary text-white font-bold text-xs rounded-xl hover:bg-primary/95 flex items-center justify-center gap-1 cursor-pointer border-0 shadow-sm shadow-primary/20"
+                  >
+                    <Eye className="h-3.5 w-3.5" /> View Donation
+                  </button>
+                  <button
+                    onClick={() => {
+                      window.open(`${process.env.NEXT_PUBLIC_API_URL || "https://uday-foundation-trust.onrender.com/api"}/payments/receipt/${selectedNotif.related_record_id}`, "_blank");
+                    }}
+                    className="flex-1 py-2 px-3 bg-emerald-600 text-white font-bold text-xs rounded-xl hover:bg-emerald-700 flex items-center justify-center gap-1 cursor-pointer border-0 shadow-sm"
+                  >
+                    <Download className="h-3.5 w-3.5" /> Download Receipt
+                  </button>
+                </div>
+              )}
+              <div className="flex gap-3 w-full">
+                {selectedNotif.related_record_id && selectedNotif.type !== "donation" && (
+                  <button
+                    onClick={() => {
+                      handleNavigate(selectedNotif.type);
+                      setSelectedNotif(null);
+                    }}
+                    className="flex-1 py-2 px-4 bg-primary text-white font-bold text-xs rounded-xl hover:bg-primary/95 flex items-center justify-center gap-1.5 cursor-pointer shadow-sm shadow-primary/20 border-0"
+                  >
+                    <Eye className="h-4 w-4" /> Go to Module
+                  </button>
+                )}
                 <button
                   onClick={() => {
-                    handleNavigate(selectedNotif.type);
+                    setDeletingId(selectedNotif.id);
                     setSelectedNotif(null);
                   }}
-                  className="flex-1 py-2 px-4 bg-primary text-white font-bold text-xs rounded-xl hover:bg-primary/95 flex items-center justify-center gap-1.5 cursor-pointer shadow-sm shadow-primary/20 border-0"
+                  className="py-2 px-4 bg-rose-50 hover:bg-rose-100 text-rose-600 font-bold text-xs rounded-xl flex items-center justify-center gap-1.5 cursor-pointer border border-transparent"
                 >
-                  <Eye className="h-4 w-4" /> Go to Module
+                  <Trash2 className="h-4 w-4" /> Delete
                 </button>
-              )}
-              <button
-                onClick={() => {
-                  setDeletingId(selectedNotif.id);
-                  setSelectedNotif(null);
-                }}
-                className="py-2 px-4 bg-rose-50 hover:bg-rose-100 text-rose-600 font-bold text-xs rounded-xl flex items-center justify-center gap-1.5 cursor-pointer border border-transparent"
-              >
-                <Trash2 className="h-4 w-4" /> Delete
-              </button>
+              </div>
             </div>
           </div>
         </div>

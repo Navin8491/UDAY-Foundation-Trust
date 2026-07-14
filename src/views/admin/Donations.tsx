@@ -13,7 +13,7 @@ import {
   AlertTriangle,
   ShieldCheck,
 } from "lucide-react";
-import { subscribePaymentEvents, refundPaymentEvent } from "@/services/db";
+import { subscribePaymentEvents, refundPaymentEvent, resendDonationReceipt } from "@/services/db";
 import { toast } from "sonner";
 
 export function Donations() {
@@ -23,6 +23,7 @@ export function Donations() {
   const [donationsList, setDonationsList] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [refundLoading, setRefundLoading] = useState(false);
+  const [resendLoading, setResendLoading] = useState(false);
 
   const getStatusLabel = (status: string) => {
     if (["COMPLETED", "DONATION_SAVED", "EMAIL_SENT", "ADMIN_NOTIFIED"].includes(status))
@@ -32,6 +33,16 @@ export function Donations() {
       return "Refunded";
     return "Pending";
   };
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const params = new URLSearchParams(window.location.search);
+      const query = params.get("search");
+      if (query) {
+        setSearch(query);
+      }
+    }
+  }, []);
 
   useEffect(() => {
     const unsubscribe = subscribePaymentEvents(
@@ -569,20 +580,40 @@ export function Donations() {
             </div>
 
             {/* Modal Footer (fixed) */}
-            <div className="p-6 border-t border-slate-100 bg-slate-50/50 flex gap-2">
+            <div className="p-6 border-t border-slate-100 bg-slate-50/50 flex flex-col gap-2.5">
               {selectedDonation.status === "Success" && (
                 <>
-                  <button
-                    onClick={() => {
-                      window.open(
-                        `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api"}/payments/receipt/${selectedDonation.id}`,
-                        "_blank",
-                      );
-                    }}
-                    className="flex-1 btn-primary text-xs py-2.5 px-4 cursor-pointer"
-                  >
-                    Download PDF Receipt
-                  </button>
+                  <div className="flex gap-2 w-full">
+                    <button
+                      onClick={() => {
+                        window.open(
+                          `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api"}/payments/receipt/${selectedDonation.id}`,
+                          "_blank",
+                        );
+                      }}
+                      className="flex-1 btn-primary text-xs py-2.5 px-4 cursor-pointer"
+                    >
+                      Download PDF Receipt
+                    </button>
+                    <button
+                      onClick={async () => {
+                        if (resendLoading) return;
+                        setResendLoading(true);
+                        try {
+                          await resendDonationReceipt(selectedDonation.id);
+                          toast.success("Receipt successfully resent to donor!");
+                        } catch (err: any) {
+                          toast.error(err.message || "Failed to resend receipt.");
+                        } finally {
+                          setResendLoading(false);
+                        }
+                      }}
+                      disabled={resendLoading}
+                      className="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white text-xs py-2.5 px-4 rounded-xl cursor-pointer font-bold transition-colors disabled:opacity-50 flex items-center justify-center"
+                    >
+                      {resendLoading ? "Resending..." : "Resend Receipt"}
+                    </button>
+                  </div>
                   <button
                     onClick={async () => {
                       if (refundLoading) return;
@@ -604,7 +635,7 @@ export function Donations() {
                       }
                     }}
                     disabled={refundLoading}
-                    className="flex-1 bg-rose-500 hover:bg-rose-600 text-white text-xs py-2.5 px-4 rounded-xl cursor-pointer font-bold transition-colors disabled:opacity-50"
+                    className="w-full bg-rose-500 hover:bg-rose-600 text-white text-xs py-2.5 px-4 rounded-xl cursor-pointer font-bold transition-colors disabled:opacity-50"
                   >
                     {refundLoading ? "Refunding..." : "Issue Refund"}
                   </button>
