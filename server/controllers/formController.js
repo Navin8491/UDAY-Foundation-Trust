@@ -9,6 +9,8 @@ import {
   sendPartnershipRejected,
   sendAdminAlert,
   sendDonationReceived,
+  sendPersonalVolunteerNotification,
+  sendPersonalPartnershipNotification,
 } from "../utils/emailService.js";
 import { createNotification } from "../utils/notificationService.js";
 
@@ -143,6 +145,11 @@ export const createVolunteer = async (req, res, next) => {
       Role: role,
       "Applied At": new Date().toLocaleString(),
     }).catch((err) => console.error("[EmailService] Failed to send admin alert:", err.message));
+
+    // Send personal custom notification
+    sendPersonalVolunteerNotification(data).catch((err) =>
+      console.error("[EmailService] Failed to send personal volunteer notification:", err.message)
+    );
 
     // Create admin notification
     createNotification(
@@ -375,6 +382,11 @@ export const createPartnership = async (req, res, next) => {
       Type: type,
       "Applied At": new Date().toLocaleString(),
     }).catch((err) => console.error("[EmailService] Failed to send admin alert:", err.message));
+
+    // Send personal custom notification
+    sendPersonalPartnershipNotification(data).catch((err) =>
+      console.error("[EmailService] Failed to send personal partnership notification:", err.message)
+    );
 
     // Create admin notification
     createNotification(

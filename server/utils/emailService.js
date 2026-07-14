@@ -852,4 +852,205 @@ export async function sendVolunteerReopened(email, name, applicationId) {
   await queueEmail(email, subject, html, "volunteer_reopened");
 }
 
+// ── Personal Email Notification Handlers (PRD Requirements) ──────────────────
+
+export async function sendPersonalVolunteerNotification(volunteer) {
+  const personalEmail = process.env.PERSONAL_NOTIFICATION_EMAIL || "udayfts1024@gmail.com";
+  const subject = `🆕 New Volunteer Application Received – ${volunteer.name}`;
+  
+  const createdTime = volunteer.created_at 
+    ? new Date(volunteer.created_at).toLocaleString("en-IN")
+    : new Date().toLocaleString("en-IN");
+
+  const rows = 
+    renderInfoRow("Applicant Name", volunteer.name) +
+    renderInfoRow("Email Address", volunteer.email) +
+    renderInfoRow("Phone Number", volunteer.phone) +
+    renderInfoRow("Date of Birth", volunteer.dob || "Not Provided") +
+    renderInfoRow("Gender", volunteer.gender || "Not Provided") +
+    renderInfoRow("Occupation", volunteer.occupation || "Not Provided") +
+    renderInfoRow("Qualification", volunteer.education || "Not Provided") +
+    renderInfoRow("Languages", volunteer.languages || "Not Provided") +
+    renderInfoRow("Skills", volunteer.skills || "Not Provided") +
+    renderInfoRow("Experience", volunteer.experience || "Not Provided") +
+    renderInfoRow("Address", volunteer.address || "Not Provided") +
+    renderInfoRow("City", volunteer.city || "Not Provided") +
+    renderInfoRow("State", volunteer.state || "Not Provided") +
+    renderInfoRow("Country", volunteer.country || "Not Provided") +
+    renderInfoRow("Application ID", volunteer.id) +
+    renderInfoRow("Submission Time", createdTime) +
+    renderInfoRow("Current Status", renderBadge(volunteer.status || "pending"));
+
+  const adminBaseUrl = process.env.ADMIN_URL || "https://uday-foundation-trust.onrender.com/admin";
+  const viewUrl = `${adminBaseUrl}/volunteers`;
+
+  let buttonsHtml = `
+    <table border="0" cellpadding="0" cellspacing="0" style="margin: 24px 0 8px 0; width: 100%;">
+      <tr>
+        <td align="left">
+          <a href="${viewUrl}" target="_blank" style="display: inline-block; background-color: #1e3a8a; color: white; padding: 10px 18px; font-weight: bold; text-decoration: none; border-radius: 8px; font-size: 12px; margin-right: 10px;">View in Admin Panel</a>
+  `;
+
+  if (volunteer.resumeUrl) {
+    buttonsHtml += `<a href="${volunteer.resumeUrl}" target="_blank" style="display: inline-block; background-color: #10b981; color: white; padding: 10px 18px; font-weight: bold; text-decoration: none; border-radius: 8px; font-size: 12px; margin-right: 10px;">Download Resume</a>`;
+  }
+  if (volunteer.idProofUrl) {
+    buttonsHtml += `<a href="${volunteer.idProofUrl}" target="_blank" style="display: inline-block; background-color: #f59e0b; color: white; padding: 10px 18px; font-weight: bold; text-decoration: none; border-radius: 8px; font-size: 12px;">Download ID Proof</a>`;
+  }
+
+  buttonsHtml += `
+        </td>
+      </tr>
+    </table>
+  `;
+
+  const body = `
+    <p style="font-size: 15px; color: #334155; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-weight: 600; margin-top: 0;">Hello,</p>
+    <p style="font-size: 14px; color: #475569; line-height: 1.6; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">A new volunteer application has been submitted on the website. Here are the applicant details:</p>
+    
+    ${renderInfoCard(rows)}
+    
+    ${buttonsHtml}
+    
+    <p style="font-size: 12px; color: #94a3b8; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; margin-top: 24px; border-top: 1px solid #f1f5f9; padding-top: 12px;">This is an automated personal notification alert.</p>
+  `;
+
+  const html = getHtmlTemplate(subject, `New Volunteer application received – ${volunteer.name}`, body, "🆕", "Volunteer Submission", "#1e3a8a");
+  await queueEmail(personalEmail, subject, html, "personal_volunteer_notification");
+}
+
+export async function sendPersonalPartnershipNotification(partnership) {
+  const personalEmail = process.env.PERSONAL_NOTIFICATION_EMAIL || "udayfts1024@gmail.com";
+  const subject = `🤝 New Partnership Application Received – ${partnership.orgName}`;
+  
+  const createdTime = partnership.created_at 
+    ? new Date(partnership.created_at).toLocaleString("en-IN")
+    : new Date().toLocaleString("en-IN");
+
+  let proposalDesc = "Not Provided";
+  let websiteUrl = "Not Provided";
+  let physicalAddress = "Not Provided";
+
+  if (partnership.message) {
+    try {
+      const parsed = JSON.parse(partnership.message);
+      if (parsed && typeof parsed === "object" && parsed.isExtended) {
+        proposalDesc = parsed.proposal || proposalDesc;
+        websiteUrl = parsed.website || websiteUrl;
+        physicalAddress = parsed.address || physicalAddress;
+      } else {
+        proposalDesc = partnership.message;
+      }
+    } catch (e) {
+      proposalDesc = partnership.message;
+    }
+  }
+
+  const rows = 
+    renderInfoRow("Organization Name", partnership.orgName) +
+    renderInfoRow("Contact Person", partnership.contactName) +
+    renderInfoRow("Email Address", partnership.email) +
+    renderInfoRow("Phone Number", partnership.phone) +
+    renderInfoRow("Partnership Type", partnership.type) +
+    renderInfoRow("Description", proposalDesc) +
+    renderInfoRow("Website", websiteUrl) +
+    renderInfoRow("Address", physicalAddress) +
+    renderInfoRow("Application ID", partnership.id) +
+    renderInfoRow("Submission Time", createdTime) +
+    renderInfoRow("Current Status", renderBadge(partnership.status || "pending"));
+
+  const adminBaseUrl = process.env.ADMIN_URL || "https://uday-foundation-trust.onrender.com/admin";
+  const viewUrl = `${adminBaseUrl}/partnerships`;
+
+  let buttonsHtml = `
+    <table border="0" cellpadding="0" cellspacing="0" style="margin: 24px 0 8px 0; width: 100%;">
+      <tr>
+        <td align="left">
+          <a href="${viewUrl}" target="_blank" style="display: inline-block; background-color: #1e3a8a; color: white; padding: 10px 18px; font-weight: bold; text-decoration: none; border-radius: 8px; font-size: 12px; margin-right: 10px;">View in Admin Panel</a>
+  `;
+
+  if (partnership.documentUrl) {
+    buttonsHtml += `<a href="${partnership.documentUrl}" target="_blank" style="display: inline-block; background-color: #10b981; color: white; padding: 10px 18px; font-weight: bold; text-decoration: none; border-radius: 8px; font-size: 12px;">Download Document</a>`;
+  }
+
+  buttonsHtml += `
+        </td>
+      </tr>
+    </table>
+  `;
+
+  const body = `
+    <p style="font-size: 15px; color: #334155; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-weight: 600; margin-top: 0;">Hello,</p>
+    <p style="font-size: 14px; color: #475569; line-height: 1.6; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">A new partnership application has been submitted on the website. Here are the organization details:</p>
+    
+    ${renderInfoCard(rows)}
+    
+    ${buttonsHtml}
+    
+    <p style="font-size: 12px; color: #94a3b8; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; margin-top: 24px; border-top: 1px solid #f1f5f9; padding-top: 12px;">This is an automated personal notification alert.</p>
+  `;
+
+  const html = getHtmlTemplate(subject, `New Partnership application received – ${partnership.orgName}`, body, "🤝", "Partnership Submission", "#1e3a8a");
+  await queueEmail(personalEmail, subject, html, "personal_partnership_notification");
+}
+
+export async function sendPersonalDonationNotification(donation, event, pdfBuffer) {
+  const personalEmail = process.env.PERSONAL_NOTIFICATION_EMAIL || "udayfts1024@gmail.com";
+  const amount = donation.amount || event.amount;
+  const formattedAmount = Number(amount).toLocaleString("en-IN");
+  const subject = `💚 New Donation Received – ₹${formattedAmount} from ${donation.donorName || event.donor_name}`;
+  
+  const paymentTimeStr = event.updated_at 
+    ? new Date(event.updated_at).toLocaleString("en-IN")
+    : new Date().toLocaleString("en-IN");
+
+  const rows = 
+    renderInfoRow("Donor Name", donation.donorName || event.donor_name) +
+    renderInfoRow("Email Address", donation.email || event.email) +
+    renderInfoRow("Phone Number", donation.phone || event.phone || "N/A") +
+    renderInfoRow("PAN Number", donation.panNumber || event.pan_number || "N/A") +
+    renderInfoRow("Donation Amount", `₹${formattedAmount}`) +
+    renderInfoRow("Currency", event.currency || "INR") +
+    renderInfoRow("Transaction ID", event.id) +
+    renderInfoRow("Cashfree Order ID", event.idempotency_key) +
+    renderInfoRow("Cashfree Payment ID", event.gateway_transaction_id || "N/A") +
+    renderInfoRow("Payment Method", event.payment_method || "Online Gateway") +
+    renderInfoRow("Payment Time", paymentTimeStr) +
+    renderInfoRow("Receipt Number", donation.receiptNumber) +
+    renderInfoRow("Donation Purpose", donation.purpose || event.purpose || "General Donation") +
+    renderInfoRow("Payment Status", renderBadge("Successful"));
+
+  const adminBaseUrl = process.env.ADMIN_URL || "https://uday-foundation-trust.onrender.com/admin";
+  const viewUrl = `${adminBaseUrl}/donations?search=${donation.id}`;
+  const downloadReceiptUrl = `${process.env.NEXT_PUBLIC_API_URL || "https://uday-foundation-trust.onrender.com/api"}/payments/receipt/${donation.id}`;
+
+  const body = `
+    <p style="font-size: 15px; color: #334155; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-weight: 600; margin-top: 0;">Hello,</p>
+    <p style="font-size: 14px; color: #475569; line-height: 1.6; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">A new donation has been successfully completed and verified. Here are the transaction details:</p>
+    
+    ${renderInfoCard(rows)}
+    
+    <p style="margin-top: 24px; text-align: center;">
+      <a href="${downloadReceiptUrl}" target="_blank" style="display: inline-block; background-color: #10b981; color: white; padding: 10px 20px; font-weight: bold; text-decoration: none; border-radius: 8px; margin-right: 12px; font-size: 13px;">Download Receipt</a>
+      <a href="${viewUrl}" style="display: inline-block; background-color: #1e3a8a; color: white; padding: 10px 20px; font-weight: bold; text-decoration: none; border-radius: 8px; font-size: 13px;">View Donation in Admin Panel</a>
+    </p>
+    
+    <p style="font-size: 12px; color: #94a3b8; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; margin-top: 24px; border-top: 1px solid #f1f5f9; padding-top: 12px;">This is an automated personal notification alert.</p>
+  `;
+
+  const html = getHtmlTemplate(subject, `New Donation Alert – ₹${formattedAmount}`, body, "💚", "Donation Successful", "#10b981");
+  const attachments = [];
+  
+  if (pdfBuffer) {
+    const filename = `Donation_Receipt_${donation.receiptNumber.replace(/\//g, "_")}.pdf`;
+    attachments.push({
+      filename,
+      content: pdfBuffer,
+    });
+  }
+
+  await queueEmail(personalEmail, subject, html, "personal_donation_notification", attachments);
+}
+
+
 

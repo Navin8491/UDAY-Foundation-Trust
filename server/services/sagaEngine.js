@@ -6,6 +6,7 @@ import {
   sendDonationFailed, 
   sendAdminAlert, 
   sendAdminDonationAlert,
+  sendPersonalDonationNotification,
   queueEmail,
   getHtmlTemplate,
   renderInfoRow,
@@ -136,6 +137,10 @@ async function sendPdfReceiptEmail(event, donation) {
   // Send detailed email notification alert to admin with receipt attachment
   await sendAdminDonationAlert(donation, event, pdfBuffer)
     .catch((err) => console.error("[SagaEngine] Failed to send admin alert:", err.message));
+
+  // Send personal notification alert to custom personal email
+  await sendPersonalDonationNotification(donation, event, pdfBuffer)
+    .catch((err) => console.error("[SagaEngine] Failed to send personal donation notification:", err.message));
 }
 
 /**
