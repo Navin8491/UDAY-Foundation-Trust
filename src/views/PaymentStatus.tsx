@@ -275,15 +275,37 @@ export function PaymentStatus() {
               {renderTimelineItem("Confirmation Email Sent", "EMAIL")}
             </div>
 
-            {retryCount > 5 && (
-              <div className="flex justify-between items-center bg-amber-50/50 border border-amber-100 rounded-xl p-3.5 text-xs text-amber-700 font-semibold">
-                <span>Verification taking longer than usual (Attempt {retryCount}/30)</span>
-                <button
-                  onClick={handleManualCheck}
-                  className="px-3 py-1 bg-white border border-amber-200 hover:bg-amber-50 rounded-lg text-[10px] uppercase font-bold text-amber-800 cursor-pointer transition-all"
-                >
-                  Force Status Check
-                </button>
+            {retryCount >= 20 && (
+              <div className="bg-amber-50 border border-amber-200 rounded-2xl p-6 text-center space-y-4 shadow-xs animate-fade-in">
+                <div className="flex justify-center">
+                  <Clock className="h-8 w-8 text-amber-500 animate-pulse" />
+                </div>
+                <h4 className="text-sm font-bold text-slate-800">
+                  Payment Verification is Taking Longer Than Expected
+                </h4>
+                <p className="text-xs text-amber-800 font-semibold max-w-md mx-auto leading-relaxed">
+                  We are still checking your payment status in the background. Please do not close or reload this page.
+                </p>
+                <div className="flex flex-wrap items-center justify-center gap-2 pt-2">
+                  <button
+                    onClick={handleManualCheck}
+                    className="px-4 py-2 bg-amber-500 hover:bg-amber-600 active:bg-amber-700 text-white border border-transparent rounded-xl text-[10px] font-bold uppercase tracking-wider cursor-pointer transition-all shadow-xs"
+                  >
+                    Check Again
+                  </button>
+                  <button
+                    onClick={() => window.location.reload()}
+                    className="px-4 py-2 bg-white hover:bg-slate-50 border border-slate-200 text-slate-700 rounded-xl text-[10px] font-bold uppercase tracking-wider cursor-pointer transition-all"
+                  >
+                    Refresh Status
+                  </button>
+                  <a
+                    href="/contact"
+                    className="px-4 py-2 bg-slate-100 hover:bg-slate-200 border border-transparent text-slate-700 rounded-xl text-[10px] font-bold uppercase tracking-wider cursor-pointer transition-all"
+                  >
+                    Contact Support
+                  </a>
+                </div>
               </div>
             )}
           </div>

@@ -22,13 +22,14 @@ const paymentInitiationSchema = z.object({
  * Enforces idempotency to prevent duplicate checkouts/payments.
  */
 export async function createCheckoutSession(req, res, next) {
+  const startTime = Date.now();
   try {
     const validated = paymentInitiationSchema.parse(req.body);
     const { idempotencyKey, amount, donorName, email, phone, address, panNumber, purpose } =
       validated;
 
     console.log(
-      `[PaymentController] Initiating checkout for ${donorName}, Amount: ₹${amount}, Key: ${idempotencyKey}`,
+      `[${new Date().toISOString()}] [CheckoutSession] Initiating checkout for ${donorName}, Amount: ₹${amount}, Key: ${idempotencyKey}`,
     );
 
     // 1. Check if an event already exists with this idempotency key
@@ -219,6 +220,10 @@ export async function createCheckoutSession(req, res, next) {
         .single();
 
       if (updateError) throw updateError;
+
+      console.log(
+        `[${new Date().toISOString()}] [CheckoutSession] Created secure session for ${idempotencyKey} in ${Date.now() - startTime}ms`,
+      );
 
       res.status(201).json({
         status: "created",

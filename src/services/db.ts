@@ -744,6 +744,7 @@ export async function initiateDonationPayment(data: any): Promise<{
   donorName?: string | null;
   email?: string | null;
   phone?: string | null;
+  environment?: string | null;
 }> {
   const res = await apiRequest("/payments/create-session", {
     method: "POST",

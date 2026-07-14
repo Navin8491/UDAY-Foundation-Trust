@@ -248,8 +248,8 @@ export function Donate() {
     address.trim().length > 0 &&
     isPanValid;
 
-  const triggerSdkCheckout = (targetWindow: Window, session: any) => {
-    const sdkEnv = (session.environment || process.env.NEXT_PUBLIC_CASHFREE_ENV || "sandbox").toLowerCase();
+  const writeBrandedLoadingPage = (targetWindow: Window) => {
+    const logoUrl = typeof window !== "undefined" ? `${window.location.origin}/uday-logo.png` : "";
     targetWindow.document.write(`
       <!DOCTYPE html>
       <html>
@@ -263,47 +263,156 @@ export function Donate() {
               flex-direction: column;
               align-items: center;
               justify-content: center;
-              height: 100vh;
+              min-height: 100vh;
               margin: 0;
-              font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+              font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
               background-color: #f8fafc;
-              color: #475569;
+              color: #1e293b;
+            }
+            .card {
+              background: white;
+              padding: 40px;
+              border-radius: 24px;
+              box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.05);
+              border: 1px solid #e2e8f0;
+              text-align: center;
+              max-width: 400px;
+              width: 90%;
+              box-sizing: border-box;
+            }
+            .logo {
+              height: 70px;
+              margin-bottom: 24px;
+              object-fit: contain;
+            }
+            .spinner-container {
+              position: relative;
+              width: 64px;
+              height: 64px;
+              margin: 0 auto 24px auto;
             }
             .spinner {
-              border: 4px solid #e2e8f0;
-              border-top: 4px solid #f5a623;
+              box-sizing: border-box;
+              display: block;
+              position: absolute;
+              width: 64px;
+              height: 64px;
+              border: 5px solid #e2e8f0;
               border-radius: 50%;
-              width: 40px;
-              height: 40px;
-              animation: spin 1s linear infinite;
-              margin-bottom: 20px;
+              animation: spin 1.2s cubic-bezier(0.5, 0, 0.5, 1) infinite;
+              border-top-color: #f5a623;
             }
             @keyframes spin {
               0% { transform: rotate(0deg); }
               100% { transform: rotate(360deg); }
             }
+            h3 {
+              font-size: 18px;
+              margin: 0 0 8px 0;
+              color: #0f172a;
+              font-weight: 700;
+            }
             p {
-              font-size: 16px;
-              font-weight: 500;
+              font-size: 14px;
+              color: #64748b;
+              margin: 0 0 24px 0;
+              line-height: 1.5;
+            }
+            .progress-bar-bg {
+              background-color: #f1f5f9;
+              border-radius: 9999px;
+              height: 6px;
+              width: 100%;
+              overflow: hidden;
+              margin-bottom: 24px;
+            }
+            .progress-bar {
+              background: linear-gradient(90deg, #f5a623, #ea580c);
+              height: 100%;
+              width: 0%;
+              border-radius: 9999px;
+              animation: progress 4s ease-out forwards;
+            }
+            @keyframes progress {
+              0% { width: 0%; }
+              20% { width: 25%; }
+              50% { width: 65%; }
+              80% { width: 85%; }
+              100% { width: 90%; }
+            }
+            .security-badge {
+              display: inline-flex;
+              align-items: center;
+              gap: 6px;
+              background-color: #f0fdf4;
+              color: #166534;
+              padding: 6px 12px;
+              border-radius: 9999px;
+              font-size: 11px;
+              font-weight: 600;
+              letter-spacing: 0.05em;
+              text-transform: uppercase;
+              border: 1px solid #bbf7d0;
+            }
+            .security-icon {
+              width: 12px;
+              height: 12px;
+              fill: currentColor;
+            }
+            .error-container {
+              display: none;
             }
           </style>
         </head>
         <body>
-          <div class="spinner"></div>
-          <p>Redirecting you to secure payment gateway...</p>
+          <div class="card" id="loading-container">
+            <img src="${logoUrl}" class="logo" alt="Uday Foundation Trust" />
+            <div class="spinner-container">
+              <div class="spinner"></div>
+            </div>
+            <h3>Redirecting to Secure Payment Gateway...</h3>
+            <p>Please wait, preparing your secure Cashfree payment.</p>
+            <div class="progress-bar-bg">
+              <div class="progress-bar"></div>
+            </div>
+            <div class="security-badge">
+              <svg class="security-icon" viewBox="0 0 24 24">
+                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/>
+              </svg>
+              PCI-DSS COMPLIANT • SSL SECURED
+            </div>
+          </div>
+          <div class="card error-container" id="error-container">
+            <img src="${logoUrl}" class="logo" alt="Uday Foundation Trust" />
+            <h3 style="color:#ef4444;">Connection Failed</h3>
+            <p>Failed to load payment gateway checkout session. Please close this tab and try again from the donation page.</p>
+          </div>
           <script>
-            window.onload = function() {
+            window.startCheckout = function(sessionId, mode) {
               try {
-                const cashfree = Cashfree({
-                  mode: "${sdkEnv}"
-                });
-                cashfree.checkout({
-                  paymentSessionId: "${session.sessionId}",
-                  redirectTarget: "_self"
-                });
+                const pb = document.querySelector('.progress-bar');
+                if (pb) {
+                  pb.style.animation = 'none';
+                  pb.style.width = '100%';
+                }
+                
+                const initCheckout = () => {
+                  if (typeof Cashfree !== 'undefined') {
+                    const cashfree = Cashfree({ mode: mode });
+                    cashfree.checkout({
+                      paymentSessionId: sessionId,
+                      redirectTarget: "_self"
+                    });
+                  } else {
+                    setTimeout(initCheckout, 100);
+                  }
+                };
+                
+                setTimeout(initCheckout, 300);
               } catch (err) {
                 console.error(err);
-                document.body.innerHTML = "<p style='color:#ef4444;font-weight:bold;margin:10px;'>Failed to load payment gateway. Please close this tab and try again.</p>";
+                document.getElementById("error-container").style.display = "block";
+                document.getElementById("loading-container").style.display = "none";
               }
             };
           </script>
@@ -320,8 +429,11 @@ export function Donate() {
     setLoading(true);
     setPopupBlockerActive(false);
 
-    // Pre-open a blank tab synchronously to bypass the browser's popup blocker
+    // Pre-open a tab synchronously to bypass browser popup blocker and write loading HTML immediately
     const checkoutWindow = window.open("about:blank", "_blank");
+    if (checkoutWindow) {
+      writeBrandedLoadingPage(checkoutWindow);
+    }
 
     try {
       const session = await initiateDonationPayment({
@@ -346,10 +458,15 @@ export function Donate() {
 
       if (session.sessionId) {
         if (checkoutWindow) {
-          // Initialize official SDK runner inside the pre-opened blank window
-          triggerSdkCheckout(checkoutWindow, session);
+          // Trigger SDK checkout in pre-loaded tab using startCheckout helper
+          try {
+            (checkoutWindow as any).startCheckout(session.sessionId, (session.environment || "sandbox").toLowerCase());
+          } catch (sdkErr) {
+            console.error("SDK initialization trigger failed:", sdkErr);
+            checkoutWindow.close();
+            setPopupBlockerActive(true);
+          }
         } else {
-          // Fallback if the tab pre-opening failed
           setPopupBlockerActive(true);
           toast.warning("Popup blocker detected! Please allow popups or click the button to continue.");
         }
@@ -361,7 +478,14 @@ export function Donate() {
         throw new Error("No payment session details returned.");
       }
     } catch (err: any) {
-      if (checkoutWindow) checkoutWindow.close();
+      if (checkoutWindow) {
+        try {
+          (checkoutWindow as any).document.getElementById("error-container").style.display = "block";
+          (checkoutWindow as any).document.getElementById("loading-container").style.display = "none";
+        } catch (_) {
+          checkoutWindow.close();
+        }
+      }
       console.error(err);
       toast.error(err.message || "Failed to initiate payment session.");
       
@@ -708,8 +832,14 @@ export function Donate() {
                             if (paymentSession?.sessionId) {
                               const w = window.open("about:blank", "_blank");
                               if (w) {
-                                triggerSdkCheckout(w, paymentSession);
-                                setPopupBlockerActive(false);
+                                writeBrandedLoadingPage(w);
+                                try {
+                                  (w as any).startCheckout(paymentSession.sessionId, (paymentSession.environment || "sandbox").toLowerCase());
+                                  setPopupBlockerActive(false);
+                                } catch (sdkErr) {
+                                  console.error("SDK initialization trigger failed:", sdkErr);
+                                  w.close();
+                                }
                               }
                             }
                           }}
