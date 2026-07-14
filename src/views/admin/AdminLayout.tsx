@@ -477,6 +477,13 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
                         >
                           <Volume2 className="h-3.5 w-3.5" />
                         </button>
+                        <button
+                          onClick={() => setNotifOpen(false)}
+                          className="p-1 rounded-lg border bg-slate-50 border-slate-200 text-slate-400 hover:text-slate-600 hover:bg-slate-100 flex items-center justify-center cursor-pointer"
+                          title="Close Notifications"
+                        >
+                          <X className="h-3.5 w-3.5" />
+                        </button>
                       </div>
                     </div>
 
