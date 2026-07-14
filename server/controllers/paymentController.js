@@ -581,8 +581,20 @@ export async function getPaymentEvents(req, res, next) {
 
     if (donationsError) throw donationsError;
 
+    // Create a map of donation details by event ID
+    const donationMap = new Map((donations || []).map((d) => [d.id, d]));
+
+    // Map events to include the generated receiptNumber and ensure proper property mapping
+    const mappedEvents = (events || []).map((e) => {
+      const match = donationMap.get(e.id);
+      return {
+        ...e,
+        receiptNumber: match ? match.receiptNumber : null,
+      };
+    });
+
     // Union legacy donation records that were created before the payment_events system
-    const eventIds = new Set((events || []).map((e) => e.id));
+    const eventIds = new Set(mappedEvents.map((e) => e.id));
     const legacyEvents = (donations || [])
       .filter((d) => !eventIds.has(d.id))
       .map((d) => ({
@@ -596,13 +608,14 @@ export async function getPaymentEvents(req, res, next) {
         amount: d.amount,
         purpose: d.purpose,
         current_state: "COMPLETED",
+        receiptNumber: d.receiptNumber,
         created_at: d.created_at,
         updated_at: d.updated_at || d.created_at,
         last_error: null,
         retry_count: 0,
       }));
 
-    const combined = [...(events || []), ...legacyEvents].sort((a, b) => {
+    const combined = [...mappedEvents, ...legacyEvents].sort((a, b) => {
       return new Date(b.created_at) - new Date(a.created_at);
     });
 
@@ -659,6 +672,7 @@ export async function getPaymentStatus(req, res, next) {
 
           if (!updateError && updatedEvent) {
             currentState = "CHARGED";
+            Object.assign(event, updatedEvent);
             // Run Saga in background
             setImmediate(async () => {
               try {
@@ -681,6 +695,7 @@ export async function getPaymentStatus(req, res, next) {
             .maybeSingle();
           if (updatedEvent) {
             currentState = "FAILED";
+            Object.assign(event, updatedEvent);
             const { sendDonationFailed } = await import("../utils/emailService.js");
             sendDonationFailed(updatedEvent.email, updatedEvent.donor_name, updatedEvent.amount)
               .catch(err => console.error("[PaymentController] Failed to send payment failure email:", err.message));

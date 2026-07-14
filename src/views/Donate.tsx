@@ -171,9 +171,12 @@ export function Donate() {
         const currentState = data.currentState;
 
         if (["CHARGED", "PAYMENT_VERIFIED", "DONATION_SAVED", "EMAIL_SENT", "ADMIN_NOTIFIED", "COMPLETED"].includes(currentState)) {
-          clearInterval(interval);
           setPaymentState("success");
-          toast.success("Donation completed successfully!");
+          const isFullyCompleted = currentState === "COMPLETED" || (data.receiptNumber && data.receiptNumber !== "Pending");
+          if (isFullyCompleted) {
+            clearInterval(interval);
+            toast.success("Donation completed successfully!");
+          }
         } else if (currentState === "FAILED") {
           clearInterval(interval);
           setPaymentState("failed");

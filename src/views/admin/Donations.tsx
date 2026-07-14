@@ -77,6 +77,8 @@ export function Donations() {
             project: item.purpose || "General Donation",
             lastError: item.last_error,
             retryCount: item.retry_count,
+            gatewayTransactionId: item.gateway_transaction_id || null,
+            receiptNumber: item.receiptNumber || null,
           }));
           setDonationsList(mapped);
         } else {
@@ -442,16 +444,16 @@ export function Donations() {
                   <span className="text-[10px] text-slate-400 uppercase tracking-wider block">
                     Transaction ID
                   </span>
-                  <span className="font-mono text-slate-900 text-sm select-all">
-                    {selectedDonation.id.substring(0, 18)}...
+                  <span className="font-mono text-slate-900 text-xs block truncate select-all" title={selectedDonation.gatewayTransactionId || selectedDonation.id}>
+                    {selectedDonation.gatewayTransactionId || selectedDonation.id}
                   </span>
                 </div>
                 <div>
                   <span className="text-[10px] text-slate-400 uppercase tracking-wider block">
-                    Current State
+                    Receipt Number
                   </span>
-                  <span className="font-mono text-primary text-sm uppercase">
-                    {selectedDonation.rawStatus}
+                  <span className="font-mono text-slate-900 text-xs block truncate select-all">
+                    {selectedDonation.receiptNumber || "Pending"}
                   </span>
                 </div>
               </div>
@@ -468,13 +470,23 @@ export function Donations() {
                 </div>
               )}
 
-              <div>
-                <span className="text-[10px] text-slate-400 uppercase tracking-wider block">
-                  Idempotency Key
-                </span>
-                <span className="font-mono text-slate-600 text-xs block truncate select-all">
-                  {selectedDonation.idempotencyKey}
-                </span>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <span className="text-[10px] text-slate-400 uppercase tracking-wider block">
+                    Current State
+                  </span>
+                  <span className="font-mono text-primary text-xs uppercase block truncate">
+                    {selectedDonation.rawStatus}
+                  </span>
+                </div>
+                <div>
+                  <span className="text-[10px] text-slate-400 uppercase tracking-wider block">
+                    Idempotency Key
+                  </span>
+                  <span className="font-mono text-slate-600 text-xs block truncate select-all">
+                    {selectedDonation.idempotencyKey}
+                  </span>
+                </div>
               </div>
 
               <div>
