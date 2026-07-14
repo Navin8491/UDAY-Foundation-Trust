@@ -78,6 +78,7 @@ export function PaymentStatus() {
   const [donationId, setDonationId] = useState<string | null>(null);
   const [paymentMethod, setPaymentMethod] = useState<string | null>(null);
   const [lastError, setLastError] = useState<string | null>(null);
+  const [gatewayTransactionId, setGatewayTransactionId] = useState<string | null>(null);
 
   const [verifying, setVerifying] = useState<boolean>(true);
   const [verificationError, setVerificationError] = useState<string>("");
@@ -106,6 +107,7 @@ export function PaymentStatus() {
       setDonationId(res.donationId || null);
       setPaymentMethod(res.paymentMethod || null);
       setLastError(res.lastError || null);
+      setGatewayTransactionId(res.gatewayTransactionId || null);
 
       const successStates = ["COMPLETED", "DONATION_SAVED", "EMAIL_SENT", "ADMIN_NOTIFIED"];
 
@@ -428,7 +430,7 @@ export function PaymentStatus() {
                     Transaction ID
                   </span>
                   <span className="font-mono text-slate-900 font-bold block truncate max-w-[180px]">
-                    {donationId || "N/A"}
+                    {gatewayTransactionId || donationId || "N/A"}
                   </span>
                 </div>
                 <div>

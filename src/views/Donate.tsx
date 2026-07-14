@@ -939,8 +939,8 @@ export function Donate() {
                     </div>
                     <div className="flex justify-between py-1.5 border-b border-slate-100">
                       <span className="text-slate-400">Transaction ID</span>
-                      <span className="text-slate-800 truncate max-w-[180px]" title={paymentStatusData?.id}>
-                        {paymentStatusData?.id}
+                      <span className="text-slate-800 truncate max-w-[180px]" title={paymentStatusData?.gatewayTransactionId || paymentStatusData?.id}>
+                        {paymentStatusData?.gatewayTransactionId || paymentStatusData?.id}
                       </span>
                     </div>
                     <div className="flex justify-between py-1.5 border-b border-slate-100">
@@ -960,20 +960,37 @@ export function Donate() {
                   </div>
 
                   <div className="flex flex-col sm:flex-row gap-3 items-center justify-center pt-4">
-                    <button
-                      onClick={() => {
-                        const donationId = paymentStatusData?.donationId || paymentStatusData?.id;
-                        if (donationId) {
-                          window.open(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api"}/payments/receipt/${donationId}`, "_blank");
-                        } else {
-                          toast.error("Receipt still generating, please wait a moment.");
-                        }
-                      }}
-                      className="btn-saffron w-full sm:w-auto py-3 px-6 font-bold uppercase tracking-wider text-xs flex items-center justify-center gap-1.5 cursor-pointer"
-                    >
-                      <FileDown className="h-4 w-4" />
-                      Download Receipt
-                    </button>
+                    {(() => {
+                      const isReceiptReady = paymentStatusData?.receiptNumber && paymentStatusData.receiptNumber !== "Pending";
+                      return (
+                        <button
+                          onClick={() => {
+                            const donationId = paymentStatusData?.donationId || paymentStatusData?.id;
+                            if (donationId) {
+                              window.open(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api"}/payments/receipt/${donationId}`, "_blank");
+                            }
+                          }}
+                          disabled={!isReceiptReady}
+                          className={`w-full sm:w-auto py-3 px-6 font-bold uppercase tracking-wider text-xs flex items-center justify-center gap-1.5 transition-all ${
+                            isReceiptReady
+                              ? "btn-saffron cursor-pointer"
+                              : "bg-slate-100 border border-slate-200 text-slate-400 cursor-not-allowed"
+                          }`}
+                        >
+                          {isReceiptReady ? (
+                            <>
+                              <FileDown className="h-4 w-4" />
+                              Download Receipt
+                            </>
+                          ) : (
+                            <>
+                              <Loader2 className="h-4 w-4 animate-spin text-slate-400" />
+                              Generating Receipt...
+                            </>
+                          )}
+                        </button>
+                      );
+                    })()}
                     
                     <button
                       onClick={() => {

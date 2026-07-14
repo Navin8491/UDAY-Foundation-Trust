@@ -685,16 +685,12 @@ export async function getPaymentStatus(req, res, next) {
 
     // Try to find the donation record if it was saved
     let donation = null;
-    if (
-      ["DONATION_SAVED", "EMAIL_SENT", "ADMIN_NOTIFIED", "COMPLETED"].includes(currentState)
-    ) {
-      const { data } = await supabase
-        .from("donations")
-        .select("*")
-        .eq("id", event.id)
-        .maybeSingle();
-      donation = data;
-    }
+    const { data: donationData } = await supabase
+      .from("donations")
+      .select("*")
+      .eq("id", event.id)
+      .maybeSingle();
+    donation = donationData;
 
     res.json({
       id: event.id,
@@ -708,6 +704,7 @@ export async function getPaymentStatus(req, res, next) {
       donationId: donation?.id || null,
       lastError: event.last_error,
       paymentMethod: event.payment_method || null,
+      gatewayTransactionId: event.gateway_transaction_id || null,
     });
   } catch (err) {
     next(err);

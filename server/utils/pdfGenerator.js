@@ -1,6 +1,7 @@
 import PDFDocument from "pdfkit";
 import path from "path";
 import { fileURLToPath } from "url";
+import { supabase } from "../config/db.js";
 
 /**
  * Converts a number into Indian currency words format.
@@ -70,7 +71,7 @@ function numberToWords(num) {
   let remaining = num;
   if (remaining > 0) result += h(remaining) + " ";
 
-  return result.trim() + " Rupees Only";
+  return result.trim() + (num === 1 ? " Rupee Only" : " Rupees Only");
 }
 
 /**
@@ -79,7 +80,21 @@ function numberToWords(num) {
  * @param {Object} donation - The donation record.
  * @returns {Promise<Buffer>}
  */
-export function generateReceiptPdf(donation) {
+export async function generateReceiptPdf(donation) {
+  let transactionId = "Direct UPI";
+  try {
+    const { data: event } = await supabase
+      .from("payment_events")
+      .select("gateway_transaction_id")
+      .eq("id", donation.id)
+      .maybeSingle();
+    if (event?.gateway_transaction_id) {
+      transactionId = event.gateway_transaction_id;
+    }
+  } catch (err) {
+    console.warn("[PDFGenerator] Failed to fetch payment event details:", err.message);
+  }
+
   return new Promise((resolve, reject) => {
     try {
       const doc = new PDFDocument({ size: "A4", margin: 40 });
@@ -169,12 +184,12 @@ export function generateReceiptPdf(donation) {
         .font("Helvetica")
         .text(donation.panNumber || "N/A", 410, 185);
 
-      doc.fillColor("#475569");
-      doc.font("Helvetica-Bold").text("Payment ID:", 330, 205);
-      doc
-        .fillColor("#0F172A")
-        .font("Helvetica")
-        .text(donation.id?.substring(0, 18) || "Direct UPI", 410, 205);
+       doc.fillColor("#475569");
+       doc.font("Helvetica-Bold").text("Transaction ID:", 330, 205);
+       doc
+         .fillColor("#0F172A")
+         .font("Helvetica")
+         .text(transactionId, 410, 205);
 
       // Horizontal separator
       doc.moveTo(40, 240).lineTo(555, 240).lineWidth(0.5).stroke("#cbd5e1");
