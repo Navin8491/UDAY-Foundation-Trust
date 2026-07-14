@@ -5,6 +5,18 @@ import { generateReceiptPdf } from "../utils/pdfGenerator.js";
 import { z } from "zod";
 import crypto from "crypto";
 
+async function markWebhookProcessed(webhookLogId, processed = true, errorMsg = null) {
+  if (!webhookLogId) return;
+  try {
+    await supabase
+      .from("webhook_logs")
+      .update({ processed, error: errorMsg })
+      .eq("id", webhookLogId);
+  } catch (err) {
+    console.error("[PaymentController] Failed to update webhook log:", err.message);
+  }
+}
+
 // Schema for payment initiation (extends donationSchema with idempotencyKey)
 const paymentInitiationSchema = z.object({
   donorName: z.string().min(2, "Donor name must be at least 2 characters"),
@@ -248,15 +260,19 @@ export async function createCheckoutSession(req, res, next) {
         (typeof gatewayErr === "string" ? gatewayErr : JSON.stringify(gatewayErr));
       console.error("[PaymentController] Payment Gateway Checkout Creation failed:", gatewayErr);
       
-      await supabase
-        .from("failed_payments")
-        .insert([{
-          payment_event_id: eventRecord.id,
-          order_id: eventRecord.payment_id || null,
-          error_code: gatewayErr.code || gatewayErr.error?.code || "GATEWAY_ERROR",
-          error_description: errorMsg,
-          amount: eventRecord.amount
-        }]).catch(err => console.error("[PaymentController] Failed to log checkout failure:", err.message));
+      try {
+        await supabase
+          .from("failed_payments")
+          .insert([{
+            payment_event_id: eventRecord.id,
+            order_id: eventRecord.payment_id || null,
+            error_code: gatewayErr.code || gatewayErr.error?.code || "GATEWAY_ERROR",
+            error_description: errorMsg,
+            amount: eventRecord.amount
+          }]);
+      } catch (err) {
+        console.error("[PaymentController] Failed to log checkout failure:", err.message);
+      }
 
       await transitionToState(
         eventRecord.id,
@@ -349,9 +365,7 @@ export async function handleWebhook(req, res, next) {
         console.warn(
           `[PaymentController] Webhook received for unknown idempotency key: ${verification.idempotencyKey}`,
         );
-        if (webhookLog) {
-          await supabase.from("webhook_logs").update({ processed: true }).eq("id", webhookLog.id).catch(() => {});
-        }
+        await markWebhookProcessed(webhookLog?.id, true);
         return res.status(200).json({ received: true, warning: "unknown idempotency key" });
       }
 
@@ -369,9 +383,7 @@ export async function handleWebhook(req, res, next) {
         console.log(
           `[PaymentController] Transaction ${event.id} already completed or processing. Webhook ignored.`,
         );
-        if (webhookLog) {
-          await supabase.from("webhook_logs").update({ processed: true }).eq("id", webhookLog.id).catch(() => {});
-        }
+        await markWebhookProcessed(webhookLog?.id, true);
         return res.status(200).json({ received: true, status: "already_processed" });
       }
 
@@ -397,30 +409,30 @@ export async function handleWebhook(req, res, next) {
         console.log(
           `[PaymentController] Webhook: State has already transitioned. Skipping duplicate Saga execution.`,
         );
-        if (webhookLog) {
-          await supabase.from("webhook_logs").update({ processed: true }).eq("id", webhookLog.id).catch(() => {});
-        }
+        await markWebhookProcessed(webhookLog?.id, true);
         return res.status(200).json({ received: true, status: "already_processed" });
       }
 
       if (updatedEvent.current_state === "FAILED") {
-        await supabase
-          .from("failed_payments")
-          .insert([{
-            payment_event_id: updatedEvent.id,
-            order_id: updatedEvent.payment_id || null,
-            error_code: verification.errorCode || "WEBHOOK_PAYMENT_FAILED",
-            error_description: verification.error || "Payment failed webhook event",
-            amount: updatedEvent.amount
-          }]).catch(err => console.error("[PaymentController] Failed to log failed webhook payment:", err.message));
+        try {
+          await supabase
+            .from("failed_payments")
+            .insert([{
+              payment_event_id: updatedEvent.id,
+              order_id: updatedEvent.payment_id || null,
+              error_code: verification.errorCode || "WEBHOOK_PAYMENT_FAILED",
+              error_description: verification.error || "Payment failed webhook event",
+              amount: updatedEvent.amount
+            }]);
+        } catch (err) {
+          console.error("[PaymentController] Failed to log failed webhook payment:", err.message);
+        }
 
         const { sendDonationFailed } = await import("../utils/emailService.js");
         sendDonationFailed(updatedEvent.email, updatedEvent.donor_name, updatedEvent.amount)
           .catch(err => console.error("[PaymentController] Failed to send payment failure email:", err.message));
         
-        if (webhookLog) {
-          await supabase.from("webhook_logs").update({ processed: true }).eq("id", webhookLog.id).catch(() => {});
-        }
+        await markWebhookProcessed(webhookLog?.id, true);
         return res.status(200).json({ received: true, status: "payment_failed" });
       }
 
@@ -437,14 +449,10 @@ export async function handleWebhook(req, res, next) {
       });
     }
 
-    if (webhookLog) {
-      await supabase.from("webhook_logs").update({ processed: true }).eq("id", webhookLog.id).catch(() => {});
-    }
+    await markWebhookProcessed(webhookLog?.id, true);
     res.status(200).json({ received: true });
   } catch (err) {
-    if (webhookLog) {
-      await supabase.from("webhook_logs").update({ processed: false, error: err.message }).eq("id", webhookLog.id).catch(() => {});
-    }
+    await markWebhookProcessed(webhookLog?.id, false, err.message);
     next(err);
   }
 }

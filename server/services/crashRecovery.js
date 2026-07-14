@@ -100,14 +100,18 @@ async function recoverTransaction(event) {
     console.error(`[CrashRecovery] Error recovering transaction ${eventId}:`, err.message);
 
     // Update event retry count
-    await supabase.rpc("increment_retry_count", { event_id: eventId }).catch(() => {
-      // Fallback update in case RPC not available
-      supabase
-        .from("payment_events")
-        .update({ retry_count: (event.retry_count || 0) + 1 })
-        .eq("id", eventId)
-        .catch(() => {});
-    });
+    try {
+      await supabase.rpc("increment_retry_count", { event_id: eventId });
+    } catch (rpcErr) {
+      try {
+        await supabase
+          .from("payment_events")
+          .update({ retry_count: (event.retry_count || 0) + 1 })
+          .eq("id", eventId);
+      } catch (dbErr) {
+        console.error("[CrashRecovery] Failed to increment retry count:", dbErr.message);
+      }
+    }
   }
 }
 

@@ -109,12 +109,20 @@ export function PaymentStatus() {
       setLastError(res.lastError || null);
       setGatewayTransactionId(res.gatewayTransactionId || null);
 
-      const successStates = ["COMPLETED", "DONATION_SAVED", "EMAIL_SENT", "ADMIN_NOTIFIED"];
+      const paymentSuccessful = [
+        "CHARGED",
+        "PAYMENT_VERIFIED",
+        "DONATION_SAVED",
+        "EMAIL_SENT",
+        "ADMIN_NOTIFIED",
+        "COMPLETED",
+      ].includes(res.currentState);
 
-      if (successStates.includes(res.currentState)) {
+      if (paymentSuccessful) {
         setVerifying(false);
         setVerificationError("");
-        return { shouldStop: true, state: res.currentState };
+        const isFullyCompleted = res.currentState === "COMPLETED" || (res.receiptNumber && res.receiptNumber !== "Pending");
+        return { shouldStop: isFullyCompleted, state: res.currentState };
       } else if (res.currentState === "FAILED") {
         setVerifying(false);
         setVerificationError(res.lastError || "Payment failed or was cancelled at checkout.");
@@ -498,16 +506,35 @@ export function PaymentStatus() {
 
             {/* Interactive Receipt Actions */}
             <div className="flex flex-wrap items-center justify-center gap-3 pt-2 print:hidden">
-              {donationId && (
-                <a
-                  href={`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api"}/payments/receipt/${donationId}`}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="inline-flex items-center gap-1.5 bg-[#7A9D1C]/15 hover:bg-[#7A9D1C]/20 text-[#7A9D1C] text-xs font-bold py-2.5 px-4 rounded-xl transition-all cursor-pointer"
-                >
-                  <Download className="h-4 w-4" /> Download PDF Receipt
-                </a>
-              )}
+               {(() => {
+                 const isReceiptReady = receiptNumber && receiptNumber !== "Pending";
+                 return (
+                   <button
+                     onClick={() => {
+                       if (isReceiptReady) {
+                         window.open(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api"}/payments/receipt/${donationId}`, "_blank");
+                       }
+                     }}
+                     disabled={!isReceiptReady}
+                     className={`inline-flex items-center gap-1.5 text-xs font-bold py-2.5 px-4 rounded-xl transition-all ${
+                       isReceiptReady
+                         ? "bg-[#7A9D1C]/15 hover:bg-[#7A9D1C]/20 text-[#7A9D1C] cursor-pointer"
+                         : "bg-slate-100 border border-slate-200 text-slate-400 cursor-not-allowed"
+                     }`}
+                   >
+                     {isReceiptReady ? (
+                       <>
+                         <Download className="h-4 w-4" /> Download PDF Receipt
+                       </>
+                     ) : (
+                       <>
+                         <Loader2 className="h-4 w-4 animate-spin text-slate-400" />
+                         Generating Receipt...
+                       </>
+                     )}
+                   </button>
+                 );
+               })()}
               <button
                 onClick={() => window.print()}
                 className="inline-flex items-center gap-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold py-2.5 px-4 rounded-xl transition-all cursor-pointer"

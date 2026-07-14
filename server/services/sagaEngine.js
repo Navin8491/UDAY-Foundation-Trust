@@ -57,16 +57,18 @@ export async function transitionToState(eventId, targetState, errorMsg = null) {
   }
 
   // Log transition history
-  await supabase
-    .from("payment_status_history")
-    .insert([{
-      payment_event_id: eventId,
-      from_state: fromState,
-      to_state: targetState,
-      description: errorMsg || `State transitioned from ${fromState} to ${targetState}`
-    }]).catch((histErr) => {
-      console.error("[SagaEngine] Failed to log state transition to history:", histErr.message);
-    });
+  try {
+    await supabase
+      .from("payment_status_history")
+      .insert([{
+        payment_event_id: eventId,
+        from_state: fromState,
+        to_state: targetState,
+        description: errorMsg || `State transitioned from ${fromState} to ${targetState}`
+      }]);
+  } catch (histErr) {
+    console.error("[SagaEngine] Failed to log state transition to history:", histErr.message);
+  }
 
   console.log(`🔄 [Saga State Transition] Event ${eventId}: ${fromState} -> ${targetState}`);
 
@@ -209,23 +211,28 @@ export async function runSaga(eventId) {
 
     // 2. DATABASE SAVE DONATION STEP
     if (currentState === "PAYMENT_VERIFIED") {
-      try {
-        console.log("[SagaEngine] Attempting to save donation record to database...");
-        const donation = await saveDonationRecord(event);
+      let donation = null;
+      let retryAttempts = 3;
+      for (let i = 0; i < retryAttempts; i++) {
+        try {
+          console.log(`[SagaEngine] Attempting to save donation record (Attempt ${i + 1}/${retryAttempts})...`);
+          donation = await saveDonationRecord(event);
+          break;
+        } catch (dbErr) {
+          console.error(`[SagaEngine] Donation save attempt ${i + 1} failed:`, dbErr.message);
+          if (i === retryAttempts - 1) {
+            console.error("[SagaEngine] Critical: Donation record could not be saved after retries. Marking transaction as COMPLETED to prevent refund.");
+            currentState = "COMPLETED";
+            await transitionToState(eventId, currentState, `Donation save failed: ${dbErr.message}`);
+            break;
+          }
+          await new Promise((resolve) => setTimeout(resolve, 1000));
+        }
+      }
+      if (donation) {
         currentState = "DONATION_SAVED";
         await transitionToState(eventId, currentState);
         await publishEvent(EVENTS.DONATION_CREATED, { event, donation });
-      } catch (dbErr) {
-        console.error(
-          "[SagaEngine] Downstream Save Donation failed. Triggering SAGA COMPENSATION (Refund)...",
-        );
-        await transitionToState(
-          eventId,
-          "REFUND_INITIATED",
-          `Save donation database error: ${dbErr.message}`,
-        );
-        await runCompensation(eventId);
-        return;
       }
     }
 

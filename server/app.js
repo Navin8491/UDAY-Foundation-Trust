@@ -8,6 +8,9 @@ import { sanitizeNoSQL, sanitizeXSS } from "./middleware/validation.js";
 
 const app = express();
 
+// Enable trust proxy for express-rate-limit and accurate client IPs behind Render's load balancer
+app.set("trust proxy", 1);
+
 // Enable GZIP compression for all responses
 app.use(compression());
 
