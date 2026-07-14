@@ -256,11 +256,15 @@ export async function generateReceiptPdf(donation) {
       doc.fontSize(9);
       doc.font("Helvetica-Bold").text("For Uday Foundation Trust", 380, 640, { align: "center" });
 
-      // Simulated Stamp / Seal (Pure Vector representation)
-      doc.circle(445, 690, 30).lineWidth(1).stroke("#ff9933");
-      doc.fillColor("#ff9933").fontSize(6).font("Helvetica-Bold");
-      doc.text("UDAY TRUST", 415, 680, { width: 60, align: "center" });
-      doc.text("APPROVED", 415, 692, { width: 60, align: "center" });
+      // Official Stamp / Seal
+      try {
+        const __filename = fileURLToPath(import.meta.url);
+        const __dirname = path.dirname(__filename);
+        const stampPath = path.join(__dirname, "../../src/assets/uday-stamp.png");
+        doc.image(stampPath, 415, 660, { width: 60, height: 60 });
+      } catch (err) {
+        console.warn("[PDFGenerator] Could not load stamp image:", err.message);
+      }
 
       doc.fillColor("#475569").fontSize(8).font("Helvetica-Oblique");
       doc.text("Authorized Representative", 380, 740, { align: "center" });
