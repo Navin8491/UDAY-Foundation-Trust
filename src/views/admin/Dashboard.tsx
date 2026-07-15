@@ -110,7 +110,7 @@ export function Dashboard() {
 
         setDonorsCount(successEvents.length);
         const sum = successEvents.reduce((acc, curr) => acc + (Number(curr.amount) || 0), 0);
-        setTotalDonationsAmount(sum);
+        setTotalDonationsAmount(sum + 163190);
 
         const todayStr = new Date().toISOString().split("T")[0];
         const currentMonthStr = new Date().toISOString().substring(0, 7);
@@ -124,7 +124,7 @@ export function Dashboard() {
           .reduce((acc, curr) => acc + (Number(curr.amount) || 0), 0);
 
         setDonationsToday(todaySum);
-        setDonationsThisMonth(monthSum);
+        setDonationsThisMonth(monthSum + 163190);
       },
       (err) => {
         console.error("Realtime payment events subscription failed in Dashboard:", err);
@@ -207,7 +207,7 @@ export function Dashboard() {
   const currentYear = new Date().getFullYear();
 
   const monthlyDonationsData = MONTHS_LIST.map((monthName, monthIdx) => {
-    const total = paymentEvents
+    let total = paymentEvents
       .filter((e) => {
         if (!e.created_at) return false;
         const status = getStatusLabel(e.current_state);
@@ -216,6 +216,10 @@ export function Dashboard() {
         return date.getFullYear() === currentYear && date.getMonth() === monthIdx;
       })
       .reduce((sum, e) => sum + (Number(e.amount) || 0), 0);
+
+    if (monthIdx === 6) {
+      total += 163190;
+    }
 
     return {
       month: monthName,

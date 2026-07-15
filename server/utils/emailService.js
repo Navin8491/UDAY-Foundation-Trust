@@ -650,6 +650,8 @@ export async function sendDonationReceived(email, donorName, amount, txId, panNu
     renderInfoRow("Receipt Number", receiptNumber) +
     renderInfoRow("Transaction ID", txId) +
     renderInfoRow("Date", dateStr) +
+    renderInfoRow("12A Certificate No.", "AABTU5153HE20251") +
+    renderInfoRow("80G Certificate No.", "AABTU5153HF20261") +
     renderInfoRow("Status", renderBadge("Successful"));
 
   const body = `

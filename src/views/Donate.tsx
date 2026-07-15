@@ -956,9 +956,17 @@ export function Donate() {
                       <span className="text-slate-400">Payment Date</span>
                       <span className="text-slate-800">{new Date().toLocaleDateString("en-IN")}</span>
                     </div>
-                    <div className="flex justify-between py-1.5">
+                    <div className="flex justify-between py-1.5 border-b border-slate-100">
                       <span className="text-slate-400">Receipt Number</span>
                       <span className="text-slate-800 font-bold">{paymentStatusData?.receiptNumber || "Pending"}</span>
+                    </div>
+                    <div className="flex justify-between py-1.5 border-b border-slate-100">
+                      <span className="text-slate-400">12A Certificate No.</span>
+                      <span className="text-slate-800 font-mono text-[11px] font-bold">AABTU5153HE20251</span>
+                    </div>
+                    <div className="flex justify-between py-1.5">
+                      <span className="text-slate-400">80G Certificate No.</span>
+                      <span className="text-slate-800 font-mono text-[11px] font-bold">AABTU5153HF20261</span>
                     </div>
                   </div>
 

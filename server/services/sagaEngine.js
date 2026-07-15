@@ -365,7 +365,7 @@ export async function runCompensation(eventId) {
     const refundResult = await gateway.refundPayment(txId, event.amount);
 
     if (refundResult.success) {
-      // 1. Update status
+      // 1. Update status in payment_events
       await supabase
         .from("payment_events")
         .update({
@@ -374,6 +374,32 @@ export async function runCompensation(eventId) {
           updated_at: new Date().toISOString(),
         })
         .eq("id", eventId);
+
+      // Update status in donations
+      await supabase
+        .from("donations")
+        .update({
+          status: "REFUNDED",
+          updated_at: new Date().toISOString(),
+        })
+        .eq("id", eventId);
+
+      // Log to refunds table
+      try {
+        await supabase
+          .from("refunds")
+          .insert([{
+            payment_event_id: eventId,
+            refund_id: refundResult.refundId || null,
+            gateway_transaction_id: txId || null,
+            amount: event.amount,
+            status: "SUCCESS",
+            reason: "Admin Initiated Refund",
+            created_at: new Date().toISOString()
+          }]);
+      } catch (refundInsertErr) {
+        console.error("[SagaEngine] Failed to log refund in database:", refundInsertErr.message);
+      }
 
       console.log(
         `✅ [SagaEngine] Automated Refund completed successfully: Refund ID ${refundResult.refundId}`,

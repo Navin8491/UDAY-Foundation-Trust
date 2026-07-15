@@ -397,6 +397,9 @@ export function PaymentStatus() {
                     <span className="text-[9px] text-slate-400 block uppercase tracking-wider">
                       Reg No: Guj/23016/Ahmedabad
                     </span>
+                    <span className="text-[8px] text-slate-400/80 block font-medium font-mono uppercase mt-0.5">
+                      12A: AABTU5153HE20251 | 80G: AABTU5153HF20261
+                    </span>
                   </div>
                 </div>
                 <div className="text-right">
@@ -475,6 +478,22 @@ export function PaymentStatus() {
                   </span>
                   <span className="text-emerald-600 font-bold uppercase block">
                     80G EXEMPT
+                  </span>
+                </div>
+                <div>
+                  <span className="text-slate-400 uppercase tracking-wider text-[8px] block mb-0.5">
+                    12A Certificate No.
+                  </span>
+                  <span className="font-mono text-slate-900 font-bold text-[11px] block">
+                    AABTU5153HE20251
+                  </span>
+                </div>
+                <div>
+                  <span className="text-slate-400 uppercase tracking-wider text-[8px] block mb-0.5">
+                    80G Certificate No.
+                  </span>
+                  <span className="font-mono text-slate-900 font-bold text-[11px] block">
+                    AABTU5153HF20261
                   </span>
                 </div>
               </div>

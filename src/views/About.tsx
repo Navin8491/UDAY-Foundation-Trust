@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { PageHero } from "@/components/site/PageHero";
 import {
@@ -22,9 +23,31 @@ import { SITE } from "@/constants/site";
 import { useLanguage } from "@/context/LanguageContext";
 import { Counter } from "@/components/site/Counter";
 import { useDocumentMetadata } from "@/hooks/useDocumentMetadata";
+import { subscribeSettings } from "@/services/db";
 
 export function About() {
   const { t } = useLanguage();
+
+  const [stats, setStats] = useState({
+    families: 12000,
+    students: 4500,
+    camps: 38,
+    trees: 25000,
+  });
+
+  useEffect(() => {
+    const unsubscribe = subscribeSettings((siteSettings) => {
+      if (siteSettings && siteSettings.stats) {
+        setStats({
+          families: siteSettings.stats.families || 12000,
+          students: siteSettings.stats.students || 4500,
+          camps: siteSettings.stats.camps || 38,
+          trees: siteSettings.stats.trees || 25000,
+        });
+      }
+    });
+    return () => unsubscribe();
+  }, []);
 
   useDocumentMetadata(
     "About Uday Foundation Trust — Mission, Vision & Journey",
@@ -212,10 +235,10 @@ export function About() {
 
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 max-w-6xl mx-auto">
             {[
-              { value: 12000, suffix: "+", label: t("impact.stat.families") },
-              { value: 4500, suffix: "+", label: t("impact.stat.students") },
-              { value: 38, suffix: "", label: t("impact.stat.camps") },
-              { value: 25000, suffix: "+", label: t("impact.stat.trees") },
+              { value: stats.families, suffix: "+", label: t("impact.stat.families") },
+              { value: stats.students, suffix: "+", label: t("impact.stat.students") },
+              { value: stats.camps, suffix: "", label: t("impact.stat.camps") },
+              { value: stats.trees, suffix: "+", label: t("impact.stat.trees") },
             ].map((stat, i) => (
               <div
                 key={i}

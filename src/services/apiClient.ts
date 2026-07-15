@@ -32,6 +32,7 @@ export async function apiRequest(
     headers,
     body: requestBody,
     credentials: "include", // Ensure withCredentials equivalent for fetch
+    cache: "no-store",
   };
 
   const response = await fetch(url, config);

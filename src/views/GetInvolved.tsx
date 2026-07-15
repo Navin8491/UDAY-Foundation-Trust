@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import { useDocumentMetadata } from "@/hooks/useDocumentMetadata";
 import { Counter } from "@/components/site/Counter";
 import { toast } from "sonner";
-import { uploadFile, submitVolunteerApplication, submitPartnershipRequest } from "@/services/db";
+import { uploadFile, submitVolunteerApplication, submitPartnershipRequest, subscribeSettings } from "@/services/db";
 import { motion, AnimatePresence } from "framer-motion";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
@@ -114,6 +114,31 @@ const IMPACT_DETAILS: Record<
 };
 
 export function GetInvolved() {
+  const [stats, setStats] = useState({
+    families: 12000,
+    students: 4500,
+    camps: 38,
+    trees: 25000,
+    volunteers: 650,
+    villages: 120,
+  });
+
+  useEffect(() => {
+    const unsubscribe = subscribeSettings((siteSettings) => {
+      if (siteSettings && siteSettings.stats) {
+        setStats({
+          families: siteSettings.stats.families || 12000,
+          students: siteSettings.stats.students || 4500,
+          camps: siteSettings.stats.camps || 38,
+          trees: siteSettings.stats.trees || 25000,
+          volunteers: siteSettings.stats.volunteers || 650,
+          villages: siteSettings.stats.villages || 120,
+        });
+      }
+    });
+    return () => unsubscribe();
+  }, []);
+
   useDocumentMetadata(
     "Get Involved — Volunteer, Donate, Partner | Uday Foundation Trust",
     "Become a volunteer, donor, sponsor or CSR partner with Uday Foundation Trust and make impact at scale.",
@@ -1096,12 +1121,12 @@ export function GetInvolved() {
 
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6 md:gap-8">
             {[
-              { to: 650, suffix: "+", label: "Volunteers Joined" },
-              { to: 12000, suffix: "+", label: "Families Supported" },
-              { to: 4500, suffix: "+", label: "Students Benefited" },
-              { to: 38, suffix: "", label: "Medical Camps" },
-              { to: 25000, suffix: "+", label: "Trees Planted" },
-              { to: 120, suffix: "+", label: "Villages Reached" },
+              { to: stats.volunteers, suffix: "+", label: "Volunteers Joined" },
+              { to: stats.families, suffix: "+", label: "Families Supported" },
+              { to: stats.students, suffix: "+", label: "Students Benefited" },
+              { to: stats.camps, suffix: "", label: "Medical Camps" },
+              { to: stats.trees, suffix: "+", label: "Trees Planted" },
+              { to: stats.villages, suffix: "+", label: "Villages Reached" },
             ].map(({ to, suffix, label }) => (
               <div
                 key={label}

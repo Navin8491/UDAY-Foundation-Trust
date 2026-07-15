@@ -130,7 +130,7 @@ export async function generateReceiptPdf(donation) {
       doc
         .fillColor("#7A9D1C")
         .font("Helvetica-Bold")
-        .text("Eligible for 80G Tax Exemption (Ref No: AABTU5153HF20261)", 115, 84);
+        .text("12A Certificate No: AABTU5153HE20251 | 80G Certificate No: AABTU5153HF20261", 115, 84);
 
       // Horizontal line
       doc.moveTo(40, 110).lineTo(555, 110).lineWidth(1).stroke("#e2e8f0");
@@ -144,8 +144,8 @@ export async function generateReceiptPdf(donation) {
         .text("OFFICIAL DONATION RECEIPT (80G TAX EXEMPTION)", 40, 139, { align: "center" });
 
       // DETAILS TABLE BOX
-      doc.rect(40, 175, 515, 50).fill("#F8FAFC");
-      doc.rect(40, 175, 515, 50).lineWidth(0.5).stroke("#E2E8F0");
+      doc.rect(40, 175, 515, 70).fill("#F8FAFC");
+      doc.rect(40, 175, 515, 70).lineWidth(0.5).stroke("#E2E8F0");
 
       doc.fillColor("#475569");
       doc.fontSize(9);
@@ -176,6 +176,13 @@ export async function generateReceiptPdf(donation) {
           });
       doc.fillColor("#0F172A").font("Helvetica").text(dateStr, 145, 205);
 
+      doc.fillColor("#475569");
+      doc.font("Helvetica-Bold").text("12A Certificate No:", 55, 225);
+      doc
+        .fillColor("#0F172A")
+        .font("Helvetica")
+        .text("AABTU5153HE20251", 150, 225);
+
       // Column 2
       doc.fillColor("#475569");
       doc.font("Helvetica-Bold").text("PAN Ref:", 330, 185);
@@ -191,83 +198,90 @@ export async function generateReceiptPdf(donation) {
          .font("Helvetica")
          .text(transactionId, 410, 205);
 
+       doc.fillColor("#475569");
+       doc.font("Helvetica-Bold").text("80G Certificate No:", 330, 225);
+       doc
+         .fillColor("#0F172A")
+         .font("Helvetica")
+         .text("AABTU5153HF20261", 435, 225);
+
       // Horizontal separator
-      doc.moveTo(40, 240).lineTo(555, 240).lineWidth(0.5).stroke("#cbd5e1");
+      doc.moveTo(40, 260).lineTo(555, 260).lineWidth(0.5).stroke("#cbd5e1");
 
       // DONOR INFORMATION
       doc.fillColor("#1e293b");
-      doc.fontSize(11).font("Helvetica-Bold").text("Donor Details", 50, 250);
+      doc.fontSize(11).font("Helvetica-Bold").text("Donor Details", 50, 270);
 
       doc.fontSize(10);
-      doc.font("Helvetica-Bold").text("Name:", 50, 275);
-      doc.font("Helvetica").text(donation.donorName, 150, 275);
+      doc.font("Helvetica-Bold").text("Name:", 50, 295);
+      doc.font("Helvetica").text(donation.donorName, 150, 295);
 
-      doc.font("Helvetica-Bold").text("Email:", 50, 295);
-      doc.font("Helvetica").text(donation.email, 150, 295);
+      doc.font("Helvetica-Bold").text("Email:", 50, 315);
+      doc.font("Helvetica").text(donation.email, 150, 315);
 
-      doc.font("Helvetica-Bold").text("Phone:", 50, 315);
-      doc.font("Helvetica").text(donation.phone || "N/A", 150, 315);
+      doc.font("Helvetica-Bold").text("Phone:", 50, 335);
+      doc.font("Helvetica").text(donation.phone || "N/A", 150, 335);
 
-      doc.font("Helvetica-Bold").text("Address:", 50, 335);
+      doc.font("Helvetica-Bold").text("Address:", 50, 355);
       doc
         .font("Helvetica")
-        .text(donation.address || "N/A", 150, 335, { width: 380, align: "left" });
+        .text(donation.address || "N/A", 150, 355, { width: 380, align: "left" });
 
       // Horizontal separator
-      doc.moveTo(40, 375).lineTo(555, 375).lineWidth(0.5).stroke("#cbd5e1");
+      doc.moveTo(40, 395).lineTo(555, 395).lineWidth(0.5).stroke("#cbd5e1");
 
       // DONATION DETAILS
       doc.fillColor("#1e293b");
-      doc.fontSize(11).font("Helvetica-Bold").text("Contribution Details", 50, 395);
+      doc.fontSize(11).font("Helvetica-Bold").text("Contribution Details", 50, 415);
 
       doc.fontSize(10);
-      doc.font("Helvetica-Bold").text("Donated Amount:", 50, 420);
+      doc.font("Helvetica-Bold").text("Donated Amount:", 50, 440);
       doc
         .font("Helvetica-Bold")
         .fillColor("#7A9D1C")
         .fontSize(12)
-        .text(`INR ${Number(donation.amount).toLocaleString("en-IN")}.00`, 150, 418);
+        .text(`INR ${Number(donation.amount).toLocaleString("en-IN")}.00`, 150, 438);
 
       doc.fillColor("#1e293b").fontSize(10);
-      doc.font("Helvetica-Bold").text("Amount in Words:", 50, 445);
-      doc.font("Helvetica-Oblique").text(numberToWords(Number(donation.amount)), 150, 445);
+      doc.font("Helvetica-Bold").text("Amount in Words:", 50, 465);
+      doc.font("Helvetica-Oblique").text(numberToWords(Number(donation.amount)), 150, 465);
 
-      doc.font("Helvetica-Bold").text("Purpose:", 50, 470);
-      doc.font("Helvetica").text(donation.purpose || "General Donation", 150, 470);
+      doc.font("Helvetica-Bold").text("Purpose:", 50, 490);
+      doc.font("Helvetica").text(donation.purpose || "General Donation", 150, 490);
 
       // Horizontal separator
-      doc.moveTo(40, 500).lineTo(555, 500).lineWidth(0.5).stroke("#cbd5e1");
+      doc.moveTo(40, 520).lineTo(555, 520).lineWidth(0.5).stroke("#cbd5e1");
 
       // LEGAL NOTICES / DECLARATION
       doc.fillColor("#475569");
       doc.fontSize(8);
-      doc.font("Helvetica-Bold").text("STATUTORY DECLARATION:", 50, 520);
+      doc.font("Helvetica-Bold").text("STATUTORY DECLARATION:", 50, 540);
 
       const statutoryText =
         "1. Donations made to Uday Foundation Trust are exempt under Section 80G of the Income Tax Act, 1961.\n" +
         "2. This is a computer-generated document and does not require a physical signature. The trust maintains verified digital payment records matching the transaction identifier listed above.\n" +
         "3. Funds received will be strictly utilized for charity and community development works in alignment with the registered objectives of the trust.";
-      doc.font("Helvetica").text(statutoryText, 50, 535, { width: 500, lineGap: 4 });
+      doc.font("Helvetica").text(statutoryText, 50, 555, { width: 500, lineGap: 4 });
 
       // SIGNATURE / CERTIFICATION BLOCK
-      doc.moveTo(40, 620).lineTo(555, 620).lineWidth(0.5).stroke("#e2e8f0");
+      doc.moveTo(40, 640).lineTo(555, 640).lineWidth(0.5).stroke("#e2e8f0");
 
       doc.fillColor("#334155");
       doc.fontSize(9);
-      doc.font("Helvetica-Bold").text("For Uday Foundation Trust", 380, 640, { align: "center" });
+      doc.font("Helvetica-Bold").text("For Uday Foundation Trust", 380, 660, { align: "center" });
 
       // Official Stamp / Seal
       try {
         const __filename = fileURLToPath(import.meta.url);
         const __dirname = path.dirname(__filename);
         const stampPath = path.join(__dirname, "../../src/assets/uday-stamp.png");
-        doc.image(stampPath, 415, 660, { width: 60, height: 60 });
+        doc.image(stampPath, 415, 680, { width: 60, height: 60 });
       } catch (err) {
         console.warn("[PDFGenerator] Could not load stamp image:", err.message);
       }
 
       doc.fillColor("#475569").fontSize(8).font("Helvetica-Oblique");
-      doc.text("Authorized Representative", 380, 740, { align: "center" });
+      doc.text("Authorized Representative", 380, 760, { align: "center" });
 
       doc.end();
     } catch (err) {

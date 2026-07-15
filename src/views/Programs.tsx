@@ -23,7 +23,7 @@ import {
   HeartHandshake,
   Flame,
 } from "lucide-react";
-import { subscribePrograms } from "@/services/db";
+import { subscribePrograms, subscribeSettings } from "@/services/db";
 
 const ICON_MAP: Record<string, any> = {
   GraduationCap,
@@ -121,6 +121,30 @@ export function Programs() {
   const tLocal = TRANSLATIONS_LOCAL[language as "en" | "gu" | "hi"] || TRANSLATIONS_LOCAL["en"];
 
   const [programsList, setProgramsList] = useState<any[]>(INITIAL_PROGRAMS);
+  const [stats, setStats] = useState({
+    families: 12000,
+    students: 4500,
+    camps: 38,
+    trees: 25000,
+    volunteers: 650,
+    villages: 120,
+  });
+
+  useEffect(() => {
+    const unsubscribe = subscribeSettings((siteSettings) => {
+      if (siteSettings && siteSettings.stats) {
+        setStats({
+          families: siteSettings.stats.families || 12000,
+          students: siteSettings.stats.students || 4500,
+          camps: siteSettings.stats.camps || 38,
+          trees: siteSettings.stats.trees || 25000,
+          volunteers: siteSettings.stats.volunteers || 650,
+          villages: siteSettings.stats.villages || 120,
+        });
+      }
+    });
+    return () => unsubscribe();
+  }, []);
 
   useEffect(() => {
     const unsubscribe = subscribePrograms((items) => {
@@ -415,10 +439,10 @@ export function Programs() {
 
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 max-w-6xl mx-auto">
             {[
-              { value: 12000, suffix: "+", label: tLocal.stat1 },
+              { value: stats.families, suffix: "+", label: tLocal.stat1 },
               { value: 8, suffix: "", label: tLocal.stat2 },
-              { value: 120, suffix: "+", label: tLocal.stat3 },
-              { value: 650, suffix: "+", label: tLocal.stat4 },
+              { value: stats.villages, suffix: "+", label: tLocal.stat3 },
+              { value: stats.volunteers, suffix: "+", label: tLocal.stat4 },
             ].map((stat, i) => (
               <div
                 key={i}

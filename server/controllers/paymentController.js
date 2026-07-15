@@ -369,6 +369,51 @@ export async function handleWebhook(req, res, next) {
         return res.status(200).json({ received: true, warning: "unknown idempotency key" });
       }
 
+      // Handle Refund Webhook
+      if (verification.status === "REFUNDED") {
+        console.log(`[PaymentController] Webhook: Processing Refund for event ${event.id}...`);
+
+        // 1. Update payment_events status
+        await supabase
+          .from("payment_events")
+          .update({
+            current_state: "REFUNDED",
+            refund_id: verification.refundId || event.refund_id,
+            updated_at: new Date().toISOString(),
+          })
+          .eq("id", event.id);
+
+        // 2. Update donations status
+        await supabase
+          .from("donations")
+          .update({
+            status: "REFUNDED",
+            updated_at: new Date().toISOString(),
+          })
+          .eq("id", event.id);
+
+        // 3. Log to refunds table
+        try {
+          await supabase
+            .from("refunds")
+            .insert([{
+              payment_event_id: event.id,
+              refund_id: verification.refundId || null,
+              gateway_transaction_id: verification.gatewayTransactionId || event.gateway_transaction_id || null,
+              amount: verification.amount || event.amount,
+              status: "SUCCESS",
+              reason: "Cashfree Refund Webhook",
+              created_at: new Date().toISOString()
+            }]);
+        } catch (refundInsertErr) {
+          console.error("[PaymentController] Failed to log refund in database:", refundInsertErr.message);
+        }
+
+        console.log(`✅ [PaymentController] Webhook: Refund successfully processed for event ${event.id}`);
+        await markWebhookProcessed(webhookLog?.id, true);
+        return res.status(200).json({ received: true, status: "refund_processed" });
+      }
+
       // If already processed, ignore webhook retry
       if (
         [

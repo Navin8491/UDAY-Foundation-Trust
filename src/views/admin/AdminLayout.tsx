@@ -281,7 +281,6 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
     { label: "Certificates", to: "/admin/certificates", icon: FileText },
     { label: "Transparency", to: "/admin/transparency", icon: ShieldCheck },
     { label: "Contact Messages", to: "/admin/contact", icon: Mail },
-    { label: "Reports", to: "/admin/reports", icon: BarChart3 },
     { label: "Settings", to: "/admin/settings", icon: Settings },
   ];
 
