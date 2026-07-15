@@ -531,7 +531,8 @@ export function PaymentStatus() {
                    <button
                      onClick={() => {
                        if (isReceiptReady) {
-                         window.open(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api"}/payments/receipt/${donationId}`, "_blank");
+                         const apiHost = process.env.NEXT_PUBLIC_API_URL || (typeof window !== "undefined" ? `http://${window.location.hostname}:5000/api` : "http://localhost:5000/api");
+                         window.open(`${apiHost}/payments/receipt/${donationId}`, "_blank");
                        }
                      }}
                      disabled={!isReceiptReady}

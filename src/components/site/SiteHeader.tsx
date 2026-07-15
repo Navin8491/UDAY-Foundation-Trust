@@ -12,6 +12,7 @@ export function SiteHeader() {
   const [scrolled, setScrolled] = useState(false);
   const [langOpen, setLangOpen] = useState(false);
   const { language, setLanguage, t } = useLanguage();
+  const pathname = usePathname();
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 12);
@@ -86,7 +87,6 @@ export function SiteHeader() {
         {/* Center: Desktop Navigation (Desktop only) */}
         <nav className="hidden lg:flex items-center justify-center gap-1 flex-none">
           {NAV_LINKS.map((l) => {
-            const pathname = usePathname();
             const isActive = pathname === l.to;
             return (
               <Link
@@ -176,7 +176,6 @@ export function SiteHeader() {
             </div>
 
             {NAV_LINKS.map((l) => {
-              const pathname = usePathname();
               const isActive = pathname === l.to;
               return (
                 <Link

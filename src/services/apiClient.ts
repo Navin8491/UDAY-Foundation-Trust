@@ -1,6 +1,12 @@
 import { getAuthHeader } from "./auth";
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
+const getApiUrl = (): string => {
+  if (process.env.NEXT_PUBLIC_API_URL) return process.env.NEXT_PUBLIC_API_URL;
+  if (typeof window !== "undefined") {
+    return `http://${window.location.hostname}:5000/api`;
+  }
+  return "http://localhost:5000/api";
+};
 
 export interface CustomRequestInit extends Omit<RequestInit, "body"> {
   body?: any;
@@ -10,6 +16,7 @@ export async function apiRequest(
   endpoint: string,
   options: CustomRequestInit = {},
 ): Promise<Response> {
+  const API_URL = getApiUrl();
   const url = endpoint.startsWith("http") ? endpoint : `${API_URL}${endpoint}`;
 
   const headers = new Headers(options.headers || {});

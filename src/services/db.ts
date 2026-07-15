@@ -192,7 +192,7 @@ export async function uploadFile(
     endpoint = `/${cleanFolder}/upload`;
   }
 
-  const apiHost = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
+  const apiHost = process.env.NEXT_PUBLIC_API_URL || (typeof window !== "undefined" ? `http://${window.location.hostname}:5000/api` : "http://localhost:5000/api");
   const uploadUrl = `${apiHost}${endpoint}`;
 
   return new Promise<string>((resolve, reject) => {

@@ -391,8 +391,9 @@ export function Donations() {
                         <button
                           onClick={() => {
                             if (d.status === "Success") {
+                              const apiHost = process.env.NEXT_PUBLIC_API_URL || (typeof window !== "undefined" ? `http://${window.location.hostname}:5000/api` : "http://localhost:5000/api");
                               window.open(
-                                `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api"}/payments/receipt/${d.id}`,
+                                `${apiHost}/payments/receipt/${d.id}`,
                                 "_blank",
                               );
                             } else {
@@ -598,8 +599,9 @@ export function Donations() {
                   <div className="flex gap-2 w-full">
                     <button
                       onClick={() => {
+                        const apiHost = process.env.NEXT_PUBLIC_API_URL || (typeof window !== "undefined" ? `http://${window.location.hostname}:5000/api` : "http://localhost:5000/api");
                         window.open(
-                          `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api"}/payments/receipt/${selectedDonation.id}`,
+                          `${apiHost}/payments/receipt/${selectedDonation.id}`,
                           "_blank",
                         );
                       }}

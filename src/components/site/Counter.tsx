@@ -32,7 +32,7 @@ export function Counter({
           }
         });
       },
-      { threshold: 0.3 },
+      { threshold: 0.05 },
     );
     obs.observe(el);
     return () => obs.disconnect();
