@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { useRouter, usePathname } from "next/navigation";
 import {
@@ -68,7 +68,7 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [soundEnabled, setSoundEnabled] = useState(false);
   const [visibleLimit, setVisibleLimit] = useState(20);
-  const [lastNotificationCount, setLastNotificationCount] = useState<number | null>(null);
+  const lastCountRef = useRef<number | null>(null);
 
   // Initialize sound setting and ask push permission
   useEffect(() => {
@@ -113,7 +113,8 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
         
         // Play audio & show native push notification if unread count increases
         const currentUnread = (items || []).filter(n => !n.read_status).length;
-        if (lastNotificationCount !== null && currentUnread > lastNotificationCount) {
+        const prevCount = lastCountRef.current;
+        if (prevCount !== null && currentUnread > prevCount) {
           const latest = items[0];
           
           // Sound
@@ -128,14 +129,14 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
             });
           }
         }
-        setLastNotificationCount(currentUnread);
+        lastCountRef.current = currentUnread;
       },
       (err) => {
         console.error("Realtime notifications subscription failed in AdminLayout:", err);
       },
     );
     return () => unsubscribe();
-  }, [user, lastNotificationCount]);
+  }, [user]);
 
   // Apply Search and Filters
   const filteredNotifications = notifications.filter((n) => {
@@ -450,7 +451,7 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
               {notifOpen && (
                 <>
                   <div className="fixed inset-0 z-40 cursor-default" onClick={() => setNotifOpen(false)} />
-                  <div className="absolute right-0 mt-2 w-96 bg-white border border-slate-200 shadow-2xl rounded-2xl p-4 z-50 animate-in fade-in slide-in-from-top-1 duration-200 flex flex-col max-h-[500px]">
+                  <div className="fixed md:absolute left-4 right-4 md:left-auto md:right-0 top-20 md:top-auto md:mt-2 w-auto md:w-96 max-w-[calc(100vw-32px)] md:max-w-none bg-white border border-slate-200 shadow-2xl rounded-2xl p-4 z-50 animate-in fade-in slide-in-from-top-1 duration-200 flex flex-col max-h-[500px]">
                     <div className="flex items-center justify-between pb-2 border-b border-slate-100 mb-2">
                       <span className="font-extrabold text-xs uppercase tracking-wider text-slate-800">
                         Notifications ({filteredNotifications.filter(n => !n.read_status).length} unread)

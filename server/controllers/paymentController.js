@@ -295,7 +295,7 @@ export async function createCheckoutSession(req, res, next) {
  */
 export async function handleWebhook(req, res, next) {
   const timestamp = new Date().toISOString();
-  const signature = req.headers["stripe-signature"] || req.headers["x-razorpay-signature"] || req.headers["x-webhook-signature"] || "";
+  const signature = req.headers["stripe-signature"] || req.headers["x-razorpay-signature"] || req.headers["x-webhook-signature"] || req.headers["signature"] || req.body?.signature || "";
   const provider = (process.env.PAYMENT_PROVIDER || "mock").toLowerCase();
 
   console.log(`[${timestamp}] [Webhook] Received from provider: ${provider}`);
@@ -369,6 +369,14 @@ export async function handleWebhook(req, res, next) {
         );
         await markWebhookProcessed(webhookLog?.id, true);
         return res.status(200).json({ received: true, warning: "unknown idempotency key" });
+      }
+
+      if (event.current_state === "REFUNDED" && (verification.status === "REFUNDED" || verification.status === "REFUND_PROCESSING")) {
+        console.log(
+          `[PaymentController] Webhook: Event ${event.id} is already REFUNDED. Acknowledging webhook.`,
+        );
+        await markWebhookProcessed(webhookLog?.id, true);
+        return res.status(200).json({ received: true, status: "already_refunded" });
       }
 
       // Handle Refund Webhook

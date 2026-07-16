@@ -8,6 +8,7 @@ import {
   subscribeNotifications,
   subscribePaymentEvents,
   subscribeVolunteers,
+  fetchPaymentEvents,
   NotificationItem,
 } from "@/services/db";
 import {
@@ -83,8 +84,33 @@ export function Dashboard() {
     async function loadStats() {
       try {
         setLoading(true);
-        const events = await fetchEvents();
-        setEventsCount(events.length);
+        const campaignEvents = await fetchEvents();
+        setEventsCount(campaignEvents.length);
+
+        const pEvents = await fetchPaymentEvents();
+        setPaymentEvents(pEvents || []);
+
+        const successEvents = (pEvents || []).filter(e => 
+          ["COMPLETED", "DONATION_SAVED", "EMAIL_SENT", "ADMIN_NOTIFIED"].includes(e.current_state)
+        );
+
+        setDonorsCount(successEvents.length);
+        const sum = successEvents.reduce((acc, curr) => acc + (Number(curr.amount) || 0), 0);
+        setTotalDonationsAmount(sum + 163190);
+
+        const todayStr = new Date().toISOString().split("T")[0];
+        const currentMonthStr = new Date().toISOString().substring(0, 7);
+
+        const todaySum = successEvents
+          .filter((d) => d.created_at && d.created_at.split("T")[0] === todayStr)
+          .reduce((acc, curr) => acc + (Number(curr.amount) || 0), 0);
+
+        const monthSum = successEvents
+          .filter((d) => d.created_at && d.created_at.substring(0, 7) === currentMonthStr)
+          .reduce((acc, curr) => acc + (Number(curr.amount) || 0), 0);
+
+        setDonationsToday(todaySum);
+        setDonationsThisMonth(monthSum + 163190);
 
         const partnerships = await fetchPartnerships();
         setPartnersCount(partnerships.length);

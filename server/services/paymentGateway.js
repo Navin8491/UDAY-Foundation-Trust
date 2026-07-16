@@ -286,7 +286,7 @@ class CashfreeGateway extends PaymentGateway {
       }
 
       const body = JSON.parse(rawBody);
-      const eventType = body.type;
+      const eventType = body.type || body.event;
 
       if (eventType === "PAYMENT_SUCCESS") {
         const payment = body.data.payment;
