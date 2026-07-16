@@ -110,6 +110,24 @@ async function saveDonationRecord(event) {
     .single();
 
   if (error) {
+    if (
+      error.code === "23505" ||
+      (error.message &&
+        (error.message.includes("duplicate key") || error.message.includes("unique constraint")))
+    ) {
+      console.log(
+        `[SagaEngine] Donation record ${event.id} already exists. Retrieving existing record.`,
+      );
+      const { data: existing, error: fetchErr } = await supabase
+        .from("donations")
+        .select("*")
+        .eq("id", event.id)
+        .maybeSingle();
+
+      if (!fetchErr && existing) {
+        return existing;
+      }
+    }
     console.error("[SagaEngine] Database save to donations table failed:", error.message);
     throw error;
   }

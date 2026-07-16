@@ -77,10 +77,11 @@ app.use(
         return callback(null, true);
       }
       const isLocalhost = /^http:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(origin);
-      const isVercel = process.env.NODE_ENV === "production"
-        ? /^https:\/\/uday-foundation-trust\.vercel\.app$/.test(origin)
-        : /^https:\/\/.*\.vercel\.app$/.test(origin);
-      const isUdayTrust = /^https:\/\/(.*\.)?udayfoundation(s)?trust\.org$/.test(origin);
+      const originLower = origin.toLowerCase();
+      const isVercel = /^https:\/\/(.*\.)?vercel\.app$/.test(origin) || originLower.includes("vercel.app");
+      const isUdayTrust = /^https:\/\/(.*\.)?udayfoundation(s)?trust\.org$/.test(origin) || 
+                          originLower.includes("udayfoundationstrust.org") || 
+                          originLower.includes("udayfoundationtrust.org");
 
       // Development only support for localhost/127.0.0.1
       if (isLocalhost) {
