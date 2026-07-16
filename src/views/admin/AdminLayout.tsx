@@ -37,6 +37,7 @@ import { signOutAdmin, onAuthStateChanged } from "@/services/auth";
 import { Loader2, Trash2, CheckCircle2, Download } from "lucide-react";
 import { toast } from "sonner";
 import {
+  fetchNotifications,
   subscribeNotifications,
   markNotificationRead,
   markAllNotificationsRead,
@@ -107,6 +108,18 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     if (!user) return;
 
+    // 1. Initial direct HTTP fetch to load data immediately
+    fetchNotifications()
+      .then((items) => {
+        setNotifications(items || []);
+        const currentUnread = (items || []).filter(n => !n.read_status).length;
+        lastCountRef.current = currentUnread;
+      })
+      .catch((err) => {
+        console.error("Initial notifications fetch failed in AdminLayout:", err);
+      });
+
+    // 2. Subscribe to realtime changes
     const unsubscribe = subscribeNotifications(
       (items) => {
         setNotifications(items || []);
@@ -195,28 +208,38 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
 
   const handleMarkRead = async (id: string) => {
     try {
+      setNotifications((prev) =>
+        prev.map((n) => (n.id === id ? { ...n, read_status: true } : n))
+      );
       await markNotificationRead(id);
     } catch (e) {
       console.error("Failed to mark notification read:", e);
+      fetchNotifications().then(setNotifications).catch(console.error);
     }
   };
 
   const handleMarkAllRead = async () => {
     try {
+      setNotifications((prev) =>
+        prev.map((n) => ({ ...n, read_status: true }))
+      );
       await markAllNotificationsRead();
       toast.success("All notifications marked as read");
     } catch (e) {
       console.error("Failed to mark all notifications read:", e);
+      fetchNotifications().then(setNotifications).catch(console.error);
     }
   };
 
   const handleDelete = async (id: string) => {
     try {
+      setNotifications((prev) => prev.filter((n) => n.id !== id));
       await deleteNotification(id);
       toast.success("Notification deleted permanently");
       setDeletingId(null);
     } catch (e) {
       console.error("Failed to delete notification:", e);
+      fetchNotifications().then(setNotifications).catch(console.error);
     }
   };
 
@@ -451,7 +474,7 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
               {notifOpen && (
                 <>
                   <div className="fixed inset-0 z-40 cursor-default" onClick={() => setNotifOpen(false)} />
-                  <div className="fixed md:absolute left-4 right-4 md:left-auto md:right-0 top-20 md:top-auto md:mt-2 w-auto md:w-96 max-w-[calc(100vw-32px)] md:max-w-none bg-white border border-slate-200 shadow-2xl rounded-2xl p-4 z-50 animate-in fade-in slide-in-from-top-1 duration-200 flex flex-col max-h-[500px]">
+                  <div className="fixed md:absolute left-1/2 -translate-x-1/2 md:translate-x-0 md:left-auto md:right-0 top-20 md:top-auto md:mt-2 w-[calc(100vw-32px)] max-w-sm md:w-96 md:max-w-none bg-white border border-slate-200 shadow-2xl rounded-2xl p-4 z-50 animate-in fade-in slide-in-from-top-1 duration-200 flex flex-col max-h-[500px]">
                     <div className="flex items-center justify-between pb-2 border-b border-slate-100 mb-2">
                       <span className="font-extrabold text-xs uppercase tracking-wider text-slate-800">
                         Notifications ({filteredNotifications.filter(n => !n.read_status).length} unread)

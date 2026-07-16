@@ -51,6 +51,15 @@ class PaymentGateway {
   async refundPayment(transactionId, amount) {
     throw new Error("refundPayment not implemented");
   }
+
+  /**
+   * Fetches refunds associated with an order/transaction.
+   * @param {string} orderId
+   * @returns {Promise<{ success: boolean, refunds: any[] }>}
+   */
+  async fetchOrderRefunds(orderId) {
+    throw new Error("fetchOrderRefunds not implemented");
+  }
 }
 
 /**
@@ -174,6 +183,10 @@ class StripeGateway extends PaymentGateway {
         throw innerErr;
       }
     }
+  }
+
+  async fetchOrderRefunds(orderId) {
+    return { success: true, refunds: [] };
   }
 }
 
@@ -316,15 +329,15 @@ class CashfreeGateway extends PaymentGateway {
           error: payment?.payment_message || "Payment failed or abandoned",
           gatewayResponse: body
         };
-      } else if (eventType === "REFUND_STATUS_WEBHOOK") {
+      } else if (eventType === "REFUND_STATUS_WEBHOOK" || eventType === "REFUND_SUCCESS" || eventType === "REFUND_FAILED") {
         const refund = body.data.refund;
         const order = body.data.order;
-        const refundStatus = (refund?.refund_status || "SUCCESS").toUpperCase();
+        const refundStatus = (refund?.refund_status || (eventType === "REFUND_SUCCESS" ? "SUCCESS" : "FAILED")).toUpperCase();
 
         let parsedStatus = "REFUNDED";
         if (refundStatus === "FAILED") {
           parsedStatus = "REFUND_FAILED";
-        } else if (refundStatus === "PENDING") {
+        } else if (refundStatus === "PENDING" || refundStatus === "PROCESSING") {
           parsedStatus = "REFUND_PROCESSING";
         }
 
@@ -456,6 +469,37 @@ class CashfreeGateway extends PaymentGateway {
     } catch (err) {
       console.error("[CashfreeGateway] Refund execution failed:", err.message);
       throw err;
+    }
+  }
+
+  async fetchOrderRefunds(orderId) {
+    try {
+      const headers = {
+        "x-client-id": this.appId,
+        "x-client-secret": this.secretKey,
+        "x-api-version": "2023-08-01",
+        "Content-Type": "application/json"
+      };
+
+      const res = await fetch(`${this.baseUrl}/orders/${orderId}/refunds`, {
+        method: "GET",
+        headers
+      });
+
+      if (!res.ok) {
+        const errorText = await res.text();
+        console.error(`[CashfreeGateway] Fetch Refunds for Order ${orderId} failed:`, errorText);
+        return { success: false, error: errorText };
+      }
+
+      const refunds = await res.json();
+      return {
+        success: true,
+        refunds
+      };
+    } catch (err) {
+      console.error(`[CashfreeGateway] fetchOrderRefunds failed for Order ${orderId}:`, err.message);
+      return { success: false, error: err.message };
     }
   }
 }

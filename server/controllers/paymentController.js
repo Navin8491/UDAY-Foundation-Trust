@@ -848,6 +848,147 @@ export async function getPaymentTimeline(req, res, next) {
   }
 }
 
+async function runFallbackSync() {
+  try {
+    const gateway = getPaymentGateway();
+    if (process.env.PAYMENT_PROVIDER !== "cashfree") return;
+
+    // Fetch up to 30 events that are in REFUND_PROCESSING, REFUND_INITIATED, or the latest COMPLETED (SUCCESS)
+    const { data: eventsToCheck, error } = await supabase
+      .from("payment_events")
+      .select("*")
+      .or("current_state.in.(REFUND_PROCESSING,REFUND_INITIATED),current_state.eq.COMPLETED")
+      .order("created_at", { ascending: false })
+      .limit(30);
+
+    if (error || !eventsToCheck || eventsToCheck.length === 0) return;
+
+    console.log(`[FallbackSync] Checking ${eventsToCheck.length} payment events for refund sync...`);
+
+    for (const event of eventsToCheck) {
+      const orderId = event.idempotency_key;
+      if (!orderId || orderId.startsWith("legacy_")) continue;
+
+      const result = await gateway.fetchOrderRefunds(orderId);
+      if (result && result.success && result.refunds && result.refunds.length > 0) {
+        // Find if there is any successful refund in Cashfree
+        const cfRefund = result.refunds.find(r => r.refund_status === "SUCCESS");
+        
+        if (cfRefund) {
+          console.log(`[FallbackSync] Found SUCCESS refund for order ${orderId} in Cashfree. Syncing state to REFUNDED.`);
+          
+          if (event.current_state !== "REFUNDED") {
+            // Update payment_events
+            await supabase
+              .from("payment_events")
+              .update({
+                current_state: "REFUNDED",
+                refund_id: cfRefund.cf_refund_id || cfRefund.refund_id,
+                updated_at: new Date().toISOString()
+              })
+              .eq("id", event.id);
+
+            // Update donations
+            await supabase
+              .from("donations")
+              .update({
+                status: "REFUNDED",
+                updated_at: new Date().toISOString()
+              })
+              .eq("id", event.id);
+
+            // Log to refunds table if not exists
+            const { data: existingRefund } = await supabase
+              .from("refunds")
+              .select("id")
+              .eq("payment_event_id", event.id)
+              .maybeSingle();
+
+            if (!existingRefund) {
+              await supabase
+                .from("refunds")
+                .insert([{
+                  payment_event_id: event.id,
+                  refund_id: cfRefund.cf_refund_id || cfRefund.refund_id || null,
+                  gateway_transaction_id: event.gateway_transaction_id || null,
+                  amount: cfRefund.refund_amount || event.amount,
+                  status: "SUCCESS",
+                  reason: "Cashfree Fallback Sync Check",
+                  created_at: new Date().toISOString()
+                }]);
+            } else {
+              await supabase
+                .from("refunds")
+                .update({
+                  status: "SUCCESS",
+                  refund_id: cfRefund.cf_refund_id || cfRefund.refund_id,
+                  created_at: new Date().toISOString()
+                })
+                .eq("id", existingRefund.id);
+            }
+
+            // Trigger real-time update
+            try {
+              const { triggerUpdate } = await import("../utils/realtime.js");
+              triggerUpdate("payment_events");
+            } catch (realtimeErr) {
+              console.error("[FallbackSync] Failed to trigger realtime update:", realtimeErr.message);
+            }
+          }
+        } else {
+          // If the refund failed in Cashfree, revert to COMPLETED / Success
+          const failedRefund = result.refunds.find(r => r.refund_status === "FAILED");
+          if (failedRefund && event.current_state === "REFUND_PROCESSING") {
+            console.log(`[FallbackSync] Found FAILED refund for order ${orderId} in Cashfree. Reverting state to COMPLETED.`);
+            
+            await supabase
+              .from("payment_events")
+              .update({
+                current_state: "COMPLETED",
+                updated_at: new Date().toISOString()
+              })
+              .eq("id", event.id);
+
+            await supabase
+              .from("donations")
+              .update({
+                status: "Success",
+                updated_at: new Date().toISOString()
+              })
+              .eq("id", event.id);
+
+            // Update refunds table to FAILED
+            const { data: existingRefund } = await supabase
+              .from("refunds")
+              .select("id")
+              .eq("payment_event_id", event.id)
+              .maybeSingle();
+
+            if (existingRefund) {
+              await supabase
+                .from("refunds")
+                .update({
+                  status: "FAILED",
+                  created_at: new Date().toISOString()
+                })
+                .eq("id", existingRefund.id);
+            }
+
+            try {
+              const { triggerUpdate } = await import("../utils/realtime.js");
+              triggerUpdate("payment_events");
+            } catch (realtimeErr) {
+              console.error("[FallbackSync] Failed to trigger realtime update:", realtimeErr.message);
+            }
+          }
+        }
+      }
+    }
+  } catch (err) {
+    console.error("[FallbackSync] Exception during fallback refund synchronization:", err.message);
+  }
+}
+
 /**
  * Admin: Retrieves all payment events.
  */
@@ -903,6 +1044,10 @@ export async function getPaymentEvents(req, res, next) {
 
     const combined = [...mappedEvents, ...legacyEvents].sort((a, b) => {
       return new Date(b.created_at) - new Date(a.created_at);
+    });
+
+    setImmediate(() => {
+      runFallbackSync().catch(err => console.error("[PaymentController] runFallbackSync failed:", err.message));
     });
 
     res.json(combined);
