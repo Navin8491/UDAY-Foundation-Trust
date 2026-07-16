@@ -319,13 +319,23 @@ class CashfreeGateway extends PaymentGateway {
       } else if (eventType === "REFUND_STATUS_WEBHOOK") {
         const refund = body.data.refund;
         const order = body.data.order;
+        const refundStatus = (refund?.refund_status || "SUCCESS").toUpperCase();
+
+        let parsedStatus = "REFUNDED";
+        if (refundStatus === "FAILED") {
+          parsedStatus = "REFUND_FAILED";
+        } else if (refundStatus === "PENDING") {
+          parsedStatus = "REFUND_PROCESSING";
+        }
+
         return {
           success: true,
-          status: "REFUNDED",
+          status: parsedStatus,
           refundId: refund?.cf_refund_id || refund?.refund_id,
           amount: refund?.refund_amount,
           eventType,
           idempotencyKey: order.order_id,
+          error: refund?.refund_status_note || null,
           gatewayResponse: body
         };
       }

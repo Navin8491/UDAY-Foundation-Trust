@@ -142,19 +142,8 @@ export function Login() {
               </div>
             </div>
 
-            {/* Remember Me */}
-            <div className="flex items-center justify-between text-xs pt-1">
-              <label htmlFor="remember-me" className="flex items-center gap-2 text-slate-400 font-medium cursor-pointer">
-                <input
-                  id="remember-me"
-                  name="remember-me"
-                  type="checkbox"
-                  checked={rememberMe}
-                  onChange={(e) => setRememberMe(e.target.checked)}
-                  className="rounded border-slate-800 bg-slate-950 text-[#4040A1] focus:ring-0 cursor-pointer h-4 w-4"
-                />
-                <span>Remember me</span>
-              </label>
+            {/* Back to Website Link */}
+            <div className="flex items-center justify-end text-xs pt-1">
               <a href="/" className="text-[#7A9D1C] hover:underline font-semibold">
                 Back to Website
               </a>

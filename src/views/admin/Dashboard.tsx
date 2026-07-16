@@ -73,6 +73,7 @@ export function Dashboard() {
     if (["COMPLETED", "DONATION_SAVED", "EMAIL_SENT", "ADMIN_NOTIFIED"].includes(status))
       return "Success";
     if (status === "FAILED") return "Failed";
+    if (status === "REFUND_PROCESSING") return "REFUND PROCESSING";
     if (status === "REFUNDED" || status === "REFUND_INITIATED" || status === "REFUND_FAILED")
       return "Refunded";
     return "Pending";

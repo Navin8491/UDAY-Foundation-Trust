@@ -171,7 +171,7 @@ async function sendFailureEmail(event) {
 /**
  * Sends a refund email to the donor.
  */
-async function sendRefundEmail(event, refundId) {
+export async function sendRefundEmail(event, refundId) {
   const rows = 
     renderInfoRow("Donor Name", event.donor_name) +
     renderInfoRow("Refunded Amount", `₹${Number(event.amount).toLocaleString("en-IN")}`) +

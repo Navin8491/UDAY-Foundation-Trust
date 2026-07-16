@@ -29,6 +29,7 @@ export function Donations() {
     if (["COMPLETED", "DONATION_SAVED", "EMAIL_SENT", "ADMIN_NOTIFIED"].includes(status))
       return "Success";
     if (status === "FAILED") return "Failed";
+    if (status === "REFUND_PROCESSING") return "REFUND PROCESSING";
     if (status === "REFUNDED" || status === "REFUND_INITIATED" || status === "REFUND_FAILED")
       return "Refunded";
     return "Pending";
@@ -368,13 +369,14 @@ export function Donations() {
                         className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[9px] font-bold uppercase tracking-wider ${
                           d.status === "Success"
                             ? "bg-emerald-50 text-emerald-600"
-                            : d.status === "Pending"
+                            : d.status === "Pending" || d.status === "REFUND PROCESSING"
                               ? "bg-amber-50 text-amber-600"
                               : "bg-rose-50 text-rose-600"
                         }`}
                       >
                         {d.status === "Success" && <Check className="h-3 w-3" />}
                         {d.status === "Pending" && <Clock className="h-3 w-3" />}
+                        {d.status === "REFUND PROCESSING" && <Clock className="h-3 w-3 animate-spin" />}
                         {d.status === "Failed" && <X className="h-3 w-3" />}
                         {d.status}
                       </span>

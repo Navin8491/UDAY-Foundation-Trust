@@ -1,9 +1,11 @@
 import { supabase } from "../config/db.js";
 import { getPaymentGateway } from "../services/paymentGateway.js";
-import { runSaga, transitionToState } from "../services/sagaEngine.js";
+import { runSaga, transitionToState, sendRefundEmail } from "../services/sagaEngine.js";
 import { generateReceiptPdf } from "../utils/pdfGenerator.js";
 import { z } from "zod";
 import crypto from "crypto";
+import { createNotification } from "../utils/notificationService.js";
+import { triggerUpdate } from "../utils/realtime.js";
 
 async function markWebhookProcessed(webhookLogId, processed = true, errorMsg = null) {
   if (!webhookLogId) return;
@@ -371,7 +373,7 @@ export async function handleWebhook(req, res, next) {
 
       // Handle Refund Webhook
       if (verification.status === "REFUNDED") {
-        console.log(`[PaymentController] Webhook: Processing Refund for event ${event.id}...`);
+        console.log(`[PaymentController] Webhook: Processing Refund Success for event ${event.id}...`);
 
         // 1. Update payment_events status
         await supabase
@@ -392,26 +394,166 @@ export async function handleWebhook(req, res, next) {
           })
           .eq("id", event.id);
 
-        // 3. Log to refunds table
+        // 3. Log or update refunds table
         try {
-          await supabase
+          const { data: existingRefund } = await supabase
             .from("refunds")
-            .insert([{
-              payment_event_id: event.id,
-              refund_id: verification.refundId || null,
-              gateway_transaction_id: verification.gatewayTransactionId || event.gateway_transaction_id || null,
-              amount: verification.amount || event.amount,
-              status: "SUCCESS",
-              reason: "Cashfree Refund Webhook",
-              created_at: new Date().toISOString()
-            }]);
+            .select("id")
+            .eq("payment_event_id", event.id)
+            .maybeSingle();
+
+          if (existingRefund) {
+            await supabase
+              .from("refunds")
+              .update({
+                status: "SUCCESS",
+                refund_id: verification.refundId || event.refund_id,
+                created_at: new Date().toISOString()
+              })
+              .eq("id", existingRefund.id);
+          } else {
+            await supabase
+              .from("refunds")
+              .insert([{
+                payment_event_id: event.id,
+                refund_id: verification.refundId || null,
+                gateway_transaction_id: verification.gatewayTransactionId || event.gateway_transaction_id || null,
+                amount: verification.amount || event.amount,
+                status: "SUCCESS",
+                reason: "Cashfree Refund Webhook (Dashboard Sync)",
+                created_at: new Date().toISOString()
+              }]);
+          }
         } catch (refundInsertErr) {
-          console.error("[PaymentController] Failed to log refund in database:", refundInsertErr.message);
+          console.error("[PaymentController] Failed to log/update refund in database:", refundInsertErr.message);
         }
 
+        // 4. Notify donor via email
+        await sendRefundEmail(event, verification.refundId || event.refund_id || "N/A").catch((mailErr) =>
+          console.error("[PaymentController] Failed to send refund email:", mailErr.message)
+        );
+
+        // 5. Create admin notification
+        await createNotification(
+          "donation",
+          "Donation Refund Completed",
+          `Refund of ₹${Number(event.amount).toLocaleString("en-IN")} completed successfully for ${event.donor_name}. Refund ID: ${verification.refundId || "N/A"}.`,
+          event.id,
+        ).catch((notifErr) =>
+          console.error("[PaymentController] Failed to create admin notification:", notifErr.message)
+        );
+
+        triggerUpdate("payment_events");
         console.log(`✅ [PaymentController] Webhook: Refund successfully processed for event ${event.id}`);
         await markWebhookProcessed(webhookLog?.id, true);
         return res.status(200).json({ received: true, status: "refund_processed" });
+      }
+
+      if (verification.status === "REFUND_FAILED") {
+        console.log(`[PaymentController] Webhook: Processing Refund Failure for event ${event.id}...`);
+
+        // 1. Revert payment_events status to COMPLETED
+        await supabase
+          .from("payment_events")
+          .update({
+            current_state: "COMPLETED",
+            last_error: verification.error || "Refund failed by gateway",
+            updated_at: new Date().toISOString(),
+          })
+          .eq("id", event.id);
+
+        // 2. Revert donations status to Success
+        await supabase
+          .from("donations")
+          .update({
+            status: "Success",
+            updated_at: new Date().toISOString(),
+          })
+          .eq("id", event.id);
+
+        // 3. Update refunds table
+        try {
+          const { data: existingRefund } = await supabase
+            .from("refunds")
+            .select("id")
+            .eq("payment_event_id", event.id)
+            .maybeSingle();
+
+          if (existingRefund) {
+            await supabase
+              .from("refunds")
+              .update({
+                status: "FAILED",
+                created_at: new Date().toISOString()
+              })
+              .eq("id", existingRefund.id);
+          }
+        } catch (refundInsertErr) {
+          console.error("[PaymentController] Failed to update refund fail status:", refundInsertErr.message);
+        }
+
+        // 4. Create admin alert notification
+        await createNotification(
+          "donation",
+          "CRITICAL: Donation Refund Failed",
+          `Refund of ₹${Number(event.amount).toLocaleString("en-IN")} failed for ${event.donor_name}. Error: ${verification.error || "Refund rejected by gateway"}.`,
+          event.id,
+        ).catch((notifErr) =>
+          console.error("[PaymentController] Failed to create admin notification:", notifErr.message)
+        );
+
+        triggerUpdate("payment_events");
+        await markWebhookProcessed(webhookLog?.id, true);
+        return res.status(200).json({ received: true, status: "refund_failed_processed" });
+      }
+
+      if (verification.status === "REFUND_PROCESSING") {
+        console.log(`[PaymentController] Webhook: Processing Refund Pending for event ${event.id}...`);
+
+        // 1. Update payment_events status to REFUND_PROCESSING
+        await supabase
+          .from("payment_events")
+          .update({
+            current_state: "REFUND_PROCESSING",
+            refund_id: verification.refundId || event.refund_id,
+            updated_at: new Date().toISOString(),
+          })
+          .eq("id", event.id);
+
+        // 2. Update donations status to REFUND_PROCESSING
+        await supabase
+          .from("donations")
+          .update({
+            status: "REFUND_PROCESSING",
+            updated_at: new Date().toISOString(),
+          })
+          .eq("id", event.id);
+
+        // 3. Update refunds table
+        try {
+          const { data: existingRefund } = await supabase
+            .from("refunds")
+            .select("id")
+            .eq("payment_event_id", event.id)
+            .maybeSingle();
+
+          if (existingRefund) {
+            await supabase
+              .from("refunds")
+              .update({
+                status: "PROCESSING",
+                refund_id: verification.refundId || event.refund_id,
+                created_at: new Date().toISOString()
+              })
+              .eq("id", existingRefund.id);
+          }
+        } catch (refundInsertErr) {
+          console.error("[PaymentController] Failed to update refund processing status:", refundInsertErr.message);
+        }
+
+        triggerUpdate("payment_events");
+        await markWebhookProcessed(webhookLog?.id, true);
+        return res.status(200).json({ received: true, status: "refund_processing_processed" });
       }
 
       // If already processed, ignore webhook retry
@@ -557,25 +699,116 @@ export async function refundDonation(req, res, next) {
       return next(new Error("Payment event record not found"));
     }
 
-    if (event.current_state === "REFUNDED") {
-      return res.status(400).json({ message: "This donation has already been refunded." });
+    if (
+      event.current_state === "REFUND_PROCESSING" ||
+      event.current_state === "REFUND_INITIATED" ||
+      event.current_state === "REFUNDED"
+    ) {
+      return res.status(400).json({
+        message: "This donation has already been refunded or is currently being processed.",
+      });
     }
 
-    // Update state to REFUND_INITIATED
-    const updated = await transitionToState(
+    // Set status to REFUND_PROCESSING in payment_events
+    const updatedEvent = await transitionToState(
       eventId,
-      "REFUND_INITIATED",
+      "REFUND_PROCESSING",
       "Refund initiated manually by administrator.",
     );
 
-    // Run compensation asynchronously
-    setImmediate(() => {
-      runCompensation(eventId).catch((err) =>
-        console.error("[PaymentController] Admin refund failed:", err.message),
-      );
-    });
+    // Set status to REFUND_PROCESSING in donations
+    await supabase
+      .from("donations")
+      .update({
+        status: "REFUND_PROCESSING",
+        updated_at: new Date().toISOString(),
+      })
+      .eq("id", eventId);
 
-    res.json({ message: "Refund process initiated successfully.", event: updated });
+    const gateway = getPaymentGateway();
+    const txId = event.gateway_transaction_id;
+
+    if (!txId) {
+      // Revert state
+      await transitionToState(eventId, "COMPLETED", "Refund skipped: transaction ID missing.");
+      await supabase
+        .from("donations")
+        .update({
+          status: "Success",
+          updated_at: new Date().toISOString(),
+        })
+        .eq("id", eventId);
+      return res.status(400).json({ message: "Cannot refund: gateway_transaction_id is missing." });
+    }
+
+    try {
+      console.log(`[PaymentController] Calling Cashfree refund API for transaction: ${txId}...`);
+      const refundResult = await gateway.refundPayment(txId, event.amount);
+
+      if (refundResult && refundResult.success) {
+        // Update payment event with refund ID
+        const { data: finalEvent } = await supabase
+          .from("payment_events")
+          .update({
+            refund_id: refundResult.refundId,
+            updated_at: new Date().toISOString(),
+          })
+          .eq("id", eventId)
+          .select()
+          .single();
+
+        // Insert/Log to refunds table with status PROCESSING
+        try {
+          await supabase
+            .from("refunds")
+            .insert([{
+              payment_event_id: eventId,
+              refund_id: refundResult.refundId || null,
+              gateway_transaction_id: txId || null,
+              amount: event.amount,
+              status: "PROCESSING",
+              reason: "Admin Initiated Refund",
+              created_at: new Date().toISOString()
+            }]);
+        } catch (refundInsertErr) {
+          console.error("[PaymentController] Failed to log refund in database:", refundInsertErr.message);
+        }
+
+        return res.json({ message: "Refund process initiated successfully.", event: finalEvent });
+      } else {
+        throw new Error("Gateway refund execution failed");
+      }
+    } catch (refundErr) {
+      console.error("[PaymentController] Cashfree refund API call failed:", refundErr.message);
+      // Revert status on failure
+      await transitionToState(eventId, "COMPLETED", `Refund API failed: ${refundErr.message}`);
+      await supabase
+        .from("donations")
+        .update({
+          status: "Success",
+          updated_at: new Date().toISOString(),
+        })
+        .eq("id", eventId);
+
+      // Log failure to refunds table
+      try {
+        await supabase
+          .from("refunds")
+          .insert([{
+            payment_event_id: eventId,
+            refund_id: null,
+            gateway_transaction_id: txId || null,
+            amount: event.amount,
+            status: "FAILED",
+            reason: `Refund API failed: ${refundErr.message}`,
+            created_at: new Date().toISOString()
+          }]);
+      } catch (logErr) {
+        console.error("[PaymentController] Failed to log refund failure:", logErr.message);
+      }
+
+      return res.status(500).json({ message: `Refund failed: ${refundErr.message}` });
+    }
   } catch (err) {
     next(err);
   }
